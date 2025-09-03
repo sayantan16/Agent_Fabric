@@ -13,6 +13,7 @@ from anthropic import Anthropic
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import (
     ANTHROPIC_API_KEY,
+    CLAUDE_AGENT_GENERATION_PROMPT,
     CLAUDE_MODEL,
     CLAUDE_TEMPERATURE,
     MIN_AGENT_LINES,
@@ -206,86 +207,46 @@ class AgentFactory:
         return code if code.startswith("def ") else None
 
     def _validate_agent_code(self, code: str, expected_base_name: str) -> Dict:
-        """Validate the generated agent code."""
+        """Enhanced validation for flexible agents."""
 
         try:
-            # Parse the code to check syntax
+            # Parse syntax
             tree = ast.parse(code)
 
-            # Check if it's a function definition
+            # Basic checks
             if not isinstance(tree.body[0], ast.FunctionDef):
-                return {"valid": False, "error": "Code is not a function definition"}
+                return {"valid": False, "error": "Not a function"}
 
-            # Check function name (should be agent_name_agent)
+            # Check name
             func_name = tree.body[0].name
-            expected_name = f"{expected_base_name}_agent"
-            if func_name != expected_name:
-                # Allow both patterns
-                if func_name != expected_base_name:
-                    return {
-                        "valid": False,
-                        "error": f"Function name '{func_name}' doesn't match expected '{expected_name}'",
-                    }
+            if not (
+                func_name == f"{expected_base_name}_agent"
+                or func_name == expected_base_name
+            ):
+                return {"valid": False, "error": f"Wrong function name: {func_name}"}
 
-            # Check it takes 'state' parameter
-            args = tree.body[0].args
-            if len(args.args) == 0 or args.args[0].arg != "state":
-                return {"valid": False, "error": "Agent must take 'state' as parameter"}
+            # Check for required patterns
+            from config import AGENT_VALIDATION_RULES
 
-            # Check line count
-            line_count = len(code.splitlines())
-            if line_count < MIN_AGENT_LINES:
-                return {
-                    "valid": False,
-                    "error": f"Code too short: {line_count} lines (minimum: {MIN_AGENT_LINES})",
-                }
-            if line_count > MAX_AGENT_LINES:
-                return {
-                    "valid": False,
-                    "error": f"Code too long: {line_count} lines (maximum: {MAX_AGENT_LINES})",
-                }
-
-            # ADD: Check for flexible input handling
-            required_patterns = [
-                "isinstance(",  # Type checking
-                "get(",  # Safe dictionary access
-                ".get('current_data'",  # Flexible data access
-                "if not",  # Null checks
-                "try:",  # Error handling
-            ]
-
-            for pattern in required_patterns:
+            for pattern in AGENT_VALIDATION_RULES["required_patterns"]:
                 if pattern not in code:
                     return {
                         "valid": False,
-                        "error": f"Missing required pattern: {pattern} - agent won't handle varied inputs",
+                        "error": f"Missing required pattern: '{pattern}' - Agent won't handle varied inputs properly",
                     }
 
-            # Check for required state operations
-            code_str = code
-            required_operations = [
-                "state['results']",
-                "state['current_data']",
-                "state['execution_path']",
-            ]
-
-            missing_ops = []
-            for op in required_operations:
-                if op not in code_str:
-                    missing_ops.append(op)
-
-            if missing_ops:
-                return {
-                    "valid": False,
-                    "error": f"Missing required state operations: {', '.join(missing_ops)}",
-                }
+            # Check forbidden patterns
+            for pattern in AGENT_VALIDATION_RULES["forbidden_patterns"]:
+                if pattern in code:
+                    return {
+                        "valid": False,
+                        "error": f"Forbidden pattern found: '{pattern}' - Agents must never crash",
+                    }
 
             return {"valid": True}
 
         except SyntaxError as e:
             return {"valid": False, "error": f"Syntax error: {str(e)}"}
-        except Exception as e:
-            return {"valid": False, "error": f"Validation error: {str(e)}"}
 
     def _extract_tags(self, description: str) -> List[str]:
         """Extract relevant tags from description."""
