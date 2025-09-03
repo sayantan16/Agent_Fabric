@@ -1,0 +1,12 @@
+{
+  "name": "Test Document",
+  "type": "json",
+  "items": [
+    1,
+    2,
+    3
+  ],
+  "metadata": {
+    "created": "2024-01-01"
+  }
+}

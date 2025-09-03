@@ -1,0 +1,14 @@
+{
+  "timestamp": "2025-09-03T08:04:37.740319",
+  "tag": "test_backup",
+  "stats": {
+    "total_agents": 6,
+    "total_tools": 9,
+    "total_executions": 5,
+    "avg_agent_lines": 67.2,
+    "avg_tool_lines": 21.6,
+    "tool_reuse_count": 16,
+    "most_used_agent": "email_extractor",
+    "newest_agent": "pdf_email_extractor"
+  }
+}

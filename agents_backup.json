@@ -1,0 +1,157 @@
+{
+  "agents": {
+    "email_extractor": {
+      "description": "Extracts email addresses from provided text",
+      "uses_tools": [
+        "extract_emails"
+      ],
+      "input_schema": {
+        "text": "string"
+      },
+      "output_schema": {
+        "emails": "array",
+        "count": "integer"
+      },
+      "location": "generated/agents/email_extractor.py",
+      "created_by": "claude-3-haiku",
+      "created_at": "2025-09-02T19:45:07.755626",
+      "version": "1.0.fd0b347e",
+      "execution_count": 5,
+      "avg_execution_time": 1.0,
+      "tags": [
+        "extraction",
+        "email",
+        "text-processing"
+      ],
+      "line_count": 41,
+      "last_executed": "2025-09-03T13:16:24.050301"
+    },
+    "text_analyzer": {
+      "description": "Analyze text to extract emails and numbers",
+      "uses_tools": [
+        "extract_emails",
+        "extract_numbers"
+      ],
+      "input_schema": {
+        "data": "any"
+      },
+      "output_schema": {
+        "data": "any"
+      },
+      "location": "generated/agents/text_analyzer.py",
+      "created_by": "claude-3-haiku",
+      "created_at": "2025-09-02T23:58:41.401801",
+      "version": "1.0.528daabc",
+      "execution_count": 0,
+      "avg_execution_time": 0,
+      "tags": [
+        "communication",
+        "extraction"
+      ],
+      "line_count": 61
+    },
+    "statistics_calculator": {
+      "description": "Calculate statistics from numbers in text",
+      "uses_tools": [
+        "extract_numbers",
+        "calculate_mean",
+        "calculate_median"
+      ],
+      "input_schema": {
+        "data": "any"
+      },
+      "output_schema": {
+        "data": "any"
+      },
+      "location": "generated/agents/statistics_calculator.py",
+      "created_by": "claude-3-haiku",
+      "created_at": "2025-09-02T23:58:46.927691",
+      "version": "1.0.2d6d8b8b",
+      "execution_count": 4,
+      "avg_execution_time": 1.0,
+      "tags": [
+        "analysis",
+        "statistics"
+      ],
+      "line_count": 86,
+      "last_executed": "2025-09-03T13:16:31.504687"
+    },
+    "csv_analyzer": {
+      "description": "Analyze CSV data to extract statistics and create summaries",
+      "uses_tools": [
+        "read_csv",
+        "extract_numbers",
+        "calculate_mean",
+        "calculate_median"
+      ],
+      "input_schema": {
+        "data": "any"
+      },
+      "output_schema": {
+        "data": "any"
+      },
+      "location": "generated/agents/csv_analyzer.py",
+      "created_by": "claude-3-haiku",
+      "created_at": "2025-09-03T00:02:18.109016",
+      "version": "1.0.845d07b9",
+      "execution_count": 0,
+      "avg_execution_time": 0,
+      "tags": [
+        "statistics",
+        "data-processing",
+        "analysis",
+        "csv"
+      ],
+      "line_count": 78
+    },
+    "document_processor": {
+      "description": "Process text documents to extract key information",
+      "uses_tools": [
+        "read_text",
+        "extract_emails",
+        "extract_urls",
+        "extract_numbers"
+      ],
+      "input_schema": {
+        "data": "any"
+      },
+      "output_schema": {
+        "data": "any"
+      },
+      "location": "generated/agents/document_processor.py",
+      "created_by": "claude-3-haiku",
+      "created_at": "2025-09-03T00:03:00.710845",
+      "version": "1.0.540ebda1",
+      "execution_count": 0,
+      "avg_execution_time": 0,
+      "tags": [],
+      "line_count": 69
+    },
+    "pdf_email_extractor": {
+      "description": "Extract email addresses from PDF documents",
+      "uses_tools": [
+        "read_pdf",
+        "extract_emails"
+      ],
+      "input_schema": {
+        "data": "any"
+      },
+      "output_schema": {
+        "data": "any"
+      },
+      "location": "generated/agents/pdf_email_extractor.py",
+      "created_by": "claude-3-haiku",
+      "created_at": "2025-09-03T00:03:58.606397",
+      "version": "1.0.298b664d",
+      "execution_count": 0,
+      "avg_execution_time": 0,
+      "tags": [
+        "communication",
+        "pdf-processing",
+        "extraction",
+        "document"
+      ],
+      "line_count": 68
+    }
+  }
+}
