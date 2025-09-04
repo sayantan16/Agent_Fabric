@@ -13,7 +13,7 @@ from pathlib import Path
 class ProjectKnowledgeExtractor:
     def __init__(self, project_root="."):
         self.project_root = Path(project_root).resolve()
-        self.output_file = "AGENTIC_FABRIC_KNOWLEDGE_BASE.md"
+        self.output_file = "KNOWLEDGE_BASE.md"
 
         # Files and directories to exclude
         self.exclude_dirs = {

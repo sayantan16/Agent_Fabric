@@ -1,527 +1,552 @@
 """
-Agentic Fabric Configuration - REFINED VERSION
-Complete configuration for dynamic agent orchestration
+Agentic Fabric POC - Master Configuration
+Single source of truth for all system configuration, prompts, and constraints
 """
 
 import os
 from dotenv import load_dotenv
+from typing import List, Dict, Any
 
+# Load environment variables
 load_dotenv()
 
 # =============================================================================
 # API CONFIGURATION
 # =============================================================================
 
+# OpenAI Configuration (Master Orchestrator)
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-ORCHESTRATOR_MODEL = "gpt-4-turbo-preview"  # Better for JSON
-ORCHESTRATOR_TEMPERATURE = 0.2
+ORCHESTRATOR_MODEL = "o3-mini"  # Best for JSON and planning
+ORCHESTRATOR_TEMPERATURE = 1.0  # Low for consistent planning
+ORCHESTRATOR_MAX_TOKENS = 4000
 
+# Anthropic Configuration (Agent Execution Engine)
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
-CLAUDE_MODEL = "claude-3-haiku-20240307"
-CLAUDE_TEMPERATURE = 0.1
-
+CLAUDE_MODEL = "claude-3-haiku-20240307"  # Fast and efficient for agents
+CLAUDE_TEMPERATURE = 0.1  # Very low for consistent code generation
+CLAUDE_MAX_TOKENS = 2000
 
 # =============================================================================
-# GENERATION CONSTRAINTS
+# SYSTEM CONSTRAINTS
 # =============================================================================
 
-# Agent Constraints
+# Agent Size Constraints
 MIN_AGENT_LINES = 50
 MAX_AGENT_LINES = 300
-AGENT_TIMEOUT_SECONDS = 10  # Max execution time for any agent
+AGENT_TIMEOUT_SECONDS = 10
+AGENT_MAX_RETRIES = 3
 
-# Tool Constraints
-MIN_TOOL_LINES = 15
+# Tool Size Constraints
+MIN_TOOL_LINES = 20
 MAX_TOOL_LINES = 100
-TOOL_MUST_BE_PURE = True  # Tools must be pure functions (no side effects)
+TOOL_MUST_BE_PURE = True
+TOOL_TIMEOUT_SECONDS = 5
+
+# Workflow Constraints
+MAX_WORKFLOW_STEPS = 10
+WORKFLOW_TIMEOUT_SECONDS = 60
+MAX_PARALLEL_AGENTS = 5
+ENABLE_PARALLEL_EXECUTION = True
 
 # =============================================================================
-# SYSTEM PATHS
+# FILE PATHS
 # =============================================================================
 
-# Directory paths
-GENERATED_AGENTS_DIR = "generated/agents"
-GENERATED_TOOLS_DIR = "generated/tools"
-CORE_DIR = "core"
+# Directories
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+GENERATED_AGENTS_DIR = os.path.join(PROJECT_ROOT, "generated", "agents")
+GENERATED_TOOLS_DIR = os.path.join(PROJECT_ROOT, "generated", "tools")
+PREBUILT_AGENTS_DIR = os.path.join(PROJECT_ROOT, "prebuilt", "agents")
+PREBUILT_TOOLS_DIR = os.path.join(PROJECT_ROOT, "prebuilt", "tools")
 
-# Registry paths
-AGENTS_REGISTRY_PATH = "agents.json"
-TOOLS_REGISTRY_PATH = "tools.json"
+# Registry Files
+AGENTS_REGISTRY_PATH = os.path.join(PROJECT_ROOT, "agents.json")
+TOOLS_REGISTRY_PATH = os.path.join(PROJECT_ROOT, "tools.json")
 
-# =============================================================================
-# LANGGRAPH CONFIGURATION
-# =============================================================================
-
-# Workflow settings
-MAX_WORKFLOW_STEPS = 10  # Maximum agents in a single workflow
-WORKFLOW_TIMEOUT_SECONDS = 60  # Total workflow execution timeout
-ENABLE_PARALLEL_EXECUTION = False  # Start with sequential, add parallel later
-MAX_RETRIES_PER_AGENT = 2  # Retry failed agents
-
-# State management
-STATE_CHECKPOINT_ENABLED = True  # Save state between agent executions
-STATE_VERBOSE_LOGGING = True  # Detailed logging for debugging
+# Backup Directory
+BACKUP_DIR = os.path.join(PROJECT_ROOT, "registry_backups")
 
 # =============================================================================
-# UI CONFIGURATION
+# ALLOWED IMPORTS (Security)
 # =============================================================================
 
-# Streamlit settings
-UI_TITLE = "Agentic Fabric POC"
-UI_THEME = "light"
-MAX_FILE_UPLOAD_SIZE_MB = 10
-SUPPORTED_FILE_TYPES = ["txt", "pdf", "csv", "json", "xlsx"]
-
-# Display settings
-SHOW_AGENT_EXECUTION_TIME = True
-SHOW_WORKFLOW_VISUALIZATION = True
-SHOW_GENERATED_CODE = False  # Show the actual generated code in UI (debug mode)
-
-# =============================================================================
-# VALIDATION SETTINGS
-# =============================================================================
-
-# Code validation
-VALIDATE_SYNTAX_BEFORE_SAVE = True
-VALIDATE_IMPORTS = True  # Check that imports are from allowed list
-TEST_GENERATED_CODE = True  # Run basic tests on generated code
-
-# Allowed imports for generated code (security)
 ALLOWED_IMPORTS = [
+    # Standard library
     "re",
     "json",
     "datetime",
     "math",
     "statistics",
-    "pandas",
-    "numpy",  # Data processing
-    "PyPDF2",
-    "pdfplumber",  # PDF processing
-    "csv",
-    "openpyxl",  # File processing
-    "urllib.parse",
-    "base64",
-    "hashlib",  # Utilities
     "collections",
     "itertools",
-    "functools",  # Python utilities
+    "functools",
+    "typing",
+    "enum",
+    "dataclasses",
+    "csv",
+    "io",
+    "os",
+    "sys",
+    "pathlib",
+    "hashlib",
+    "base64",
+    "urllib.parse",
+    "copy",
+    "random",
+    "time",
+    # Data processing
+    "pandas",
+    "numpy",
+    # File processing
+    "PyPDF2",
+    "pdfplumber",
+    "openpyxl",
+    "xlrd",
+    # Text processing
+    "nltk",
+    "textstat",
+    # Visualization
+    "matplotlib",
+    "seaborn",
+    "plotly",
+    # Utilities
+    "requests",  # Only for declared connectors
 ]
 
-
 # =============================================================================
-# EXAMPLE TEMPLATES
-# =============================================================================
-
-# These help Claude understand the expected structure
-
-EXAMPLE_TOOL_TEMPLATE = '''def extract_numbers(text):
-    """Extract all numbers from text - both integers and decimals."""
-    import re
-    
-    if not text:
-        return []
-    
-    # Find all numeric patterns
-    patterns = [
-        r'-?\d+\.?\d*',  # Regular numbers (integers and decimals)
-        r'-?\.\d+'       # Numbers starting with decimal point
-    ]
-    
-    numbers = []
-    for pattern in patterns:
-        matches = re.findall(pattern, text)
-        for match in matches:
-            try:
-                # Try to convert to float
-                num = float(match)
-                numbers.append(num)
-            except ValueError:
-                continue
-    
-    # Remove duplicates while preserving order
-    seen = set()
-    unique_numbers = []
-    for num in numbers:
-        if num not in seen:
-            seen.add(num)
-            unique_numbers.append(num)
-    
-    return unique_numbers
-'''
-
-EXAMPLE_AGENT_TEMPLATE = '''def calculate_statistics_agent(state):
-    """Agent that calculates basic statistics from numbers in text or data."""
-    import sys
-    import os
-    from datetime import datetime
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    
-    from generated.tools.extract_numbers import extract_numbers
-    from generated.tools.calculate_mean import calculate_mean
-    from generated.tools.calculate_median import calculate_median
-    
-    try:
-        # CRITICAL: Initialize state components if missing
-        if 'results' not in state:
-            state['results'] = {}
-        if 'errors' not in state:
-            state['errors'] = []
-        if 'execution_path' not in state:
-            state['execution_path'] = []
-            
-        # CRITICAL: Flexible input handling - check multiple possible data locations
-        current_data = state.get('current_data', {})
-        numbers = []
-        
-        # Handle various input formats
-        if isinstance(current_data, dict):
-            # Check for pre-processed numbers from previous agent
-            if 'numbers' in current_data:
-                numbers = current_data['numbers']
-            # Check for text field in dict
-            elif 'text' in current_data:
-                numbers = extract_numbers(current_data['text'])
-            # Check for data field
-            elif 'data' in current_data:
-                if isinstance(current_data['data'], str):
-                    numbers = extract_numbers(current_data['data'])
-                elif isinstance(current_data['data'], list):
-                    numbers = current_data['data']
-        elif isinstance(current_data, str):
-            # Direct string input
-            numbers = extract_numbers(current_data)
-        elif isinstance(current_data, list):
-            # Direct list of numbers
-            numbers = current_data
-        
-        # Fallback to checking root state for text
-        if not numbers and 'text' in state:
-            numbers = extract_numbers(state['text'])
-        
-        # Process the numbers
-        if numbers and len(numbers) > 0:
-            mean = calculate_mean(numbers)
-            median = calculate_median(numbers)
-            
-            result = {
-                "status": "success",
-                "data": {
-                    "numbers_found": len(numbers),
-                    "numbers": numbers[:10],  # First 10 for preview
-                    "statistics": {
-                        "mean": round(mean, 2),
-                        "median": median,
-                        "min": min(numbers),
-                        "max": max(numbers),
-                        "sum": sum(numbers)
-                    }
-                },
-                "metadata": {
-                    "agent": "calculate_statistics",
-                    "tools_used": ["extract_numbers", "calculate_mean", "calculate_median"],
-                    "execution_time": 0.3
-                }
-            }
-        else:
-            result = {
-                "status": "warning",
-                "data": {
-                    "message": "No numbers found in input",
-                    "numbers_found": 0
-                },
-                "metadata": {
-                    "agent": "calculate_statistics",
-                    "tools_used": ["extract_numbers"],
-                    "execution_time": 0.1
-                }
-            }
-        
-        # CRITICAL: Always update state properly
-        state['results']['calculate_statistics'] = result
-        state['current_data'] = result['data']
-        state['execution_path'].append('calculate_statistics')
-        
-    except Exception as e:
-        # CRITICAL: Proper error handling
-        state['errors'].append({
-            "agent": "calculate_statistics",
-            "error": str(e),
-            "timestamp": datetime.now().isoformat()
-        })
-        
-        # Still update results with error status
-        state['results']['calculate_statistics'] = {
-            "status": "error",
-            "data": None,
-            "metadata": {
-                "agent": "calculate_statistics",
-                "error": str(e)
-            }
-        }
-    
-    return state
-'''
-
-# =============================================================================
-# ORCHESTRATOR PROMPTS - CRITICAL FOR CONTROL
+# STANDARD SCHEMAS
 # =============================================================================
 
-ORCHESTRATOR_ANALYSIS_PROMPT = """You are the master orchestrator of a multi-agent system.
-Analyze the user's request and determine:
-1. What agents are needed (check available list)
-2. What workflow pattern to use
-3. What data transformations are needed
-4. Whether new capabilities need to be created
+# Agent Output Envelope Schema
+AGENT_OUTPUT_SCHEMA = {
+    "type": "object",
+    "required": ["status", "data", "metadata"],
+    "properties": {
+        "status": {"type": "string", "enum": ["success", "error", "partial"]},
+        "data": {
+            "type": ["object", "array", "null"],
+            "description": "Agent-specific output data",
+        },
+        "metadata": {
+            "type": "object",
+            "required": ["agent", "execution_time"],
+            "properties": {
+                "agent": {"type": "string"},
+                "execution_time": {"type": "number"},
+                "tools_used": {"type": "array", "items": {"type": "string"}},
+                "errors": {"type": "array", "items": {"type": "string"}},
+                "warnings": {"type": "array", "items": {"type": "string"}},
+            },
+        },
+    },
+}
 
-User Request: {request}
-Files Provided: {files}
+# Workflow State Schema
+WORKFLOW_STATE_SCHEMA = {
+    "request": "string",
+    "files": "array",
+    "execution_path": "array",
+    "current_data": "any",
+    "results": "object",
+    "errors": "array",
+    "workflow_id": "string",
+    "started_at": "string",
+    "completed_at": "string",
+}
 
-Available Agents:
+# =============================================================================
+# VALIDATION RULES
+# =============================================================================
+
+# Agent Validation Rules
+AGENT_VALIDATION_RULES = {
+    "required_patterns": [
+        # State initialization
+        "if 'results' not in state:",
+        "if 'errors' not in state:",
+        "if 'execution_path' not in state:",
+        # Flexible input handling
+        "state.get('current_data'",
+        "isinstance(",
+        # Output envelope
+        "'status':",
+        "'data':",
+        "'metadata':",
+        # Error handling
+        "try:",
+        "except Exception as e:",
+    ],
+    "forbidden_patterns": [
+        "exec(",
+        "eval(",
+        "__import__",
+        "compile(",
+        "globals(",
+        "locals(",
+    ],
+    "required_structure": {
+        "has_state_param": True,
+        "returns_state": True,
+        "handles_exceptions": True,
+        "updates_results": True,
+    },
+}
+
+# Tool Validation Rules
+TOOL_VALIDATION_RULES = {
+    "required_patterns": [
+        # Universal input handling
+        "if input_data is None:",
+        "isinstance(input_data",
+        # Error handling
+        "try:",
+        "except:",
+        "return",
+    ],
+    "forbidden_patterns": [
+        # No side effects for pure functions
+        "open(",
+        "with open",
+        "file(",
+        "os.system",
+        "subprocess",
+        "exec(",
+        "eval(",
+        "__import__",
+        # No network unless connector
+        "requests." if "connector" not in "{tool_type}" else "",
+        "urllib.request",
+        "socket.",
+    ],
+    "required_structure": {
+        "handles_none": True,
+        "handles_type_errors": True,
+        "returns_consistent_type": True,
+        "no_exceptions_raised": True,
+    },
+}
+
+# =============================================================================
+# ORCHESTRATOR PROMPTS
+# =============================================================================
+
+ORCHESTRATOR_SYSTEM_PROMPT = """You are an intelligent orchestrator for a multi-agent system. Think step-by-step through complex requests to plan optimal workflows.
+
+Your process:
+1. Analyze what the user wants to accomplish
+2. Break complex tasks into logical steps  
+3. Map steps to available agents/tools
+4. Identify missing capabilities that need creation
+5. Plan efficient execution (sequential/parallel)
+
+Available agents and their capabilities will be provided. Use exact agent names from the registry."""
+
+ORCHESTRATOR_PLANNING_PROMPT = """Plan a workflow for this request:
+
+REQUEST: {request}
+ANALYSIS: {analysis}
+
+AVAILABLE AGENTS:
 {available_agents}
 
-Available Tools:
+AVAILABLE TOOLS: 
 {available_tools}
 
-IMPORTANT WORKFLOW PATTERNS:
-- Sequential: agent1 -> agent2 -> agent3
-- Parallel: agent1 & agent2 -> merge -> agent3
-- Conditional: if condition -> agentA else -> agentB
-- Loop: repeat agent until condition met
+Think through this systematically:
 
-Output a detailed analysis (not JSON yet)."""
+STEP 1: What specific tasks need to be done?
+STEP 2: Which available agents can handle each task?
+STEP 3: What's missing and needs to be created?
+STEP 4: What's the optimal execution order?
 
-ORCHESTRATOR_PLANNING_PROMPT = """Based on this analysis, create a workflow plan.
-
-Analysis: {analysis}
-
-CRITICAL: Output ONLY valid JSON with this EXACT structure:
+Respond with valid JSON:
 {{
-    "workflow_type": "sequential|parallel|conditional",
-    "workflow_steps": [
-        {{
-            "step_id": "step_1",
-            "agent": "agent_name",
-            "inputs": ["source of input"],
-            "outputs": ["what it produces"],
-            "condition": null or "condition for conditional nodes"
-        }}
-    ],
-    "data_flow": {{
-        "step_1": {{"source": "input", "transforms": []}},
-        "step_2": {{"source": "step_1.output", "transforms": []}}
-    }},
+    "workflow_id": "wf_" + timestamp,
+    "workflow_type": "sequential|parallel",
+    "reasoning": "your step-by-step thinking",
+    "agents_needed": ["exact_agent_names"],
     "missing_capabilities": {{
-        "agents": [{{"name": "agent_name", "purpose": "what it does", "tools_needed": []}}],
-        "tools": [{{"name": "tool_name", "purpose": "what it does", "type": "pure_function"}}]
+        "agents": [
+            {{
+                "name": "agent_name",
+                "purpose": "what it does",
+                "required_tools": ["tool1"],
+                "justification": "why needed"
+            }}
+        ],
+        "tools": [
+            {{
+                "name": "tool_name", 
+                "purpose": "what it does",
+                "type": "pure_function",
+                "justification": "why needed"
+            }}
+        ]
     }},
-    "expected_output": "description of final output",
-    "reasoning": "why this workflow"
+    "confidence": 0.95
 }}"""
 
-ORCHESTRATOR_SYNTHESIS_PROMPT = """Synthesize the workflow results into a coherent response.
+ORCHESTRATOR_ANALYSIS_PROMPT = """Analyze this user request to understand intent and requirements:
+
+REQUEST: {request}
+FILES: {files}
+CONTEXT: {context}
+
+AVAILABLE AGENTS (use exact names):
+{available_agents}
+
+AVAILABLE TOOLS:
+{available_tools}
+
+Analyze systematically:
+
+1. CORE INTENT: What does the user want to accomplish?
+2. INPUT DATA: What data/content needs processing?
+3. REQUIRED OUTPUTS: What should the final result contain?
+4. PROCESSING STEPS: What transformations are needed?
+5. CAPABILITY MATCH: Which available agents can handle parts of this?
+6. MISSING PIECES: What capabilities don't exist yet?
+
+Be specific about agent names and realistic about what each can do."""
+
+ORCHESTRATOR_SYNTHESIS_PROMPT = """Synthesize the workflow execution results into a coherent response.
 
 Original Request: {request}
-Workflow Executed: {workflow}
-Results from Each Agent: {results}
+Workflow Plan: {plan}
+Execution Results: {results}
+Errors Encountered: {errors}
 
 Create a natural language response that:
 1. Directly answers the user's question
-2. Highlights key findings
+2. Highlights key findings and insights
 3. Explains any issues encountered
 4. Suggests next steps if applicable
+5. Maintains professional tone
 
-Keep it concise but complete."""
+Focus on value and clarity, not technical details."""
 
 # =============================================================================
-# AGENT GENERATION PROMPTS - FOR FLEXIBILITY
+# AGENT GENERATION PROMPTS
 # =============================================================================
 
-CLAUDE_AGENT_GENERATION_PROMPT = """Create a Python agent function that is UNIVERSALLY FLEXIBLE.
+CLAUDE_AGENT_GENERATION_PROMPT = """Create a Python agent function that follows our EXACT standards.
 
-MANDATORY STRUCTURE:
+Agent Name: {agent_name}
+Purpose: {description}
+Required Tools: {tools}
+Input Description: {input_description}
+Output Description: {output_description}
+
+CRITICAL: Generate ONLY a function, no imports outside the function. Follow this EXACT pattern:
+
 ```python
 def {agent_name}_agent(state):
-    '''Agent: {description}'''
+    \"\"\"
+    {description}
+    \"\"\"
     import sys
     import os
     from datetime import datetime
     
-    # CRITICAL: Dynamic imports with fallback
+    # MANDATORY: Add path for imports
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     
-    tools_available = []
+    # MANDATORY: Import required tools (if any)
     {tool_imports}
     
-    # MANDATORY: State initialization
+    # MANDATORY: Initialize state components
     if 'results' not in state:
         state['results'] = {{}}
     if 'errors' not in state:
         state['errors'] = []
     if 'execution_path' not in state:
         state['execution_path'] = []
-    if 'metadata' not in state:
-        state['metadata'] = {{}}
     
     try:
+        start_time = datetime.now()
+        
         # MANDATORY: Universal input extraction
-        data_to_process = None
+        input_data = None
         
-        # Priority 1: Check current_data (can be ANY type)
-        current = state.get('current_data')
-        
-        if current is not None:
-            if isinstance(current, str):
-                data_to_process = current
-            elif isinstance(current, dict):
-                # Try multiple keys
-                for key in ['text', 'data', 'content', 'value', 'output', 'result']:
-                    if key in current:
-                        data_to_process = current[key]
+        # Priority 1: Check current_data
+        current_data = state.get('current_data')
+        if current_data is not None:
+            if isinstance(current_data, str):
+                input_data = current_data
+            elif isinstance(current_data, dict):
+                for key in ['text', 'data', 'content', 'value', 'result']:
+                    if key in current_data:
+                        input_data = current_data[key]
                         break
-                if data_to_process is None:
-                    data_to_process = current  # Use whole dict
-            elif isinstance(current, (list, tuple)):
-                data_to_process = current
+                if input_data is None:
+                    input_data = current_data
             else:
-                data_to_process = str(current)
+                input_data = str(current_data)
         
-        # Priority 2: Check previous agent results
-        if data_to_process is None and 'results' in state:
-            for agent_result in reversed(list(state['results'].values())):
-                if isinstance(agent_result, dict) and 'data' in agent_result:
-                    data_to_process = agent_result['data']
+        # Priority 2: Check previous results
+        if input_data is None and 'results' in state:
+            for result in reversed(list(state['results'].values())):
+                if isinstance(result, dict) and 'data' in result:
+                    input_data = result['data']
                     break
         
         # Priority 3: Check root state
-        if data_to_process is None:
-            for key in ['text', 'data', 'input', 'request', 'content']:
+        if input_data is None:
+            for key in ['text', 'data', 'input', 'request']:
                 if key in state and state[key]:
-                    data_to_process = state[key]
+                    input_data = state[key]
                     break
         
-        # AGENT SPECIFIC LOGIC HERE
+        # AGENT LOGIC: Process input_data using tools
         {agent_logic}
         
-        # MANDATORY: Structured output
+        # Calculate execution time
+        execution_time = (datetime.now() - start_time).total_seconds()
+        
+        # MANDATORY: Standard output envelope
         result = {{
             "status": "success",
-            "data": processed_data,  # Must be consumable by next agent
-            "raw_input": data_to_process,  # Preserve original
+            "data": processed_data,
             "metadata": {{
                 "agent": "{agent_name}",
-                "tools_used": tools_available,
-                "execution_time": 0.1,
-                "data_type": type(processed_data).__name__
+                "execution_time": execution_time,
+                "tools_used": {tools},
+                "warnings": []
             }}
         }}
         
-        # MANDATORY: State updates
+        # MANDATORY: Update state
         state['results']['{agent_name}'] = result
-        state['current_data'] = result['data']  # Pass processed data
+        state['current_data'] = result['data']
         state['execution_path'].append('{agent_name}')
         
     except Exception as e:
         import traceback
-        state['errors'].append({{
+        error_detail = {{
             "agent": "{agent_name}",
             "error": str(e),
             "traceback": traceback.format_exc(),
             "timestamp": datetime.now().isoformat()
-        }})
+        }}
+        state['errors'].append(error_detail)
         
-        # Graceful failure
         state['results']['{agent_name}'] = {{
             "status": "error",
             "data": None,
-            "error": str(e)
+            "metadata": {{
+                "agent": "{agent_name}",
+                "execution_time": 0,
+                "error": str(e)
+            }}
         }}
     
     return state
-Requirements:
-
-Agent Name: {agent_name}
-Description: {description}
-Tools Needed: {tools}
-Input: {input_desc}
-Output: {output_desc}
-Steps: {workflow_steps}
+Make the agent logic simple but functional. Keep between {min_lines}-{max_lines} lines total.
 """
-CLAUDE_TOOL_GENERATION_PROMPT = """Create a PURE Python function that handles ANY input gracefully.
-MANDATORY STRUCTURE:
-pythondef {tool_name}(input_data=None):
-    '''Tool: {description}'''
+
+# =============================================================================
+# TOOL GENERATION PROMPTS
+# =============================================================================
+
+CLAUDE_TOOL_GENERATION_PROMPT = """Create a PURE Python function following our standards.
+
+Tool Name: {tool_name}
+Purpose: {description}
+Input: {input_description}
+Output: {output_description}
+
+MANDATORY TOOL STRUCTURE:
+```python
+def {tool_name}(input_data=None):
+    \"\"\"
+    {description}
+    
+    Args:
+        input_data: {input_description}
+    
+    Returns:
+        {output_description}
+    \"\"\"
+    # Required imports
     {imports}
     
-    # MANDATORY: Handle None
+    # MANDATORY: Handle None input
     if input_data is None:
         return {default_return}
     
     # MANDATORY: Type flexibility
-    processed_input = None
-    
-    if isinstance(input_data, str):
-        processed_input = input_data
-    elif isinstance(input_data, dict):
-        # Extract from dict
-        for key in ['text', 'data', 'value', 'content']:
-            if key in input_data:
-                processed_input = input_data[key]
-                break
-    elif isinstance(input_data, (list, tuple)):
-        processed_input = input_data
-    else:
-        try:
-            processed_input = str(input_data)
-        except:
-            return {default_return}
-    
-    # TOOL LOGIC HERE
     try:
+        # Handle different input types
+        if isinstance(input_data, str):
+            data = input_data
+        elif isinstance(input_data, dict):
+            # Extract from common keys
+            data = None
+            for key in ['text', 'data', 'value', 'content']:
+                if key in input_data:
+                    data = input_data[key]
+                    break
+            if data is None:
+                data = str(input_data)
+        elif isinstance(input_data, (list, tuple)):
+            data = input_data
+        elif isinstance(input_data, (int, float)):
+            data = input_data
+        else:
+            # Convert to string as fallback
+            try:
+                data = str(input_data)
+            except:
+                return {default_return}
+        
+        # TOOL LOGIC HERE
         {tool_logic}
+        
         return result
+        
     except Exception as e:
-        # NEVER raise, always return default
+        # NEVER raise exceptions, always return default
         return {default_return}
+```
+
 Requirements:
-
-Tool Name: {tool_name}
-Purpose: {description}
-Input: {input_desc}
-Output: {output_desc}
-Default Return: {default_return}
-"""
+1. MUST be a pure function (no side effects)
+2. MUST handle None and any input type
+3. MUST NOT raise exceptions
+4. MUST return consistent type
+5. Keep between {min_lines}-{max_lines} lines"""
 
 # =============================================================================
-# VALIDATION RULES
+# PREBUILT COMPONENTS
 # =============================================================================
 
-AGENT_VALIDATION_RULES = {
-    "required_patterns": [
-        "if 'results' not in state:",
-        "state.get('current_data')",
-        "isinstance(current",
-        "for key in [",
-        "state['results'][",
-        "state['current_data'] =",
-        "except Exception as e:",
-        "data_to_process = None",
-    ],
-    "forbidden_patterns": [
-        "raise Exception",
-        "raise Error",
-        "sys.exit",
-        "quit()",
-        "assert False",
-    ],
+PREBUILT_READERS = ["read_text", "read_json", "read_csv", "read_pdf"]
+
+PREBUILT_CONNECTORS = ["jira_reader"]  # Jira-only for POC
+
+# =============================================================================
+# UI CONFIGURATION
+# =============================================================================
+
+UI_CONFIG = {
+    "title": "Agentic Fabric POC",
+    "theme": "light",
+    "max_file_upload_mb": 10,
+    "supported_file_types": ["txt", "pdf", "csv", "json", "xlsx"],
+    "show_execution_time": True,
+    "show_workflow_viz": True,
+    "show_generated_code": False,  # Debug mode only
+    "refresh_interval_ms": 500,
 }
 
-TOOL_VALIDATION_RULES = {
-    "required_patterns": [
-        "if input_data is None:",
-        "isinstance(input_data",
-        "try:",
-        "except",
-        "return",
-    ],
-    "forbidden_patterns": ["raise", "assert", "open(", "requests.", "file("],
+# =============================================================================
+# LOGGING
+# =============================================================================
+
+LOGGING_CONFIG = {
+    "level": "INFO",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "file": "agentic_fabric.log",
+    "max_bytes": 10485760,  # 10MB
+    "backup_count": 5,
 }

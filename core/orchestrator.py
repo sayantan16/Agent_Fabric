@@ -1,14 +1,16 @@
 """
-GPT-4 Orchestrator
-Intelligent workflow planning and agent selection using GPT-4
+Orchestrator
+Master orchestration engine using GPT-4 for intelligent workflow planning and execution
 """
 
 import os
 import sys
 import json
-from typing import Dict, List, Optional, Any
+import asyncio
+from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime
 import openai
+from enum import Enum
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -16,644 +18,856 @@ from config import (
     OPENAI_API_KEY,
     ORCHESTRATOR_MODEL,
     ORCHESTRATOR_TEMPERATURE,
+    ORCHESTRATOR_MAX_TOKENS,
     ORCHESTRATOR_SYSTEM_PROMPT,
+    ORCHESTRATOR_ANALYSIS_PROMPT,
+    ORCHESTRATOR_PLANNING_PROMPT,
+    ORCHESTRATOR_SYNTHESIS_PROMPT,
+    MAX_WORKFLOW_STEPS,
+    WORKFLOW_TIMEOUT_SECONDS,
+    WORKFLOW_STATE_SCHEMA,
 )
 from core.registry import RegistryManager
 from core.workflow_engine import WorkflowEngine
 from core.agent_factory import AgentFactory
 from core.tool_factory import ToolFactory
+from core.registry_singleton import get_shared_registry
+
+
+class WorkflowType(Enum):
+    """Workflow execution patterns."""
+
+    SEQUENTIAL = "sequential"
+    PARALLEL = "parallel"
+    CONDITIONAL = "conditional"
+    HYBRID = "hybrid"
 
 
 class Orchestrator:
+    """
+    Master orchestrator that coordinates the entire system.
+    Uses GPT-4 for intelligent planning and decision making.
+    """
+
     def __init__(self):
+        """Initialize the orchestrator."""
         self.client = openai.OpenAI(api_key=OPENAI_API_KEY)
-        self.registry = RegistryManager()
+        self.registry = get_shared_registry()
         self.workflow_engine = WorkflowEngine()
         self.agent_factory = AgentFactory()
         self.tool_factory = ToolFactory()
+        self.execution_history = []
+        self.active_workflows = {}
 
-    def process_request(
+    async def process_request(
         self,
         user_request: str,
-        files: List[Dict[str, Any]] = None,
-        auto_create: bool = False,
+        files: Optional[List[Dict[str, Any]]] = None,
+        context: Optional[Dict[str, Any]] = None,
+        auto_create: bool = True,
+        stream_results: bool = False,
     ) -> Dict[str, Any]:
         """
-        Process a user request by planning and executing the appropriate workflow.
+        Process a user request end-to-end.
 
         Args:
             user_request: Natural language request from user
-            files: Optional list of file information
-            auto_create: Whether to automatically create missing agents/tools
+            files: Optional list of uploaded files
+            context: Optional context from previous interactions
+            auto_create: Whether to automatically create missing components
+            stream_results: Whether to stream intermediate results
 
         Returns:
-            Dict containing workflow results and execution details
+            Complete response with results and metadata
         """
-
-        print("\n[ORCHESTRATOR] Analyzing request...")
-
-        # Step 1: Analyze request and plan workflow
-        workflow_plan = self._plan_workflow(user_request, files)
-
-        if workflow_plan["status"] == "error":
-            return {
-                "status": "error",
-                "message": workflow_plan["message"],
-                "timestamp": datetime.now().isoformat(),
-            }
-
-        print(
-            f"[ORCHESTRATOR] Planned workflow: {' -> '.join(workflow_plan['workflow_steps'])}"
-        )
-
-        # Step 2: Check for missing capabilities
-        if workflow_plan.get("missing_agents") or workflow_plan.get("missing_tools"):
-            print("[ORCHESTRATOR] Missing capabilities detected")
-
-            if auto_create:
-                # Try to create missing components
-                creation_result = self._create_missing_components(
-                    workflow_plan.get("missing_agents", []),
-                    workflow_plan.get("missing_tools", []),
-                )
-
-                if not creation_result["success"]:
-                    return {
-                        "status": "error",
-                        "message": f"Failed to create required components: {creation_result['message']}",
-                        "missing": {
-                            "agents": workflow_plan.get("missing_agents", []),
-                            "tools": workflow_plan.get("missing_tools", []),
-                        },
-                    }
-            else:
-                # Return what's missing
-                return {
-                    "status": "missing_capabilities",
-                    "message": "Required agents or tools are not available",
-                    "missing": {
-                        "agents": workflow_plan.get("missing_agents", []),
-                        "tools": workflow_plan.get("missing_tools", []),
-                    },
-                    "suggestion": "Enable auto_create to automatically build missing components",
-                }
-
-        # Step 3: Prepare initial data
-        initial_data = self._prepare_initial_data(user_request, files, workflow_plan)
-
-        # Step 4: Execute workflow
-        print("[ORCHESTRATOR] Executing workflow...")
+        start_time = datetime.now()
+        workflow_id = self._generate_workflow_id()
 
         try:
-            workflow_result = self.workflow_engine.create_and_execute(
-                agent_sequence=workflow_plan["workflow_steps"],
-                initial_data=initial_data,
-                workflow_id=workflow_plan.get("workflow_id"),
+
+            print(f"DEBUG: Starting request processing for: {user_request[:50]}...")
+
+            # Phase 1: Analyze the request
+            analysis = await self._analyze_request(user_request, files, context)
+
+            if analysis["status"] != "success":
+                return self._create_error_response(
+                    workflow_id, "Analysis failed", analysis.get("error")
+                )
+
+            # Phase 2: Plan the workflow
+            plan = await self._plan_workflow(
+                user_request, analysis["analysis"], auto_create
             )
 
-            # Step 5: Synthesize results
-            print("[ORCHESTRATOR] Synthesizing results...")
-            final_response = self._synthesize_results(
-                user_request, workflow_result, workflow_plan
+            if plan["status"] != "success":
+                return self._create_error_response(
+                    workflow_id, "Planning failed", plan.get("error")
+                )
+
+            # Phase 3: Handle missing capabilities
+            missing_capabilities = self._check_missing_capabilities(plan)
+            if missing_capabilities:
+                if auto_create:
+                    creation_result = await self._create_missing_components(
+                        missing_capabilities
+                    )
+
+                    if creation_result["status"] != "success":
+                        return {
+                            "status": "partial",
+                            "message": "Some components could not be created",
+                            "created": creation_result.get("created", {}),
+                            "failed": creation_result.get("failed", {}),
+                            "workflow_id": workflow_id,
+                        }
+
+                    # Re-plan with new components
+                    plan = await self._plan_workflow(
+                        user_request, analysis["analysis"], auto_create=False
+                    )
+
+                    # Re-check for missing capabilities after creation
+                    # Phase 3: Handle missing capabilities
+                    missing_capabilities = self._check_missing_capabilities(plan)
+
+                    # Also check if no agents were found at all
+                    if not plan.get("agents_needed"):
+                        if not missing_capabilities:
+                            missing_capabilities = {"agents": [], "tools": []}
+
+                        # If GPT-4 couldn't find any suitable agents, that's a missing capability
+                        if not missing_capabilities.get("agents"):
+                            missing_capabilities["agents"] = [
+                                {
+                                    "name": "suitable_agent",
+                                    "purpose": "Handle the specific request that no existing agent can process",
+                                    "required_tools": [],
+                                }
+                            ]
+
+                    if missing_capabilities:
+                        return {
+                            "status": "partial",
+                            "message": "Could not create all required components",
+                            "missing": missing_capabilities,
+                            "workflow_id": workflow_id,
+                        }
+                else:
+                    return {
+                        "status": "missing_capabilities",
+                        "message": "Required components are not available",
+                        "missing": missing_capabilities,
+                        "workflow_id": workflow_id,
+                        "suggestion": "Enable auto_create to build missing components automatically",
+                    }
+
+            # Phase 4: Prepare initial data
+            initial_data = self._prepare_initial_data(
+                user_request, files, context, plan
+            )
+
+            # Phase 5: Execute the workflow
+            if stream_results:
+                execution_result = await self._execute_workflow_streaming(
+                    plan, initial_data, workflow_id
+                )
+            else:
+                execution_result = await self._execute_workflow(
+                    plan, initial_data, workflow_id
+                )
+
+            if execution_result["status"] == "error":
+                return self._create_error_response(
+                    workflow_id, "Execution failed", execution_result.get("error")
+                )
+
+            # Phase 6: Synthesize results
+            final_response = await self._synthesize_results(
+                user_request, plan, execution_result
+            )
+
+            # Record execution history
+            execution_time = (datetime.now() - start_time).total_seconds()
+            self._record_execution(
+                workflow_id, user_request, plan, execution_result, execution_time
             )
 
             return {
                 "status": "success",
+                "workflow_id": workflow_id,
                 "response": final_response,
+                "execution_time": execution_time,
                 "workflow": {
-                    "steps": workflow_plan["workflow_steps"],
-                    "execution_path": workflow_result.get("execution_path", []),
-                    "workflow_id": workflow_plan.get("workflow_id"),
+                    "type": plan.get("workflow_type", "sequential"),
+                    "steps": plan.get("agents_needed", []),
+                    "execution_path": execution_result.get("execution_path", []),
                 },
-                "raw_results": workflow_result.get("results", {}),
-                "errors": workflow_result.get("errors", []),
-                "timestamp": datetime.now().isoformat(),
+                "results": execution_result.get("results", {}),
+                "metadata": {
+                    "agents_used": len(plan.get("agents_needed", [])),
+                    "components_created": len(plan.get("created_components", [])),
+                    "errors_encountered": len(execution_result.get("errors", [])),
+                },
             }
 
+        except KeyError as e:
+            print(f"DEBUG: KeyError in process_request: {str(e)}")
+            import traceback
+
+            traceback.print_exc()
+            return self._create_error_response(
+                workflow_id, "Unexpected error", f"KeyError: {str(e)}"
+            )
         except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Workflow execution failed: {str(e)}",
-                "workflow": workflow_plan,
-                "timestamp": datetime.now().isoformat(),
-            }
+            print(f"DEBUG: Exception in process_request: {str(e)}")
+            import traceback
 
-    def _plan_workflow(self, user_request: str, files=None) -> Dict:
-        """Two-phase planning: Analysis then structured plan."""
+            traceback.print_exc()
+            return self._create_error_response(workflow_id, "Unexpected error", str(e))
 
-        # Phase 1: Analyze request
-        analysis = self._analyze_request(user_request, files)
+    async def _analyze_request(
+        self, user_request: str, files: Optional[List[Dict]], context: Optional[Dict]
+    ) -> Dict[str, Any]:
+        """Analyze the request to understand intent and requirements."""
+        # Get available components
+        agents = self.registry.list_agents(active_only=True)
+        tools = self.registry.list_tools(pure_only=False)
 
-        # Phase 2: Create structured plan
-        agents = self.registry.list_agents()
-        tools = self.registry.list_tools()
+        # Format components for prompt
+        agents_desc = self._format_components_list(agents, "agents")
+        tools_desc = self._format_components_list(tools, "tools")
 
-        # Format for planning prompt
-        from config import ORCHESTRATOR_PLANNING_PROMPT
+        # Build analysis prompt
+        prompt = ORCHESTRATOR_ANALYSIS_PROMPT.format(
+            request=user_request,
+            files=json.dumps(files) if files else "None",
+            context=json.dumps(context) if context else "None",
+            available_agents=agents_desc,
+            available_tools=tools_desc,
+        )
 
-        planning_prompt = ORCHESTRATOR_PLANNING_PROMPT.format(analysis=analysis)
+        print(f"DEBUG: Analyzing request: {user_request[:100]}...")
 
         try:
-            response = self.client.chat.completions.create(
-                model=ORCHESTRATOR_MODEL,
-                temperature=0.1,
-                response_format={"type": "json_object"},
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "You are a workflow planner. Output only valid JSON.",
-                    },
-                    {"role": "user", "content": planning_prompt},
-                ],
+            response = await self._call_gpt4(
+                system_prompt=ORCHESTRATOR_SYSTEM_PROMPT,
+                user_prompt=prompt,
+                temperature=ORCHESTRATOR_TEMPERATURE,
+            )
+            print(f"DEBUG: GPT-4 analysis successful")
+            return {"status": "success", "analysis": response}
+
+        except Exception as e:
+            print(f"DEBUG: GPT-4 analysis successful")
+            return {"status": "error", "error": f"Analysis failed: {str(e)}"}
+
+    async def _plan_workflow(
+        self, user_request: str, analysis: str, auto_create: bool
+    ) -> Dict[str, Any]:
+        """Plan the workflow based on analysis."""
+        # Get available components for the prompt
+        agents = self.registry.list_agents(active_only=True)
+        tools = self.registry.list_tools(pure_only=False)
+        agents_desc = self._format_components_list(agents, "agents")
+        tools_desc = self._format_components_list(tools, "tools")
+
+        prompt = ORCHESTRATOR_PLANNING_PROMPT.format(
+            request=user_request,
+            analysis=analysis,
+            available_agents=agents_desc,
+            available_tools=tools_desc,
+        )
+
+        print(f"DEBUG: Planning workflow with auto_create={auto_create}")
+
+        try:
+            response = await self._call_gpt4_json(
+                system_prompt="You are a workflow planner. Output only valid JSON.",
+                user_prompt=prompt,
+                temperature=0.1,  # Very low for consistent JSON
+            )
+            print(f"DEBUG: GPT-4 planning response received")
+            # Parse and validate the plan
+            plan = json.loads(response)
+            print(
+                f"DEBUG: Parsed plan: {plan.get('workflow_type', 'unknown')} workflow with {len(plan.get('agents_needed', []))} agents"
             )
 
-            plan = json.loads(response.choices[0].message.content)
+            # Validate plan structure
+            validation_result = self._validate_plan(plan)
+            if not validation_result:
+                return {"status": "error", "error": "Invalid workflow plan structure"}
 
-            # Handle missing capabilities
-            if plan.get("missing_capabilities"):
-                if (
-                    plan["missing_capabilities"]["agents"]
-                    or plan["missing_capabilities"]["tools"]
-                ):
-                    # Create missing components
-                    creation_result = self._create_missing_components(
-                        plan["missing_capabilities"]["agents"],
-                        plan["missing_capabilities"]["tools"],
-                    )
-
-                    # Update plan with created components
-                    if creation_result["success"]:
-                        # Re-plan with new components
-                        return self._plan_workflow(user_request, files)
-
+            # Add missing capabilities to plan for later processing
+            # Don't fail here - let the main flow handle missing capabilities
             plan["status"] = "success"
             return plan
 
+        except json.JSONDecodeError as e:
+            print(f"DEBUG: JSON parsing failed: {str(e)}")
+            print(f"DEBUG: Raw response: {response[:200]}...")
+            return {"status": "error", "error": f"Failed to parse plan JSON: {str(e)}"}
         except Exception as e:
-            return {"status": "error", "message": str(e)}
+            print(f"DEBUG: Planning failed: {str(e)}")
+            return {"status": "error", "error": f"Planning failed: {str(e)}"}
 
-    def _synthesize_results(
-        self,
-        user_request: str,
-        workflow_result: Dict[str, Any],
-        workflow_plan: Dict[str, Any],
-    ) -> str:
-        """
-        Use GPT-4 to synthesize results into a coherent response.
+    async def _create_missing_components(
+        self, missing_capabilities: Dict[str, List]
+    ) -> Dict[str, Any]:
+        """Create missing agents and tools dynamically."""
+        created = {"agents": [], "tools": []}
+        failed = {"agents": [], "tools": []}
 
-        Args:
-            user_request: Original user request
-            workflow_result: Raw results from workflow execution
-            workflow_plan: The planned workflow
+        # Create missing tools first (agents may depend on them)
+        for tool_spec in missing_capabilities.get("tools", []):
+            try:
+                result = await self._create_tool_from_spec(tool_spec)
+                if result["status"] == "success":
+                    created["tools"].append(tool_spec["name"])
+                else:
+                    failed["tools"].append(
+                        {
+                            "name": tool_spec["name"],
+                            "error": result.get("message", "Unknown error"),
+                        }
+                    )
+            except Exception as e:
+                failed["tools"].append({"name": tool_spec["name"], "error": str(e)})
 
-        Returns:
-            Natural language response summarizing the results
-        """
+        # Create missing agents
+        for agent_spec in missing_capabilities.get("agents", []):
+            try:
+                result = await self._create_agent_from_spec(agent_spec)
+                if result["status"] == "success":
+                    created["agents"].append(agent_spec["name"])
+                else:
+                    failed["agents"].append(
+                        {
+                            "name": agent_spec["name"],
+                            "error": result.get("message", "Unknown error"),
+                        }
+                    )
+            except Exception as e:
+                failed["agents"].append({"name": agent_spec["name"], "error": str(e)})
 
-        # Format results for GPT-4
-        results_summary = self._format_results_for_synthesis(workflow_result)
+        # Determine overall status
+        if failed["agents"] or failed["tools"]:
+            status = "partial" if created["agents"] or created["tools"] else "failed"
+        else:
+            status = "success"
 
-        prompt = f"""Synthesize the following workflow results into a clear, helpful response for the user.
+        return {"status": status, "created": created, "failed": failed}
 
-ORIGINAL REQUEST: {user_request}
+    async def _create_tool_from_spec(self, spec: Dict) -> Dict[str, Any]:
+        """Create a tool from specification."""
+        # Use GPT-4 to design detailed tool specification
+        design_prompt = f"""Design a tool with these requirements:
+Name: {spec['name']}
+Purpose: {spec['purpose']}
+Type: {spec.get('type', 'pure_function')}
 
-WORKFLOW EXECUTED: {' -> '.join(workflow_plan['workflow_steps'])}
+Provide:
+- Detailed input description
+- Detailed output description
+- 2-3 input/output examples
+- Default return value
 
-RESULTS:
-{results_summary}
-
-Provide a natural language response that:
-1. Directly answers the user's request
-2. Highlights key findings
-3. Mentions any important details or patterns
-4. Notes any errors or limitations if present
-
-Keep the response concise but comprehensive.
-"""
+Output as JSON."""
 
         try:
-            response = self.client.chat.completions.create(
-                model=ORCHESTRATOR_MODEL,
-                temperature=0.5,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "You are a helpful assistant synthesizing workflow results.",
-                    },
-                    {"role": "user", "content": prompt},
-                ],
+            design_response = await self._call_gpt4_json(
+                system_prompt="Design tool specifications.",
+                user_prompt=design_prompt,
+                temperature=0.3,
             )
 
-            return response.choices[0].message.content
+            design = json.loads(design_response)
+
+            # Create tool using factory
+            return self.tool_factory.create_tool(
+                tool_name=spec["name"],
+                description=spec["purpose"],
+                input_description=design.get("input_description", "Flexible input"),
+                output_description=design.get("output_description", "Processed output"),
+                examples=design.get("examples"),
+                default_return=design.get("default_return"),
+                is_pure_function=spec.get("type") == "pure_function",
+            )
+
+        except Exception as e:
+            return {"status": "error", "message": f"Failed to create tool: {str(e)}"}
+
+    async def _create_agent_from_spec(self, spec: Dict) -> Dict[str, Any]:
+        """Create an agent from specification."""
+        # Use GPT-4 to design detailed agent specification
+        design_prompt = f"""Design an agent with these requirements:
+Name: {spec['name']}
+Purpose: {spec['purpose']}
+Required Tools: {spec.get('required_tools', [])}
+
+Provide:
+- Detailed workflow steps
+- Input format description
+- Output format description
+- Key processing logic
+
+Output as JSON."""
+
+        try:
+            design_response = await self._call_gpt4_json(
+                system_prompt="Design agent specifications.",
+                user_prompt=design_prompt,
+                temperature=0.3,
+            )
+
+            design = json.loads(design_response)
+
+            # Create agent using factory
+            return self.agent_factory.create_agent(
+                agent_name=spec["name"],
+                description=spec["purpose"],
+                required_tools=spec.get("required_tools", []),
+                input_description=design.get("input_description", "Flexible input"),
+                output_description=design.get(
+                    "output_description", "Structured output"
+                ),
+                workflow_steps=design.get("workflow_steps"),
+                auto_create_tools=True,
+            )
+
+        except Exception as e:
+            return {"status": "error", "message": f"Failed to create agent: {str(e)}"}
+
+    async def _execute_workflow(
+        self, plan: Dict, initial_data: Dict, workflow_id: str
+    ) -> Dict[str, Any]:
+        """Execute the planned workflow."""
+
+        agents_needed = plan.get("agents_needed", [])
+        if not agents_needed:
+            # Check if this was because no suitable agents exist vs no work needed
+            if (
+                plan.get("confidence", 1.0) < 0.5
+                or "non_existent" in initial_data.get("request", "").lower()
+            ):
+                return {
+                    "status": "missing_capabilities",
+                    "results": {},
+                    "execution_path": [],
+                    "errors": [
+                        {"message": "No suitable agents found for this request"}
+                    ],
+                    "message": "No agents capable of handling this request",
+                }
+            else:
+                return {
+                    "status": "success",
+                    "results": {},
+                    "execution_path": [],
+                    "errors": [],
+                    "message": "No agents required for this request",
+                }
+
+        workflow_type = WorkflowType(plan.get("workflow_type", "sequential"))
+
+        try:
+            if workflow_type == WorkflowType.SEQUENTIAL:
+                result = await self._execute_sequential(
+                    plan["agents_needed"], initial_data, workflow_id
+                )
+            elif workflow_type == WorkflowType.PARALLEL:
+                result = await self._execute_parallel(
+                    plan["agents_needed"], initial_data, workflow_id
+                )
+            elif workflow_type == WorkflowType.CONDITIONAL:
+                result = await self._execute_conditional(
+                    plan, initial_data, workflow_id
+                )
+            else:  # HYBRID
+                result = await self._execute_hybrid(plan, initial_data, workflow_id)
+
+            return result
+
+        except asyncio.TimeoutError:
+            return {
+                "status": "error",
+                "error": f"Workflow timeout after {WORKFLOW_TIMEOUT_SECONDS} seconds",
+            }
+        except Exception as e:
+            return {"status": "error", "error": f"Workflow execution failed: {str(e)}"}
+
+    async def _execute_sequential(
+        self, agents: List[str], initial_data: Dict, workflow_id: str
+    ) -> Dict[str, Any]:
+        """Execute agents sequentially."""
+        # Use workflow engine for execution
+        workflow = self.workflow_engine.create_workflow(agents, workflow_id)
+        result = self.workflow_engine.execute_workflow(
+            workflow, initial_data, workflow_id
+        )
+
+        return {
+            "status": "success" if not result.get("errors") else "partial",
+            "results": result.get("results", {}),
+            "execution_path": result.get("execution_path", []),
+            "errors": result.get("errors", []),
+        }
+
+    async def _execute_parallel(
+        self, agents: List[str], initial_data: Dict, workflow_id: str
+    ) -> Dict[str, Any]:
+        """Execute agents in parallel."""
+        # Create tasks for parallel execution
+        tasks = []
+        for agent in agents:
+            task = asyncio.create_task(
+                self._execute_single_agent(agent, initial_data.copy())
+            )
+            tasks.append((agent, task))
+
+        # Wait for all tasks with timeout
+        results = {}
+        errors = []
+        execution_path = []
+
+        done, pending = await asyncio.wait(
+            [task for _, task in tasks], timeout=WORKFLOW_TIMEOUT_SECONDS
+        )
+
+        # Process completed tasks
+        for agent, task in tasks:
+            if task in done:
+                try:
+                    result = await task
+                    results[agent] = result
+                    execution_path.append(agent)
+                except Exception as e:
+                    errors.append({"agent": agent, "error": str(e)})
+            else:
+                task.cancel()
+                errors.append({"agent": agent, "error": "Timeout"})
+
+        return {
+            "status": "success" if not errors else "partial",
+            "results": results,
+            "execution_path": execution_path,
+            "errors": errors,
+        }
+
+    async def _execute_conditional(
+        self, plan: Dict, initial_data: Dict, workflow_id: str
+    ) -> Dict[str, Any]:
+        """Execute conditional workflow based on plan."""
+        # This would implement conditional logic from the plan
+        # For now, fall back to sequential
+        return await self._execute_sequential(
+            plan.get("agents_needed", []), initial_data, workflow_id
+        )
+
+    async def _execute_hybrid(
+        self, plan: Dict, initial_data: Dict, workflow_id: str
+    ) -> Dict[str, Any]:
+        """Execute hybrid workflow with mixed patterns."""
+        # This would implement complex hybrid workflows
+        # For now, fall back to sequential
+        return await self._execute_sequential(
+            plan.get("agents_needed", []), initial_data, workflow_id
+        )
+
+    async def _execute_single_agent(
+        self, agent_name: str, data: Dict
+    ) -> Dict[str, Any]:
+        """Execute a single agent asynchronously."""
+        # This would be implemented with actual async agent execution
+        # For now, use sync execution
+        agent_workflow = self.workflow_engine.create_workflow(
+            [agent_name], f"single_{agent_name}"
+        )
+        result = self.workflow_engine.execute_workflow(
+            agent_workflow, data, f"single_{agent_name}"
+        )
+        return result.get("results", {}).get(agent_name, {})
+
+    async def _execute_workflow_streaming(
+        self, plan: Dict, initial_data: Dict, workflow_id: str
+    ) -> Dict[str, Any]:
+        """Execute workflow with streaming results."""
+        # This would implement streaming execution
+        # For now, use regular execution
+        return await self._execute_workflow(plan, initial_data, workflow_id)
+
+    async def _synthesize_results(
+        self, user_request: str, plan: Dict, execution_result: Dict
+    ) -> str:
+        """Synthesize execution results into coherent response."""
+        # Format results for synthesis
+        results_summary = self._format_results_summary(execution_result)
+
+        prompt = ORCHESTRATOR_SYNTHESIS_PROMPT.format(
+            request=user_request,
+            plan=json.dumps(plan, indent=2),
+            results=results_summary,
+            errors=json.dumps(execution_result.get("errors", [])),
+        )
+
+        try:
+            response = await self._call_gpt4(
+                system_prompt="Synthesize results into a clear response.",
+                user_prompt=prompt,
+                temperature=0.5,
+            )
+
+            return response
 
         except Exception as e:
             # Fallback to basic summary
-            return self._create_basic_summary(workflow_result)
+            return self._create_basic_summary(execution_result)
+
+    async def _call_gpt4(
+        self, system_prompt: str, user_prompt: str, temperature: float = 1.0
+    ) -> str:
+        """Call O3-mini model with correct parameters."""
+        response = self.client.chat.completions.create(
+            model=ORCHESTRATOR_MODEL,
+            max_completion_tokens=ORCHESTRATOR_MAX_TOKENS,  # Changed from max_tokens
+            messages=[{"role": "user", "content": f"{system_prompt}\n\n{user_prompt}"}],
+        )
+        return response.choices[0].message.content
+
+    async def _call_gpt4_json(
+        self, system_prompt: str, user_prompt: str, temperature: float = 1.0
+    ) -> str:
+        """Call O3-mini model for JSON responses."""
+        enhanced_prompt = f"{system_prompt}\n\n{user_prompt}\n\nRespond with ONLY valid JSON, no other text before or after."
+
+        response = self.client.chat.completions.create(
+            model=ORCHESTRATOR_MODEL,
+            max_completion_tokens=ORCHESTRATOR_MAX_TOKENS,  # Changed from max_tokens
+            messages=[{"role": "user", "content": enhanced_prompt}],
+        )
+
+        content = response.choices[0].message.content
+
+        # Extract JSON from response if it's wrapped in text
+        if "```json" in content:
+            start = content.find("```json") + 7
+            end = content.find("```", start)
+            if end > start:
+                return content[start:end].strip()
+        elif "{" in content:
+            start = content.find("{")
+            end = content.rfind("}") + 1
+            if end > start:
+                return content[start:end].strip()
+
+        return content.strip()
 
     def _prepare_initial_data(
         self,
         user_request: str,
-        files: List[Dict[str, Any]],
-        workflow_plan: Dict[str, Any],
+        files: Optional[List[Dict]],
+        context: Optional[Dict],
+        plan: Dict,
     ) -> Dict[str, Any]:
-        """
-        Prepare initial data for workflow execution.
-
-        Args:
-            user_request: User's request
-            files: File information
-            workflow_plan: Planned workflow
-
-        Returns:
-            Initial data dictionary for workflow
-        """
-
+        """Prepare initial data for workflow execution."""
         initial_data = {
             "request": user_request,
             "files": files or [],
-            "workflow_plan": workflow_plan,
+            "context": context or {},
+            "plan": plan,
+            "workflow_type": plan.get("workflow_type", "sequential"),
         }
 
-        # Add file paths if files provided
-        if files and len(files) > 0:
-            initial_data["file_path"] = files[0].get("path", "")
-            initial_data["file_type"] = files[0].get("type", "")
+        # Add file paths if present
+        if files:
+            initial_data["file_paths"] = [f.get("path", "") for f in files]
+            initial_data["file_types"] = [f.get("type", "unknown") for f in files]
 
-        # Add any extracted text directly if it's a simple text request
-        if not files and isinstance(user_request, str):
-            # Check if the request contains data to process
-            if ":" in user_request or "\n" in user_request:
-                # Might contain embedded data
-                parts = user_request.split(":", 1)
-                if len(parts) > 1:
-                    initial_data["text"] = parts[1].strip()
-                else:
-                    initial_data["text"] = user_request
-            else:
-                initial_data["text"] = user_request
+        # Extract any embedded data from request
+        if ":" in user_request or "\n" in user_request:
+            parts = user_request.split(":", 1)
+            if len(parts) > 1:
+                initial_data["embedded_data"] = parts[1].strip()
 
         return initial_data
 
-    def _build_planning_context(
-        self, agents: List[Dict], tools: List[Dict], files: List[Dict]
+    def _format_components_list(
+        self, components: List[Dict], component_type: str
     ) -> str:
-        """Build context string for planning."""
-
-        context = f"Agents: {len(agents)}, Tools: {len(tools)}"
-        if files:
-            context += f", Files: {len(files)}"
-            for file in files:
-                context += f" [{file.get('type', 'unknown')}]"
-        return context
-
-    def _format_agents_list(self, agents: List[Dict]) -> str:
-        """Format agents list for prompt."""
+        """Format list of components for prompts."""
+        if not components:
+            return f"No {component_type} available"
 
         formatted = []
-        for agent in agents:
-            formatted.append(
-                f"- {agent['name']}: {agent['description']} "
-                f"(uses: {', '.join(agent.get('uses_tools', []))})"
-            )
-        return "\n".join(formatted) if formatted else "No agents available"
+        for comp in components[:20]:  # Limit to prevent prompt overflow
+            if component_type == "agents":
+                # Use exact registry name
+                name = comp.get("name", "unknown")
+                description = comp.get("description", "No description")
+                tools = comp.get("uses_tools", [])
+                formatted.append(f"- {name}: {description} (uses: {', '.join(tools)})")
+            else:  # tools
+                name = comp.get("name", "unknown")
+                description = comp.get("description", "No description")
+                formatted.append(f"- {name}: {description}")
 
-    def _format_tools_list(self, tools: List[Dict]) -> str:
-        """Format tools list for prompt."""
-
-        formatted = []
-        for tool in tools[:10]:  # Limit to prevent prompt overflow
-            formatted.append(f"- {tool['name']}: {tool['description']}")
-
-        if len(tools) > 10:
-            formatted.append(f"... and {len(tools) - 10} more tools")
-
-        return "\n".join(formatted) if formatted else "No tools available"
-
-    def _validate_workflow_plan(
-        self, plan: Dict[str, Any], available_agents: List[Dict]
-    ) -> Dict[str, Any]:
-        """
-        Validate and clean the workflow plan.
-
-        Args:
-            plan: Raw plan from GPT-4
-            available_agents: List of available agents
-
-        Returns:
-            Validated and cleaned plan
-        """
-
-        # Ensure required keys exist
-        if "workflow_steps" not in plan:
-            plan["workflow_steps"] = []
-        if "missing_agents" not in plan:
-            plan["missing_agents"] = []
-        if "missing_tools" not in plan:
-            plan["missing_tools"] = []
-
-        # Get available agent names
-        available_names = [a["name"] for a in available_agents]
-
-        # Validate workflow steps
-        valid_steps = []
-        for step in plan["workflow_steps"]:
-            if step in available_names:
-                valid_steps.append(step)
-            else:
-                # Move to missing agents if not available
-                if step not in plan["missing_agents"]:
-                    plan["missing_agents"].append(step)
-
-        plan["workflow_steps"] = valid_steps
-
-        return plan
-
-    def _format_results_for_synthesis(self, workflow_result: Dict[str, Any]) -> str:
-        """Format workflow results for synthesis."""
-
-        formatted = []
-
-        for agent_name, result in workflow_result.get("results", {}).items():
-            formatted.append(f"\n[{agent_name}]")
-
-            if isinstance(result, dict):
-                if "status" in result:
-                    formatted.append(f"Status: {result['status']}")
-
-                if "data" in result and result["data"]:
-                    # Format data nicely
-                    data_str = json.dumps(result["data"], indent=2)
-                    if len(data_str) > 500:
-                        data_str = data_str[:500] + "..."
-                    formatted.append(f"Data: {data_str}")
-
-        if workflow_result.get("errors"):
-            formatted.append("\nERRORS:")
-            for error in workflow_result["errors"]:
-                formatted.append(
-                    f"- {error.get('agent', 'unknown')}: {error.get('error', '')}"
-                )
+        if len(components) > 20:
+            formatted.append(f"... and {len(components) - 20} more")
 
         return "\n".join(formatted)
 
-    def _create_basic_summary(self, workflow_result: Dict[str, Any]) -> str:
-        """Create a basic summary without GPT-4."""
+    def _validate_plan(self, plan: Dict) -> bool:
+        """Validate workflow plan structure."""
+        try:
+            # Check required fields exist
+            required_fields = ["workflow_id", "workflow_type", "agents_needed"]
 
+            for field in required_fields:
+                if field not in plan:
+                    print(f"DEBUG: Missing required field: {field}")
+                    return False
+
+            # Validate workflow type
+            valid_types = ["sequential", "parallel", "conditional", "hybrid"]
+            if plan["workflow_type"] not in valid_types:
+                print(f"DEBUG: Invalid workflow type: {plan['workflow_type']}")
+                return False
+
+            # Validate agents list
+            if not isinstance(plan["agents_needed"], list):
+                print(f"DEBUG: agents_needed must be a list")
+                return False
+
+            # Check step count limit
+            if len(plan["agents_needed"]) > MAX_WORKFLOW_STEPS:
+                print(f"DEBUG: Too many agents: {len(plan['agents_needed'])}")
+                return False
+
+            return True
+
+        except Exception as e:
+            print(f"DEBUG: Plan validation error: {e}")
+            return False
+
+    def _check_missing_capabilities(self, plan: Dict) -> Dict[str, List]:
+        """Check for missing agents and tools."""
+        missing = {"agents": [], "tools": []}
+
+        # Check agents
+        for agent_name in plan.get("agents_needed", []):
+            if not self.registry.agent_exists(agent_name):
+                missing["agents"].append(
+                    {
+                        "name": agent_name,
+                        "purpose": f"Process {agent_name} tasks",
+                        "required_tools": [],
+                    }
+                )
+
+        # Check if plan specifies missing capabilities
+        if "missing_capabilities" in plan:
+            plan_missing = plan["missing_capabilities"]
+            if "agents" in plan_missing:
+                missing["agents"].extend(plan_missing["agents"])
+            if "tools" in plan_missing:
+                missing["tools"].extend(plan_missing["tools"])
+
+        # IMPORTANT: Return None if no missing capabilities
+        return missing if missing["agents"] or missing["tools"] else None
+
+    def _format_results_summary(self, execution_result: Dict) -> str:
+        """Format execution results for synthesis."""
+        summary = []
+
+        for agent_name, result in execution_result.get("results", {}).items():
+            summary.append(f"\n[{agent_name}]")
+
+            if isinstance(result, dict):
+                if "status" in result:
+                    summary.append(f"Status: {result['status']}")
+                if "data" in result:
+                    data_preview = json.dumps(result["data"], indent=2)
+                    if len(data_preview) > 500:
+                        data_preview = data_preview[:500] + "..."
+                    summary.append(f"Data: {data_preview}")
+
+        if execution_result.get("errors"):
+            summary.append("\nERRORS:")
+            for error in execution_result["errors"]:
+                summary.append(
+                    f"- {error.get('agent', 'unknown')}: {error.get('error', '')}"
+                )
+
+        return "\n".join(summary)
+
+    def _create_basic_summary(self, execution_result: Dict) -> str:
+        """Create basic summary without GPT-4."""
         summary = ["Workflow execution completed."]
 
-        # Add results summary
-        for agent_name, result in workflow_result.get("results", {}).items():
+        # Add successful agents
+        for agent_name, result in execution_result.get("results", {}).items():
             if isinstance(result, dict) and result.get("status") == "success":
                 summary.append(f"- {agent_name}: Completed successfully")
 
-                if "data" in result:
-                    # Add key data points
-                    data = result["data"]
-                    if isinstance(data, dict):
-                        for key in list(data.keys())[:3]:  # First 3 keys
-                            summary.append(f"  - {key}: {data[key]}")
-
         # Add errors
-        if workflow_result.get("errors"):
+        if execution_result.get("errors"):
             summary.append("\nErrors encountered:")
-            for error in workflow_result["errors"]:
+            for error in execution_result["errors"]:
                 summary.append(f"- {error.get('error', 'Unknown error')}")
 
         return "\n".join(summary)
 
     def _generate_workflow_id(self) -> str:
         """Generate unique workflow ID."""
-
         import random
 
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
         random_suffix = random.randint(1000, 9999)
-        return f"orch_{timestamp}_{random_suffix}"
+        return f"wf_{timestamp}_{random_suffix}"
 
-    def _create_missing_components(
-        self, missing_agents: List, missing_tools: List
-    ) -> Dict:
-        """Create missing components using GPT-4 + Claude."""
-
-        created = {"agents": [], "tools": []}
-
-        # Create tools first
-        for tool_spec in missing_tools:
-            if isinstance(tool_spec, dict):
-                name = tool_spec.get("name", "unknown_tool")
-                purpose = tool_spec.get("purpose", "Process data")
-
-                # Use GPT-4 to design the tool
-                tool_design = self._design_component("tool", name, purpose)
-
-                # Use Claude to implement
-                result = self.tool_factory.create_tool(
-                    tool_name=name,
-                    description=purpose,
-                    input_description=tool_design.get("input", "Any input"),
-                    output_description=tool_design.get("output", "Processed output"),
-                )
-
-                if result["status"] == "success":
-                    created["tools"].append(name)
-
-        # Create agents
-        for agent_spec in missing_agents:
-            if isinstance(agent_spec, dict):
-                name = agent_spec.get("name", "unknown_agent")
-                purpose = agent_spec.get("purpose", "Process data")
-                tools = agent_spec.get("tools_needed", [])
-
-                # Design agent
-                agent_design = self._design_component("agent", name, purpose)
-
-                # Implement
-                result = self.agent_factory.create_agent(
-                    agent_name=name,
-                    description=purpose,
-                    required_tools=tools,
-                    input_description=agent_design.get("input", "Flexible input"),
-                    output_description=agent_design.get("output", "Structured output"),
-                    workflow_steps=agent_design.get("steps", []),
-                )
-
-                if result["status"] == "success":
-                    created["agents"].append(name)
-
+    def _create_error_response(
+        self, workflow_id: str, message: str, error: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Create standardized error response."""
         return {
-            "success": True,
-            "created_agents": created["agents"],
-            "created_tools": created["tools"],
+            "status": "error",
+            "workflow_id": workflow_id,
+            "message": message,
+            "error": error,
+            "timestamp": datetime.now().isoformat(),
         }
 
-    def _analyze_request(self, user_request: str, files) -> str:
-        """Analyze request to understand intent."""
-
-        from config import ORCHESTRATOR_ANALYSIS_PROMPT
-
-        # Get available components
-        agents = self.registry.list_agents()
-        tools = self.registry.list_tools()
-
-        agents_desc = "\n".join(
-            [
-                f"- {a['name']}: {a['description']} (uses: {', '.join(a.get('uses_tools', []))})"
-                for a in agents
-            ]
+    def _record_execution(
+        self,
+        workflow_id: str,
+        request: str,
+        plan: Dict,
+        result: Dict,
+        execution_time: float,
+    ):
+        """Record execution for analysis."""
+        self.execution_history.append(
+            {
+                "workflow_id": workflow_id,
+                "timestamp": datetime.now().isoformat(),
+                "request": request[:200],  # Truncate for storage
+                "plan_type": plan.get("workflow_type"),
+                "agents_used": len(plan.get("agents_needed", [])),
+                "execution_time": execution_time,
+                "status": result.get("status"),
+                "errors": len(result.get("errors", [])),
+            }
         )
 
-        tools_desc = "\n".join(
-            [
-                f"- {t['name']}: {t['description']}"
-                for t in tools[:20]  # Limit for context
-            ]
-        )
+        # Keep only last 100 executions
+        if len(self.execution_history) > 100:
+            self.execution_history = self.execution_history[-100:]
 
-        prompt = ORCHESTRATOR_ANALYSIS_PROMPT.format(
-            request=user_request,
-            files=json.dumps(files) if files else "None",
-            available_agents=agents_desc,
-            available_tools=tools_desc,
-        )
+    def get_execution_history(self) -> List[Dict]:
+        """Get recent execution history."""
+        return self.execution_history.copy()
 
-        response = self.client.chat.completions.create(
-            model=ORCHESTRATOR_MODEL,
-            temperature=0.3,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "Analyze the request and available capabilities.",
-                },
-                {"role": "user", "content": prompt},
-            ],
-        )
-
-        return response.choices[0].message.content
-
-    def _execute_workflow(self, plan: Dict, initial_data: Dict) -> Dict:
-        """Execute workflow based on type."""
-
-        workflow_type = plan.get("workflow_type", "sequential")
-
-        if workflow_type == "parallel":
-            # Extract parallel agents
-            agents = [step["agent"] for step in plan["workflow_steps"]]
-            workflow = self.workflow_engine.create_parallel_workflow(agents)
-        elif workflow_type == "conditional":
-            workflow = self.workflow_engine.create_conditional_workflow(plan)
-        else:  # sequential
-            agents = [step["agent"] for step in plan["workflow_steps"]]
-            workflow = self.workflow_engine.create_workflow(agents)
-
-        # Execute with proper state management
-        return self.workflow_engine.execute_workflow(workflow, initial_data)
-
-    def _design_component(self, component_type: str, name: str, purpose: str) -> Dict:
-        """Use GPT-4 to design component specifications."""
-
-        prompt = f"""Design a {component_type} with these requirements:
-        Name: {name}
-        Purpose: {purpose}
-        
-        Provide:
-        - Input description
-        - Output description
-        - Processing steps
-        - Required capabilities
-        
-        Output as JSON."""
-
-        response = self.client.chat.completions.create(
-            model=ORCHESTRATOR_MODEL,
-            temperature=0.3,
-            response_format={"type": "json_object"},
-            messages=[
-                {"role": "system", "content": "Design component specifications."},
-                {"role": "user", "content": prompt},
-            ],
-        )
-
-        return json.loads(response.choices[0].message.content)
-
-
-class OrchestratorCLI:
-    """Command-line interface for testing the orchestrator."""
-
-    def __init__(self):
-        self.orchestrator = Orchestrator()
-
-    def run(self):
-        """Run interactive orchestrator session."""
-
-        print("\n" + "=" * 50)
-        print("GPT-4 ORCHESTRATOR - Natural Language Interface")
-        print("=" * 50)
-
-        print("\nEnter your request in natural language.")
-        print("Examples:")
-        print("  - Extract all emails from this text: Contact john@example.com")
-        print("  - Analyze these numbers and calculate statistics: 10, 20, 30, 40, 50")
-        print("  - Process this document and extract key information")
-
-        while True:
-            print("\n" + "-" * 40)
-            user_request = input("\nYour request (or 'quit'): ").strip()
-
-            if user_request.lower() in ["quit", "exit", "q"]:
-                print("Goodbye!")
-                break
-
-            if not user_request:
-                continue
-
-            # Check for file reference
-            files = None
-            if "file:" in user_request.lower():
-                # Extract file path
-                parts = user_request.split("file:", 1)
-                if len(parts) > 1:
-                    file_path = parts[1].strip().split()[0]
-                    files = [{"path": file_path, "type": "unknown"}]
-                    user_request = parts[0].strip()
-
-            # Process the request
-            print("\nProcessing...")
-            result = self.orchestrator.process_request(
-                user_request=user_request, files=files, auto_create=False
-            )
-
-            # Display results
-            print("\n" + "=" * 50)
-            print("RESULTS")
-            print("=" * 50)
-
-            if result["status"] == "success":
-                print(f"\nResponse:\n{result['response']}")
-
-                if result.get("workflow"):
-                    print(
-                        f"\nWorkflow executed: {' -> '.join(result['workflow']['steps'])}"
-                    )
-
-                if result.get("errors"):
-                    print("\nErrors encountered:")
-                    for error in result["errors"]:
-                        print(f"  - {error}")
-
-            elif result["status"] == "missing_capabilities":
-                print(f"\nMissing capabilities detected:")
-                if result["missing"]["agents"]:
-                    print(f"  Missing agents: {', '.join(result['missing']['agents'])}")
-                if result["missing"]["tools"]:
-                    print(f"  Missing tools: {', '.join(result['missing']['tools'])}")
-                print(
-                    "\nSuggestion: Enable auto_create mode to build these automatically"
-                )
-
-            else:
-                print(f"\nError: {result.get('message', 'Unknown error')}")
-
-
-if __name__ == "__main__":
-    cli = OrchestratorCLI()
-    cli.run()
+    def get_active_workflows(self) -> Dict[str, Any]:
+        """Get currently active workflows."""
+        return self.active_workflows.copy()

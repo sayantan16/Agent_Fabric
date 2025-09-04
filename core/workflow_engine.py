@@ -1,211 +1,528 @@
 """
 Workflow Engine
-Executes multi-agent workflows using LangGraph
+Executes multi-agent workflows using LangGraph with advanced state management
 """
 
-import sys
 import os
-from typing import Dict, List, Optional, Any, TypedDict
-from datetime import datetime
+import sys
 import json
+import asyncio
 import importlib.util
+from typing import Dict, List, Optional, Any, TypedDict, Callable
+from datetime import datetime
+from enum import Enum
+import traceback
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
 
+from config import (
+    WORKFLOW_STATE_SCHEMA,
+    MAX_WORKFLOW_STEPS,
+    WORKFLOW_TIMEOUT_SECONDS,
+    AGENT_TIMEOUT_SECONDS,
+    AGENT_MAX_RETRIES,
+    ENABLE_PARALLEL_EXECUTION,
+    MAX_PARALLEL_AGENTS,
+    GENERATED_AGENTS_DIR,
+    PREBUILT_AGENTS_DIR,
+)
 from core.registry import RegistryManager
+from core.registry_singleton import get_shared_registry
 
 
 class WorkflowState(TypedDict):
-    """State schema for workflow execution."""
+    """Enhanced state schema for workflow execution."""
 
-    # Core request info
+    # Core fields
     request: str
+    workflow_id: str
+    workflow_type: str
+
+    # Data flow
+    current_data: Any
     files: List[Dict[str, Any]]
+    context: Dict[str, Any]
 
     # Execution tracking
     execution_path: List[str]
     current_agent: Optional[str]
+    pending_agents: List[str]
+    completed_agents: List[str]
 
-    # Data flow
-    current_data: Any
+    # Results and errors
     results: Dict[str, Any]
-
-    # Error handling
     errors: List[Dict[str, str]]
+    warnings: List[Dict[str, str]]
 
     # Metadata
-    workflow_id: str
     started_at: str
     completed_at: Optional[str]
+    execution_metrics: Dict[str, float]
+    retry_counts: Dict[str, int]
+
+    # Control flow
+    should_continue: bool
+    next_agent: Optional[str]
+    parallel_group: Optional[List[str]]
+
+
+class ExecutionStatus(Enum):
+    """Workflow execution statuses."""
+
+    PENDING = "pending"
+    RUNNING = "running"
+    SUCCESS = "success"
+    PARTIAL = "partial"
+    FAILED = "failed"
+    TIMEOUT = "timeout"
+    CANCELLED = "cancelled"
 
 
 class WorkflowEngine:
+    """
+    Advanced workflow execution engine using LangGraph.
+    Handles complex multi-agent orchestration with state management.
+    """
+
     def __init__(self):
-        self.registry = RegistryManager()
+        """Initialize the workflow engine."""
+        self.registry = get_shared_registry()
         self.checkpointer = MemorySaver()
         self.loaded_agents = {}
+        self.active_workflows = {}
+        self.execution_cache = {}
 
     def create_workflow(
-        self, agent_sequence: List[str], workflow_id: str = None
+        self,
+        agent_sequence: List[str],
+        workflow_id: Optional[str] = None,
+        workflow_type: str = "sequential",
     ) -> StateGraph:
         """
-        Create a LangGraph workflow from a sequence of agents.
+        Create a LangGraph workflow from agent sequence.
 
         Args:
-            agent_sequence: List of agent names to execute in order
+            agent_sequence: List of agent names to execute
             workflow_id: Optional workflow identifier
+            workflow_type: Type of workflow (sequential, parallel, conditional)
 
         Returns:
             Configured StateGraph ready for execution
         """
+        # Validate agents exist
+        validation_result = self._validate_agents(agent_sequence)
+        if not validation_result["valid"]:
+            raise ValueError(f"Invalid agents: {validation_result['errors']}")
 
-        # Validate all agents exist
-        missing_agents = []
-        for agent_name in agent_sequence:
-            if not self.registry.agent_exists(agent_name):
-                missing_agents.append(agent_name)
-
-        if missing_agents:
-            raise ValueError(f"Missing agents: {', '.join(missing_agents)}")
-
-        # Create the graph
+        # Create the state graph
         workflow = StateGraph(WorkflowState)
 
-        # Load and add each agent as a node
-        for agent_name in agent_sequence:
-            agent_func = self._load_agent(agent_name)
-            workflow.add_node(agent_name, agent_func)
+        # Add nodes based on workflow type
+        if workflow_type == "sequential":
+            self._build_sequential_workflow(workflow, agent_sequence)
+        elif workflow_type == "parallel":
+            self._build_parallel_workflow(workflow, agent_sequence)
+        elif workflow_type == "conditional":
+            self._build_conditional_workflow(workflow, agent_sequence)
+        else:
+            self._build_hybrid_workflow(workflow, agent_sequence)
 
-        # Add edges to create sequential flow
-        for i, agent_name in enumerate(agent_sequence):
-            if i == 0:
-                # First agent connects from START
-                workflow.set_entry_point(agent_name)
-
-            if i < len(agent_sequence) - 1:
-                # Connect to next agent
-                next_agent = agent_sequence[i + 1]
-                workflow.add_edge(agent_name, next_agent)
-            else:
-                # Last agent connects to END
-                workflow.add_edge(agent_name, END)
-
-        # Compile the workflow
+        # Compile with checkpointer for state persistence
         return workflow.compile(checkpointer=self.checkpointer)
 
     def execute_workflow(
         self,
         workflow: StateGraph,
         initial_data: Dict[str, Any],
-        workflow_id: str = None,
+        workflow_id: Optional[str] = None,
+        timeout: Optional[int] = None,
     ) -> Dict[str, Any]:
         """
-        Execute a compiled workflow.
+        Execute a compiled workflow synchronously.
 
         Args:
             workflow: Compiled StateGraph
-            initial_data: Initial data to pass to first agent
+            initial_data: Initial data for workflow
             workflow_id: Optional workflow identifier
-
-        Returns:
-            Final workflow state with all results
-        """
-
-        # Prepare initial state
-        initial_state = {
-            "request": initial_data.get("request", ""),
-            "files": initial_data.get("files", []),
-            "execution_path": [],
-            "current_agent": None,
-            "current_data": initial_data,
-            "results": {},
-            "errors": [],
-            "workflow_id": workflow_id or self._generate_workflow_id(),
-            "started_at": datetime.now().isoformat(),
-            "completed_at": None,
-        }
-
-        try:
-            # Execute the workflow
-            config = {"configurable": {"thread_id": workflow_id or "default"}}
-
-            # Run through all nodes
-            final_state = None
-            for output in workflow.stream(initial_state, config):
-                final_state = output
-
-                # Print progress for debugging
-                if isinstance(output, dict):
-                    for key, value in output.items():
-                        if key != "__end__":
-                            print(f"  Executed: {key}")
-                            if isinstance(value, dict) and "errors" in value:
-                                if value["errors"]:
-                                    print(f"    Errors: {value['errors']}")
-
-            # Extract the final state
-            if final_state and "__end__" in final_state:
-                result_state = final_state["__end__"]
-            else:
-                # Get the last non-end state
-                result_state = final_state
-                for key, value in final_state.items():
-                    if key != "__end__":
-                        result_state = value
-                        break
-
-            # Mark completion
-            result_state["completed_at"] = datetime.now().isoformat()
-
-            # Update agent metrics
-            for agent_name in result_state.get("execution_path", []):
-                # Simple timing estimate
-                self.registry.update_agent_metrics(agent_name, 1.0)
-
-            return result_state
-
-        except Exception as e:
-            # Return error state
-            initial_state["errors"].append(
-                {"agent": "workflow_engine", "error": str(e)}
-            )
-            initial_state["completed_at"] = datetime.now().isoformat()
-            return initial_state
-
-    def create_and_execute(
-        self,
-        agent_sequence: List[str],
-        initial_data: Dict[str, Any],
-        workflow_id: str = None,
-    ) -> Dict[str, Any]:
-        """
-        Convenience method to create and execute a workflow in one step.
-
-        Args:
-            agent_sequence: List of agent names to execute
-            initial_data: Initial data for the workflow
-            workflow_id: Optional workflow identifier
+            timeout: Optional timeout override
 
         Returns:
             Final workflow state with results
         """
+        workflow_id = workflow_id or self._generate_workflow_id()
+        timeout = timeout or WORKFLOW_TIMEOUT_SECONDS
 
-        workflow = self.create_workflow(agent_sequence, workflow_id)
-        return self.execute_workflow(workflow, initial_data, workflow_id)
+        # Prepare initial state
+        initial_state = self._prepare_initial_state(workflow_id, initial_data)
 
-    def _load_agent(self, agent_name: str):
+        # Track workflow
+        self.active_workflows[workflow_id] = {
+            "status": ExecutionStatus.RUNNING,
+            "started_at": initial_state["started_at"],
+        }
+
+        try:
+            # Configure execution
+            config = {
+                "configurable": {"thread_id": workflow_id, "checkpoint_ns": workflow_id}
+            }
+
+            # Execute workflow with timeout
+            final_state = self._execute_with_timeout(
+                workflow, initial_state, config, timeout
+            )
+
+            # Mark completion
+            final_state["completed_at"] = datetime.now().isoformat()
+            final_state["execution_metrics"]["total_time"] = (
+                datetime.fromisoformat(final_state["completed_at"])
+                - datetime.fromisoformat(final_state["started_at"])
+            ).total_seconds()
+
+            # Update tracking
+            self.active_workflows[workflow_id]["status"] = (
+                ExecutionStatus.SUCCESS
+                if not final_state.get("errors")
+                else ExecutionStatus.PARTIAL
+            )
+
+            # Update agent metrics
+            self._update_agent_metrics(final_state)
+
+            return final_state
+
+        except Exception as e:
+            # Handle execution failure
+            self.active_workflows[workflow_id]["status"] = ExecutionStatus.FAILED
+
+            return self._create_error_state(
+                initial_state, f"Workflow execution failed: {str(e)}"
+            )
+        finally:
+            # Clean up
+            if workflow_id in self.active_workflows:
+                del self.active_workflows[workflow_id]
+
+    async def execute_workflow_async(
+        self,
+        workflow: StateGraph,
+        initial_data: Dict[str, Any],
+        workflow_id: Optional[str] = None,
+        stream_callback: Optional[Callable] = None,
+    ) -> Dict[str, Any]:
         """
-        Dynamically load an agent function from its file.
+        Execute workflow asynchronously with streaming support.
 
         Args:
-            agent_name: Name of the agent to load
+            workflow: Compiled StateGraph
+            initial_data: Initial data
+            workflow_id: Optional workflow identifier
+            stream_callback: Optional callback for streaming results
 
         Returns:
-            The agent function
+            Final workflow state
         """
+        workflow_id = workflow_id or self._generate_workflow_id()
+
+        # Prepare initial state
+        initial_state = self._prepare_initial_state(workflow_id, initial_data)
+
+        try:
+            # Execute with streaming
+            config = {
+                "configurable": {"thread_id": workflow_id, "checkpoint_ns": workflow_id}
+            }
+
+            final_state = initial_state
+            async for output in workflow.astream(initial_state, config):
+                # Stream intermediate results
+                if stream_callback:
+                    await stream_callback(output)
+
+                # Update state
+                for key, value in output.items():
+                    if key != "__end__":
+                        final_state = value
+
+            # Mark completion
+            final_state["completed_at"] = datetime.now().isoformat()
+
+            return final_state
+
+        except Exception as e:
+            return self._create_error_state(
+                initial_state, f"Async execution failed: {str(e)}"
+            )
+
+    def _build_sequential_workflow(self, workflow: StateGraph, agents: List[str]):
+        """Build sequential workflow structure."""
+        for i, agent_name in enumerate(agents):
+            # Create agent node
+            agent_func = self._create_agent_node(agent_name)
+            workflow.add_node(agent_name, agent_func)
+
+            # Set edges
+            if i == 0:
+                workflow.set_entry_point(agent_name)
+
+            if i < len(agents) - 1:
+                # Add conditional edge for error handling
+                workflow.add_conditional_edges(
+                    agent_name, self._should_continue, {True: agents[i + 1], False: END}
+                )
+            else:
+                workflow.add_edge(agent_name, END)
+
+    def _build_parallel_workflow(self, workflow: StateGraph, agents: List[str]):
+        """Build parallel workflow structure."""
+        # Add parallel execution node
+        parallel_node = self._create_parallel_node(agents)
+        workflow.add_node("parallel_execution", parallel_node)
+
+        # Add merge node
+        merge_node = self._create_merge_node()
+        workflow.add_node("merge_results", merge_node)
+
+        # Set edges
+        workflow.set_entry_point("parallel_execution")
+        workflow.add_edge("parallel_execution", "merge_results")
+        workflow.add_edge("merge_results", END)
+
+    def _build_conditional_workflow(self, workflow: StateGraph, agents: List[str]):
+        """Build conditional workflow structure."""
+        # Add decision node
+        decision_node = self._create_decision_node()
+        workflow.add_node("decision", decision_node)
+
+        # Add agent nodes
+        for agent_name in agents:
+            agent_func = self._create_agent_node(agent_name)
+            workflow.add_node(agent_name, agent_func)
+            workflow.add_edge(agent_name, END)
+
+        # Set conditional routing
+        workflow.set_entry_point("decision")
+
+        # Create routing map
+        route_map = {agent: agent for agent in agents}
+        route_map["none"] = END
+
+        workflow.add_conditional_edges("decision", self._route_decision, route_map)
+
+    def _build_hybrid_workflow(self, workflow: StateGraph, agents: List[str]):
+        """Build hybrid workflow with mixed patterns."""
+        # This is a simplified hybrid - can be extended
+        # For now, treat as sequential with parallel groups
+        self._build_sequential_workflow(workflow, agents)
+
+    def _create_agent_node(self, agent_name: str) -> Callable:
+        """Create a node function for an agent."""
+
+        def agent_node(state: WorkflowState) -> WorkflowState:
+            """Execute agent and update state."""
+            try:
+                # Update current agent
+                state["current_agent"] = agent_name
+
+                # Check retry count
+                if agent_name not in state["retry_counts"]:
+                    state["retry_counts"][agent_name] = 0
+
+                # Load and execute agent
+                agent_func = self._load_agent(agent_name)
+
+                # Record start time
+                start_time = datetime.now()
+
+                # Execute with timeout
+                import signal
+
+                def timeout_handler(signum, frame):
+                    raise TimeoutError(f"Agent {agent_name} timeout")
+
+                signal.signal(signal.SIGALRM, timeout_handler)
+                signal.alarm(AGENT_TIMEOUT_SECONDS)
+
+                try:
+                    state = agent_func(state)
+                finally:
+                    signal.alarm(0)
+
+                # Record execution time
+                execution_time = (datetime.now() - start_time).total_seconds()
+                state["execution_metrics"][agent_name] = execution_time
+
+                # Update tracking
+                state["execution_path"].append(agent_name)
+                state["completed_agents"].append(agent_name)
+
+                # Check for errors
+                if agent_name in state.get("results", {}):
+                    result = state["results"][agent_name]
+                    if isinstance(result, dict) and result.get("status") == "error":
+                        # Handle agent error
+                        if state["retry_counts"][agent_name] < AGENT_MAX_RETRIES:
+                            state["retry_counts"][agent_name] += 1
+                            state["warnings"].append(
+                                {
+                                    "agent": agent_name,
+                                    "warning": f"Retry {state['retry_counts'][agent_name]}",
+                                }
+                            )
+                            # Retry by re-executing
+                            return agent_node(state)
+                        else:
+                            state["errors"].append(
+                                {
+                                    "agent": agent_name,
+                                    "error": result.get("metadata", {}).get(
+                                        "error", "Unknown error"
+                                    ),
+                                }
+                            )
+                            state["should_continue"] = False
+
+                return state
+
+            except Exception as e:
+                # Record error
+                state["errors"].append(
+                    {
+                        "agent": agent_name,
+                        "error": str(e),
+                        "traceback": traceback.format_exc(),
+                    }
+                )
+
+                # Attempt retry
+                if state["retry_counts"][agent_name] < AGENT_MAX_RETRIES:
+                    state["retry_counts"][agent_name] += 1
+                    return agent_node(state)
+
+                state["should_continue"] = False
+                return state
+
+        return agent_node
+
+    def _create_parallel_node(self, agents: List[str]) -> Callable:
+        """Create node for parallel execution."""
+
+        def parallel_node(state: WorkflowState) -> WorkflowState:
+            """Execute agents in parallel."""
+            import concurrent.futures
+
+            state["parallel_group"] = agents
+            results = {}
+
+            with concurrent.futures.ThreadPoolExecutor(
+                max_workers=MAX_PARALLEL_AGENTS
+            ) as executor:
+                # Submit all agents
+                futures = {}
+                for agent_name in agents:
+                    agent_func = self._load_agent(agent_name)
+                    # Create copy of state for each agent
+                    agent_state = state.copy()
+                    future = executor.submit(agent_func, agent_state)
+                    futures[future] = agent_name
+
+                # Collect results
+                for future in concurrent.futures.as_completed(
+                    futures, timeout=WORKFLOW_TIMEOUT_SECONDS
+                ):
+                    agent_name = futures[future]
+                    try:
+                        agent_state = future.result()
+                        if agent_name in agent_state.get("results", {}):
+                            results[agent_name] = agent_state["results"][agent_name]
+                        state["completed_agents"].append(agent_name)
+                    except Exception as e:
+                        state["errors"].append({"agent": agent_name, "error": str(e)})
+
+            # Merge results
+            state["results"].update(results)
+            state["execution_path"].extend(agents)
+
+            return state
+
+        return parallel_node
+
+    def _create_merge_node(self) -> Callable:
+        """Create node for merging parallel results."""
+
+        def merge_node(state: WorkflowState) -> WorkflowState:
+            """Merge results from parallel execution."""
+            # Aggregate data from all results
+            merged_data = {}
+
+            for agent_name, result in state.get("results", {}).items():
+                if isinstance(result, dict) and result.get("status") == "success":
+                    data = result.get("data", {})
+                    if isinstance(data, dict):
+                        merged_data.update(data)
+                    else:
+                        merged_data[agent_name] = data
+
+            state["current_data"] = merged_data
+            return state
+
+        return merge_node
+
+    def _create_decision_node(self) -> Callable:
+        """Create node for conditional decisions."""
+
+        def decision_node(state: WorkflowState) -> WorkflowState:
+            """Make routing decision based on state."""
+            # Analyze current data to determine next agent
+            # This is a simplified implementation
+            state["next_agent"] = self._determine_next_agent(state)
+            return state
+
+        return decision_node
+
+    def _should_continue(self, state: WorkflowState) -> bool:
+        """Determine if workflow should continue."""
+        # Check explicit flag
+        if not state.get("should_continue", True):
+            return False
+
+        # Check for critical errors
+        if state.get("errors"):
+            for error in state["errors"]:
+                if "critical" in error.get("error", "").lower():
+                    return False
+
+        # Check step limit
+        if len(state.get("execution_path", [])) >= MAX_WORKFLOW_STEPS:
+            return False
+
+        return True
+
+    def _route_decision(self, state: WorkflowState) -> str:
+        """Route to next agent based on decision."""
+        return state.get("next_agent", "none")
+
+    def _determine_next_agent(self, state: WorkflowState) -> str:
+        """Determine next agent based on current state."""
+        # Simple logic - can be enhanced
+        current_data = state.get("current_data", {})
+
+        # Check data type and route accordingly
+        if isinstance(current_data, dict):
+            if "emails" in current_data:
+                return "email_processor"
+            elif "numbers" in current_data:
+                return "statistics_calculator"
+
+        return "none"
+
+    def _load_agent(self, agent_name: str) -> Callable:
+        """Load an agent function dynamically."""
+
+        print(f"DEBUG: Loading agent '{agent_name}'")
 
         # Check cache first
         if agent_name in self.loaded_agents:
@@ -214,7 +531,9 @@ class WorkflowEngine:
         # Get agent info from registry
         agent_info = self.registry.get_agent(agent_name)
         if not agent_info:
+            print(f"DEBUG: Agent '{agent_name}' not found in registry")
             raise ValueError(f"Agent '{agent_name}' not found in registry")
+        print(f"DEBUG: Agent info found: {agent_info.get('location')}")
 
         # Load the agent module
         agent_path = agent_info["location"]
@@ -222,276 +541,204 @@ class WorkflowEngine:
             raise FileNotFoundError(f"Agent file not found: {agent_path}")
 
         # Import the module
-        spec = importlib.util.spec_from_file_location(f"{agent_name}_agent", agent_path)
+        spec = importlib.util.spec_from_file_location(
+            f"{agent_name}_module", agent_path
+        )
         module = importlib.util.module_from_spec(spec)
+        sys.modules[f"{agent_name}_module"] = module
         spec.loader.exec_module(module)
 
         # Get the agent function
-        # Try both patterns: agent_name_agent and agent_name
-        func_name = f"{agent_name}_agent"
-        if hasattr(module, func_name):
-            agent_func = getattr(module, func_name)
-        elif hasattr(module, agent_name):
-            agent_func = getattr(module, agent_name)
-        else:
-            raise AttributeError(
-                f"Agent function '{func_name}' not found in {agent_path}"
-            )
+        possible_names = [f"{agent_name}_agent", agent_name, "agent", "execute"]
+
+        agent_func = None
+        for name in possible_names:
+            if hasattr(module, name):
+                agent_func = getattr(module, name)
+                break
+
+        if not agent_func:
+            raise AttributeError(f"No valid agent function found in {agent_path}")
 
         # Cache for future use
         self.loaded_agents[agent_name] = agent_func
 
         return agent_func
 
+    def _validate_agents(self, agents: List[str]) -> Dict[str, Any]:
+        """Validate that all agents exist and are valid."""
+
+        print(f"DEBUG: Validating agents: {agents}")
+
+        missing = []
+        inactive = []
+
+        for agent_name in agents:
+            print(f"DEBUG: Checking agent '{agent_name}'")
+            agent = self.registry.get_agent(agent_name)
+            if not agent:
+                print(f"DEBUG: Agent '{agent_name}' not found in registry")
+                missing.append(agent_name)
+            elif agent.get("status") != "active":
+                print(f"DEBUG: Agent '{agent_name}' status: {agent.get('status')}")
+                inactive.append(agent_name)
+            else:
+                print(f"DEBUG: Agent '{agent_name}' is valid and active")
+
+        errors = []
+        if missing:
+            errors.append(f"Missing agents: {', '.join(missing)}")
+        if inactive:
+            errors.append(f"Inactive agents: {', '.join(inactive)}")
+
+        return {
+            "valid": len(errors) == 0,
+            "errors": errors,
+            "missing": missing,
+            "inactive": inactive,
+        }
+
+    def _prepare_initial_state(
+        self, workflow_id: str, initial_data: Dict[str, Any]
+    ) -> WorkflowState:
+        """Prepare initial workflow state."""
+        return {
+            "request": initial_data.get("request", ""),
+            "workflow_id": workflow_id,
+            "workflow_type": initial_data.get("workflow_type", "sequential"),
+            "current_data": initial_data,
+            "files": initial_data.get("files", []),
+            "context": initial_data.get("context", {}),
+            "execution_path": [],
+            "current_agent": None,
+            "pending_agents": [],
+            "completed_agents": [],
+            "results": {},
+            "errors": [],
+            "warnings": [],
+            "started_at": datetime.now().isoformat(),
+            "completed_at": None,
+            "execution_metrics": {},
+            "retry_counts": {},
+            "should_continue": True,
+            "next_agent": None,
+            "parallel_group": None,
+        }
+
+    def _execute_with_timeout(
+        self,
+        workflow: StateGraph,
+        initial_state: WorkflowState,
+        config: Dict,
+        timeout: int,
+    ) -> WorkflowState:
+        """Execute workflow with timeout."""
+        import threading
+
+        result = [None]
+        exception = [None]
+
+        def run_workflow():
+            try:
+                final_state = initial_state
+                for output in workflow.stream(initial_state, config):
+                    if isinstance(output, dict):
+                        for key, value in output.items():
+                            if key != "__end__":
+                                final_state = value
+                result[0] = final_state
+            except Exception as e:
+                exception[0] = e
+
+        thread = threading.Thread(target=run_workflow)
+        thread.start()
+        thread.join(timeout=timeout)
+
+        if thread.is_alive():
+            # Timeout occurred
+            raise TimeoutError(f"Workflow timeout after {timeout} seconds")
+
+        if exception[0]:
+            raise exception[0]
+
+        return result[0]
+
+    def _update_agent_metrics(self, state: WorkflowState):
+        """Update agent metrics in registry."""
+        for agent_name in state.get("completed_agents", []):
+            if agent_name in state.get("execution_metrics", {}):
+                execution_time = state["execution_metrics"][agent_name]
+                self.registry.update_agent_metrics(agent_name, execution_time)
+
+    def _create_error_state(
+        self, initial_state: WorkflowState, error_message: str
+    ) -> WorkflowState:
+        """Create error state for failed execution."""
+        initial_state["errors"].append(
+            {
+                "agent": "workflow_engine",
+                "error": error_message,
+                "timestamp": datetime.now().isoformat(),
+            }
+        )
+        initial_state["completed_at"] = datetime.now().isoformat()
+        initial_state["should_continue"] = False
+        return initial_state
+
     def _generate_workflow_id(self) -> str:
-        """Generate a unique workflow ID."""
-        from datetime import datetime
+        """Generate unique workflow ID."""
         import random
 
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
         random_suffix = random.randint(1000, 9999)
-        return f"workflow_{timestamp}_{random_suffix}"
+        return f"wf_{timestamp}_{random_suffix}"
 
-    def visualize_workflow(self, agent_sequence: List[str]) -> str:
-        """
-        Create a text visualization of the workflow.
+    def get_workflow_status(self, workflow_id: str) -> Optional[Dict]:
+        """Get status of a workflow."""
+        return self.active_workflows.get(workflow_id)
 
-        Args:
-            agent_sequence: List of agent names
+    def cancel_workflow(self, workflow_id: str) -> bool:
+        """Cancel an active workflow."""
+        if workflow_id in self.active_workflows:
+            self.active_workflows[workflow_id]["status"] = ExecutionStatus.CANCELLED
+            return True
+        return False
 
-        Returns:
-            Text representation of the workflow
-        """
+    def visualize_workflow(
+        self, agent_sequence: List[str], workflow_type: str = "sequential"
+    ) -> str:
+        """Create text visualization of workflow."""
+        viz = ["\nWorkflow Visualization"]
+        viz.append("=" * 50)
+        viz.append(f"Type: {workflow_type}")
+        viz.append(f"Agents: {len(agent_sequence)}")
+        viz.append("")
 
-        visualization = "\nWorkflow Visualization:\n"
-        visualization += "=" * 50 + "\n"
+        if workflow_type == "sequential":
+            viz.append("START")
+            for i, agent in enumerate(agent_sequence):
+                viz.append(f"  │")
+                viz.append(f"  ▼")
+                viz.append(f"[{i+1}. {agent}]")
+                agent_info = self.registry.get_agent(agent)
+                if agent_info:
+                    viz.append(f"    {agent_info['description']}")
+            viz.append(f"  │")
+            viz.append(f"  ▼")
+            viz.append("END")
 
-        for i, agent_name in enumerate(agent_sequence):
-            agent_info = self.registry.get_agent(agent_name)
+        elif workflow_type == "parallel":
+            viz.append("START")
+            viz.append("  │")
+            viz.append("  ▼")
+            viz.append("[Parallel Execution]")
+            for agent in agent_sequence:
+                viz.append(f"  ├─> {agent}")
+            viz.append("  │")
+            viz.append("  ▼")
+            viz.append("[Merge Results]")
+            viz.append("  │")
+            viz.append("  ▼")
+            viz.append("END")
 
-            # Node representation
-            visualization += f"\n[{i+1}. {agent_name}]\n"
-
-            if agent_info:
-                visualization += f"    Description: {agent_info['description']}\n"
-                visualization += (
-                    f"    Uses tools: {', '.join(agent_info['uses_tools'])}\n"
-                )
-
-            # Edge representation
-            if i < len(agent_sequence) - 1:
-                visualization += "         |\n"
-                visualization += "         v\n"
-            else:
-                visualization += "         |\n"
-                visualization += "        END\n"
-
-        visualization += "\n" + "=" * 50
-        return visualization
-
-    def get_available_workflows(self) -> Dict[str, List[str]]:
-        """
-        Get pre-defined workflow templates.
-
-        Returns:
-            Dictionary of workflow templates
-        """
-
-        return {
-            "text_analysis": ["text_analyzer"],
-            "document_extraction": ["document_processor"],
-            "pdf_email": ["pdf_email_extractor"],
-            "csv_statistics": ["csv_analyzer", "statistics_calculator"],
-            "full_document_analysis": [
-                "document_processor",
-                "text_analyzer",
-                "statistics_calculator",
-            ],
-        }
-
-    def create_conditional_workflow(self, workflow_plan: Dict) -> StateGraph:
-        """Create workflow with conditional routing."""
-
-        workflow = StateGraph(WorkflowState)
-
-        # Add all agent nodes
-        for step in workflow_plan["workflow_steps"]:
-            agent_name = step["agent"]
-            agent_func = self._load_agent(agent_name)
-            workflow.add_node(agent_name, agent_func)
-
-        # Add conditional routing
-        def route_condition(state):
-            """Determine next node based on state."""
-            last_result = (
-                list(state.get("results", {}).values())[-1]
-                if state.get("results")
-                else None
-            )
-
-            if last_result and last_result.get("status") == "error":
-                return "error_handler"
-
-            # Check custom conditions from plan
-            for step in workflow_plan["workflow_steps"]:
-                if step.get("condition"):
-                    # Evaluate condition
-                    if eval(step["condition"], {"state": state}):
-                        return step["agent"]
-
-            return END
-
-        # Add conditional edges
-        workflow.add_conditional_edges(
-            source="start",
-            path=route_condition,
-            path_map={
-                node: node
-                for node in [s["agent"] for s in workflow_plan["workflow_steps"]]
-            },
-        )
-
-        return workflow.compile(checkpointer=self.checkpointer)
-
-    def create_parallel_workflow(self, agents: List[str]) -> StateGraph:
-        """Create workflow with parallel execution."""
-
-        from langgraph.graph import StateGraph, END
-        from langgraph.pregel import Channel
-
-        workflow = StateGraph(WorkflowState)
-
-        # Add parallel nodes
-        parallel_nodes = []
-        for agent_name in agents:
-            agent_func = self._load_agent(agent_name)
-            workflow.add_node(agent_name, agent_func)
-            parallel_nodes.append(agent_name)
-
-        # Add merge node
-        def merge_results(state):
-            """Merge results from parallel agents."""
-            merged_data = {}
-            for agent in parallel_nodes:
-                if agent in state.get("results", {}):
-                    result = state["results"][agent]
-                    if result.get("status") == "success":
-                        merged_data[agent] = result.get("data")
-
-            state["current_data"] = merged_data
-            return state
-
-        workflow.add_node("merge", merge_results)
-
-        # Connect parallel nodes to merge
-        for node in parallel_nodes:
-            workflow.add_edge(node, "merge")
-
-        workflow.add_edge("merge", END)
-
-        return workflow.compile(checkpointer=self.checkpointer)
-
-
-class WorkflowCLI:
-    """Command-line interface for testing workflows."""
-
-    def __init__(self):
-        self.engine = WorkflowEngine()
-        self.registry = RegistryManager()
-
-    def run(self):
-        """Run interactive workflow execution."""
-
-        print("\n" + "=" * 50)
-        print("WORKFLOW ENGINE - Interactive Execution")
-        print("=" * 50)
-
-        # Show available agents
-        print("\nAvailable Agents:")
-        agents = self.registry.list_agents()
-        for agent in agents:
-            print(f"  - {agent['name']}: {agent['description']}")
-
-        # Show pre-defined workflows
-        print("\nPre-defined Workflows:")
-        workflows = self.engine.get_available_workflows()
-        for name, sequence in workflows.items():
-            print(f"  - {name}: {' -> '.join(sequence)}")
-
-        # Get user choice
-        print("\nOptions:")
-        print("1. Use pre-defined workflow")
-        print("2. Create custom workflow")
-
-        choice = input("\nChoice (1 or 2): ").strip()
-
-        if choice == "1":
-            # Use pre-defined
-            workflow_name = input("Workflow name: ").strip()
-            if workflow_name in workflows:
-                agent_sequence = workflows[workflow_name]
-            else:
-                print("Invalid workflow name")
-                return
-        else:
-            # Create custom
-            print("\nEnter agent sequence (comma-separated):")
-            sequence_input = input("Agents: ").strip()
-            agent_sequence = [a.strip() for a in sequence_input.split(",")]
-
-        # Get input data
-        print("\nEnter input data:")
-        input_type = input("Data type (text/file): ").strip().lower()
-
-        if input_type == "file":
-            file_path = input("File path: ").strip()
-            initial_data = {
-                "file_path": file_path,
-                "request": f"Process file: {file_path}",
-            }
-        else:
-            text = input("Enter text: ").strip()
-            initial_data = {"text": text, "request": "Process text input"}
-
-        # Show workflow visualization
-        print(self.engine.visualize_workflow(agent_sequence))
-
-        # Execute workflow
-        print("\nExecuting workflow...")
-        print("-" * 40)
-
-        try:
-            result = self.engine.create_and_execute(
-                agent_sequence=agent_sequence, initial_data=initial_data
-            )
-
-            print("\n" + "-" * 40)
-            print("Workflow completed!")
-
-            # Show results
-            print("\nExecution Path:")
-            for agent in result.get("execution_path", []):
-                print(f"  - {agent}")
-
-            print("\nResults:")
-            for agent_name, agent_result in result.get("results", {}).items():
-                print(f"\n  [{agent_name}]")
-                if isinstance(agent_result, dict):
-                    print(f"    Status: {agent_result.get('status', 'unknown')}")
-                    if "data" in agent_result:
-                        print(
-                            f"    Data: {json.dumps(agent_result['data'], indent=6)[:500]}"
-                        )
-
-            if result.get("errors"):
-                print("\nErrors:")
-                for error in result["errors"]:
-                    print(f"  - {error['agent']}: {error['error']}")
-
-        except Exception as e:
-            print(f"Workflow execution failed: {str(e)}")
-
-
-if __name__ == "__main__":
-    cli = WorkflowCLI()
-    cli.run()
+        return "\n".join(viz)

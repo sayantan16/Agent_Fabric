@@ -1,1 +1,167 @@
-{"tools": {}}
+{
+  "tools": {
+    "read_text": {
+      "name": "read_text",
+      "description": "Read text file and return contents",
+      "signature": "def read_text(input_data=None)",
+      "location": "prebuilt/tools/read_text.py",
+      "is_prebuilt": true,
+      "is_pure_function": false,
+      "used_by_agents": [],
+      "created_by": "system",
+      "created_at": "2025-01-01T00:00:00",
+      "tags": [
+        "file",
+        "reader"
+      ],
+      "line_count": 35,
+      "status": "active"
+    },
+    "read_json": {
+      "name": "read_json",
+      "description": "Read JSON file and parse contents",
+      "signature": "def read_json(input_data=None)",
+      "location": "prebuilt/tools/read_json.py",
+      "is_prebuilt": true,
+      "is_pure_function": false,
+      "used_by_agents": [],
+      "created_by": "system",
+      "created_at": "2025-01-01T00:00:00",
+      "tags": [
+        "file",
+        "reader",
+        "json"
+      ],
+      "line_count": 38,
+      "status": "active"
+    },
+    "read_csv": {
+      "name": "read_csv",
+      "description": "Read CSV file using pandas",
+      "signature": "def read_csv(input_data=None)",
+      "location": "prebuilt/tools/read_csv.py",
+      "is_prebuilt": true,
+      "is_pure_function": false,
+      "used_by_agents": [],
+      "created_by": "system",
+      "created_at": "2025-01-01T00:00:00",
+      "tags": [
+        "file",
+        "reader",
+        "csv"
+      ],
+      "line_count": 37,
+      "status": "active"
+    },
+    "read_pdf": {
+      "name": "read_pdf",
+      "description": "Read PDF file and extract text using PyPDF2",
+      "signature": "def read_pdf(input_data=None)",
+      "location": "prebuilt/tools/read_pdf.py",
+      "is_prebuilt": true,
+      "is_pure_function": false,
+      "used_by_agents": [],
+      "created_by": "system",
+      "created_at": "2025-01-01T00:00:00",
+      "tags": [
+        "file",
+        "reader",
+        "pdf"
+      ],
+      "line_count": 42,
+      "status": "active"
+    },
+    "extract_urls": {
+      "name": "extract_urls",
+      "description": "Extract all URLs from input text",
+      "signature": "def extract_urls(input_data=None)",
+      "location": "generated/tools/extract_urls.py",
+      "is_prebuilt": false,
+      "is_pure_function": true,
+      "used_by_agents": [
+        "url_extractor",
+        "text_analyzer"
+      ],
+      "created_by": "claude-3-haiku-20240307",
+      "created_at": "2025-01-01T00:00:00",
+      "tags": [
+        "extraction",
+        "regex",
+        "url"
+      ],
+      "line_count": 28,
+      "status": "active"
+    },
+    "extract_emails": {
+      "name": "extract_emails",
+      "description": "Extract all email addresses from input text",
+      "signature": "def extract_emails(input_data=None)",
+      "location": "generated/tools/extract_emails.py",
+      "is_prebuilt": false,
+      "is_pure_function": true,
+      "used_by_agents": [
+        "email_extractor",
+        "text_analyzer"
+      ],
+      "created_by": "claude-3-haiku-20240307",
+      "created_at": "2025-01-01T00:00:00",
+      "tags": [
+        "extraction",
+        "regex",
+        "email"
+      ],
+      "line_count": 28,
+      "status": "active"
+    },
+    "calculate_mean": {
+      "name": "calculate_mean",
+      "description": "Calculate arithmetic mean of numbers",
+      "signature": "def calculate_mean(input_data=None)",
+      "location": "generated/tools/calculate_mean.py",
+      "is_prebuilt": false,
+      "is_pure_function": true,
+      "used_by_agents": [],
+      "created_by": "claude-3-haiku-20240307",
+      "created_at": "2025-01-01T00:00:00",
+      "tags": [
+        "calculation",
+        "math",
+        "statistics"
+      ],
+      "line_count": 39,
+      "status": "active"
+    },
+    "count_words": {
+      "name": "count_words",
+      "description": "Count the number of words in text input",
+      "signature": "def count_words(input_data=None)",
+      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/tools/count_words.py",
+      "is_prebuilt": false,
+      "is_pure_function": true,
+      "used_by_agents": [
+        "word_counter"
+      ],
+      "created_by": "claude-3-haiku-20240307",
+      "created_at": "2025-09-04T11:44:51.358170",
+      "tags": [],
+      "line_count": 48,
+      "status": "active"
+    },
+    "analyze_sentiment": {
+      "name": "analyze_sentiment",
+      "description": "Determine the sentiment (e.g., positive, neutral, negative) from a block of text",
+      "signature": "def analyze_sentiment(input_data=None)",
+      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/tools/analyze_sentiment.py",
+      "is_prebuilt": false,
+      "is_pure_function": true,
+      "used_by_agents": [
+        "sentiment_analysis_agent"
+      ],
+      "created_by": "claude-3-haiku-20240307",
+      "created_at": "2025-09-04T17:24:48.714065",
+      "tags": [],
+      "line_count": 53,
+      "status": "active"
+    }
+  }
+}
