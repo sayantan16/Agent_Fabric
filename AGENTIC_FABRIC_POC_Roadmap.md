@@ -1,15 +1,15 @@
-# Agent Fabric — Design Doc And Roadmap
+# Agent Fabric — Design & Roadmap
 
-## 1) Problem Statement
+## 1) Overview & Problem Statement
 
-Your current agent set feels too complex and monolithic. The vision is an **agent fabric** where agents are created on demand by an LLM (e.g., Claude) and registered automatically. Today’s large, pre-baked agents make that unrealistic: no API can reliably generate, maintain, and safely extend 500–1000 line agents end‑to‑end.
+Your current agent set is complex and monolithic. The vision is an **agent fabric** where small agents are created on‑demand by an LLM and registered automatically. Large, pre‑baked agents (500–1000 LOC) are brittle to generate and maintain.
 
-**We need a simpler, composable pattern** that the agent fabric can genuinely automate:
+**Core shift:**
 
 * Keep agents **narrow** (single responsibility).
-* Push reusable logic into **pure tools** (stateless functions).
-* Let an **Orchestrator LLM** plan and sequence agents dynamically.
-* Persist capabilities in **lightweight registries** (agents.json, tools.json).
+* Move reusable logic into **pure tools** (stateless functions).
+* Let an **Orchestrator LLM** plan/sequence agents.
+* Persist capabilities in **lightweight registries** (`agents.json`, `tools.json`).
 
 ---
 
@@ -17,33 +17,33 @@ Your current agent set feels too complex and monolithic. The vision is an **agen
 
 ### Goals
 
-* **Minimal Viable Agents (MVAs):** Agents do one thing well (read/parse/extract/format).
-* **Pure Tools:** Small, stateless utilities that agents import and compose.
-* **Dual Registry:** Track agents and tools separately for maximum reuse.
-* **On‑Demand Generation:** If a capability is missing, let the LLM generate it and register it.
-* **Standard I/O Contracts:** Every agent speaks a simple JSON envelope so outputs are chainable.
-* **LangGraph Orchestration:** Use LangGraph for state, branching, retries, and visualization.
+* **Minimal Viable Agents (MVAs):** tiny agents for read/parse/extract/format.
+* **Pure Tools:** 20–100 LOC utilities; deterministic; JSON‑serializable returns.
+* **Dual Registry:** separate tracking for agents vs tools for maximal reuse.
+* **On‑Demand Generation:** LLM creates missing tools/agents and registers them.
+* **Standard I/O Contracts:** uniform JSON envelope; chainable outputs.
+* **LangGraph Orchestration:** state, branching, retries, visualization.
 
 ### Non‑Goals (for now)
 
-* Building rich, domain‑heavy agents (e.g., fully featured “ticketing platform” agent).
-* Supporting many vendors at once. Start with **one** (e.g., Jira) and add others on demand.
-* Long‑lived agent state. Prefer stateless execution; keep state in the workflow engine.
+* Domain‑heavy “platform” agents.
+* Multi‑vendor support on day one (start **Jira‑only** path).
+* Long‑lived agent state (keep state in the workflow engine).
 
 ---
 
 ## 3) Design Principles
 
-1. **Small Pieces, Loosely Joined:** Agents are \~50–300 LOC; tools are \~20–100 LOC.
-2. **Single Responsibility:** Each agent/tool does one thing; composition yields power.
-3. **Stateless & Deterministic:** Tools must be pure; agents minimize side effects.
-4. **Centralized Intelligence:** Only the Orchestrator decides workflow (no `next_actions` in agents).
-5. **Explicit Contracts:** Uniform JSON I/O so components can plug together safely.
-6. **Generate Late:** Prefer generating new agents/tools when (and only when) needed.
+1. **Small Pieces, Loosely Joined:** agents ≈ 50–300 LOC; tools ≈ 20–100 LOC.
+2. **Single Responsibility:** composition yields power.
+3. **Stateless & Deterministic Tools:** agents minimize side effects.
+4. **Centralized Intelligence:** Orchestrator owns planning (no `next_actions` inside agents).
+5. **Explicit Contracts:** uniform JSON I/O, explicit schemas.
+6. **Generate Late:** create new things only when needed.
 
 ---
 
-## 4) High‑Level Architecture
+## 4) Architecture & End‑to‑End Flow
 
 ```
 User Request → Orchestrator LLM → agents.json / tools.json (capability lookup)
@@ -52,43 +52,11 @@ User Request → Orchestrator LLM → agents.json / tools.json (capability looku
 Then: Orchestrator builds a LangGraph workflow → Execute → Collect results → Respond
 ```
 
-**Why this works:** The Orchestrator plans; registries declare what exists; factories generate the smallest new pieces required; LangGraph executes robustly.
+### Flow Summary
 
----
+1. User asks → 2) Orchestrator derives needed capabilities → 3) Check registries → 4) If missing, factories generate **tools first**, then agents → 5) Validate & register → 6) Build workflow (LangGraph) → 7) Execute with retries → 8) Synthesize answer.
 
-## 4a) End‑to‑End Flow (Request → Registries → Codegen → LangGraph)
-
-### Plain‑language Summary
-
-1. **User asks for something.**
-2. **Orchestrator** (LLM) translates that ask into needed capabilities.
-3. It **checks the registries** to see what agents/tools already exist.
-4. If something is **missing**, it asks the **factories** to generate the smallest new pieces (tools first, then agents).
-5. New code is **validated & registered**.
-6. Orchestrator **builds a workflow** (LangGraph) from the available agents.
-7. LangGraph **executes** the workflow and returns results.
-8. Orchestrator **synthesizes** the final answer.
-
-### Step‑by‑Step (mirrors your sketch)
-
-1. **User Request** → goes to **GPT‑4 Orchestrator**.
-2. Orchestrator **parses intent** and identifies required agent(s): e.g., `extract_urls`.
-3. **Lookup** `agents.json` → “Does `extract_urls` exist?”
-
-   * **If yes:** continue to step 7.
-   * **If no:** derive dependencies → e.g., needs `regex_matcher` tool.
-4. **Lookup** `tools.json` → “Does `regex_matcher` exist?”
-
-   * **If yes:** proceed.
-   * **If no:** **Tool Factory** generates `regex_matcher` → validate → **register** in `tools.json`.
-5. **Agent Factory** generates `extract_urls` that **imports** `regex_matcher` → validate → **register** in `agents.json`.
-6. (Optional) **Smoke tests** run with tiny fixtures to ensure agent+tool behave as expected.
-7. Orchestrator **builds LangGraph workflow** (nodes=agents, edges=data handoff).
-8. **Execute** workflow via LangGraph with retries, capture timings and outputs.
-9. **Collect** standard envelopes from each node, update run logs and metrics.
-10. **Synthesize & return** final result to the user.
-
-### Swimlane (conceptual)
+### Swimlane
 
 ```
 User        | Orchestrator       | Registries          | Factories                | LangGraph
@@ -126,72 +94,84 @@ Request ----> parse+plan --------> read agents/tools --|                        
 
 ### Design Guarantees
 
-* **Idempotent creation:** `ensure(name)` checks the registry and reuses existing code.
-* **Smallest diff:** Only missing **tools first**, then the **agents** that import them.
-* **Uniform contracts:** Every agent returns the standard JSON envelope; tools are pure functions.
-* **Safety gates:** Code runs through validation (imports allow‑list, purity/unit tests, size budgets).
-* **Observability:** Each step logs timings, creation events, and registry updates.
+* **Idempotent creation** via `ensure(name)` (smallest diff).
+* **Uniform contracts**: standard JSON envelope; tools are pure.
+* **Safety gates**: allow‑listed imports, purity/unit checks, size budgets.
+* **Observability**: timings, creation events, registry updates.
 
-### Concrete Example (your `extract_urls` case)
+### Concrete Example
 
-* Request: “Find links in this PDF.”
-* Orchestrator maps to `read_pdf` → `extract_urls`.
-* `extract_urls` depends on `regex_matcher`.
-* If `regex_matcher` absent → Tool Factory creates it → register in `tools.json`.
-* If `extract_urls` absent → Agent Factory creates it importing `regex_matcher` → register in `agents.json`.
-* Orchestrator builds graph: `read_pdf` → `extract_urls` → (optional) `fetch_webpage` → `summarize`.
-* Run in LangGraph; return normalized JSON with URLs + counts; orchestrator formats the final answer.
+“Find links in this PDF” → map `read_pdf` → `extract_urls` (needs `regex_matcher`). If missing, create tool then agent; register both; build graph; execute; return normalized URLs.
+
+---
+
+## 4b) Starter Kit & Dynamic Creation Policy (Canonical)
+
+**Pre‑built (absolute minimum):**
+
+* `read_pdf` (PyPDF2 wrapper), `read_csv` (pandas wrapper), `read_text`, `read_json`.
+
+> Nothing else is pre‑baked. These exist only because library syntax is finicky for LLMs. The **first supported connector is Jira**, delivered via the factory path (not hard‑coded), with review gates enabled.
+
+**Created dynamically (by LLM):**
+
+* Agents (examples): `extract_urls`, `create_simple_chart`, `fetch_webpage`, `parse_json`, `format_table`, `calculate_stats`, `detect_language`, `extract_dates`, `jira_fetch`, `send_slack`.
+* Tools: small, pure utilities those agents import. Missing tools are created **first**.
+
+**Tools vs Agents — Hybrid Rule**
+
+* Prefer **tools** for reusable logic (regex, normalization, validation, date parsing).
+* Agents are **simple executors** importing tools and returning the **standard JSON envelope**.
+* If duplication appears, factories prompt extraction into tools.
+
+**Registry Contracts (source of truth)**
+
+* **agents.json:** description, `uses_tools`, `input_schema`, `output_schema`, `location`, `created_by`, `created_at`, `version`, metrics, tags.
+* **tools.json:** description, explicit `signature`, `location`, `created_by`, `created_at`, `is_pure_function`, tags, `used_by_agents`.
+* Entries point to real files; factories update registries atomically after validation.
+
+**Factory Operating Rules (must)**
+
+* **Tool Factory (`ensure_tool`)**: purity; datatype robustness; size budget; validation (lint/import gate/samples/signature).
+* **Agent Factory (`ensure_agent`)**: single responsibility; uses tools; standard envelope; schema checks; size budget; validation (lint/allow‑list/smoke test).
+* On success: write file → update respective registry.
+
+**Prompt & Config Policy**
+
+* **Single source of truth:** generation prompts, size budgets, allow‑lists, safety toggles live in `config.py`.
+* `config_bkup.py` is **deprecated**.
+* **No inline prompts** in factories; they must read from `config.py`.
+
+**Up‑to‑Step‑10 Acceptance (what “working” means)**
+
+1. Missing capability triggers **tool → agent** creation in that order.
+2. Both pass validation; registries updated with correct paths/signatures.
+3. Orchestrator builds a **LangGraph** graph from registry entries (no hardcoding).
+4. Execution captures envelopes, timings, errors; results synthesized.
+5. Run logs show dependency resolution and creation events.
+6. Only the four readers are prebuilt; all other nodes are generated.
 
 ---
 
 ## 5) Core Components
 
-### 5.1 Orchestrator LLM
-
-* Parses the user request, maps to available capabilities.
-* If capability is missing, triggers codegen via factories.
-* Builds the workflow (nodes=agents; edges=data flow) and executes via LangGraph.
-* Aggregates outputs and formats the final response.
-
-### 5.2 Dual Registry (files)
-
-* **agents.json** — responsibilities, tool deps, input/output schemas, location, metadata.
-* **tools.json** — signatures of pure utilities, locations, metadata, usage.
-
-### 5.3 Tool Factory (codegen + validation)
-
-* Given a spec/signature, requests the LLM to generate a **pure function** tool.
-* Validates: lint, import safety, unit tests for sample cases, purity checks (no I/O unless declared).
-* On success: writes file, updates tools.json.
-
-### 5.4 Agent Factory (codegen + validation)
-
-* Given an intent and required tools, asks the LLM to generate a **small agent** that imports tools.
-* Validates: schema conformance, envelope format, unit tests with fixtures.
-* On success: writes file, updates agents.json.
-
-### 5.5 Workflow Engine (LangGraph)
-
-* Maintains **workflow state**, retries, error edges, and conditional branching.
-* Records execution path and per‑node timings.
-* Exposes a visualization hook for debugging.
-
-### 5.6 Minimal Pre‑built Components
-
-* **Readers:** pdf/csv/json/text (thin wrappers only).
-* **Connectors:** single vendor to start (e.g., Jira). Others are generated later.
-* **Auth helpers:** scoped and explicit; no hidden side effects.
+* **Orchestrator LLM:** parses request, ensures capabilities, builds/executes LangGraph, synthesizes output.
+* **Dual Registry:** `agents.json` (capabilities), `tools.json` (utilities).
+* **Tool Factory:** codegen + validation + registration for pure tools.
+* **Agent Factory:** codegen + validation + registration for small agents.
+* **Workflow Engine (LangGraph):** state, retries, branching, visualization.
+* **Minimal Prebuilt:** the four readers. Jira is the **first connector path**, generated behind a review gate.
 
 ---
 
-## 6) Contracts (No `next_actions`)
+## 6) Contracts (No `next_actions` inside agents)
 
 ### 6.1 Standard Agent Output Envelope
 
 ```json
 {
   "status": "success" | "error",
-  "data": { /* agent-specific payload */ },
+  "data": { },
   "metadata": {
     "agent": "string",
     "tools_used": ["string"],
@@ -203,33 +183,25 @@ Request ----> parse+plan --------> read agents/tools --|                        
 
 ### 6.2 Tool Signature Guidelines
 
-* All tools are **pure**: input args → return value; no global state; no network unless declared connector.
-* Prefer explicit, typed arguments; avoid implicit environment reads.
-* Return simple Python/JSON‑serializable types.
+* Pure functions only; explicit args; JSON‑serializable returns; no hidden I/O or implicit env reads.
 
 ### 6.3 Workflow State (conceptual)
 
-* `request`: original user ask
-* `files`: descriptors for uploaded inputs
-* `execution_path`: ordered list of agent names
-* `current_data`: the data passed to the next node
-* `results`: map of agent → output envelope
-* `errors`: list of {agent, message}
-* `started_at/completed_at`: timestamps
+`request`, `files`, `execution_path`, `current_data`, `results`, `errors`, `started_at`, `completed_at`.
 
 ---
 
 ## 7) Registries (Schemas)
 
-### 7.1 agents.json (logical schema)
+### 7.1 `agents.json` (logical schema)
 
 ```json
 {
   "<agent_name>": {
     "description": "what it does",
     "uses_tools": ["tool_a", "tool_b"],
-    "input_schema": { /* JSON schema-ish */ },
-    "output_schema": { /* JSON schema-ish */ },
+    "input_schema": {},
+    "output_schema": {},
     "location": "generated/agents/<agent_name>.py",
     "created_by": "llm-id",
     "created_at": "iso-8601",
@@ -241,7 +213,7 @@ Request ----> parse+plan --------> read agents/tools --|                        
 }
 ```
 
-### 7.2 tools.json (logical schema)
+### 7.2 `tools.json` (logical schema)
 
 ```json
 {
@@ -262,88 +234,125 @@ Request ----> parse+plan --------> read agents/tools --|                        
 
 ## 8) Example: Minimal Ticketing Agent (MVA)
 
-**Scope now:** Jira‑only helper (read/parse/query).
-**Non‑goals now:** GitHub, ServiceNow, etc. If requested, the Orchestrator triggers generation of a new adapter/agent.
-
-**Inputs:** project key, filters (assignee, status, date range), fields
-**Output:** standard envelope with a normalized JSON array of tickets
-**Tools:** `jira_client` (connector), `field_normalizer` (pure local tool)
-**Notes:** no workflow smarts; no side effects beyond declared Jira calls.
+* **Scope now:** Jira‑only helper (read/parse/query).
+* **Inputs:** project key; filters (assignee/status/date range); fields.
+* **Output:** standard envelope, normalized ticket array.
+* **Tools:** `jira_client` (connector), `field_normalizer` (pure).
+* **Notes:** no workflow smarts; no side effects beyond declared Jira calls.
 
 ---
 
 ## 9) Security, Safety, and Governance
 
-* **Sandbox codegen:** execute generated code in a restricted environment.
-* **Allow‑list imports:** only standard libs + approved SDKs.
-* **Secret handling:** explicit credential objects; never read env vars implicitly.
-* **Network egress:** only via declared connectors; block raw sockets for tools.
-* **Review gates:** automated tests + lightweight human review for new connectors.
+* **Sandbox codegen** execution.
+* **Allow‑list imports**; deny forbidden modules.
+* **Secret handling** explicit (no implicit env reads).
+* **Network egress** only via declared connectors; block raw sockets in tools.
+* **Review gates**: automated tests + lightweight human review for new connectors.
 
 ---
 
 ## 10) Observability & Ops
 
-* **Run logs:** per agent start/stop, inputs (redacted), sizes, durations.
+* **Run logs:** per‑agent start/stop, redacted inputs, sizes, durations.
 * **Metrics:** execution counts, p50/p95 latency per agent, codegen success rate, registry growth.
 * **Tracing:** workflow graph with node/edge timings.
-* **Cost:** token and API call accounting per run.
+* **Cost:** token/API accounting per run.
 
 ---
 
 ## 11) Versioning & Change Management
 
-* **Semver:** bump minor for non‑breaking enhancements; major for breaking schema changes.
-* **Immutability:** keep old versions in registry until workflows migrate.
+* **SemVer**: bump minor for non‑breaking enhancements; major for schema changes.
+* **Immutability:** keep old versions until workflows migrate.
 * **Deprecation:** mark old entries; Orchestrator prefers latest non‑deprecated.
 
 ---
 
 ## 12) Roadmap
 
-**P0 (this week):**
-
-* Stand up registries; implement minimal readers + one connector (Jira).
-* Implement factories with basic validation; generate 3–5 tiny tools + 3 tiny agents.
-* Orchestrate one end‑to‑end demo workflow in LangGraph.
-
-**P1:**
-
-* Harden validation (purity checks, allow‑list, unit tests).
-* Add visualization, metrics, and a simple UI for registry browsing and run history.
-* Add on‑demand connector generation path (e.g., GitHub) behind a review gate.
-
-**P2:**
-
-* Policy‑driven governance (who can approve new connectors).
-* Caching and memoization for heavy tools.
-* Multi‑tenant credentials and role‑based data access.
+* **P0 (this week):** registries + four readers; factory basics; generate 3–5 tools + 3 tiny agents; one end‑to‑end LangGraph demo; enable Jira connector via factory path (behind review gate).
+* **P1:** strengthen validation (purity checks, allow‑list, unit tests); visualization/metrics/UI for registry & run history; on‑demand new connector path (e.g., GitHub) behind review gate.
+* **P2:** policy‑driven governance; caching/memoization for heavy tools; multi‑tenant credentials & role‑based data access.
 
 ---
 
 ## 13) Risks & Mitigations
 
-* **Risk:** LLM over‑generates complex code.
-  **Mitigation:** strict size/time budgets; factories reject oversized outputs.
-* **Risk:** Silent side effects in generated tools.
-  **Mitigation:** purity tests; deny network/disk unless declared connector.
-* **Risk:** Registry drift and dead entries.
-  **Mitigation:** usage tracking; prune unused entries on schedule.
-* **Risk:** Vendor lock‑in at connector layer.
-  **Mitigation:** narrow adapter interfaces; test harnesses per vendor.
+* **Over‑complex codegen** → strict size/time budgets; factories reject oversized outputs.
+* **Hidden side effects** → purity tests; deny network/disk unless declared connector.
+* **Registry drift/dead entries** → usage tracking; scheduled prune.
+* **Vendor lock‑in** → narrow adapter interfaces; per‑vendor test harnesses.
 
 ---
 
 ## 14) Success Criteria
 
-* 80%+ of new capabilities added via **generated** tools/agents under size limits.
-* Median time to add a new utility/tool: **< 5 minutes** including validation.
-* Stable P95 workflow latency for a 5‑node graph: **< 20 seconds**.
-* Zero policy violations (no undeclared network I/O) in CI over 30 days.
+* ≥80% new capabilities via generated tools/agents **within size budgets**.
+* Median time to add a new utility/tool **< 5 min** including validation.
+* Stable P95 workflow latency for a 5‑node graph **< 20 s**.
+* **Zero policy violations** (no undeclared network I/O) in CI over 30 days.
 
 ---
 
-## 15) Appendix: Sample Registry Entries
+## 15) Implementation Plan — Steps 1–20
+
+### Phase 1: Foundation & Cleanup (Steps 1–5)
+
+**1 — Backup & Restructure:** snapshot repo; keep `.env`, `venv/`, `.git/`; establish lean tree (`generated/`, `core/`, registries, `config.py`).
+**2 — Configuration Setup:** model IDs, API keys, **size budgets** (agents 50–300, tools 20–100), retries/timeouts, import allow‑list, connector policy.
+**3 — Dual Registry Design:** define schemas; implement `core/registry.py` (load/save/search/deps/prune).
+**4 — Minimal Pre‑built:** implement four readers; prepare Jira connector **via factory path**.
+**5 — Seed Templates:** `example_tool.py`, `example_agent.py` for codegen prompts.
+
+### Phase 2: Core Engine (Steps 6–10)
+
+**6 — Tool Factory:** prompt for pure utilities; static checks; unit samples; write + update `tools.json`.
+**7 — Agent Factory:** small agents; standard envelope; schema checks; write + update `agents.json`.
+**8 — Workflow Engine:** LangGraph StateGraph; state fields; retries/backoff; timing capture; viz hook.
+**9 — Orchestrator:** capability lookup; smallest missing pieces first; build graph; execute; synthesize.
+**10 — Registry Mgmt:** deps, usage stats, search, cleanup, versioning & deprecation.
+
+### Phase 3: Dynamic Creation Testing (Steps 11–15)
+
+**11 — Create 10 Test Agents:** `extract_urls`, `create_simple_chart`, `fetch_webpage`, `parse_json`, `format_table`, `calculate_stats`, `detect_language`, `extract_dates`, `jira_fetch`, `send_slack`.
+**12 — Complex Workflow Tests:** PDF→text→URLs→fetch→summarize; CSV→stats→chart→report; Text→detect language→extract dates→translate→format.
+**13 — Streamlit UI (optional):** browse registries; upload inputs; preview workflow; run and view timings.
+**14 — LangGraph Visualization:** nodes/edges with status & timings.
+**15 — Demo Scenarios:** dynamic creation; tool reuse; 5+ node workflow; failure handling; latency comparison.
+
+### Phase 4: Testing & Docs (Steps 16–20)
+
+**16 — Comprehensive Testing:** 20 tools + 20 agents; connector mocks (Jira); negative tests (blocked imports, schema mismatch, net w/o connector).
+**17 — Documentation:** architecture, registries, factories, LangGraph patterns; prompts (do/don’t); size budgets; purity rules; deployment & security.
+**18 — Example Library:** common tool patterns (regex/date/normalization); agent patterns (extract/transform/format); workflow templates.
+**19 — Monitoring Dashboard:** usage per agent/tool, codegen success rates, workflow p50/p95, cost tracking.
+**20 — Final Demo Prep:** UI polish; scripted demos/videos; executive summary.
+
+---
+
+## 16) Acceptance Checks (attach to Steps 4, 6–10)
+
+* **Step 4:** only four readers are prebuilt; each within LOC budget; smoke tests exist; no other feature agents prebuilt.
+* **Step 6:** `ensure_tool` idempotent; allow‑list/purity enforced; `tools.json` entries correct.
+* **Step 7:** `ensure_agent` idempotent; standard envelope; `agents.json` entries correct with `uses_tools`/schemas.
+* **Steps 8–10:** Orchestrator builds graph **from registry** (no hardcoding); engine tracks state/timings/errors; registry has usage/deprecation; no dead pointers.
+
+---
+
+## 17) Operational Prompts: Audit & Setup
+
+**17.1 LLM Analysis Prompt — Agent Fabric Audit (Steps 1–10 only)**
+Use this when you want the LLM to audit your repo strictly up to Step 10, verify claims, and list gaps/issues without generating code. *(Paste your audit prompt here or reference from `config.py`.)*
+
+**17.2 System Prompt — Backend Audit & Setup (Steps 1–10 only)**
+Use this when you want the LLM to both verify Step‑10 compliance and output a concrete, code‑free setup + test plan honoring §4b (Starter Kit & Dynamic Creation Policy). *(Paste here or reference from `config.py`.)*
+
+> Tip: Keep both prompts under source control beside `knowledge_base.md` and reference them from `config.py` to reduce drift.
+
+---
+
+## 18) Appendix: Sample Registry Entries
 
 ### agents.json (example)
 
@@ -384,170 +393,6 @@ Request ----> parse+plan --------> read agents/tools --|                        
 
 ---
 
-### TL;DR
+## 19) TL;DR
 
-* Keep **agents tiny** and **tools pure**.
-* Use **registries** to declare capabilities.
-* Let the **Orchestrator** plan and **LangGraph** execute.
-* Start with **Jira‑only ticketing**, grow on demand via codegen.
-
-## Implementation Plan — Detailed Steps (1–20)
-
-> Keep this section intact as your actionable, step‑by‑step checklist. It complements (not replaces) the Roadmap.
-
-### Phase 1: Foundation & Cleanup (Steps 1–5)
-
-**Step 1 — Backup and Restructure**
-
-* Snapshot the current repo to `Agent_Fabric_backup_complex/`.
-* Preserve `.env`, `venv/`, `.git/`.
-* Create the lean structure:
-
-  ```
-  Agent_Fabric/
-  ├── generated/
-  │   ├── agents/           # LLM‑generated agents (tiny, single‑purpose)
-  │   └── tools/            # LLM‑generated pure tools
-  ├── core/
-  │   ├── orchestrator.py   # Orchestrates workflows (LLM planning)
-  │   ├── agent_factory.py  # Agent codegen + validation + registration
-  │   ├── tool_factory.py   # Tool codegen + validation + registration
-  │   ├── workflow_engine.py# LangGraph execution + state
-  │   └── registry.py       # Read/write agents.json & tools.json
-  ├── agents.json           # Agent registry (capabilities)
-  ├── tools.json            # Tool registry (utilities)
-  ├── config.py             # Keys, model choices, size budgets
-  └── app.py                # (Optional) Streamlit UI for demos
-  ```
-
-**Step 2 — Configuration Setup**
-
-* Add model IDs, API keys, and **size budgets**: agents (50–300 LOC), tools (20–100 LOC).
-* Turn on LangGraph settings (retries, timeouts).
-* Enable import allow‑list and network policy (connectors only).
-
-**Step 3 — Dual Registry Design**
-
-* Define minimal JSON schemas:
-
-  * `agents.json`: description, `uses_tools`, input/output schemas, location, created\_by/at, version, usage metrics.
-  * `tools.json`: description, `signature`, location, `is_pure_function`, used\_by, created\_by/at.
-* Implement `core/registry.py` helpers: load/save, search, dependency map, pruning markers.
-
-**Step 4 — Minimal Pre‑built Components**
-
-* Readers: `read_pdf`, `read_csv`, `read_json`, `read_text` (thin wrappers only).
-* One connector to start (e.g., **Jira**). Others are generated on demand.
-* Auth helpers are explicit, scoped, and testable.
-
-**Step 5 — Seed Templates**
-
-* `example_tool.py`: shows a pure function (args → return).
-* `example_agent.py`: shows agent envelope & calling a tool.
-* Store short, commented templates to guide LLM codegen prompts.
-
----
-
-### Phase 2: Core Engine (Steps 6–10)
-
-**Step 6 — Tool Factory Implementation**
-
-* Prompt engineering for pure, stateless utilities with explicit signatures.
-* Static checks: imports allow‑list, no filesystem, no sockets unless connector.
-* Unit tests: sample I/O; purity checks (same input → same output).
-* On success: write to `generated/tools/…`, update `tools.json`.
-
-**Step 7 — Agent Factory Implementation**
-
-* Given an intent and required tools, ask LLM to produce a small agent that **only**:
-
-  * Validates inputs per schema.
-  * Imports approved tools.
-  * Returns the standard JSON **envelope** (`status/data/metadata`).
-* Tests: schema conformance, happy‑path I/O, error path.
-* On success: write to `generated/agents/…`, update `agents.json`.
-
-**Step 8 — LangGraph Workflow Engine**
-
-* Build StateGraph with: `request`, `files`, `execution_path`, `current_data`, `results`, `errors`.
-* Add retries/backoff, error edges, and timing capture per node.
-* Provide a visualization hook (graph JSON) for the UI.
-
-**Step 9 — Orchestrator (LLM Planning)**
-
-* Parse the user ask → capability lookup in registries.
-* If missing, trigger Tool/Agent Factory in the **smallest** increments.
-* Assemble the workflow (nodes = agents; edges = data handoff).
-* Execute via LangGraph, then synthesize the final output.
-
-**Step 10 — Registry Management**
-
-* Track agent→tool dependencies, execution counts, avg latency.
-* Provide pruning for unused/generated‑but‑never‑called entries.
-* Support versioning and deprecation flags.
-
----
-
-### Phase 3: Dynamic Creation Testing (Steps 11–15)
-
-**Step 11 — Create 10 Test Agents**
-
-1. `extract_urls` (may create `url_regex` tool)
-2. `create_simple_chart` (may create `matplotlib_wrapper`)
-3. `fetch_webpage` (may create `http_client`)
-4. `parse_json` (standalone)
-5. `format_table` (may create `table_formatter`)
-6. `calculate_stats` (may create `stats_calculator`)
-7. `detect_language` (may create `language_detector`)
-8. `extract_dates` (may create `date_parser`)
-9. `jira_fetch` (may create `jira_client`)
-10. `send_slack` (may create `slack_client`)
-
-**Step 12 — Complex Workflow Testing**
-
-* PDF → Extract text → Extract URLs → Fetch pages → Summarize.
-* CSV → Calculate stats → Create chart → Format report.
-* Text → Detect language → Extract dates → Translate → Format.
-
-**Step 13 — Streamlit Interface (Optional but useful)**
-
-* Browse registries; upload inputs; preview planned workflow; run and view results.
-* Show real‑time node execution and timings.
-
-**Step 14 — LangGraph Visualization**
-
-* Render nodes/edges, color by status; tooltips for timings and data size previews.
-
-**Step 15 — Demo Scenarios**
-
-* Dynamic creation (capability missing → codegen → run).
-* Tool reuse across multiple agents.
-* 5+ node workflow with retries.
-* Failure handling demo.
-* Latency comparison vs monolithic.
-
----
-
-### Phase 4: Testing & Documentation (Steps 16–20)
-
-**Step 16 — Comprehensive Testing**
-
-* 20 tools + 20 agents: creation, validation, registry linking, deprecation flow.
-* Connector tests with mock servers for Jira.
-* Negative tests: blocked imports, network without connector, schema mismatch.
-
-**Step 17 — Documentation**
-
-* Architecture, registries, factories, LangGraph patterns.
-* Codegen prompts (do/don’t), size budgets, purity rules.
-* Deployment guide and security policy.
-
-**Step 18 — Example Library**
-
-* Common tool patterns (regex/date/normalization).
-* Common agent patterns (extract/transform/format).
-* Workflow templates (PDF→URLs→fetch→summarize, CSV→stats→chart→report).
-
-**Step 19 — Monitoring Dashboard**
-
-* Usage stats per agent/tool, codegen success rates, workflow p50/p95, cost tracking.
+Keep **agents tiny** and **tools pure**. Use **dual registries** as the source of truth. The **Orchestrator** plans; **LangGraph** executes. Only four readers are prebuilt; everything else is created on demand, validated, and registered. Ensure safety, observability, and versioned change management throughout.

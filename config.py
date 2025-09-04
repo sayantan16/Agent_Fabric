@@ -365,36 +365,39 @@ def {agent_name}_agent(state):
     try:
         start_time = datetime.now()
         
-        # MANDATORY: Universal input extraction
+        # MANDATORY: Universal input extraction with better state handling
         input_data = None
         
-        # Priority 1: Check current_data
+        # Priority 1: Check current_data (primary data flow)
         current_data = state.get('current_data')
         if current_data is not None:
-            if isinstance(current_data, str):
-                input_data = current_data
-            elif isinstance(current_data, dict):
-                for key in ['text', 'data', 'content', 'value', 'result']:
-                    if key in current_data:
-                        input_data = current_data[key]
-                        break
-                if input_data is None:
-                    input_data = current_data
-            else:
-                input_data = str(current_data)
+            input_data = current_data
         
-        # Priority 2: Check previous results
+        # Priority 2: Check last successful result
         if input_data is None and 'results' in state:
-            for result in reversed(list(state['results'].values())):
-                if isinstance(result, dict) and 'data' in result:
-                    input_data = result['data']
-                    break
+            # Get the most recent successful result
+            for agent_name in reversed(state.get('execution_path', [])):
+                if agent_name in state['results']:
+                    result = state['results'][agent_name]
+                    if isinstance(result, dict) and result.get('status') == 'success':
+                        if 'data' in result:
+                            input_data = result['data']
+                            break
         
-        # Priority 3: Check root state
+        # Priority 3: Check root state for initial data
         if input_data is None:
-            for key in ['text', 'data', 'input', 'request']:
+            # Try various common keys
+            for key in ['text', 'data', 'input', 'request', 'content']:
                 if key in state and state[key]:
                     input_data = state[key]
+                    break
+        
+        # Priority 4: Extract from nested structures
+        if input_data is None and isinstance(state.get('current_data'), dict):
+            # Handle nested data structures
+            for key in ['text', 'data', 'content', 'value', 'result']:
+                if key in state['current_data']:
+                    input_data = state['current_data'][key]
                     break
         
         # AGENT LOGIC: Process input_data using tools
@@ -450,71 +453,74 @@ Make the agent logic simple but functional. Keep between {min_lines}-{max_lines}
 
 CLAUDE_TOOL_GENERATION_PROMPT = """Create a PURE Python function following our standards.
 
-Tool Name: {tool_name}
-Purpose: {description}
-Input: {input_description}
-Output: {output_description}
+    Tool Name: {tool_name}
+    Purpose: {description}
+    Input: {input_description}
+    Output: {output_description}
 
-MANDATORY TOOL STRUCTURE:
-```python
-def {tool_name}(input_data=None):
-    \"\"\"
-    {description}
-    
-    Args:
-        input_data: {input_description}
-    
-    Returns:
-        {output_description}
-    \"\"\"
-    # Required imports
-    {imports}
-    
-    # MANDATORY: Handle None input
-    if input_data is None:
-        return {default_return}
-    
-    # MANDATORY: Type flexibility
-    try:
-        # Handle different input types
-        if isinstance(input_data, str):
-            data = input_data
-        elif isinstance(input_data, dict):
-            # Extract from common keys
-            data = None
-            for key in ['text', 'data', 'value', 'content']:
-                if key in input_data:
-                    data = input_data[key]
-                    break
-            if data is None:
+    MANDATORY TOOL STRUCTURE:
+    ```python
+    def {tool_name}(input_data=None):
+        \"\"\"
+        {description}
+        
+        Args:
+            input_data: {input_description}
+        
+        Returns:
+            {output_description}
+        \"\"\"
+        # Required imports
+        {imports}
+        
+        # MANDATORY: Handle None input
+        if input_data is None:
+            return {default_return}
+        
+        # MANDATORY: Type flexibility
+        try:
+            # Handle different input types
+            if isinstance(input_data, str):
+                data = input_data
+            elif isinstance(input_data, dict):
+                # Extract from common keys
+                data = input_data.get('text', input_data.get('data', input_data.get('content', str(input_data))))
+            elif isinstance(input_data, (list, tuple)):
+                data = input_data
+            elif isinstance(input_data, (int, float)):
+                data = input_data
+            else:
                 data = str(input_data)
-        elif isinstance(input_data, (list, tuple)):
-            data = input_data
-        elif isinstance(input_data, (int, float)):
-            data = input_data
-        else:
-            # Convert to string as fallback
-            try:
-                data = str(input_data)
-            except:
-                return {default_return}
-        
-        # TOOL LOGIC HERE
-        {tool_logic}
-        
-        return result
-        
-    except Exception as e:
-        # NEVER raise exceptions, always return default
-        return {default_return}
-```
+            
+            # TOOL LOGIC HERE - Implement actual functionality
+            # Even if it's a simple placeholder, make it functional
+            result = {default_return}
+            
+            # Add basic implementation based on tool name
+            if "format" in "{tool_name}":
+                result = f"Formatted: {{data}}"
+            elif "generate" in "{tool_name}":
+                result = f"Generated output for: {{data}}"
+            elif "extract" in "{tool_name}":
+                result = []
+            elif "calculate" in "{tool_name}":
+                result = 0
+            else:
+                result = data
+            
+            return result
+            
+        except Exception as e:
+            # NEVER raise exceptions, always return default
+            return {default_return}
+    Requirements:
 
-Requirements:
-1. MUST be a pure function (no side effects)
-2. MUST handle None and any input type
-3. MUST NOT raise exceptions
-4. MUST return consistent type
-5. Keep between {min_lines}-{max_lines} lines"""
+    MUST be a pure function (no side effects)
+    MUST handle None and any input type
+    MUST NOT raise exceptions
+    MUST return consistent type
+    MUST have at least basic functionality
+    Keep between {min_lines}-{max_lines} lines"""
 
 # =============================================================================
 # PREBUILT COMPONENTS

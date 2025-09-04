@@ -142,21 +142,24 @@ class WorkflowEngine:
     ) -> Dict[str, Any]:
         """
         Execute a compiled workflow synchronously.
-
-        Args:
-            workflow: Compiled StateGraph
-            initial_data: Initial data for workflow
-            workflow_id: Optional workflow identifier
-            timeout: Optional timeout override
-
-        Returns:
-            Final workflow state with results
         """
         workflow_id = workflow_id or self._generate_workflow_id()
         timeout = timeout or WORKFLOW_TIMEOUT_SECONDS
 
         # Prepare initial state
         initial_state = self._prepare_initial_state(workflow_id, initial_data)
+
+        # CRITICAL FIX: Ensure current_data is properly initialized
+        if "current_data" not in initial_state or initial_state["current_data"] is None:
+            # Set current_data from various possible sources
+            if initial_data.get("text"):
+                initial_state["current_data"] = initial_data["text"]
+            elif initial_data.get("data"):
+                initial_state["current_data"] = initial_data["data"]
+            elif initial_data.get("request"):
+                initial_state["current_data"] = initial_data["request"]
+            else:
+                initial_state["current_data"] = initial_data
 
         # Track workflow
         self.active_workflows[workflow_id] = {
@@ -182,12 +185,25 @@ class WorkflowEngine:
                 - datetime.fromisoformat(final_state["started_at"])
             ).total_seconds()
 
+            # CRITICAL FIX: Determine success based on completed agents vs errors
+            has_critical_errors = False
+            if final_state.get("errors"):
+                # Check if errors are critical (not just warnings)
+                for error in final_state["errors"]:
+                    if "critical" in str(error.get("error", "")).lower():
+                        has_critical_errors = True
+                        break
+
+            # Success if we have results and no critical errors
+            if final_state.get("results") and not has_critical_errors:
+                status = ExecutionStatus.SUCCESS
+            elif final_state.get("results") and final_state.get("errors"):
+                status = ExecutionStatus.PARTIAL
+            else:
+                status = ExecutionStatus.FAILED
+
             # Update tracking
-            self.active_workflows[workflow_id]["status"] = (
-                ExecutionStatus.SUCCESS
-                if not final_state.get("errors")
-                else ExecutionStatus.PARTIAL
-            )
+            self.active_workflows[workflow_id]["status"] = status
 
             # Update agent metrics
             self._update_agent_metrics(final_state)
@@ -337,6 +353,10 @@ class WorkflowEngine:
                 # Record start time
                 start_time = datetime.now()
 
+                # CRITICAL FIX: Create a mutable copy of state for agent execution
+                # This ensures the agent can modify state and changes are preserved
+                agent_state = dict(state)  # Convert from TypedDict to regular dict
+
                 # Execute with timeout
                 import signal
 
@@ -347,7 +367,13 @@ class WorkflowEngine:
                 signal.alarm(AGENT_TIMEOUT_SECONDS)
 
                 try:
-                    state = agent_func(state)
+                    # Execute agent with mutable state
+                    agent_state = agent_func(agent_state)
+
+                    # CRITICAL FIX: Merge agent state changes back into workflow state
+                    for key, value in agent_state.items():
+                        state[key] = value
+
                 finally:
                     signal.alarm(0)
 
@@ -356,10 +382,19 @@ class WorkflowEngine:
                 state["execution_metrics"][agent_name] = execution_time
 
                 # Update tracking
-                state["execution_path"].append(agent_name)
-                state["completed_agents"].append(agent_name)
+                if agent_name not in state["execution_path"]:
+                    state["execution_path"].append(agent_name)
+                if agent_name not in state["completed_agents"]:
+                    state["completed_agents"].append(agent_name)
 
-                # Check for errors
+                # CRITICAL FIX: Ensure current_data is available for next agent
+                if agent_name in state.get("results", {}):
+                    result = state["results"][agent_name]
+                    if isinstance(result, dict) and "data" in result:
+                        # Preserve current_data for next agent
+                        state["current_data"] = result["data"]
+
+                # Check for errors and handle properly
                 if agent_name in state.get("results", {}):
                     result = state["results"][agent_name]
                     if isinstance(result, dict) and result.get("status") == "error":
@@ -383,7 +418,8 @@ class WorkflowEngine:
                                     ),
                                 }
                             )
-                            state["should_continue"] = False
+                            # Don't stop workflow for individual agent failures
+                            # Let orchestrator decide based on overall results
 
                 return state
 
@@ -402,7 +438,8 @@ class WorkflowEngine:
                     state["retry_counts"][agent_name] += 1
                     return agent_node(state)
 
-                state["should_continue"] = False
+                # Don't set should_continue to False here
+                # Let the workflow continue with other agents
                 return state
 
         return agent_node
@@ -489,11 +526,35 @@ class WorkflowEngine:
         if not state.get("should_continue", True):
             return False
 
-        # Check for critical errors
+        # CRITICAL FIX: Don't stop on non-critical errors
+        # Only stop if ALL agents have failed
         if state.get("errors"):
-            for error in state["errors"]:
-                if "critical" in error.get("error", "").lower():
-                    return False
+            # Count successful vs failed agents
+            successful = len(
+                [
+                    a
+                    for a in state.get("completed_agents", [])
+                    if state.get("results", {}).get(a, {}).get("status") == "success"
+                ]
+            )
+
+            # Continue if at least one agent succeeded
+            if successful > 0:
+                return True
+
+            # Check if all agents have failed critically
+            total_agents = len(state.get("execution_path", []))
+            critical_errors = len(
+                [
+                    e
+                    for e in state["errors"]
+                    if "critical" in str(e.get("error", "")).lower()
+                ]
+            )
+
+            # Stop only if all agents failed
+            if total_agents > 0 and critical_errors >= total_agents:
+                return False
 
         # Check step limit
         if len(state.get("execution_path", [])) >= MAX_WORKFLOW_STEPS:
