@@ -335,11 +335,32 @@ class WorkflowEngine:
         self._build_sequential_workflow(workflow, agents)
 
     def _create_agent_node(self, agent_name: str) -> Callable:
-        """Create a node function for an agent."""
+        """Create a node function for an agent - FIXED VERSION."""
 
         def agent_node(state: WorkflowState) -> WorkflowState:
             """Execute agent and update state."""
             try:
+                # CRITICAL FIX: Ensure current_data is properly set
+                if "current_data" not in state or state["current_data"] is None:
+                    # Try to extract data from various sources
+                    if state.get("request"):
+                        state["current_data"] = state["request"]
+                    elif state.get("text"):
+                        state["current_data"] = state["text"]
+                    elif state.get("data"):
+                        state["current_data"] = state["data"]
+                    # For chained agents, get data from previous agent
+                    elif state.get("results"):
+                        # Get the last successful agent's output
+                        for prev_agent in reversed(state.get("execution_path", [])):
+                            if prev_agent in state["results"]:
+                                result = state["results"][prev_agent]
+                                if (
+                                    isinstance(result, dict)
+                                    and result.get("status") == "success"
+                                ):
+                                    state["current_data"] = result.get("data")
+                                    break
                 # Update current agent
                 state["current_agent"] = agent_name
 

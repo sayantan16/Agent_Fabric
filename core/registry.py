@@ -137,45 +137,79 @@ class RegistryManager:
         description: str,
         code: str,
         uses_tools: List[str] = None,
-        input_schema: Dict = None,
-        output_schema: Dict = None,
-        tags: List[str] = None,
-        is_prebuilt: bool = False,
+        **kwargs,
     ) -> Dict[str, Any]:
         """
-        Register a new agent in the registry.
-
-        Args:
-            name: Agent identifier
-            description: What the agent does
-            code: Python code for the agent
-            uses_tools: List of required tools
-            input_schema: Expected input structure
-            output_schema: Output structure (should match AGENT_OUTPUT_SCHEMA)
-            tags: Categorization tags
-            is_prebuilt: Whether this is a prebuilt agent
-
-        Returns:
-            Dictionary with status and details
+        Register a new agent in the registry with verification.
         """
-        # Validate code size
-        line_count = len(code.splitlines())
-        if line_count < MIN_AGENT_LINES or line_count > MAX_AGENT_LINES:
+        # First verify all required tools exist
+        uses_tools = uses_tools or []
+        missing_tools = []
+
+        for tool_name in uses_tools:
+            if not self.tool_exists(tool_name):
+                missing_tools.append(tool_name)
+
+        if missing_tools:
             return {
                 "status": "error",
-                "message": f"Agent must be {MIN_AGENT_LINES}-{MAX_AGENT_LINES} lines, got {line_count}",
+                "message": f"Required tools not found: {', '.join(missing_tools)}",
+                "missing_tools": missing_tools,
             }
 
         # Determine file path
+        is_prebuilt = kwargs.get("is_prebuilt", False)
         if is_prebuilt:
             file_path = os.path.join(PREBUILT_AGENTS_DIR, f"{name}_agent.py")
         else:
             file_path = os.path.join(GENERATED_AGENTS_DIR, f"{name}_agent.py")
 
-        # Save code to file
+        # Write code to file with verification
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        with open(file_path, "w") as f:
-            f.write(code)
+
+        try:
+            with open(file_path, "w") as f:
+                f.write(code)
+                f.flush()
+                os.fsync(f.fileno())  # Force write to disk
+        except IOError as e:
+            return {
+                "status": "error",
+                "message": f"Failed to write agent file: {str(e)}",
+            }
+
+        # Verify file exists
+        if not os.path.exists(file_path):
+            return {
+                "status": "error",
+                "message": f"Agent file was not created: {file_path}",
+            }
+
+        # Try to import it to verify syntax
+        try:
+            import importlib.util
+
+            spec = importlib.util.spec_from_file_location(f"{name}_module", file_path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+
+            # Verify the agent function exists
+            agent_func_name = f"{name}_agent"
+            if not hasattr(module, agent_func_name) and not hasattr(module, name):
+                # Delete the broken file
+                os.remove(file_path)
+                return {
+                    "status": "error",
+                    "message": f"Agent function {agent_func_name} not found in generated code",
+                }
+        except Exception as e:
+            # Delete the broken file
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            return {
+                "status": "error",
+                "message": f"Agent code validation failed: {str(e)}",
+            }
 
         # Generate version hash
         version_hash = hashlib.md5(code.encode()).hexdigest()[:8]
@@ -184,24 +218,30 @@ class RegistryManager:
         agent_entry = {
             "name": name,
             "description": description,
-            "uses_tools": uses_tools or [],
-            "input_schema": input_schema or {"data": "any"},
-            "output_schema": output_schema or AGENT_OUTPUT_SCHEMA,
+            "uses_tools": uses_tools,
+            "input_schema": kwargs.get("input_schema", {"data": "any"}),
+            "output_schema": kwargs.get("output_schema", AGENT_OUTPUT_SCHEMA),
             "location": file_path,
             "is_prebuilt": is_prebuilt,
-            "created_by": CLAUDE_MODEL,
+            "created_by": kwargs.get("created_by", CLAUDE_MODEL),
             "created_at": datetime.now().isoformat(),
             "version": f"1.0.{version_hash}",
             "execution_count": 0,
             "avg_execution_time": 0.0,
             "last_executed": None,
-            "tags": tags or [],
-            "line_count": line_count,
+            "tags": kwargs.get("tags", []),
+            "line_count": len(code.splitlines()),
             "status": "active",
         }
 
-        # Update registry
+        # Update registry using singleton for atomic write
         self.agents["agents"][name] = agent_entry
+
+        # Use singleton's atomic update
+        from core.registry_singleton import RegistrySingleton
+
+        singleton = RegistrySingleton()
+        singleton.atomic_update(self.agents_path, self.agents)
 
         # Update tool references
         if uses_tools:
@@ -212,19 +252,18 @@ class RegistryManager:
                     if name not in self.tools["tools"][tool_name]["used_by_agents"]:
                         self.tools["tools"][tool_name]["used_by_agents"].append(name)
 
-        print(f"DEBUG: Agent '{name}' registered successfully")
-        print(
-            f"DEBUG: Registry now has agents: {list(self.agents.get('agents', {}).keys())}"
-        )
+            singleton.atomic_update(self.tools_path, self.tools)
 
-        # Save changes
-        self.save_all()
+        # Force reload for all instances
+        singleton.force_reload()
+
+        print(f"DEBUG: Agent '{name}' registered successfully with verification")
 
         return {
             "status": "success",
             "message": f"Agent '{name}' registered successfully",
             "location": file_path,
-            "line_count": line_count,
+            "line_count": len(code.splitlines()),
         }
 
     def get_agent(self, name: str) -> Optional[Dict]:
@@ -289,29 +328,10 @@ class RegistryManager:
     # =============================================================================
 
     def register_tool(
-        self,
-        name: str,
-        description: str,
-        code: str,
-        signature: str = None,
-        tags: List[str] = None,
-        is_prebuilt: bool = False,
-        is_pure_function: bool = True,
+        self, name: str, description: str, code: str, **kwargs
     ) -> Dict[str, Any]:
         """
-        Register a new tool in the registry.
-
-        Args:
-            name: Tool identifier
-            description: What the tool does
-            code: Python code for the tool
-            signature: Function signature
-            tags: Categorization tags
-            is_prebuilt: Whether this is a prebuilt tool
-            is_pure_function: Whether tool has no side effects
-
-        Returns:
-            Dictionary with status and details
+        Register a new tool in the registry with verification.
         """
         # Validate code size
         line_count = len(code.splitlines())
@@ -322,17 +342,55 @@ class RegistryManager:
             }
 
         # Determine file path
+        is_prebuilt = kwargs.get("is_prebuilt", False)
         if is_prebuilt:
             file_path = os.path.join(PREBUILT_TOOLS_DIR, f"{name}.py")
         else:
             file_path = os.path.join(GENERATED_TOOLS_DIR, f"{name}.py")
 
-        # Save code to file
+        # Write and verify
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        with open(file_path, "w") as f:
-            f.write(code)
+
+        try:
+            with open(file_path, "w") as f:
+                f.write(code)
+                f.flush()
+                os.fsync(f.fileno())
+        except IOError as e:
+            return {
+                "status": "error",
+                "message": f"Failed to write tool file: {str(e)}",
+            }
+
+        if not os.path.exists(file_path):
+            return {
+                "status": "error",
+                "message": f"Tool file was not created: {file_path}",
+            }
+
+        # Import and test the tool
+        try:
+            import importlib.util
+
+            spec = importlib.util.spec_from_file_location(name, file_path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+
+            if not hasattr(module, name):
+                os.remove(file_path)
+                return {"status": "error", "message": f"Tool function {name} not found"}
+
+            # Test the tool with None input (should not crash)
+            tool_func = getattr(module, name)
+            result = tool_func(None)  # Tools must handle None
+
+        except Exception as e:
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            return {"status": "error", "message": f"Tool validation failed: {str(e)}"}
 
         # Extract signature if not provided
+        signature = kwargs.get("signature")
         if not signature:
             for line in code.split("\n"):
                 if line.strip().startswith("def "):
@@ -346,23 +404,25 @@ class RegistryManager:
             "signature": signature or f"def {name}(input_data=None)",
             "location": file_path,
             "is_prebuilt": is_prebuilt,
-            "is_pure_function": is_pure_function,
+            "is_pure_function": kwargs.get("is_pure_function", True),
             "used_by_agents": [],
-            "created_by": CLAUDE_MODEL,
+            "created_by": kwargs.get("created_by", CLAUDE_MODEL),
             "created_at": datetime.now().isoformat(),
-            "tags": tags or [],
+            "tags": kwargs.get("tags", []),
             "line_count": line_count,
             "status": "active",
         }
 
-        print(f"DEBUG: Tool '{name}' registered successfully")
-        print(
-            f"DEBUG: Registry now has tools: {list(self.tools.get('tools', {}).keys())}"
-        )
-
-        # Update registry
+        # Update registry using singleton
         self.tools["tools"][name] = tool_entry
-        self.save_all()
+
+        from core.registry_singleton import RegistrySingleton
+
+        singleton = RegistrySingleton()
+        singleton.atomic_update(self.tools_path, self.tools)
+        singleton.force_reload()
+
+        print(f"DEBUG: Tool '{name}' registered successfully with verification")
 
         return {
             "status": "success",

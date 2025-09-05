@@ -131,36 +131,68 @@
       "line_count": 39,
       "status": "active"
     },
-    "count_words": {
-      "name": "count_words",
-      "description": "Count the number of words in text input",
-      "signature": "def count_words(input_data=None)",
-      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/tools/count_words.py",
+    "extract_phones": {
+      "name": "extract_phones",
+      "description": "Extract phone numbers from text",
+      "signature": "def extract_phones(input_data=None)",
+      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/tools/extract_phones.py",
       "is_prebuilt": false,
       "is_pure_function": true,
-      "used_by_agents": [
-        "word_counter"
-      ],
+      "used_by_agents": [],
       "created_by": "claude-3-haiku-20240307",
-      "created_at": "2025-09-04T11:44:51.358170",
-      "tags": [],
-      "line_count": 48,
+      "created_at": "2025-09-04T23:14:54.570979",
+      "tags": [
+        "extraction"
+      ],
+      "line_count": 37,
+      "status": "active"
+    },
+    "calculate_median": {
+      "name": "calculate_median",
+      "description": "Calculate median of numbers",
+      "signature": "def calculate_median(input_data=None)",
+      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/tools/calculate_median.py",
+      "is_prebuilt": false,
+      "is_pure_function": true,
+      "used_by_agents": [],
+      "created_by": "claude-3-haiku-20240307",
+      "created_at": "2025-09-04T23:14:54.610601",
+      "tags": [
+        "calculation"
+      ],
+      "line_count": 32,
+      "status": "active"
+    },
+    "calculate_std": {
+      "name": "calculate_std",
+      "description": "Calculate standard deviation",
+      "signature": "def calculate_std(input_data=None)",
+      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/tools/calculate_std.py",
+      "is_prebuilt": false,
+      "is_pure_function": true,
+      "used_by_agents": [],
+      "created_by": "claude-3-haiku-20240307",
+      "created_at": "2025-09-04T23:14:54.644859",
+      "tags": [
+        "calculation"
+      ],
+      "line_count": 32,
       "status": "active"
     },
     "analyze_sentiment": {
       "name": "analyze_sentiment",
-      "description": "Determine the sentiment (e.g., positive, neutral, negative) from a block of text",
+      "description": "Analyze sentiment of text",
       "signature": "def analyze_sentiment(input_data=None)",
       "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/tools/analyze_sentiment.py",
       "is_prebuilt": false,
       "is_pure_function": true,
-      "used_by_agents": [
-        "sentiment_analysis_agent"
-      ],
+      "used_by_agents": [],
       "created_by": "claude-3-haiku-20240307",
-      "created_at": "2025-09-04T17:24:48.714065",
-      "tags": [],
-      "line_count": 53,
+      "created_at": "2025-09-04T23:26:14.815178",
+      "tags": [
+        "analysis"
+      ],
+      "line_count": 47,
       "status": "active"
     }
   }

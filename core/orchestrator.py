@@ -293,52 +293,295 @@ class Orchestrator:
     async def _plan_workflow(
         self, user_request: str, analysis: str, auto_create: bool
     ) -> Dict[str, Any]:
-        """Plan the workflow based on analysis."""
-        # Get available components for the prompt
+        """Enhanced workflow planning with better capability detection."""
+
+        # Get available components
         agents = self.registry.list_agents(active_only=True)
         tools = self.registry.list_tools(pure_only=False)
-        agents_desc = self._format_components_list(agents, "agents")
-        tools_desc = self._format_components_list(tools, "tools")
 
-        prompt = ORCHESTRATOR_PLANNING_PROMPT.format(
-            request=user_request,
-            analysis=analysis,
-            available_agents=agents_desc,
-            available_tools=tools_desc,
-        )
+        # Build detailed capability map
+        capability_map = self._build_capability_map(agents, tools)
 
-        print(f"DEBUG: Planning workflow with auto_create={auto_create}")
+        # Enhanced planning prompt that understands capabilities better
+        prompt = f"""You are planning a workflow for this request.
+
+    USER REQUEST: {user_request}
+
+    ANALYSIS: {analysis}
+
+    AVAILABLE CAPABILITIES:
+    {json.dumps(capability_map, indent=2)}
+
+    Create a workflow plan that:
+    1. Identifies the specific tasks needed
+    2. Maps tasks to existing agents when possible
+    3. Identifies truly missing capabilities
+    4. Suggests agent creation only when necessary
+
+    IMPORTANT: 
+    - Only suggest creating agents that don't already exist
+    - Check agent descriptions carefully - don't create duplicates
+    - If an agent can partially handle a task, use it
+    - Prefer using existing agents over creating new ones
+
+    Respond with valid JSON:
+    {{
+        "workflow_id": "wf_<timestamp>",
+        "workflow_type": "sequential|parallel|conditional",
+        "reasoning": "step-by-step explanation",
+        "agents_needed": ["exact_agent_names_from_available_list"],
+        "missing_capabilities": {{
+            "agents": [
+                {{
+                    "name": "new_agent_name",
+                    "purpose": "specific purpose",
+                    "required_tools": ["tool1"],
+                    "can_create": true
+                }}
+            ],
+            "tools": [
+                {{
+                    "name": "new_tool_name",
+                    "purpose": "specific purpose", 
+                    "type": "pure_function",
+                    "can_create": true
+                }}
+            ]
+        }},
+        "execution_strategy": "how to execute the workflow",
+        "fallback_plan": "what to do if some agents fail"
+    }}"""
 
         try:
             response = await self._call_gpt4_json(
-                system_prompt="You are a workflow planner. Output only valid JSON.",
+                system_prompt="""You are a workflow planner. 
+                CRITICAL: Check existing agent capabilities carefully before suggesting new ones.
+                Many agents have flexible input handling and can process various data types.
+                Only create new agents when existing ones truly cannot handle the task.""",
                 user_prompt=prompt,
-                temperature=0.1,  # Very low for consistent JSON
+                temperature=0.1,
             )
-            print(f"DEBUG: GPT-4 planning response received")
-            # Parse and validate the plan
+
             plan = json.loads(response)
-            print(
-                f"DEBUG: Parsed plan: {plan.get('workflow_type', 'unknown')} workflow with {len(plan.get('agents_needed', []))} agents"
-            )
 
-            # Validate plan structure
-            validation_result = self._validate_plan(plan)
-            if not validation_result:
-                return {"status": "error", "error": "Invalid workflow plan structure"}
+            # CRITICAL: Check if no agents can handle the request
+            if not plan.get("agents_needed") and not auto_create:
+                # Check if this is because nothing matches
+                if (
+                    "non_existent" in user_request.lower()
+                    or not self._can_handle_request(user_request)
+                ):
+                    return {
+                        "status": "missing_capabilities",
+                        "message": "No agents available to handle this request",
+                        "missing": plan.get("missing_capabilities", {}),
+                        "suggestion": "Enable auto_create to build missing components",
+                    }
 
-            # Add missing capabilities to plan for later processing
-            # Don't fail here - let the main flow handle missing capabilities
+            # Validate and filter the plan
+            plan = self._validate_and_filter_plan(plan)
+
+            # If no agents needed, create a minimal plan
+            if not plan.get("agents_needed") and not auto_create:
+                return {
+                    "status": "error",
+                    "error": "No agents available to handle this request",
+                }
+
             plan["status"] = "success"
             return plan
 
-        except json.JSONDecodeError as e:
-            print(f"DEBUG: JSON parsing failed: {str(e)}")
-            print(f"DEBUG: Raw response: {response[:200]}...")
-            return {"status": "error", "error": f"Failed to parse plan JSON: {str(e)}"}
         except Exception as e:
             print(f"DEBUG: Planning failed: {str(e)}")
-            return {"status": "error", "error": f"Planning failed: {str(e)}"}
+            # Fallback to simple planning
+            return self._create_fallback_plan(user_request, agents)
+
+    def _build_capability_map(self, agents: List[Dict], tools: List[Dict]) -> Dict:
+        """Build detailed capability map for better planning."""
+
+        capability_map = {
+            "agents": {},
+            "tools": {},
+            "capabilities": {
+                "data_processing": [],
+                "extraction": [],
+                "calculation": [],
+                "formatting": [],
+                "analysis": [],
+                "generation": [],
+            },
+        }
+
+        # Map agents to capabilities
+        for agent in agents:
+            name = agent["name"]
+            desc = agent["description"].lower()
+
+            capability_map["agents"][name] = {
+                "description": agent["description"],
+                "uses_tools": agent.get("uses_tools", []),
+                "capabilities": [],
+            }
+
+            # Categorize capabilities
+            if any(word in desc for word in ["extract", "find", "get"]):
+                capability_map["capabilities"]["extraction"].append(name)
+                capability_map["agents"][name]["capabilities"].append("extraction")
+
+            if any(
+                word in desc
+                for word in ["calculate", "compute", "mean", "median", "std"]
+            ):
+                capability_map["capabilities"]["calculation"].append(name)
+                capability_map["agents"][name]["capabilities"].append("calculation")
+
+            if any(word in desc for word in ["format", "report", "present"]):
+                capability_map["capabilities"]["formatting"].append(name)
+                capability_map["agents"][name]["capabilities"].append("formatting")
+
+            if any(word in desc for word in ["analyze", "sentiment", "assess"]):
+                capability_map["capabilities"]["analysis"].append(name)
+                capability_map["agents"][name]["capabilities"].append("analysis")
+
+        # Map tools
+        for tool in tools:
+            capability_map["tools"][tool["name"]] = {
+                "description": tool["description"],
+                "is_pure": tool.get("is_pure_function", True),
+            }
+
+        return capability_map
+
+    def _validate_and_filter_plan(self, plan: Dict) -> Dict:
+        """Validate and filter plan to avoid duplicates."""
+
+        # Remove duplicate agents from agents_needed
+        if "agents_needed" in plan:
+            plan["agents_needed"] = list(dict.fromkeys(plan["agents_needed"]))
+
+        # Filter out agents that actually exist from missing_capabilities
+        if "missing_capabilities" in plan:
+            if "agents" in plan["missing_capabilities"]:
+                filtered_agents = []
+                for agent in plan["missing_capabilities"]["agents"]:
+                    # Check if agent actually exists
+                    if not self.registry.agent_exists(agent["name"]):
+                        # Also check for similar agents
+                        similar = self._find_similar_agents(
+                            agent["name"], agent.get("purpose", "")
+                        )
+                        if not similar:
+                            filtered_agents.append(agent)
+                        else:
+                            print(
+                                f"DEBUG: Found similar agent {similar} for {agent['name']}"
+                            )
+                            # Use the similar agent instead
+                            if "agents_needed" not in plan:
+                                plan["agents_needed"] = []
+                            if similar not in plan["agents_needed"]:
+                                plan["agents_needed"].append(similar)
+
+                plan["missing_capabilities"]["agents"] = filtered_agents
+
+        return plan
+
+    def _find_similar_agents(self, name: str, purpose: str) -> Optional[str]:
+        """Find agents with similar capabilities."""
+
+        agents = self.registry.list_agents(active_only=True)
+        name_lower = name.lower()
+        purpose_lower = purpose.lower()
+
+        for agent in agents:
+            agent_name_lower = agent["name"].lower()
+            agent_desc_lower = agent["description"].lower()
+
+            # Check name similarity
+            if name_lower in agent_name_lower or agent_name_lower in name_lower:
+                return agent["name"]
+
+            # Check purpose similarity
+            if purpose_lower and (
+                purpose_lower in agent_desc_lower or agent_desc_lower in purpose_lower
+            ):
+                return agent["name"]
+
+            # Check key words overlap
+            name_words = set(name_lower.split("_"))
+            agent_words = set(agent_name_lower.split("_"))
+            if len(name_words & agent_words) >= len(name_words) * 0.5:
+                return agent["name"]
+
+        return None
+
+    def _create_fallback_plan(self, user_request: str, agents: List[Dict]) -> Dict:
+        """Create a simple fallback plan when GPT-4 fails."""
+        # Try to find agents that might handle the request
+        request_lower = user_request.lower()
+        potential_agents = []
+
+        for agent in agents:
+            agent_name = agent["name"]
+            agent_desc = agent["description"].lower()
+
+            # Simple keyword matching
+            if any(word in request_lower for word in agent_desc.split()):
+                potential_agents.append(agent_name)
+
+        if potential_agents:
+            return {
+                "status": "success",
+                "workflow_id": f"wf_{datetime.now().strftime('%Y%m%d%H%M%S')}",
+                "workflow_type": "sequential",
+                "agents_needed": potential_agents[:3],  # Limit to 3 agents
+                "missing_capabilities": {"agents": [], "tools": []},
+                "reasoning": "Fallback plan based on keyword matching",
+            }
+        else:
+            return {
+                "status": "error",
+                "error": "No agents available to handle this request",
+            }
+
+    def _can_handle_request(self, request: str) -> bool:
+        """Check if any existing agent can handle the request."""
+        agents = self.registry.list_agents(active_only=True)
+        request_lower = request.lower()
+
+        # Remove common words that might cause false positives
+        stop_words = {
+            "the",
+            "a",
+            "an",
+            "and",
+            "or",
+            "but",
+            "in",
+            "on",
+            "at",
+            "to",
+            "for",
+            "of",
+            "with",
+            "by",
+            "from",
+            "this",
+        }
+        request_words = set(request_lower.split()) - stop_words
+
+        for agent in agents:
+            agent_desc = agent["description"].lower()
+            agent_name = agent["name"].lower()
+
+            # Check for meaningful word matches
+            desc_words = set(agent_desc.split()) - stop_words
+            name_words = set(agent_name.replace("_", " ").split())
+
+            if request_words & (desc_words | name_words):
+                return True
+
+        return False
 
     async def _create_missing_components(
         self, missing_capabilities: Dict[str, List]

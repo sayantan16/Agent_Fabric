@@ -241,50 +241,57 @@ Your process:
 
 Available agents and their capabilities will be provided. Use exact agent names from the registry."""
 
-ORCHESTRATOR_PLANNING_PROMPT = """Plan a workflow for this request:
+ORCHESTRATOR_PLANNING_PROMPT = """Analyze this request and create a workflow plan.
 
 REQUEST: {request}
 ANALYSIS: {analysis}
 
-AVAILABLE AGENTS:
+AVAILABLE AGENTS (Use EXACT names from this list):
 {available_agents}
 
-AVAILABLE TOOLS: 
+AVAILABLE TOOLS:
 {available_tools}
 
-Think through this systematically:
+CRITICAL INSTRUCTIONS:
+1. ONLY use agent names that appear in the AVAILABLE AGENTS list above
+2. Check if existing agents can handle the task before creating new ones
+3. Many agents have flexible input handling - don't create duplicates
+4. For common tasks, these agents likely exist:
+   - email_extractor: extracts emails from any text
+   - url_extractor: extracts URLs from any text  
+   - calculate_mean/median/std: statistical calculations
+   - format_report: formats data into reports
+   - read_text/csv/pdf: file readers
 
-STEP 1: What specific tasks need to be done?
-STEP 2: Which available agents can handle each task?
-STEP 3: What's missing and needs to be created?
-STEP 4: What's the optimal execution order?
+STEP-BY-STEP PLANNING:
+1. Break down what the user wants into specific tasks
+2. Map each task to an available agent (check the list!)
+3. Only mark as missing if NO agent can do it
+4. Plan the execution order
 
-Respond with valid JSON:
+Respond with this EXACT JSON structure:
 {{
-    "workflow_id": "wf_" + timestamp,
-    "workflow_type": "sequential|parallel",
-    "reasoning": "your step-by-step thinking",
-    "agents_needed": ["exact_agent_names"],
+    "workflow_id": "wf_{timestamp}",
+    "workflow_type": "sequential",
+    "reasoning": "Step-by-step explanation of your plan",
+    "agents_needed": ["agent1_from_available_list", "agent2_from_available_list"],
     "missing_capabilities": {{
         "agents": [
+            // ONLY if truly missing from available list
             {{
-                "name": "agent_name",
-                "purpose": "what it does",
+                "name": "new_agent_name",
+                "purpose": "specific purpose",
                 "required_tools": ["tool1"],
-                "justification": "why needed"
+                "justification": "why existing agents cannot handle this"
             }}
         ],
-        "tools": [
-            {{
-                "name": "tool_name", 
-                "purpose": "what it does",
-                "type": "pure_function",
-                "justification": "why needed"
-            }}
-        ]
+        "tools": []
     }},
     "confidence": 0.95
-}}"""
+}}
+
+IMPORTANT: The agents_needed array should ONLY contain names from the AVAILABLE AGENTS list."""
+
 
 ORCHESTRATOR_ANALYSIS_PROMPT = """Analyze this user request to understand intent and requirements:
 
@@ -329,16 +336,20 @@ Focus on value and clarity, not technical details."""
 # AGENT GENERATION PROMPTS
 # =============================================================================
 
-CLAUDE_AGENT_GENERATION_PROMPT = """Create a Python agent function that follows our EXACT standards.
+CLAUDE_AGENT_GENERATION_PROMPT = """Create a Python agent that is MINIMAL but FUNCTIONAL.
 
 Agent Name: {agent_name}
 Purpose: {description}
 Required Tools: {tools}
-Input Description: {input_description}
-Output Description: {output_description}
 
-CRITICAL: Generate ONLY a function, no imports outside the function. Follow this EXACT pattern:
+CRITICAL REQUIREMENTS:
+1. The agent MUST actually do something useful, not just pass data through
+2. Use the tools intelligently to process the input
+3. Add value beyond what the tools alone provide
+4. Handle edge cases gracefully
+5. Keep it between {min_lines}-{max_lines} lines
 
+TEMPLATE TO FOLLOW EXACTLY:
 ```python
 def {agent_name}_agent(state):
     \"\"\"
@@ -348,13 +359,12 @@ def {agent_name}_agent(state):
     import os
     from datetime import datetime
     
-    # MANDATORY: Add path for imports
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     
-    # MANDATORY: Import required tools (if any)
+    # Import tools
     {tool_imports}
     
-    # MANDATORY: Initialize state components
+    # Initialize state
     if 'results' not in state:
         state['results'] = {{}}
     if 'errors' not in state:
@@ -365,86 +375,65 @@ def {agent_name}_agent(state):
     try:
         start_time = datetime.now()
         
-        # MANDATORY: Universal input extraction with better state handling
-        input_data = None
-        
-        # Priority 1: Check current_data (primary data flow)
-        current_data = state.get('current_data')
-        if current_data is not None:
-            input_data = current_data
-        
-        # Priority 2: Check last successful result
-        if input_data is None and 'results' in state:
-            # Get the most recent successful result
-            for agent_name in reversed(state.get('execution_path', [])):
-                if agent_name in state['results']:
-                    result = state['results'][agent_name]
-                    if isinstance(result, dict) and result.get('status') == 'success':
-                        if 'data' in result:
-                            input_data = result['data']
-                            break
-        
-        # Priority 3: Check root state for initial data
+        # Get input data using standard pattern
+        input_data = state.get('current_data')
         if input_data is None:
-            # Try various common keys
-            for key in ['text', 'data', 'input', 'request', 'content']:
-                if key in state and state[key]:
-                    input_data = state[key]
-                    break
+            # Check previous agent results
+            if 'results' in state and state['execution_path']:
+                last_agent = state['execution_path'][-1]
+                if last_agent in state['results']:
+                    last_result = state['results'][last_agent]
+                    if isinstance(last_result, dict) and 'data' in last_result:
+                        input_data = last_result['data']
         
-        # Priority 4: Extract from nested structures
-        if input_data is None and isinstance(state.get('current_data'), dict):
-            # Handle nested data structures
-            for key in ['text', 'data', 'content', 'value', 'result']:
-                if key in state['current_data']:
-                    input_data = state['current_data'][key]
-                    break
+        if input_data is None:
+            # Check root state
+            input_data = state.get('text', state.get('data', state.get('request')))
         
-        # AGENT LOGIC: Process input_data using tools
+        # ACTUAL PROCESSING - This is where the agent adds value
+        # Use the tools to process the data
+        # Don't just return the tool output - enhance it
+        
         {agent_logic}
         
-        # Calculate execution time
-        execution_time = (datetime.now() - start_time).total_seconds()
+        # Create meaningful output
+        processed_data = {{
+            # Include actual processed results here
+        }}
         
-        # MANDATORY: Standard output envelope
         result = {{
             "status": "success",
             "data": processed_data,
             "metadata": {{
                 "agent": "{agent_name}",
-                "execution_time": execution_time,
-                "tools_used": {tools},
-                "warnings": []
+                "execution_time": (datetime.now() - start_time).total_seconds(),
+                "tools_used": {tools}
             }}
         }}
         
-        # MANDATORY: Update state
         state['results']['{agent_name}'] = result
-        state['current_data'] = result['data']
+        state['current_data'] = processed_data
         state['execution_path'].append('{agent_name}')
         
     except Exception as e:
         import traceback
-        error_detail = {{
+        state['errors'].append({{
             "agent": "{agent_name}",
             "error": str(e),
-            "traceback": traceback.format_exc(),
-            "timestamp": datetime.now().isoformat()
-        }}
-        state['errors'].append(error_detail)
-        
+            "traceback": traceback.format_exc()
+        }})
         state['results']['{agent_name}'] = {{
             "status": "error",
             "data": None,
-            "metadata": {{
-                "agent": "{agent_name}",
-                "execution_time": 0,
-                "error": str(e)
-            }}
+            "metadata": {{"agent": "{agent_name}", "error": str(e)}}
         }}
     
     return state
-Make the agent logic simple but functional. Keep between {min_lines}-{max_lines} lines total.
+Make the agent ACTUALLY USEFUL. For example:
+
+If it's a calculator, actually calculate things
+If it's an extractor, actually extract and organize data
+If it's a formatter, actually format the data nicely
 """
 
 # =============================================================================
@@ -600,3 +589,21 @@ LOGGING_CONFIG = {
     "max_bytes": 10485760,  # 10MB
     "backup_count": 5,
 }
+
+
+# Registry Settings
+REGISTRY_LOCK_TIMEOUT = 5.0  # Seconds to wait for lock
+REGISTRY_SYNC_INTERVAL = 0.5  # Minimum seconds between reloads
+
+# Quality Gates
+ENFORCE_TOOL_QUALITY = True  # Reject placeholder tools
+ENFORCE_AGENT_QUALITY = True  # Reject non-functional agents
+TEST_GENERATED_CODE = True  # Test code before registration
+
+# # Model Settings - Upgrade for better quality
+# ORCHESTRATOR_MODEL = "gpt-4"  # Upgrade from o3-mini for better planning
+# CLAUDE_MODEL = "claude-3-sonnet-20240229"  # Upgrade from haiku for better code
+
+# Validation Settings
+REQUIRE_TOOL_TESTS = True  # Tools must pass basic tests
+REQUIRE_AGENT_TESTS = True  # Agents must pass basic tests

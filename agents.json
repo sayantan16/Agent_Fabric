@@ -27,6 +27,33 @@
       "line_count": 98,
       "status": "active"
     },
+    "url_extractor": {
+      "name": "url_extractor",
+      "description": "Extracts URLs from text input",
+      "uses_tools": ["extract_urls"],
+      "input_schema": {
+        "data": "any"
+      },
+      "output_schema": {
+        "status": "string",
+        "data": {
+          "urls": "array",
+          "count": "integer",
+          "domains": "object"
+        },
+        "metadata": "object"
+      },
+      "location": "prebuilt/agents/url_extractor_agent.py",
+      "is_prebuilt": true,
+      "created_by": "claude-3-haiku-20240307",
+      "created_at": "2025-09-04T12:30:00",
+      "version": "1.0.0",
+      "execution_count": 0,
+      "avg_execution_time": 0.0,
+      "tags": ["extraction", "urls"],
+      "line_count": 80,
+      "status": "active"
+    },
     "read_text": {
       "name": "read_text",
       "description": "Process read_text tasks",
