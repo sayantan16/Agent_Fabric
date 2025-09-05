@@ -1,4 +1,5 @@
-# Agent Fabric — Design & Roadmap
+# Agent Fabric — Design & Roadmap 
+---
 
 ## 1) Overview & Problem Statement
 
@@ -152,6 +153,55 @@ Request ----> parse+plan --------> read agents/tools --|                        
 6. Only the four readers are prebuilt; all other nodes are generated.
 
 ---
+
+## 4c) Agent–Tool Collaboration & Dependency Resolution (Authoritative Design)
+
+**Problem to avoid:** Agents being created without their required tools, or tools being created generically without purpose.
+
+**Authoritative rule:** **Tools are prerequisites; agents are dependents.** Creation and planning must enforce **tools → agents → workflow** in that order.
+
+### Orchestrator Protocol (4 stages)
+
+1. **Capability Analysis** → Decompose the user request into **atomic capabilities** (candidate agents) and list the **specific tools** each capability needs (with input/output types and purpose).
+2. **Dependency Graph** → Build a typed DAG with nodes = {tool|agent} and edges **tool → agent**.
+3. **Creation Order** → Topologically sort the graph and **ensure tools first**, then agents. All ensures are **idempotent** (no‑op if present).
+4. **Workflow Build & Execute** → Only after all dependencies exist, assemble the LangGraph and run with retries/telemetry.
+
+### Factory Execution Rules
+
+* **ensure\_tool(name, spec):** Must validate *purity*, import allow‑list, size budget, and **purpose‑specific behavior** (no placeholders). Include sample I/O tests and register atomically in `tools.json` with canonical `location`.
+* **ensure\_agent(name, spec):** Only runs **after all tools are ensured**. Validates input/output schemas and returns the **standard JSON envelope**; registers in `agents.json` with `uses_tools` populated.
+
+### Registry & Import Resolution (prebuilt vs generated)
+
+* **Prebuilt vs generated is not a problem** so long as **registries are the source of truth**. Each entry carries a canonical `location` and agents **import tools via registry‑resolved paths**.
+* Provide an **import resolver** at generation time so agent code imports from the correct module path regardless of whether a tool lives under `prebuilt/` or `generated/`. (Fallback import is acceptable but registry‑driven import is preferred.)
+
+### Dynamic Planning Rules (how the Orchestrator decides)
+
+* For each capability, consult `tools.json` by **description/signature** first. If no suitable tool exists, the Orchestrator must produce a **tool spec** with: `name`, **purpose**, **input/output types**, and an **implementation hint**.
+* Create missing tools **before** generating the agent that depends on them; then generate the agent **referencing those tool names** in `uses_tools` and imports.
+
+### Tool Quality Bar
+
+* Tools must implement **specific, testable behavior** (e.g., *extract E.164 phone numbers from text*) rather than generic stubs.
+* Each tool ships with **minimal unit samples** and is rejected if tests fail or purity/import rules are violated.
+
+### LangGraph Correctness Checks
+
+* **Pre‑flight validation:** no cycles; every node corresponds to a registered agent; for each agent, **all `uses_tools` exist**; conditional edges have a condition function.
+* **Visualization:** export a graph view per run to confirm whether the workflow is a straight path or includes conditionals; annotate nodes with timings and outputs present.
+
+### Telemetry & Audit Requirements
+
+* Log the **dependency resolution** (what tools were required and why), the **creation order**, registry updates, and **import paths** chosen for each agent.
+* Include clear errors when an agent would be created without all tools, and **abort** creation until tools are ensured.
+
+### Acceptance Checks (collaboration)
+
+* Any plan that introduces a new agent must show prior or concurrent logs of **tool ensures** for all dependencies.
+* Agents never import missing tools at runtime; imports resolve using registry paths.
+* The executed LangGraph uses the expected tools per agent, confirmed by run logs and the visualization output.
 
 ## 5) Core Components
 
