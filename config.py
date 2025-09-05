@@ -522,6 +522,50 @@ CLAUDE_TOOL_GENERATION_PROMPT = """Create a PURE Python function following our s
     MUST have at least basic functionality
     Keep between {min_lines}-{max_lines} lines"""
 
+
+DEPENDENCY_ANALYSIS_PROMPT = """
+Analyze this request and identify all required capabilities.
+Break down the request into atomic operations.
+
+For each capability, specify:
+1. The agent needed to perform it
+2. The tools that agent would require
+3. Input/output data types
+4. Dependencies on other capabilities
+
+Request: {request}
+
+Return a structured analysis with:
+- List of capabilities
+- Dependency relationships
+- Suggested execution order
+"""
+
+TOOL_GENERATION_PROMPT_ENHANCED = """
+You are an expert Python developer creating a tool function.
+
+Tool: {tool_name}
+Purpose: {description}
+Context: This tool will be used by {used_by_agents}
+
+Create a WORKING implementation that:
+1. Actually performs the described function (not a placeholder)
+2. Handles edge cases gracefully
+3. Returns consistent, predictable output
+4. Uses appropriate Python libraries
+
+Examples of good implementations:
+- Use 're' module for pattern matching
+- Use 'statistics' module for calculations
+- Use 'json' module for data formatting
+- Use list comprehensions for filtering
+
+The function MUST work correctly when called.
+Do not create placeholder or mock implementations.
+
+Return only the Python code.
+"""
+
 # =============================================================================
 # PREBUILT COMPONENTS
 # =============================================================================

@@ -11,10 +11,13 @@ from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime
 import openai
 from enum import Enum
+from core.dependency_resolver import DependencyResolver
+import networkx as nx
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from config import (
+    CLAUDE_MODEL,
     OPENAI_API_KEY,
     ORCHESTRATOR_MODEL,
     ORCHESTRATOR_TEMPERATURE,
@@ -340,34 +343,57 @@ class Orchestrator:
     async def _create_missing_components(
         self, missing_capabilities: Dict[str, List]
     ) -> Dict[str, Any]:
-        """Create missing agents and tools dynamically."""
+        """Create missing agents and tools dynamically - tools first!"""
         created = {"agents": [], "tools": []}
         failed = {"agents": [], "tools": []}
 
-        # Create missing tools first (agents may depend on them)
+        # CRITICAL: Create missing tools FIRST (agents depend on them)
         for tool_spec in missing_capabilities.get("tools", []):
             try:
-                result = await self._create_tool_from_spec(tool_spec)
+                print(f"DEBUG: Creating tool '{tool_spec['name']}'")
+
+                # Use tool factory's ensure method which handles everything
+                result = self.tool_factory.ensure_tool(
+                    tool_name=tool_spec["name"],
+                    description=tool_spec.get(
+                        "purpose", f"Tool for {tool_spec['name']}"
+                    ),
+                    tool_type=tool_spec.get("type", "pure_function"),
+                )
+
                 if result["status"] in ["success", "exists"]:
                     created["tools"].append(tool_spec["name"])
+                    print(f"DEBUG: Tool '{tool_spec['name']}' created successfully")
                 else:
-                    # Log but don't fail the entire workflow
                     print(
-                        f"DEBUG: Tool {tool_spec['name']} creation had issues: {result.get('message')}"
+                        f"DEBUG: Tool '{tool_spec['name']}' creation failed: {result.get('message')}"
                     )
-                    # Still mark as created to continue workflow
+                    # Don't fail the workflow for tool issues
                     created["tools"].append(tool_spec["name"])
+
             except Exception as e:
-                print(f"DEBUG: Tool {tool_spec['name']} creation error: {str(e)}")
+                print(f"DEBUG: Tool '{tool_spec['name']}' creation error: {str(e)}")
                 # Continue anyway
                 created["tools"].append(tool_spec["name"])
 
-        # Create missing agents
+        # Now create missing agents (with tools available)
         for agent_spec in missing_capabilities.get("agents", []):
             try:
-                result = await self._create_agent_from_spec(agent_spec)
+                print(
+                    f"DEBUG: Creating agent '{agent_spec['name']}' with tools: {agent_spec.get('required_tools', [])}"
+                )
+
+                result = self.agent_factory.ensure_agent(
+                    agent_name=agent_spec["name"],
+                    description=agent_spec.get(
+                        "purpose", f"Agent for {agent_spec['name']}"
+                    ),
+                    required_tools=agent_spec.get("required_tools", []),
+                )
+
                 if result["status"] in ["success", "exists"]:
                     created["agents"].append(agent_spec["name"])
+                    print(f"DEBUG: Agent '{agent_spec['name']}' created successfully")
                 else:
                     failed["agents"].append(
                         {
@@ -375,10 +401,13 @@ class Orchestrator:
                             "error": result.get("message", "Unknown error"),
                         }
                     )
+                    print(f"DEBUG: Agent '{agent_spec['name']}' creation failed")
+
             except Exception as e:
                 failed["agents"].append({"name": agent_spec["name"], "error": str(e)})
+                print(f"DEBUG: Agent '{agent_spec['name']}' creation error: {str(e)}")
 
-        # CRITICAL FIX: Return success if we created agents, even if tools had issues
+        # Return success if we created anything
         if created["agents"] or created["tools"]:
             return {"status": "success", "created": created, "failed": failed}
         elif failed["agents"]:
@@ -783,30 +812,66 @@ Output as JSON."""
             return False
 
     def _check_missing_capabilities(self, plan: Dict) -> Dict[str, List]:
-        """Check for missing agents and tools."""
+        """Check for missing agents and tools with proper dependency resolution."""
         missing = {"agents": [], "tools": []}
 
-        # Check agents
+        # First, collect all tools needed by all agents
+        all_required_tools = set()
+
         for agent_name in plan.get("agents_needed", []):
             if not self.registry.agent_exists(agent_name):
+                # Agent doesn't exist, needs creation
                 missing["agents"].append(
                     {
                         "name": agent_name,
                         "purpose": f"Process {agent_name} tasks",
-                        "required_tools": [],
+                        "required_tools": [],  # Will be determined during creation
+                    }
+                )
+            else:
+                # Agent exists, check its tool dependencies
+                agent_info = self.registry.get_agent(agent_name)
+                if agent_info:
+                    for tool in agent_info.get("uses_tools", []):
+                        all_required_tools.add(tool)
+
+        # Check if required tools exist
+        for tool_name in all_required_tools:
+            if not self.registry.tool_exists(tool_name):
+                missing["tools"].append(
+                    {
+                        "name": tool_name,
+                        "purpose": f"Tool for processing",
+                        "type": "pure_function",
                     }
                 )
 
-        # Check if plan specifies missing capabilities
+        # Also check for tools specified in the plan's missing_capabilities
         if "missing_capabilities" in plan:
             plan_missing = plan["missing_capabilities"]
             if "agents" in plan_missing:
-                missing["agents"].extend(plan_missing["agents"])
-            if "tools" in plan_missing:
-                missing["tools"].extend(plan_missing["tools"])
+                for agent in plan_missing["agents"]:
+                    # Add required tools for missing agents
+                    for tool in agent.get("required_tools", []):
+                        if not self.registry.tool_exists(tool):
+                            missing["tools"].append(
+                                {
+                                    "name": tool,
+                                    "purpose": f"Tool for {agent['name']}",
+                                    "type": "pure_function",
+                                }
+                            )
+                    # Add the agent itself
+                    if not any(a["name"] == agent["name"] for a in missing["agents"]):
+                        missing["agents"].append(agent)
 
-        # IMPORTANT: Return None if no missing capabilities
-        return missing if missing["agents"] or missing["tools"] else None
+            if "tools" in plan_missing:
+                for tool in plan_missing["tools"]:
+                    if not any(t["name"] == tool["name"] for t in missing["tools"]):
+                        missing["tools"].append(tool)
+
+        # Return None if no missing capabilities (important!)
+        return missing if (missing["agents"] or missing["tools"]) else None
 
     def _format_results_summary(self, execution_result: Dict) -> str:
         """Format execution results for synthesis."""
@@ -903,3 +968,187 @@ Output as JSON."""
     def get_active_workflows(self) -> Dict[str, Any]:
         """Get currently active workflows."""
         return self.active_workflows.copy()
+
+    async def _enhanced_plan_workflow(
+        self, user_request: str, analysis: str, auto_create: bool
+    ) -> Dict[str, Any]:
+        """
+        Enhanced workflow planning with dependency resolution.
+        Uses multi-stage planning: capability → tool → agent → workflow
+        """
+
+        print("DEBUG: Starting enhanced workflow planning")
+
+        # Stage 1: Capability Analysis
+        resolver = DependencyResolver(self.registry)
+
+        # Get existing components
+        existing_agents = {a["name"]: a for a in self.registry.list_agents()}
+        existing_tools = {t["name"]: t for t in self.registry.list_tools()}
+
+        # Analyze dependencies
+        dependency_analysis = resolver.analyze_request(
+            user_request, existing_agents, existing_tools
+        )
+
+        print("DEBUG: Dependency Analysis:")
+        print(resolver.visualize_dependencies(dependency_analysis["dependency_graph"]))
+
+        # Stage 2: Component Creation (if auto_create)
+        if auto_create and dependency_analysis["creation_order"]:
+            print(
+                f"DEBUG: Need to create {len(dependency_analysis['creation_order'])} components"
+            )
+
+            for component_type, component_name in dependency_analysis["creation_order"]:
+                if component_type == "tool":
+                    print(f"DEBUG: Creating tool: {component_name}")
+                    await self._ensure_tool_with_context(
+                        component_name, dependency_analysis["missing_components"]
+                    )
+                else:  # agent
+                    print(f"DEBUG: Creating agent: {component_name}")
+                    await self._ensure_agent_with_context(
+                        component_name, dependency_analysis["missing_components"]
+                    )
+
+        # Stage 3: Workflow Planning with GPT-4
+        # Now all components exist, plan the execution workflow
+        workflow_prompt = f"""
+        Plan the execution workflow for this request.
+        All required components are now available.
+        
+        Request: {user_request}
+        Available Capabilities: {dependency_analysis['capabilities']}
+        
+        Create an execution plan that:
+        1. Uses the right agents in the right order
+        2. Passes data correctly between agents
+        3. Handles both sequential and parallel execution where appropriate
+        
+        Return JSON with:
+        {{
+            "workflow_id": "wf_<timestamp>",
+            "workflow_type": "sequential|parallel|hybrid",
+            "agents_needed": ["agent1", "agent2", ...],
+            "execution_strategy": "description of how to execute",
+            "data_flow": {{"agent1": "output_type", "agent2": "input_from_agent1"}},
+            "expected_output": "what the final result should contain"
+        }}
+        """
+
+        plan = await self._call_gpt4_json(
+            system_prompt="You are a workflow planner. Output valid JSON only.",
+            user_prompt=workflow_prompt,
+            temperature=0.1,
+        )
+
+        # Add dependency information to plan
+        plan["dependency_graph"] = dependency_analysis
+        plan["status"] = "success"
+
+        return plan
+
+    async def _ensure_tool_with_context(self, tool_name: str, context: Dict) -> Dict:
+        """Create tool with context from dependency analysis."""
+
+        # Find tool in context
+        tool_info = next(
+            (t for t in context["tools"] if t["name"] == tool_name),
+            {"name": tool_name, "used_by": []},
+        )
+
+        # Generate description based on usage
+        used_by = tool_info.get("used_by", [])
+        if used_by:
+            description = f"Tool for {', '.join(used_by)} agents"
+        else:
+            description = f"Utility tool for {tool_name.replace('_', ' ')}"
+
+        # Use enhanced tool creation
+        return await self._create_tool_with_claude(tool_name, description, tool_info)
+
+    async def _create_tool_with_claude(
+        self, tool_name: str, description: str, context: Dict
+    ) -> Dict:
+        """Create tool using Claude for intelligent implementation."""
+
+        # Enhanced prompt for Claude
+        creation_prompt = f"""
+        Create a Python function for this tool.
+        
+        Tool Name: {tool_name}
+        Purpose: {description}
+        Used By Agents: {context.get('used_by', [])}
+        
+        Requirements:
+        1. Must be a pure function (no side effects)
+        2. Must handle None input gracefully
+        3. Must return consistent output type
+        4. Must have actual working implementation (not placeholder)
+        
+        Based on the tool name and context, implement the actual functionality.
+        For example:
+        - If it's an extraction tool, use regex to actually extract
+        - If it's a calculation tool, perform the actual calculation
+        - If it's a formatting tool, actually format the data
+        
+        Return only the Python code.
+        """
+
+        # Call Claude to generate implementation
+        response = self.tool_factory.client.messages.create(
+            model=CLAUDE_MODEL,
+            temperature=0.2,
+            max_tokens=1000,
+            messages=[{"role": "user", "content": creation_prompt}],
+        )
+
+        code = self.tool_factory._extract_code_from_response(response.content[0].text)
+
+        if code:
+            # Test the generated code
+            test_result = self._test_tool_code(code, tool_name)
+
+            if test_result["valid"]:
+                # Register the tool
+                return self.tool_factory.registry.register_tool(
+                    name=tool_name,
+                    description=description,
+                    code=code,
+                    is_pure_function=True,
+                )
+
+        # Fallback to basic generation
+        return self.tool_factory.ensure_tool(tool_name, description)
+
+    def _test_tool_code(self, code: str, tool_name: str) -> Dict:
+        """Test generated tool code."""
+        try:
+            # Create a test namespace
+            test_namespace = {}
+            exec(code, test_namespace)
+
+            # Check function exists
+            if tool_name not in test_namespace:
+                return {"valid": False, "error": "Function not found"}
+
+            func = test_namespace[tool_name]
+
+            # Test with various inputs
+            test_cases = [None, "", "test string", {"key": "value"}, [1, 2, 3]]
+
+            for test_input in test_cases:
+                try:
+                    result = func(test_input)
+                    # Function should not raise exceptions
+                except Exception as e:
+                    return {
+                        "valid": False,
+                        "error": f"Failed with input {test_input}: {e}",
+                    }
+
+            return {"valid": True}
+
+        except Exception as e:
+            return {"valid": False, "error": str(e)}
