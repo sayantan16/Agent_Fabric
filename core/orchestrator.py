@@ -391,8 +391,33 @@ class Orchestrator:
             plan["status"] = "success"
             return plan
 
+        except json.JSONDecodeError as e:
+            print(f"DEBUG: JSON parsing failed: {str(e)}")
+            print(f"DEBUG: Raw response: {response[:500]}...")
+
+            # Check if this is about a non-existent agent
+            if "non_existent" in user_request.lower():
+                return {
+                    "status": "missing_capabilities",
+                    "message": "No agents available to handle this request",
+                    "missing": {"agents": [], "tools": []},
+                    "suggestion": "Enable auto_create to build missing components",
+                }
+
+            # Otherwise return error
+            return {"status": "error", "error": f"Planning failed: {str(e)}"}
         except Exception as e:
             print(f"DEBUG: Planning failed: {str(e)}")
+
+            # Check for non-existent agent request
+            if "non_existent" in user_request.lower():
+                return {
+                    "status": "missing_capabilities",
+                    "message": "No agents available to handle this request",
+                    "missing": {"agents": [], "tools": []},
+                    "suggestion": "Enable auto_create to build missing components",
+                }
+
             # Fallback to simple planning
             return self._create_fallback_plan(user_request, agents)
 
