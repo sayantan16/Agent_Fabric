@@ -35,6 +35,7 @@ from core.workflow_engine import WorkflowEngine
 from core.agent_factory import AgentFactory
 from core.tool_factory import ToolFactory
 from core.registry_singleton import get_shared_registry
+from typing import Dict, List, Optional, Any, Tuple
 
 
 class WorkflowType(Enum):
@@ -62,6 +63,23 @@ class Orchestrator:
         self.execution_history = []
         self.active_workflows = {}
 
+    def _prepare_initial_data(
+        self, user_request: str, files: Optional[List[Dict]] = None
+    ) -> Dict[str, Any]:
+        """Prepare initial data for workflow execution with all necessary fields."""
+        return {
+            "request": user_request,
+            "text": user_request,  # Many agents look for 'text'
+            "data": user_request,  # Some agents look for 'data'
+            "current_data": user_request,  # Workflow engine uses this
+            "input": user_request,  # Fallback field
+            "files": files or [],
+            "context": {},
+            "results": {},  # Initialize results dict
+            "errors": [],  # Initialize errors list
+            "execution_path": [],  # Initialize execution path
+        }
+
     async def process_request(
         self,
         user_request: str,
@@ -87,12 +105,10 @@ class Orchestrator:
         workflow_id = self._generate_workflow_id()
 
         try:
-
             print(f"DEBUG: Starting request processing for: {user_request[:50]}...")
 
             # Phase 1: Analyze the request
             analysis = await self._analyze_request(user_request, files, context)
-
             if analysis["status"] != "success":
                 return self._create_error_response(
                     workflow_id, "Analysis failed", analysis.get("error")
@@ -102,13 +118,42 @@ class Orchestrator:
             plan = await self._plan_workflow(
                 user_request, analysis["analysis"], auto_create
             )
-
             if plan["status"] != "success":
                 return self._create_error_response(
                     workflow_id, "Planning failed", plan.get("error")
                 )
 
-            # Phase 3: Handle missing capabilities
+            # ============= CRITICAL FIX 1: Better handling of no agents case =============
+            agents_needed = plan.get("agents_needed", [])
+            missing_capabilities = plan.get("missing_capabilities", {})
+
+            # Check if we have no agents and need to create some
+            if not agents_needed and missing_capabilities.get("agents"):
+                if auto_create:
+                    # Try to create the missing agents first
+                    creation_result = await self._create_missing_components(
+                        missing_capabilities
+                    )
+
+                    # Re-plan after creation
+                    if creation_result.get("status") in ["success", "partial"]:
+                        plan = await self._plan_workflow(
+                            user_request, analysis["analysis"], auto_create=False
+                        )
+                        agents_needed = plan.get("agents_needed", [])
+                else:
+                    # Return early if no agents and can't create
+                    return {
+                        "status": "no_agents",
+                        "message": "No suitable agents found and auto-creation is disabled",
+                        "workflow": {"steps": []},
+                        "response": "I couldn't find suitable agents to handle your request. Please enable auto-creation or add the required agents.",
+                        "execution_time": (datetime.now() - start_time).total_seconds(),
+                        "metadata": {"components_created": 0},
+                    }
+            # ===========================================================================
+
+            # Phase 3: Handle remaining missing capabilities (your existing code)
             missing_capabilities = self._check_missing_capabilities(plan)
             if missing_capabilities:
                 if auto_create:
@@ -116,84 +161,61 @@ class Orchestrator:
                         missing_capabilities
                     )
 
-                    if creation_result["status"] != "success":
-                        return {
-                            "status": "partial",
-                            "message": "Some components could not be created",
-                            "created": creation_result.get("created", {}),
-                            "failed": creation_result.get("failed", {}),
-                            "workflow_id": workflow_id,
-                        }
+                    if creation_result["status"] in ["success", "partial"]:
+                        # Re-plan with new components
+                        plan = await self._plan_workflow(
+                            user_request, analysis["analysis"], auto_create=False
+                        )
 
-                    # Re-plan with new components
-                    plan = await self._plan_workflow(
-                        user_request, analysis["analysis"], auto_create=False
+                        # Update agents_needed after re-planning
+                        agents_needed = plan.get("agents_needed", [])
+                else:
+                    return {
+                        "status": "missing_capabilities",
+                        "message": "Required components are not available",
+                        "missing": missing_capabilities,
+                        "workflow_id": workflow_id,
+                        "suggestion": "Enable auto_create to build missing components automatically",
+                    }
+
+            # ============= CRITICAL FIX 2: Final check for no agents =============
+            if not agents_needed:
+                message = "I couldn't identify specific agents to handle this request. "
+                if plan.get("missing_capabilities", {}).get("agents"):
+                    missing = ", ".join(
+                        a["name"] for a in plan["missing_capabilities"]["agents"]
                     )
+                    message += f"The following capabilities would need to be created: {missing}"
+                else:
+                    message += "Please provide more specific instructions or data."
 
-                    # Re-check for missing capabilities after creation
-                    # Phase 3: Handle missing capabilities
-                    missing_capabilities = self._check_missing_capabilities(plan)
-                    if missing_capabilities:
-                        if auto_create:
-                            creation_result = await self._create_missing_components(
-                                missing_capabilities
-                            )
+                return {
+                    "status": "no_agents",
+                    "workflow_id": workflow_id,
+                    "message": message,
+                    "workflow": {
+                        "type": plan.get("workflow_type", "sequential"),
+                        "steps": [],
+                    },
+                    "response": message,
+                    "execution_time": (datetime.now() - start_time).total_seconds(),
+                    "results": {},
+                    "metadata": {
+                        "agents_used": 0,
+                        "components_created": 0,
+                        "errors_encountered": 0,
+                    },
+                }
+            # =====================================================================
 
-                            # CRITICAL FIX: Don't stop on partial creation
-                            if creation_result["status"] in ["success", "partial"]:
-                                # Re-plan with new components
-                                plan = await self._plan_workflow(
-                                    user_request,
-                                    analysis["analysis"],
-                                    auto_create=False,
-                                )
-
-                                # Re-check but be more lenient
-                                missing_capabilities = self._check_missing_capabilities(
-                                    plan
-                                )
-
-                                # Only fail if critical agents are still missing
-                                if missing_capabilities and missing_capabilities.get(
-                                    "agents"
-                                ):
-                                    # Check if these are truly critical
-                                    critical_missing = False
-                                    for agent in missing_capabilities["agents"]:
-                                        if not self.registry.agent_exists(
-                                            agent["name"]
-                                        ):
-                                            critical_missing = True
-                                            break
-
-                                    if critical_missing:
-                                        return {
-                                            "status": "partial",
-                                            "message": "Some critical components could not be created",
-                                            "missing": missing_capabilities,
-                                            "workflow_id": workflow_id,
-                                        }
-                            else:
-                                return {
-                                    "status": "partial",
-                                    "message": "Component creation failed",
-                                    "created": creation_result.get("created", {}),
-                                    "failed": creation_result.get("failed", {}),
-                                    "workflow_id": workflow_id,
-                                }
-                        else:
-                            return {
-                                "status": "missing_capabilities",
-                                "message": "Required components are not available",
-                                "missing": missing_capabilities,
-                                "workflow_id": workflow_id,
-                                "suggestion": "Enable auto_create to build missing components automatically",
-                            }
-
-            # Phase 4: Prepare initial data
-            initial_data = self._prepare_initial_data(
-                user_request, files, context, plan
-            )
+            # ============= CRITICAL FIX 3: Use the enhanced data preparation =============
+            # Phase 4: Prepare initial data with ALL fields agents might look for
+            initial_data = self._prepare_initial_data(user_request, files)
+            initial_data["context"] = {
+                "analysis": analysis.get("analysis", {}),
+                "plan": plan,
+            }
+            # ===========================================================================
 
             # Phase 5: Execute the workflow
             if stream_results:
@@ -211,9 +233,15 @@ class Orchestrator:
                 )
 
             # Phase 6: Synthesize results
-            final_response = await self._synthesize_results(
-                user_request, plan, execution_result
-            )
+            has_errors = bool(execution_result.get("errors"))
+            if has_errors:
+                final_response = await self._handle_execution_errors(
+                    execution_result, plan
+                )
+            else:
+                final_response = await self._synthesize_results(
+                    user_request, plan, execution_result
+                )
 
             # Record execution history
             execution_time = (datetime.now() - start_time).total_seconds()
@@ -228,12 +256,12 @@ class Orchestrator:
                 "execution_time": execution_time,
                 "workflow": {
                     "type": plan.get("workflow_type", "sequential"),
-                    "steps": plan.get("agents_needed", []),
+                    "steps": agents_needed,  # Use the updated agents_needed
                     "execution_path": execution_result.get("execution_path", []),
                 },
                 "results": execution_result.get("results", {}),
                 "metadata": {
-                    "agents_used": len(plan.get("agents_needed", [])),
+                    "agents_used": len(agents_needed),
                     "components_created": len(plan.get("created_components", [])),
                     "errors_encountered": len(execution_result.get("errors", [])),
                 },
@@ -927,31 +955,70 @@ Output as JSON."""
         return await self._execute_workflow(plan, initial_data, workflow_id)
 
     async def _synthesize_results(
-        self, user_request: str, plan: Dict, execution_result: Dict
+        self, request: str, plan: Dict, results: Dict, errors: List
     ) -> str:
-        """Synthesize execution results into coherent response."""
-        # Format results for synthesis
-        results_summary = self._format_results_summary(execution_result)
+        """Synthesize results from multiple agents into coherent response."""
 
-        prompt = ORCHESTRATOR_SYNTHESIS_PROMPT.format(
-            request=user_request,
-            plan=json.dumps(plan, indent=2),
-            results=results_summary,
-            errors=json.dumps(execution_result.get("errors", [])),
-        )
+        # Check if we have any successful results
+        successful_results = {
+            agent: result
+            for agent, result in results.items()
+            if result.get("status") == "success"
+        }
 
-        try:
-            response = await self._call_gpt4(
-                system_prompt="Synthesize results into a clear response.",
-                user_prompt=prompt,
-                temperature=0.5,
+        # If no successful results but we have errors, use error handler
+        if not successful_results and errors:
+            return await self._handle_execution_errors(
+                {"results": results, "errors": errors}, plan
             )
 
-            return response
+        # If we have some successful results, synthesize them
+        try:
+            # Prepare data for GPT-4 synthesis
+            synthesis_data = {
+                "original_request": request,
+                "execution_plan": plan,
+                "successful_results": successful_results,
+                "errors": errors,
+            }
+
+            synthesis_prompt = f"""
+            Synthesize the following execution results into a clear, helpful response:
+            
+            Original Request: {request}
+            
+            Execution Results:
+            {json.dumps(successful_results, indent=2, default=str)}
+            
+            {f"Errors encountered: {json.dumps(errors, indent=2, default=str)}" if errors else ""}
+            
+            Create a natural language response that:
+            1. Directly answers the user's request
+            2. Highlights key findings
+            3. Mentions any issues encountered (if any)
+            4. Provides actionable insights
+            
+            Be concise and professional.
+            """
+
+            response = self.client.chat.completions.create(
+                model=ORCHESTRATOR_MODEL,
+                messages=[
+                    {"role": "system", "content": ORCHESTRATOR_SYNTHESIS_PROMPT},
+                    {"role": "user", "content": synthesis_prompt},
+                ],
+                temperature=ORCHESTRATOR_TEMPERATURE,
+                max_tokens=1000,
+            )
+
+            return response.choices[0].message.content
 
         except Exception as e:
-            # Fallback to basic summary
-            return self._create_basic_summary(execution_result)
+            # Fallback to error handler if synthesis fails
+            print(f"DEBUG: Synthesis failed, using error handler: {e}")
+            return await self._handle_execution_errors(
+                {"results": results, "errors": errors}, plan
+            )
 
     async def _call_gpt4(
         self, system_prompt: str, user_prompt: str, temperature: float = 1.0
@@ -992,34 +1059,34 @@ Output as JSON."""
 
         return content.strip()
 
-    def _prepare_initial_data(
-        self,
-        user_request: str,
-        files: Optional[List[Dict]],
-        context: Optional[Dict],
-        plan: Dict,
-    ) -> Dict[str, Any]:
-        """Prepare initial data for workflow execution."""
-        initial_data = {
-            "request": user_request,
-            "files": files or [],
-            "context": context or {},
-            "plan": plan,
-            "workflow_type": plan.get("workflow_type", "sequential"),
-        }
+    # def _prepare_initial_data(
+    #     self,
+    #     user_request: str,
+    #     files: Optional[List[Dict]],
+    #     context: Optional[Dict],
+    #     plan: Dict,
+    # ) -> Dict[str, Any]:
+    #     """Prepare initial data for workflow execution."""
+    #     initial_data = {
+    #         "request": user_request,
+    #         "files": files or [],
+    #         "context": context or {},
+    #         "plan": plan,
+    #         "workflow_type": plan.get("workflow_type", "sequential"),
+    #     }
 
-        # Add file paths if present
-        if files:
-            initial_data["file_paths"] = [f.get("path", "") for f in files]
-            initial_data["file_types"] = [f.get("type", "unknown") for f in files]
+    #     # Add file paths if present
+    #     if files:
+    #         initial_data["file_paths"] = [f.get("path", "") for f in files]
+    #         initial_data["file_types"] = [f.get("type", "unknown") for f in files]
 
-        # Extract any embedded data from request
-        if ":" in user_request or "\n" in user_request:
-            parts = user_request.split(":", 1)
-            if len(parts) > 1:
-                initial_data["embedded_data"] = parts[1].strip()
+    #     # Extract any embedded data from request
+    #     if ":" in user_request or "\n" in user_request:
+    #         parts = user_request.split(":", 1)
+    #         if len(parts) > 1:
+    #             initial_data["embedded_data"] = parts[1].strip()
 
-        return initial_data
+    #     return initial_data
 
     def _format_components_list(
         self, components: List[Dict], component_type: str
@@ -1420,3 +1487,73 @@ Output as JSON."""
 
         except Exception as e:
             return {"valid": False, "error": str(e)}
+
+    async def _handle_execution_errors(self, state: Dict, workflow: Dict) -> str:
+        """Generate helpful response even when execution has errors."""
+
+        successful_agents = []
+        failed_agents = []
+        partial_results = []
+
+        # Analyze what worked and what didn't
+        for agent_name in workflow.get("steps", []):
+            if agent_name in state.get("results", {}):
+                result = state["results"][agent_name]
+                if result.get("status") == "success":
+                    successful_agents.append(agent_name)
+                    if result.get("data"):
+                        partial_results.append(
+                            f"{agent_name}: {self._summarize_data(result['data'])}"
+                        )
+                else:
+                    failed_agents.append(agent_name)
+
+        # Build response
+        response_parts = []
+
+        if successful_agents:
+            response_parts.append(
+                f"Successfully completed: {', '.join(successful_agents)}"
+            )
+
+        if partial_results:
+            response_parts.append("\nPartial results obtained:")
+            response_parts.extend(partial_results)
+
+        if failed_agents:
+            response_parts.append(
+                f"\nEncountered issues with: {', '.join(failed_agents)}"
+            )
+
+            # Provide helpful suggestions
+            suggestions = []
+            for agent in failed_agents:
+                if "email" in agent.lower():
+                    suggestions.append(
+                        "- Email extraction: Ensure text contains valid email addresses"
+                    )
+                elif "url" in agent.lower():
+                    suggestions.append(
+                        "- URL extraction: Check that URLs are properly formatted"
+                    )
+                elif "file" in agent.lower() or "read" in agent.lower():
+                    suggestions.append(
+                        "- File reading: Verify file path and permissions"
+                    )
+
+            if suggestions:
+                response_parts.append("\nTroubleshooting suggestions:")
+                response_parts.extend(suggestions)
+
+        return "\n".join(response_parts)
+
+    def _summarize_data(self, data: Any) -> str:
+        """Create a brief summary of data."""
+        if isinstance(data, dict):
+            return f"{len(data)} items"
+        elif isinstance(data, list):
+            return f"{len(data)} entries"
+        elif isinstance(data, str):
+            return f"{len(data)} characters"
+        else:
+            return str(type(data).__name__)

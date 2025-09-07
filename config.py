@@ -253,44 +253,48 @@ AVAILABLE TOOLS:
 {available_tools}
 
 CRITICAL INSTRUCTIONS:
-1. ONLY use agent names that appear in the AVAILABLE AGENTS list above
-2. Check if existing agents can handle the task before creating new ones
-3. Many agents have flexible input handling - don't create duplicates
-4. For common tasks, these agents likely exist:
-   - email_extractor: extracts emails from any text
-   - url_extractor: extracts URLs from any text  
-   - calculate_mean/median/std: statistical calculations
-   - format_report: formats data into reports
-   - read_text/csv/pdf: file readers
+1. First check if existing agents can handle the task
+2. If no suitable agents exist for a capability, mark them for creation
+3. For statistical/numerical tasks, consider these patterns:
+   - "statistics" or "stats" → needs stats_calculator agent
+   - "mean/median/average" → needs statistical calculation tools
+   - "report" → needs report generation capabilities
+   - "chart/graph" → needs visualization capabilities
 
-STEP-BY-STEP PLANNING:
-1. Break down what the user wants into specific tasks
-2. Map each task to an available agent (check the list!)
-3. Only mark as missing if NO agent can do it
-4. Plan the execution order
+PLANNING RULES:
+- If the request mentions statistics/calculations and no stats agents exist, plan to create them
+- Break complex requests into atomic capabilities
+- Each capability needs an agent (existing or to be created)
 
 Respond with this EXACT JSON structure:
 {{
     "workflow_id": "wf_{timestamp}",
     "workflow_type": "sequential",
     "reasoning": "Step-by-step explanation of your plan",
-    "agents_needed": ["agent1_from_available_list", "agent2_from_available_list"],
+    "agents_needed": ["list_of_existing_agents_that_match"],
     "missing_capabilities": {{
         "agents": [
-            // ONLY if truly missing from available list
             {{
-                "name": "new_agent_name",
+                "name": "agent_name_to_create",
                 "purpose": "specific purpose",
-                "required_tools": ["tool1"],
-                "justification": "why existing agents cannot handle this"
+                "required_tools": ["tool1", "tool2"],
+                "justification": "why this is needed"
             }}
         ],
-        "tools": []
+        "tools": [
+            {{
+                "name": "tool_name_to_create",
+                "purpose": "specific purpose"
+            }}
+        ]
     }},
     "confidence": 0.95
 }}
 
-IMPORTANT: The agents_needed array should ONLY contain names from the AVAILABLE AGENTS list."""
+IMPORTANT: 
+- If no agents match the request, agents_needed should be empty [] not cause an error
+- Always identify what needs to be created in missing_capabilities
+- For ambiguous requests, suggest a reasonable default workflow"""
 
 
 ORCHESTRATOR_ANALYSIS_PROMPT = """Analyze this user request to understand intent and requirements:

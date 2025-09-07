@@ -53,14 +53,26 @@ def test_basic_workflow():
     print(f"✓ Workflow: {result['workflow']['steps']}")
     print(f"✓ Response preview: {result['response'][:200]}...")
 
-    # Check results structure
+    # Check results structure - FIXED VERSION
     if "results" in result:
         for agent_name, agent_result in result["results"].items():
             print(f"\n  Agent: {agent_name}")
             if isinstance(agent_result, dict):
                 print(f"    Status: {agent_result.get('status')}")
-                if "data" in agent_result:
-                    print(f"    Data keys: {list(agent_result['data'].keys())}")
+                # Handle both success and error cases
+                if agent_result.get("data") is not None:
+                    if isinstance(agent_result["data"], dict):
+                        print(f"    Data keys: {list(agent_result['data'].keys())}")
+                    else:
+                        print(f"    Data type: {type(agent_result['data'])}")
+                else:
+                    # Show error if available
+                    error_msg = "Unknown error"
+                    if "metadata" in agent_result:
+                        error_msg = agent_result["metadata"].get("error", error_msg)
+                    elif "error" in agent_result:
+                        error_msg = agent_result["error"]
+                    print(f"    Error: {error_msg}")
 
     return True
 

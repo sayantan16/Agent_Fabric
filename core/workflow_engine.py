@@ -335,21 +335,23 @@ class WorkflowEngine:
         self._build_sequential_workflow(workflow, agents)
 
     def _create_agent_node(self, agent_name: str) -> Callable:
-        """Create a node function for an agent - FIXED VERSION."""
+        """Create a node function for an agent - ENHANCED VERSION."""
 
         def agent_node(state: WorkflowState) -> WorkflowState:
             """Execute agent and update state."""
             try:
-                # CRITICAL FIX: Ensure current_data is properly set
+                # Ensure current_data is properly set
                 if "current_data" not in state or state["current_data"] is None:
-                    # Try to extract data from various sources
+                    # Enhanced data extraction logic
                     if state.get("request"):
                         state["current_data"] = state["request"]
                     elif state.get("text"):
                         state["current_data"] = state["text"]
                     elif state.get("data"):
                         state["current_data"] = state["data"]
-                    # For chained agents, get data from previous agent
+                    elif state.get("files") and len(state["files"]) > 0:
+                        # Try to use file content if available
+                        state["current_data"] = state["files"][0]
                     elif state.get("results"):
                         # Get the last successful agent's output
                         for prev_agent in reversed(state.get("execution_path", [])):
@@ -361,6 +363,17 @@ class WorkflowEngine:
                                 ):
                                     state["current_data"] = result.get("data")
                                     break
+
+                    # If still no data, provide empty dict to prevent errors
+                    if state.get("current_data") is None:
+                        state["current_data"] = {}
+                        state["warnings"].append(
+                            {
+                                "agent": agent_name,
+                                "warning": "No input data available, using empty dict",
+                            }
+                        )
+
                 # Update current agent
                 state["current_agent"] = agent_name
 
@@ -374,27 +387,43 @@ class WorkflowEngine:
                 # Record start time
                 start_time = datetime.now()
 
-                # CRITICAL FIX: Create a mutable copy of state for agent execution
-                # This ensures the agent can modify state and changes are preserved
-                agent_state = dict(state)  # Convert from TypedDict to regular dict
+                # Create mutable copy of state
+                agent_state = dict(state)
 
                 # Execute with timeout
                 import signal
 
                 def timeout_handler(signum, frame):
-                    raise TimeoutError(f"Agent {agent_name} timeout")
+                    raise TimeoutError(
+                        f"Agent {agent_name} timeout after {AGENT_TIMEOUT_SECONDS}s"
+                    )
 
                 signal.signal(signal.SIGALRM, timeout_handler)
                 signal.alarm(AGENT_TIMEOUT_SECONDS)
 
                 try:
-                    # Execute agent with mutable state
+                    # Execute agent with error recovery
                     agent_state = agent_func(agent_state)
 
-                    # CRITICAL FIX: Merge agent state changes back into workflow state
+                    # Merge state changes back
                     for key, value in agent_state.items():
                         state[key] = value
 
+                except TimeoutError as e:
+                    # Handle timeout specifically
+                    state["errors"].append(
+                        {"agent": agent_name, "error": str(e), "type": "timeout"}
+                    )
+                    # Create error result but don't stop workflow
+                    state["results"][agent_name] = {
+                        "status": "error",
+                        "data": None,
+                        "metadata": {
+                            "agent": agent_name,
+                            "error": "Execution timeout",
+                            "execution_time": AGENT_TIMEOUT_SECONDS,
+                        },
+                    }
                 finally:
                     signal.alarm(0)
 
@@ -408,101 +437,120 @@ class WorkflowEngine:
                 if agent_name not in state["completed_agents"]:
                     state["completed_agents"].append(agent_name)
 
-                # CRITICAL FIX: Ensure current_data is available for next agent
+                # Ensure current_data is preserved for next agent
                 if agent_name in state.get("results", {}):
                     result = state["results"][agent_name]
-                    if isinstance(result, dict) and "data" in result:
-                        # Preserve current_data for next agent
+                    if (
+                        isinstance(result, dict)
+                        and result.get("status") == "success"
+                        and "data" in result
+                    ):
                         state["current_data"] = result["data"]
-
-                # Check for errors and handle properly
-                if agent_name in state.get("results", {}):
-                    result = state["results"][agent_name]
-                    if isinstance(result, dict) and result.get("status") == "error":
-                        # Handle agent error
-                        if state["retry_counts"][agent_name] < AGENT_MAX_RETRIES:
-                            state["retry_counts"][agent_name] += 1
-                            state["warnings"].append(
-                                {
-                                    "agent": agent_name,
-                                    "warning": f"Retry {state['retry_counts'][agent_name]}",
-                                }
-                            )
-                            # Retry by re-executing
-                            return agent_node(state)
-                        else:
-                            state["errors"].append(
-                                {
-                                    "agent": agent_name,
-                                    "error": result.get("metadata", {}).get(
-                                        "error", "Unknown error"
-                                    ),
-                                }
-                            )
-                            # Don't stop workflow for individual agent failures
-                            # Let orchestrator decide based on overall results
 
                 return state
 
             except Exception as e:
-                # Record error
+                # Record error but don't crash workflow
+                import traceback
+
                 state["errors"].append(
                     {
                         "agent": agent_name,
                         "error": str(e),
                         "traceback": traceback.format_exc(),
+                        "type": "execution_error",
                     }
                 )
 
-                # Attempt retry
-                if state["retry_counts"][agent_name] < AGENT_MAX_RETRIES:
-                    state["retry_counts"][agent_name] += 1
-                    return agent_node(state)
+                # Create error result
+                state["results"][agent_name] = {
+                    "status": "error",
+                    "data": None,
+                    "metadata": {"agent": agent_name, "error": str(e)},
+                }
 
-                # Don't set should_continue to False here
-                # Let the workflow continue with other agents
+                # Still mark as completed (with error)
+                if agent_name not in state["completed_agents"]:
+                    state["completed_agents"].append(agent_name)
+
+                # Don't stop the workflow
                 return state
 
         return agent_node
 
     def _create_parallel_node(self, agents: List[str]) -> Callable:
-        """Create node for parallel execution."""
+        """Create node for parallel execution - FIXED VERSION."""
 
         def parallel_node(state: WorkflowState) -> WorkflowState:
-            """Execute agents in parallel."""
+            """Execute agents in parallel without duplication."""
             import concurrent.futures
 
             state["parallel_group"] = agents
             results = {}
 
-            with concurrent.futures.ThreadPoolExecutor(
-                max_workers=MAX_PARALLEL_AGENTS
-            ) as executor:
-                # Submit all agents
-                futures = {}
-                for agent_name in agents:
-                    agent_func = self._load_agent(agent_name)
-                    # Create copy of state for each agent
-                    agent_state = state.copy()
-                    future = executor.submit(agent_func, agent_state)
-                    futures[future] = agent_name
+            # Track which agents have already been executed
+            already_executed = set(state.get("completed_agents", []))
+            agents_to_run = [a for a in agents if a not in already_executed]
 
-                # Collect results
+            if not agents_to_run:
+                print(f"All parallel agents already executed: {agents}")
+                return state
+
+            with concurrent.futures.ThreadPoolExecutor(
+                max_workers=min(len(agents_to_run), MAX_PARALLEL_AGENTS)
+            ) as executor:
+                # Submit all agents that haven't run yet
+                futures = {}
+                for agent_name in agents_to_run:
+                    try:
+                        agent_func = self._load_agent(agent_name)
+                        # Create copy of state for each agent
+                        agent_state = dict(state)
+                        agent_state["current_agent"] = agent_name
+
+                        future = executor.submit(agent_func, agent_state)
+                        futures[future] = agent_name
+                    except Exception as e:
+                        print(f"Failed to submit agent {agent_name}: {e}")
+                        state["errors"].append(
+                            {
+                                "agent": agent_name,
+                                "error": f"Failed to submit: {str(e)}",
+                            }
+                        )
+
+                # Collect results with timeout
                 for future in concurrent.futures.as_completed(
                     futures, timeout=WORKFLOW_TIMEOUT_SECONDS
                 ):
                     agent_name = futures[future]
                     try:
-                        agent_state = future.result()
+                        agent_state = future.result(timeout=AGENT_TIMEOUT_SECONDS)
+
+                        # Merge results back to main state
                         if agent_name in agent_state.get("results", {}):
                             results[agent_name] = agent_state["results"][agent_name]
-                        state["completed_agents"].append(agent_name)
+
+                        # Update completed list (avoid duplicates)
+                        if agent_name not in state["completed_agents"]:
+                            state["completed_agents"].append(agent_name)
+
+                        # Add to execution path once
+                        if agent_name not in state["execution_path"]:
+                            state["execution_path"].append(agent_name)
+
+                    except concurrent.futures.TimeoutError:
+                        state["errors"].append(
+                            {
+                                "agent": agent_name,
+                                "error": f"Timeout after {AGENT_TIMEOUT_SECONDS}s",
+                            }
+                        )
                     except Exception as e:
                         state["errors"].append({"agent": agent_name, "error": str(e)})
 
-            # Merge results
+            # Merge all results at once
             state["results"].update(results)
-            state["execution_path"].extend(agents)
 
             return state
 
@@ -684,19 +732,33 @@ class WorkflowEngine:
         self, workflow_id: str, initial_data: Dict[str, Any]
     ) -> WorkflowState:
         """Prepare initial workflow state."""
+
+        # Determine current_data from multiple possible sources
+        current_data = (
+            initial_data.get("current_data")
+            or initial_data.get("text")
+            or initial_data.get("data")
+            or initial_data.get("request")
+            or initial_data
+        )
+
         return {
             "request": initial_data.get("request", ""),
             "workflow_id": workflow_id,
             "workflow_type": initial_data.get("workflow_type", "sequential"),
-            "current_data": initial_data,
+            "current_data": current_data,
+            # IMPORTANT: Also preserve original fields
+            "text": initial_data.get("text"),
+            "data": initial_data.get("data"),
+            "input": initial_data.get("input"),
             "files": initial_data.get("files", []),
             "context": initial_data.get("context", {}),
-            "execution_path": [],
+            "execution_path": initial_data.get("execution_path", []),
             "current_agent": None,
             "pending_agents": [],
             "completed_agents": [],
-            "results": {},
-            "errors": [],
+            "results": initial_data.get("results", {}),
+            "errors": initial_data.get("errors", []),
             "warnings": [],
             "started_at": datetime.now().isoformat(),
             "completed_at": None,
