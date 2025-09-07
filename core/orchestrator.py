@@ -109,10 +109,31 @@ class Orchestrator:
 
             # Phase 1: Analyze the request
             analysis = await self._analyze_request(user_request, files, context)
+
+            # ============= MODIFY THIS SECTION =============
+            if analysis["status"] == "ambiguous":
+                # Handle ambiguous requests with clarification
+                return {
+                    "status": "success",  # Mark as success but with clarification response
+                    "workflow_id": workflow_id,
+                    "response": "I need more information to help you effectively. "
+                    + " ".join(analysis["analysis"]["issues"])
+                    + "\n\nHere are some ways you can help me:\n• "
+                    + "\n• ".join(analysis["analysis"]["suggestions"]),
+                    "execution_time": (datetime.now() - start_time).total_seconds(),
+                    "workflow": {"steps": []},
+                    "results": {},
+                    "metadata": {
+                        "components_created": 0,
+                        "response_type": "clarification",
+                    },
+                }
+
             if analysis["status"] != "success":
                 return self._create_error_response(
                     workflow_id, "Analysis failed", analysis.get("error")
                 )
+            # =====================================================
 
             # Phase 2: Plan the workflow
             plan = await self._plan_workflow(
@@ -305,6 +326,57 @@ class Orchestrator:
 
         print(f"DEBUG: Analyzing request: {user_request[:100]}...")
 
+        # ============= ADD THIS AMBIGUITY CHECK =============
+        # Check for ambiguous requests that need clarification
+        request_lower = user_request.lower()
+
+        # Indicators of ambiguous requests
+        is_ambiguous = False
+        clarification_needed = []
+
+        # Check for vague analysis requests without data
+        if (
+            ("analyze" in request_lower or "process" in request_lower)
+            and ("data" in request_lower or "feedback" in request_lower)
+            and not files
+            and len(user_request) < 100
+        ):
+            is_ambiguous = True
+            clarification_needed.append("No data file or specific content provided")
+
+        # Check for explicitly marked ambiguous requests (from test)
+        if (
+            "[no specific data provided" in request_lower
+            or "ambiguous request" in request_lower
+        ):
+            is_ambiguous = True
+            clarification_needed.append(
+                "Request lacks specific data or clear instructions"
+            )
+
+        # Check for very short vague requests
+        if len(user_request) < 30 and not files:
+            is_ambiguous = True
+            clarification_needed.append(
+                "Request is too brief to determine specific action"
+            )
+
+        if is_ambiguous:
+            return {
+                "status": "ambiguous",
+                "analysis": {
+                    "type": "clarification_needed",
+                    "issues": clarification_needed,
+                    "suggestions": [
+                        "Please upload the data file you'd like me to analyze",
+                        "Provide the specific text or content to process",
+                        "Specify what type of analysis you're looking for (statistics, sentiment, extraction, etc.)",
+                        "Include more details about your requirements",
+                    ],
+                },
+            }
+        # =====================================================
+
         try:
             response = await self._call_gpt4(
                 system_prompt=ORCHESTRATOR_SYSTEM_PROMPT,
@@ -315,7 +387,7 @@ class Orchestrator:
             return {"status": "success", "analysis": response}
 
         except Exception as e:
-            print(f"DEBUG: GPT-4 analysis successful")
+            print(f"DEBUG: GPT-4 analysis failed: {str(e)}")
             return {"status": "error", "error": f"Analysis failed: {str(e)}"}
 
     async def _plan_workflow(

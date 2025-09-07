@@ -1,6 +1,6 @@
 # AGENTIC FABRIC POC - COMPLETE PROJECT KNOWLEDGE BASE
 ================================================================================
-Generated: 2025-09-06 15:25:32
+Generated: 2025-09-07 00:09:23
 Project Root: /Users/sayantankundu/Documents/Agent Fabric
 
 ## PROJECT OVERVIEW
@@ -25,14 +25,12 @@ Agent Fabric/
 │   ├── agents/
 │   │   ├── email_extractor_agent.py
 │   │   ├── read_csv_agent.py
-│   │   ├── read_text_agent.py
-│   │   └── word_counter_agent.py
+│   │   └── read_text_agent.py
 │   ├── tools/
 │   │   ├── analyze_sentiment.py
 │   │   ├── calculate_mean.py
 │   │   ├── calculate_median.py
 │   │   ├── calculate_std.py
-│   │   ├── count_words.py
 │   │   ├── extract_emails.py
 │   │   ├── extract_phones.py
 │   │   └── extract_urls.py
@@ -549,7 +547,7 @@ Keep **agents tiny** and **tools pure**. Use **dual registries** as the source o
 ### File: KNOWLEDGE_BASE.md
 **Path:** `KNOWLEDGE_BASE.md`
 **Size:** 0 bytes
-**Modified:** 2025-09-06 15:25:25
+**Modified:** 2025-09-07 00:07:54
 
 ```markdown
 
@@ -589,8 +587,8 @@ POC in active development - implementing dynamic agent creation system.
 
 ### File: agents.json
 **Path:** `agents.json`
-**Size:** 7,822 bytes
-**Modified:** 2025-09-06 13:33:30
+**Size:** 5,238 bytes
+**Modified:** 2025-09-07 00:07:28
 
 ```json
 {
@@ -598,9 +596,7 @@ POC in active development - implementing dynamic agent creation system.
     "email_extractor": {
       "name": "email_extractor",
       "description": "Extracts email addresses from text input",
-      "uses_tools": [
-        "extract_emails"
-      ],
+      "uses_tools": ["extract_emails"],
       "input_schema": {
         "data": "any"
       },
@@ -620,19 +616,14 @@ POC in active development - implementing dynamic agent creation system.
       "version": "1.0.0",
       "execution_count": 0,
       "avg_execution_time": 0.0,
-      "tags": [
-        "extraction",
-        "emails"
-      ],
+      "tags": ["extraction", "emails"],
       "line_count": 98,
       "status": "active"
     },
     "url_extractor": {
       "name": "url_extractor",
       "description": "Extracts URLs from text input",
-      "uses_tools": [
-        "extract_urls"
-      ],
+      "uses_tools": ["extract_urls"],
       "input_schema": {
         "data": "any"
       },
@@ -652,10 +643,7 @@ POC in active development - implementing dynamic agent creation system.
       "version": "1.0.0",
       "execution_count": 0,
       "avg_execution_time": 0.0,
-      "tags": [
-        "extraction",
-        "urls"
-      ],
+      "tags": ["extraction", "urls"],
       "line_count": 80,
       "status": "active"
     },
@@ -669,34 +657,19 @@ POC in active development - implementing dynamic agent creation system.
       },
       "output_schema": {
         "type": "object",
-        "required": [
-          "status",
-          "data",
-          "metadata"
-        ],
+        "required": ["status", "data", "metadata"],
         "properties": {
           "status": {
             "type": "string",
-            "enum": [
-              "success",
-              "error",
-              "partial"
-            ]
+            "enum": ["success", "error", "partial"]
           },
           "data": {
-            "type": [
-              "object",
-              "array",
-              "null"
-            ],
+            "type": ["object", "array", "null"],
             "description": "Agent-specific output data"
           },
           "metadata": {
             "type": "object",
-            "required": [
-              "agent",
-              "execution_time"
-            ],
+            "required": ["agent", "execution_time"],
             "properties": {
               "agent": {
                 "type": "string"
@@ -748,34 +721,19 @@ POC in active development - implementing dynamic agent creation system.
       },
       "output_schema": {
         "type": "object",
-        "required": [
-          "status",
-          "data",
-          "metadata"
-        ],
+        "required": ["status", "data", "metadata"],
         "properties": {
           "status": {
             "type": "string",
-            "enum": [
-              "success",
-              "error",
-              "partial"
-            ]
+            "enum": ["success", "error", "partial"]
           },
           "data": {
-            "type": [
-              "object",
-              "array",
-              "null"
-            ],
+            "type": ["object", "array", "null"],
             "description": "Agent-specific output data"
           },
           "metadata": {
             "type": "object",
-            "required": [
-              "agent",
-              "execution_time"
-            ],
+            "required": ["agent", "execution_time"],
             "properties": {
               "agent": {
                 "type": "string"
@@ -816,90 +774,10 @@ POC in active development - implementing dynamic agent creation system.
       "tags": [],
       "line_count": 108,
       "status": "active"
-    },
-    "word_counter": {
-      "name": "word_counter",
-      "description": "Count words in text using the count_words tool",
-      "uses_tools": [
-        "count_words"
-      ],
-      "input_schema": {
-        "type": "any",
-        "description": "Flexible input - can be string, dict, or list"
-      },
-      "output_schema": {
-        "type": "object",
-        "required": [
-          "status",
-          "data",
-          "metadata"
-        ],
-        "properties": {
-          "status": {
-            "type": "string",
-            "enum": [
-              "success",
-              "error",
-              "partial"
-            ]
-          },
-          "data": {
-            "type": [
-              "object",
-              "array",
-              "null"
-            ],
-            "description": "Agent-specific output data"
-          },
-          "metadata": {
-            "type": "object",
-            "required": [
-              "agent",
-              "execution_time"
-            ],
-            "properties": {
-              "agent": {
-                "type": "string"
-              },
-              "execution_time": {
-                "type": "number"
-              },
-              "tools_used": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "errors": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "warnings": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      },
-      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/agents/word_counter_agent.py",
-      "is_prebuilt": false,
-      "created_by": "claude-3-haiku-20240307",
-      "created_at": "2025-09-06T13:33:30.345830",
-      "version": "1.0.08c2f7ac",
-      "execution_count": 0,
-      "avg_execution_time": 0.0,
-      "last_executed": null,
-      "tags": [],
-      "line_count": 80,
-      "status": "active"
     }
   }
 }
+
 ```
 
 --------------------------------------------------------------------------------
@@ -907,7 +785,7 @@ POC in active development - implementing dynamic agent creation system.
 ### File: agents.json.lock
 **Path:** `agents.json.lock`
 **Size:** 0 bytes
-**Modified:** 2025-09-06 13:33:30
+**Modified:** 2025-09-07 00:03:02
 
 *[Binary file or content not included]*
 
@@ -915,8 +793,8 @@ POC in active development - implementing dynamic agent creation system.
 
 ### File: config.py
 **Path:** `config.py`
-**Size:** 18,817 bytes
-**Modified:** 2025-09-04 22:57:09
+**Size:** 18,940 bytes
+**Modified:** 2025-09-06 23:37:10
 
 ```python
 """
@@ -1174,44 +1052,48 @@ AVAILABLE TOOLS:
 {available_tools}
 
 CRITICAL INSTRUCTIONS:
-1. ONLY use agent names that appear in the AVAILABLE AGENTS list above
-2. Check if existing agents can handle the task before creating new ones
-3. Many agents have flexible input handling - don't create duplicates
-4. For common tasks, these agents likely exist:
-   - email_extractor: extracts emails from any text
-   - url_extractor: extracts URLs from any text  
-   - calculate_mean/median/std: statistical calculations
-   - format_report: formats data into reports
-   - read_text/csv/pdf: file readers
+1. First check if existing agents can handle the task
+2. If no suitable agents exist for a capability, mark them for creation
+3. For statistical/numerical tasks, consider these patterns:
+   - "statistics" or "stats" → needs stats_calculator agent
+   - "mean/median/average" → needs statistical calculation tools
+   - "report" → needs report generation capabilities
+   - "chart/graph" → needs visualization capabilities
 
-STEP-BY-STEP PLANNING:
-1. Break down what the user wants into specific tasks
-2. Map each task to an available agent (check the list!)
-3. Only mark as missing if NO agent can do it
-4. Plan the execution order
+PLANNING RULES:
+- If the request mentions statistics/calculations and no stats agents exist, plan to create them
+- Break complex requests into atomic capabilities
+- Each capability needs an agent (existing or to be created)
 
 Respond with this EXACT JSON structure:
 {{
     "workflow_id": "wf_{timestamp}",
     "workflow_type": "sequential",
     "reasoning": "Step-by-step explanation of your plan",
-    "agents_needed": ["agent1_from_available_list", "agent2_from_available_list"],
+    "agents_needed": ["list_of_existing_agents_that_match"],
     "missing_capabilities": {{
         "agents": [
-            // ONLY if truly missing from available list
             {{
-                "name": "new_agent_name",
+                "name": "agent_name_to_create",
                 "purpose": "specific purpose",
-                "required_tools": ["tool1"],
-                "justification": "why existing agents cannot handle this"
+                "required_tools": ["tool1", "tool2"],
+                "justification": "why this is needed"
             }}
         ],
-        "tools": []
+        "tools": [
+            {{
+                "name": "tool_name_to_create",
+                "purpose": "specific purpose"
+            }}
+        ]
     }},
     "confidence": 0.95
 }}
 
-IMPORTANT: The agents_needed array should ONLY contain names from the AVAILABLE AGENTS list."""
+IMPORTANT: 
+- If no agents match the request, agents_needed should be empty [] not cause an error
+- Always identify what needs to be created in missing_capabilities
+- For ambiguous requests, suggest a reasonable default workflow"""
 
 
 ORCHESTRATOR_ANALYSIS_PROMPT = """Analyze this user request to understand intent and requirements:
@@ -3515,8 +3397,8 @@ def force_global_reload():
 
 ### File: core/workflow_engine.py
 **Path:** `core/workflow_engine.py`
-**Size:** 31,883 bytes
-**Modified:** 2025-09-06 13:23:39
+**Size:** 32,468 bytes
+**Modified:** 2025-09-06 23:39:29
 
 ```python
 """
@@ -4253,19 +4135,33 @@ class WorkflowEngine:
         self, workflow_id: str, initial_data: Dict[str, Any]
     ) -> WorkflowState:
         """Prepare initial workflow state."""
+
+        # Determine current_data from multiple possible sources
+        current_data = (
+            initial_data.get("current_data")
+            or initial_data.get("text")
+            or initial_data.get("data")
+            or initial_data.get("request")
+            or initial_data
+        )
+
         return {
             "request": initial_data.get("request", ""),
             "workflow_id": workflow_id,
             "workflow_type": initial_data.get("workflow_type", "sequential"),
-            "current_data": initial_data,
+            "current_data": current_data,
+            # IMPORTANT: Also preserve original fields
+            "text": initial_data.get("text"),
+            "data": initial_data.get("data"),
+            "input": initial_data.get("input"),
             "files": initial_data.get("files", []),
             "context": initial_data.get("context", {}),
-            "execution_path": [],
+            "execution_path": initial_data.get("execution_path", []),
             "current_agent": None,
             "pending_agents": [],
             "completed_agents": [],
-            "results": {},
-            "errors": [],
+            "results": initial_data.get("results", {}),
+            "errors": initial_data.get("errors", []),
             "warnings": [],
             "started_at": datetime.now().isoformat(),
             "completed_at": None,
@@ -5097,96 +4993,6 @@ def read_text_agent(state):
 
 --------------------------------------------------------------------------------
 
-### File: generated/agents/word_counter_agent.py
-**Path:** `generated/agents/word_counter_agent.py`
-**Size:** 2,578 bytes
-**Modified:** 2025-09-06 13:33:30
-
-```python
-def word_counter_agent(state):
-    """
-    Count words in text using the count_words tool
-    """
-    import sys
-    import os
-    from datetime import datetime
-
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-    # Import tools
-    try:
-        from generated.tools.count_words import count_words
-    except ImportError:
-        try:
-            from prebuilt.tools.count_words import count_words
-        except ImportError:
-            # Define fallback if tool not found
-            def count_words(input_data=None):
-                return {'error': 'Tool count_words not found', 'data': None}
-
-    # Initialize state
-    if 'results' not in state:
-        state['results'] = {}
-    if 'errors' not in state:
-        state['errors'] = []
-    if 'execution_path' not in state:
-        state['execution_path'] = []
-
-    try:
-        start_time = datetime.now()
-
-        # Get input data using standard pattern
-        input_data = state.get('current_data')
-        if input_data is None:
-            if 'results' in state and state['execution_path']:
-                last_agent = state['execution_path'][-1]
-                if last_agent in state['results']:
-                    last_result = state['results'][last_agent]
-                    if isinstance(last_result, dict) and 'data' in last_result:
-                        input_data = last_result['data']
-
-        if input_data is None:
-            input_data = state.get('text', state.get('data', state.get('request')))
-
-        # Process input data
-        tool_result = count_words(input_data)
-        word_count = tool_result.get('data', 0)
-
-        # Create meaningful output
-        result = {
-            "status": "success",
-            "data": {
-                "word_count": word_count
-            },
-            "metadata": {
-                "agent": "word_counter",
-                "execution_time": (datetime.now() - start_time).total_seconds(),
-                "tools_used": ["count_words"]
-            }
-        }
-
-        state['results']['word_counter'] = result
-        state['current_data'] = result['data']
-        state['execution_path'].append('word_counter')
-
-    except Exception as e:
-        import traceback
-        state['errors'].append({
-            "agent": "word_counter",
-            "error": str(e),
-            "traceback": traceback.format_exc()
-        })
-        state['results']['word_counter'] = {
-            "status": "error",
-            "data": None,
-            "metadata": {"agent": "word_counter", "error": str(e)}
-        }
-
-    return state
-```
-
---------------------------------------------------------------------------------
-
 ### File: generated/tools/analyze_sentiment.py
 **Path:** `generated/tools/analyze_sentiment.py`
 **Size:** 2,001 bytes
@@ -5350,48 +5156,6 @@ def calculate_median(input_data=None):
 def calculate_std(input_data=None):
         """
         Calculate standard deviation
-        """
-        
-        if input_data is None:
-            return {"status": "no_input", "result": None}
-        
-        try:
-            result = {"status": "success"}
-            
-            # Process based on input type
-            if isinstance(input_data, str):
-                result["text_length"] = len(input_data)
-                result["word_count"] = len(input_data.split())
-                result["processed"] = input_data.strip()
-            elif isinstance(input_data, dict):
-                result["keys"] = list(input_data.keys())
-                result["size"] = len(input_data)
-                result["processed"] = input_data
-            elif isinstance(input_data, list):
-                result["count"] = len(input_data)
-                result["processed"] = input_data
-            else:
-                result["type"] = type(input_data).__name__
-                result["value"] = str(input_data)
-            
-            return result
-            
-        except Exception as e:
-            return {"status": "error", "message": str(e)}
-    
-```
-
---------------------------------------------------------------------------------
-
-### File: generated/tools/count_words.py
-**Path:** `generated/tools/count_words.py`
-**Size:** 1,164 bytes
-**Modified:** 2025-09-06 13:33:23
-
-```python
-def count_words(input_data=None):
-        """
-        Count the number of words in text input
         """
         
         if input_data is None:
@@ -6218,8 +5982,8 @@ if __name__ == "__main__":
 
 ### File: tests/test_comprehensive_scenarios.py
 **Path:** `tests/test_comprehensive_scenarios.py`
-**Size:** 12,862 bytes
-**Modified:** 2025-09-06 13:22:21
+**Size:** 12,856 bytes
+**Modified:** 2025-09-06 23:38:01
 
 ```python
 """
@@ -6397,7 +6161,7 @@ class ComprehensiveScenarioTests:
         # First, create phone_extractor agent if it doesn't exist
         if not self.registry.agent_exists("phone_extractor"):
             agent_factory = AgentFactory()
-            creation_result = await agent_factory.ensure_agent(
+            creation_result = agent_factory.ensure_agent(
                 agent_name="phone_extractor",
                 description="Extract phone numbers from text",
                 required_tools=["extract_phones"],
@@ -6659,8 +6423,8 @@ if __name__ == "__main__":
 
 ### File: tests/test_end_to_end.py
 **Path:** `tests/test_end_to_end.py`
-**Size:** 9,522 bytes
-**Modified:** 2025-09-06 11:55:33
+**Size:** 10,190 bytes
+**Modified:** 2025-09-06 23:38:43
 
 ```python
 """
@@ -6718,14 +6482,26 @@ def test_basic_workflow():
     print(f"✓ Workflow: {result['workflow']['steps']}")
     print(f"✓ Response preview: {result['response'][:200]}...")
 
-    # Check results structure
+    # Check results structure - FIXED VERSION
     if "results" in result:
         for agent_name, agent_result in result["results"].items():
             print(f"\n  Agent: {agent_name}")
             if isinstance(agent_result, dict):
                 print(f"    Status: {agent_result.get('status')}")
-                if "data" in agent_result:
-                    print(f"    Data keys: {list(agent_result['data'].keys())}")
+                # Handle both success and error cases
+                if agent_result.get("data") is not None:
+                    if isinstance(agent_result["data"], dict):
+                        print(f"    Data keys: {list(agent_result['data'].keys())}")
+                    else:
+                        print(f"    Data type: {type(agent_result['data'])}")
+                else:
+                    # Show error if available
+                    error_msg = "Unknown error"
+                    if "metadata" in agent_result:
+                        error_msg = agent_result["metadata"].get("error", error_msg)
+                    elif "error" in agent_result:
+                        error_msg = agent_result["error"]
+                    print(f"    Error: {error_msg}")
 
     return True
 
@@ -6981,8 +6757,8 @@ if __name__ == "__main__":
 
 ### File: tools.json
 **Path:** `tools.json`
-**Size:** 6,510 bytes
-**Modified:** 2025-09-06 13:33:30
+**Size:** 5,956 bytes
+**Modified:** 2025-09-07 00:07:28
 
 ```json
 {
@@ -7181,22 +6957,6 @@ if __name__ == "__main__":
       ],
       "line_count": 47,
       "status": "active"
-    },
-    "count_words": {
-      "name": "count_words",
-      "description": "Count the number of words in text input",
-      "signature": "def count_words(input_data=None)",
-      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/tools/count_words.py",
-      "is_prebuilt": false,
-      "is_pure_function": true,
-      "used_by_agents": [
-        "word_counter"
-      ],
-      "created_by": "claude-3-haiku-20240307",
-      "created_at": "2025-09-06T13:33:23.155239",
-      "tags": [],
-      "line_count": 32,
-      "status": "active"
     }
   }
 }
@@ -7207,7 +6967,7 @@ if __name__ == "__main__":
 ### File: tools.json.lock
 **Path:** `tools.json.lock`
 **Size:** 0 bytes
-**Modified:** 2025-09-06 13:33:23
+**Modified:** 2025-09-07 00:03:25
 
 *[Binary file or content not included]*
 
