@@ -1,0 +1,44 @@
+<!-- Chat Message Partial for HTMX Updates -->
+<div
+  class="chat-message animate-fade-in"
+  data-message-id="{{ message.id }}"
+  :class="'{{ message.type }}'"
+>
+  <div
+    class="chat-avatar {{ 'bg-blue-500' if message.type == 'user' else 'bg-purple-500' }}"
+  >
+    <span class="text-xs font-bold"
+      >{{ 'U' if message.type == 'user' else 'AI' }}</span
+    >
+  </div>
+
+  <div class="chat-bubble {{ message.type }}">
+    <div class="text-sm">{{ message.content | safe }}</div>
+
+    <!-- Workflow metadata for system messages -->
+    {% if message.type == 'system' and message.metadata %}
+    <div class="mt-2 text-xs opacity-75">
+      {% if message.metadata.agents_used %}
+      <div>
+        <strong>Agents:</strong> {{ message.metadata.agents_used | join(', ') }}
+      </div>
+      {% endif %} {% if message.metadata.execution_time %}
+      <div>
+        <strong>Time:</strong> {{ "%.1f"|format(message.metadata.execution_time)
+        }}s
+      </div>
+      {% endif %} {% if message.metadata.components_created and
+      message.metadata.components_created > 0 %}
+      <div class="text-green-300">
+        ✨ {{ message.metadata.components_created }} new components created!
+      </div>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Timestamp -->
+    <div class="text-xs opacity-50 mt-1">
+      {{ message.timestamp | time_ago }}
+    </div>
+  </div>
+</div>

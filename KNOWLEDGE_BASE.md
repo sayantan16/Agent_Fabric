@@ -1,6 +1,6 @@
 # AGENTIC FABRIC POC - COMPLETE PROJECT KNOWLEDGE BASE
 ================================================================================
-Generated: 2025-09-07 00:09:23
+Generated: 2025-09-07 18:26:05
 Project Root: /Users/sayantankundu/Documents/Agent Fabric
 
 ## PROJECT OVERVIEW
@@ -21,6 +21,44 @@ Agent Fabric/
 │   ├── registry.py
 │   ├── registry_singleton.py
 │   └── workflow_engine.py
+├── flask_app/
+│   ├── routes/
+│   │   ├── __init__.py
+│   │   ├── api.py
+│   │   └── main.py
+│   ├── services/
+│   │   ├── __init__.py
+│   │   ├── orchestrator_service.py
+│   │   ├── registry_service.py
+│   │   └── workflow_service.py
+│   ├── static/
+│   │   ├── css/
+│   │   │   └── custom.css
+│   │   ├── js/
+│   │   │   └── app.js
+│   │   └── favicon.ico
+│   ├── templates/
+│   │   ├── components/
+│   │   │   ├── chat-container.html
+│   │   │   ├── workflow-panel.html
+│   │   │   └── workflow-visualization.html
+│   │   ├── partials/
+│   │   │   ├── chat-message.html
+│   │   │   └── workflow-status.jinja2
+│   │   ├── base.html
+│   │   ├── dependencies.html
+│   │   ├── error.html
+│   │   ├── help.html
+│   │   ├── index.jinja2
+│   │   ├── registry.html
+│   │   ├── settings.html
+│   │   ├── workflow_detail.jinja2
+│   │   └── workflows.html
+│   ├── uploads/
+│   ├── __init__.py
+│   ├── app.py
+│   ├── config_ui.py
+│   └── requirements_ui.txt
 ├── generated/
 │   ├── agents/
 │   │   ├── email_extractor_agent.py
@@ -54,6 +92,7 @@ Agent Fabric/
 │   ├── test_dependency_resolution.py
 │   └── test_end_to_end.py
 ├── AGENTIC_FABRIC_POC_Roadmap.md
+├── Agent_Fabric_UI_Roadmap.md
 ├── KNOWLEDGE_BASE.md
 ├── README.md
 ├── agents.json
@@ -87,11 +126,11 @@ Agent Fabric/
 
 ### File: AGENTIC_FABRIC_POC_Roadmap.md
 **Path:** `AGENTIC_FABRIC_POC_Roadmap.md`
-**Size:** 20,981 bytes
-**Modified:** 2025-09-04 22:11:11
+**Size:** 11,844 bytes
+**Modified:** 2025-09-07 15:01:58
 
 ```markdown
-# Agent Fabric — Design & Roadmap 
+# Agent Fabric — Design & Roadmap (Updated with UI Implementation)
 ---
 
 ## 1) Overview & Problem Statement
@@ -99,447 +138,792 @@ Agent Fabric/
 Your current agent set is complex and monolithic. The vision is an **agent fabric** where small agents are created on‑demand by an LLM and registered automatically. Large, pre‑baked agents (500–1000 LOC) are brittle to generate and maintain.
 
 **Core shift:**
-
 * Keep agents **narrow** (single responsibility).
 * Move reusable logic into **pure tools** (stateless functions).
 * Let an **Orchestrator LLM** plan/sequence agents.
 * Persist capabilities in **lightweight registries** (`agents.json`, `tools.json`).
+* **NEW**: Present intelligent orchestration through intuitive Flask UI with real-time visualization.
 
 ---
 
-## 2) Goals & Non‑Goals
+## 2) Implementation Status Overview
 
-### Goals
+### ✅ COMPLETED (Backend Core - Steps 1-10)
+* Dual registry system (agents.json, tools.json)
+* Agent Factory with Claude integration
+* Tool Factory (implemented via ensure_tool)
+* Orchestrator with GPT-4 planning
+* LangGraph workflow engine
+* Dynamic component creation
+* Dependency resolution
+* Standard I/O contracts
+* 13+ working agents, 13+ tools
 
-* **Minimal Viable Agents (MVAs):** tiny agents for read/parse/extract/format.
-* **Pure Tools:** 20–100 LOC utilities; deterministic; JSON‑serializable returns.
-* **Dual Registry:** separate tracking for agents vs tools for maximal reuse.
-* **On‑Demand Generation:** LLM creates missing tools/agents and registers them.
-* **Standard I/O Contracts:** uniform JSON envelope; chainable outputs.
-* **LangGraph Orchestration:** state, branching, retries, visualization.
+### 🚧 IN PROGRESS (UI Implementation - Steps 21-27)
+* Flask web interface
+* Workflow visualization
+* Registry explorer
+* Real-time execution display
 
-### Non‑Goals (for now)
-
-* Domain‑heavy “platform” agents.
-* Multi‑vendor support on day one (start **Jira‑only** path).
-* Long‑lived agent state (keep state in the workflow engine).
-
----
-
-## 3) Design Principles
-
-1. **Small Pieces, Loosely Joined:** agents ≈ 50–300 LOC; tools ≈ 20–100 LOC.
-2. **Single Responsibility:** composition yields power.
-3. **Stateless & Deterministic Tools:** agents minimize side effects.
-4. **Centralized Intelligence:** Orchestrator owns planning (no `next_actions` inside agents).
-5. **Explicit Contracts:** uniform JSON I/O, explicit schemas.
-6. **Generate Late:** create new things only when needed.
+### 📋 PLANNED (Future Enhancements - Steps 28-30)
+* Production deployment
+* Performance optimization
+* Advanced analytics
 
 ---
 
-## 4) Architecture & End‑to‑End Flow
+## 3) Architecture & End‑to‑End Flow (UPDATED)
 
 ```
-User Request → Orchestrator LLM → agents.json / tools.json (capability lookup)
-                              ↘ missing? → Codegen (LLM) → Tool/Agent Factory → Registry update
-                                           ↘ tests/validation → (accept or reject)
-Then: Orchestrator builds a LangGraph workflow → Execute → Collect results → Respond
+User (Web UI) → Flask App → Orchestrator LLM → agents.json / tools.json
+                    ↓              ↘ missing? → Codegen → Factory → Registry
+                HTMX Updates        ↘ build workflow → LangGraph → Execute
+                    ↓                                      ↓
+            Live Visualization ← Progress Updates ← State Changes
+                    ↓
+            Rich Results Display ← Synthesis ← Collect Results
 ```
 
-### Flow Summary
+### UI-Enhanced Flow Summary
+1. User interacts via Flask web interface
+2. HTMX handles async updates without page refresh
+3. Orchestrator plans workflow (visible in UI)
+4. Missing components created (animated in UI)
+5. Workflow executes with live progress
+6. Results displayed with agent attribution
+7. Registry explorer shows growing capabilities
 
-1. User asks → 2) Orchestrator derives needed capabilities → 3) Check registries → 4) If missing, factories generate **tools first**, then agents → 5) Validate & register → 6) Build workflow (LangGraph) → 7) Execute with retries → 8) Synthesize answer.
+---
 
-### Swimlane
+## 4) UI Architecture & Tech Stack
 
+### Core Stack (DECIDED)
+* **Flask**: Python web framework, direct backend integration
+* **HTMX**: Dynamic updates without complex JavaScript
+* **Alpine.js**: Lightweight reactivity (15kb)
+* **Tailwind CSS**: Rapid, professional styling
+* **Mermaid.js**: Workflow visualization
+* **Chart.js**: Data visualization
+* **Prism.js**: Code syntax highlighting
+
+### UI Components Architecture
 ```
-User        | Orchestrator       | Registries          | Factories                | LangGraph
-------------+--------------------+---------------------+--------------------------+------------------
-Request ----> parse+plan --------> read agents/tools --|                           |
-             missing deps?        |                     |                          |
-             yes -----------------|--------------------> ensure(tool)               |
-                                   tools.json update <-| (validate/register)       |
-             then ensure agent ---|--------------------> ensure(agent)              |
-                                   agents.json update <-| (validate/register)      |
-             build workflow -------------------------------------------------------> build graph
-             execute -----------------------------------------------------------------> run nodes
-             gather results <------------------------------------------------------- results
-             synthesize & respond -------------------------------------------------> reply
+flask_app/
+├── app.py                      # Main Flask application
+├── routes/
+│   ├── api.py                 # API endpoints
+│   ├── orchestrator.py        # Orchestration endpoints
+│   └── registry.py            # Registry management
+├── templates/
+│   ├── base.html             # Base template with assets
+│   ├── index.jinja2            # Main chat interface
+│   ├── components/           # Reusable components
+│   │   ├── chat.html        # Chat interface
+│   │   ├── workflow.html    # Workflow viz
+│   │   └── registry.html    # Registry explorer
+│   └── partials/            # HTMX fragments
+│       ├── message.html     # Chat messages
+│       ├── status.html      # Status updates
+│       └── result.html      # Result cards
+├── static/
+│   ├── css/
+│   │   ├── tailwind.css    # Tailwind utilities
+│   │   └── custom.css      # Custom styles
+│   └── js/
+│       └── app.js          # Minimal custom JS
+└── services/
+    ├── orchestrator_service.py  # Backend integration
+    └── registry_service.py      # Registry operations
 ```
 
-### Orchestrator Algorithm (pseudocode)
+---
 
+## 5) Implementation Plan — Steps 1-30 (UPDATED)
+
+### ✅ Phase 1: Foundation & Cleanup (Steps 1-5) **[COMPLETED]**
+1. ✅ **Backup & Restructure** - Clean directory structure established
+2. ✅ **Configuration Setup** - config.py with all settings
+3. ✅ **Dual Registry Design** - agents.json, tools.json working
+4. ✅ **Minimal Pre-built** - Four readers implemented
+5. ✅ **Seed Templates** - Agent/tool generation templates ready
+
+### ✅ Phase 2: Core Engine (Steps 6-10) **[COMPLETED]**
+6. ✅ **Tool Factory** - Dynamic tool creation working
+7. ✅ **Agent Factory** - Claude-powered agent generation
+8. ✅ **Workflow Engine** - LangGraph integration complete
+9. ✅ **Orchestrator** - GPT-4 planning and coordination
+10. ✅ **Registry Management** - Full CRUD with validation
+
+### ✅ Phase 3: Dynamic Creation Testing (Steps 11-15) **[COMPLETED]**
+11. ✅ **Test Agents Created** - 13 agents dynamically generated
+12. ✅ **Complex Workflows** - Multi-agent coordination tested
+13. ⚠️ **Basic Testing** - Comprehensive tests passing
+14. ✅ **Workflow Execution** - Sequential/parallel working
+15. ✅ **Demo Scenarios** - All test scenarios passing
+
+### ✅ Phase 4: Backend Testing & Validation (Steps 16-20) **[COMPLETED]**
+16. ✅ **Comprehensive Testing** - test_end_to_end.py (6/6 pass)
+17. ✅ **Test Scenarios** - test_comprehensive_scenarios.py (6/6 pass)
+18. ✅ **Error Handling** - Graceful failure recovery
+19. ✅ **Ambiguity Detection** - Request clarification working
+20. ✅ **Backend Ready** - Production-quality backend
+
+### 🚧 Phase 5: UI Implementation (Steps 21-27) **[NEW - IN PROGRESS]**
+
+#### Step 21: Flask Foundation (Day 1)
+- [ ] Setup Flask application structure
+- [ ] Configure Flask with existing backend
+- [ ] Create base templates with Tailwind CSS
+- [ ] Setup HTMX and Alpine.js
+- [ ] Basic routing structure
+
+#### Step 22: Chat Interface (Day 2)
+- [ ] Main chat UI with message display
+- [ ] File upload with drag-and-drop
+- [ ] Request input with auto-resize textarea
+- [ ] Basic response rendering
+- [ ] Loading states with spinners
+
+#### Step 23: Workflow Visualization (Day 3-4)
+- [ ] Integrate Mermaid.js for workflow graphs
+- [ ] Real-time node status updates (pending/active/complete)
+- [ ] Agent execution timeline
+- [ ] Progress bars per agent
+- [ ] Error state visualization
+
+#### Step 24: Registry Explorer (Day 5)
+- [ ] Tabbed interface (Agents/Tools/Recent)
+- [ ] Agent/Tool cards with metadata
+- [ ] Search and filter functionality
+- [ ] Usage statistics display
+- [ ] Dependency visualization
+
+#### Step 25: Dynamic Creation Showcase (Day 6)
+- [ ] Creation animation overlay
+- [ ] Code generation preview
+- [ ] Success notifications
+- [ ] "New capability added" badges
+- [ ] Registry update animations
+
+#### Step 26: Results & Analytics (Day 7)
+- [ ] Rich result formatting
+- [ ] Collapsible agent outputs
+- [ ] Chart.js integration for data viz
+- [ ] Export functionality
+- [ ] Execution metrics display
+
+#### Step 27: Polish & Integration (Day 8)
+- [ ] Dark/light theme toggle
+- [ ] Error handling UI
+- [ ] Performance optimizations
+- [ ] Cross-browser testing
+- [ ] Documentation
+
+### 📋 Phase 6: Production Preparation (Steps 28-30) **[PLANNED]**
+
+#### Step 28: Deployment Setup
+- [ ] Docker containerization
+- [ ] Environment configuration
+- [ ] NGINX reverse proxy setup
+- [ ] SSL certificate configuration
+- [ ] Production database setup
+
+#### Step 29: Performance & Monitoring
+- [ ] Response caching strategy
+- [ ] CDN integration for assets
+- [ ] Logging and monitoring setup
+- [ ] Performance metrics dashboard
+- [ ] Error tracking integration
+
+#### Step 30: Final Demo & Handoff
+- [ ] Demo script preparation
+- [ ] Video walkthrough creation
+- [ ] Technical documentation
+- [ ] Deployment guide
+- [ ] Knowledge transfer session
+
+---
+
+## 6) UI Feature Specifications
+
+### Core Features (Phase 5)
+
+#### 1. Chat Interface
+- **Input**: Multi-line text with file attachments
+- **Processing**: Real-time status updates via HTMX
+- **Output**: Structured results with agent attribution
+- **History**: Session-based conversation memory
+
+#### 2. Workflow Visualization
+```mermaid
+graph LR
+    O[Orchestrator] -->|plans| A1[Agent 1]
+    A1 -->|data| A2[Agent 2]
+    A2 -->|results| S[Synthesis]
+```
+- Live execution flow
+- Node states: pending (blue), active (yellow), complete (green), error (red)
+- Execution time per node
+- Click for details
+
+#### 3. Registry Explorer
+- **Grid Layout**: Cards for each agent/tool
+- **Metadata Display**: Creation date, usage count, performance
+- **Relationships**: Tool-agent dependency graph
+- **Filtering**: By tag, date, usage
+
+#### 4. Dynamic Creation Theater
+- **Split View**: Request → Code Generation → Validation → Registration
+- **Progress Steps**: Visual stepper component
+- **Celebration**: Success animation when new capability added
+
+---
+
+## 7) Technical Implementation Details
+
+### Flask Routes
 ```python
- def plan_and_run(request):
-     need = derive_capabilities(request)            # e.g., ["extract_urls"]
-     existing = registries.lookup(need)
-     missing_tools, missing_agents = diff(existing, need)
-
-     for tool in order_tools(missing_tools):        # tools first
-         tool_factory.ensure(tool)                  # idempotent: no‑op if exists
-
-     for agent in order_agents(missing_agents):     # then agents
-         agent_factory.ensure(agent)                # imports tools by name
-
-     graph = build_langgraph(request, need)         # nodes from agents.json
-     run = execute_graph(graph)                     # retries, timings, logs
-     return synthesize_outputs(run)                 # standard envelopes → answer
+# Main routes
+@app.route('/')                          # Chat interface
+@app.route('/api/process', methods=['POST'])  # Process request
+@app.route('/api/workflow/<id>/status')  # Workflow status
+@app.route('/registry')                  # Registry explorer
+@app.route('/registry/api/agents')       # Agent list API
+@app.route('/registry/api/tools')        # Tool list API
 ```
 
-### Design Guarantees
-
-* **Idempotent creation** via `ensure(name)` (smallest diff).
-* **Uniform contracts**: standard JSON envelope; tools are pure.
-* **Safety gates**: allow‑listed imports, purity/unit checks, size budgets.
-* **Observability**: timings, creation events, registry updates.
-
-### Concrete Example
-
-“Find links in this PDF” → map `read_pdf` → `extract_urls` (needs `regex_matcher`). If missing, create tool then agent; register both; build graph; execute; return normalized URLs.
-
----
-
-## 4b) Starter Kit & Dynamic Creation Policy (Canonical)
-
-**Pre‑built (absolute minimum):**
-
-* `read_pdf` (PyPDF2 wrapper), `read_csv` (pandas wrapper), `read_text`, `read_json`.
-
-> Nothing else is pre‑baked. These exist only because library syntax is finicky for LLMs. The **first supported connector is Jira**, delivered via the factory path (not hard‑coded), with review gates enabled.
-
-**Created dynamically (by LLM):**
-
-* Agents (examples): `extract_urls`, `create_simple_chart`, `fetch_webpage`, `parse_json`, `format_table`, `calculate_stats`, `detect_language`, `extract_dates`, `jira_fetch`, `send_slack`.
-* Tools: small, pure utilities those agents import. Missing tools are created **first**.
-
-**Tools vs Agents — Hybrid Rule**
-
-* Prefer **tools** for reusable logic (regex, normalization, validation, date parsing).
-* Agents are **simple executors** importing tools and returning the **standard JSON envelope**.
-* If duplication appears, factories prompt extraction into tools.
-
-**Registry Contracts (source of truth)**
-
-* **agents.json:** description, `uses_tools`, `input_schema`, `output_schema`, `location`, `created_by`, `created_at`, `version`, metrics, tags.
-* **tools.json:** description, explicit `signature`, `location`, `created_by`, `created_at`, `is_pure_function`, tags, `used_by_agents`.
-* Entries point to real files; factories update registries atomically after validation.
-
-**Factory Operating Rules (must)**
-
-* **Tool Factory (`ensure_tool`)**: purity; datatype robustness; size budget; validation (lint/import gate/samples/signature).
-* **Agent Factory (`ensure_agent`)**: single responsibility; uses tools; standard envelope; schema checks; size budget; validation (lint/allow‑list/smoke test).
-* On success: write file → update respective registry.
-
-**Prompt & Config Policy**
-
-* **Single source of truth:** generation prompts, size budgets, allow‑lists, safety toggles live in `config.py`.
-* `config_bkup.py` is **deprecated**.
-* **No inline prompts** in factories; they must read from `config.py`.
-
-**Up‑to‑Step‑10 Acceptance (what “working” means)**
-
-1. Missing capability triggers **tool → agent** creation in that order.
-2. Both pass validation; registries updated with correct paths/signatures.
-3. Orchestrator builds a **LangGraph** graph from registry entries (no hardcoding).
-4. Execution captures envelopes, timings, errors; results synthesized.
-5. Run logs show dependency resolution and creation events.
-6. Only the four readers are prebuilt; all other nodes are generated.
-
----
-
-## 4c) Agent–Tool Collaboration & Dependency Resolution (Authoritative Design)
-
-**Problem to avoid:** Agents being created without their required tools, or tools being created generically without purpose.
-
-**Authoritative rule:** **Tools are prerequisites; agents are dependents.** Creation and planning must enforce **tools → agents → workflow** in that order.
-
-### Orchestrator Protocol (4 stages)
-
-1. **Capability Analysis** → Decompose the user request into **atomic capabilities** (candidate agents) and list the **specific tools** each capability needs (with input/output types and purpose).
-2. **Dependency Graph** → Build a typed DAG with nodes = {tool|agent} and edges **tool → agent**.
-3. **Creation Order** → Topologically sort the graph and **ensure tools first**, then agents. All ensures are **idempotent** (no‑op if present).
-4. **Workflow Build & Execute** → Only after all dependencies exist, assemble the LangGraph and run with retries/telemetry.
-
-### Factory Execution Rules
-
-* **ensure\_tool(name, spec):** Must validate *purity*, import allow‑list, size budget, and **purpose‑specific behavior** (no placeholders). Include sample I/O tests and register atomically in `tools.json` with canonical `location`.
-* **ensure\_agent(name, spec):** Only runs **after all tools are ensured**. Validates input/output schemas and returns the **standard JSON envelope**; registers in `agents.json` with `uses_tools` populated.
-
-### Registry & Import Resolution (prebuilt vs generated)
-
-* **Prebuilt vs generated is not a problem** so long as **registries are the source of truth**. Each entry carries a canonical `location` and agents **import tools via registry‑resolved paths**.
-* Provide an **import resolver** at generation time so agent code imports from the correct module path regardless of whether a tool lives under `prebuilt/` or `generated/`. (Fallback import is acceptable but registry‑driven import is preferred.)
-
-### Dynamic Planning Rules (how the Orchestrator decides)
-
-* For each capability, consult `tools.json` by **description/signature** first. If no suitable tool exists, the Orchestrator must produce a **tool spec** with: `name`, **purpose**, **input/output types**, and an **implementation hint**.
-* Create missing tools **before** generating the agent that depends on them; then generate the agent **referencing those tool names** in `uses_tools` and imports.
-
-### Tool Quality Bar
-
-* Tools must implement **specific, testable behavior** (e.g., *extract E.164 phone numbers from text*) rather than generic stubs.
-* Each tool ships with **minimal unit samples** and is rejected if tests fail or purity/import rules are violated.
-
-### LangGraph Correctness Checks
-
-* **Pre‑flight validation:** no cycles; every node corresponds to a registered agent; for each agent, **all `uses_tools` exist**; conditional edges have a condition function.
-* **Visualization:** export a graph view per run to confirm whether the workflow is a straight path or includes conditionals; annotate nodes with timings and outputs present.
-
-### Telemetry & Audit Requirements
-
-* Log the **dependency resolution** (what tools were required and why), the **creation order**, registry updates, and **import paths** chosen for each agent.
-* Include clear errors when an agent would be created without all tools, and **abort** creation until tools are ensured.
-
-### Acceptance Checks (collaboration)
-
-* Any plan that introduces a new agent must show prior or concurrent logs of **tool ensures** for all dependencies.
-* Agents never import missing tools at runtime; imports resolve using registry paths.
-* The executed LangGraph uses the expected tools per agent, confirmed by run logs and the visualization output.
-
-## 5) Core Components
-
-* **Orchestrator LLM:** parses request, ensures capabilities, builds/executes LangGraph, synthesizes output.
-* **Dual Registry:** `agents.json` (capabilities), `tools.json` (utilities).
-* **Tool Factory:** codegen + validation + registration for pure tools.
-* **Agent Factory:** codegen + validation + registration for small agents.
-* **Workflow Engine (LangGraph):** state, retries, branching, visualization.
-* **Minimal Prebuilt:** the four readers. Jira is the **first connector path**, generated behind a review gate.
-
----
-
-## 6) Contracts (No `next_actions` inside agents)
-
-### 6.1 Standard Agent Output Envelope
-
-```json
-{
-  "status": "success" | "error",
-  "data": { },
-  "metadata": {
-    "agent": "string",
-    "tools_used": ["string"],
-    "execution_time": 0.0,
-    "version": "semver"
-  }
-}
+### HTMX Integration Pattern
+```html
+<!-- Auto-updating workflow status -->
+<div hx-get="/api/workflow/{{ id }}/status" 
+     hx-trigger="every 1s"
+     hx-swap="innerHTML">
+    <!-- Status content -->
+</div>
 ```
 
-### 6.2 Tool Signature Guidelines
-
-* Pure functions only; explicit args; JSON‑serializable returns; no hidden I/O or implicit env reads.
-
-### 6.3 Workflow State (conceptual)
-
-`request`, `files`, `execution_path`, `current_data`, `results`, `errors`, `started_at`, `completed_at`.
+### State Management
+- Server-side session for conversation history
+- Workflow state in backend (existing)
+- UI state in Alpine.js data attributes
+- No client-side persistence needed for POC
 
 ---
 
-## 7) Registries (Schemas)
+## 8) Success Metrics
 
-### 7.1 `agents.json` (logical schema)
+### Backend (ACHIEVED)
+- ✅ Dynamic component creation < 5 min
+- ✅ Workflow execution < 20s for 5 nodes
+- ✅ 100% test pass rate
+- ✅ Zero critical errors in production scenarios
 
-```json
-{
-  "<agent_name>": {
-    "description": "what it does",
-    "uses_tools": ["tool_a", "tool_b"],
-    "input_schema": {},
-    "output_schema": {},
-    "location": "generated/agents/<agent_name>.py",
-    "created_by": "llm-id",
-    "created_at": "iso-8601",
-    "version": "1.0.0",
-    "execution_count": 0,
-    "avg_execution_time": 0.0,
-    "tags": ["text", "extraction"]
-  }
-}
+### UI (TARGET)
+- [ ] Page load time < 2s
+- [ ] Workflow status updates < 100ms latency
+- [ ] Smooth animations at 60fps
+- [ ] Works on Chrome, Firefox, Safari
+- [ ] Intuitive enough for non-technical users
+
+---
+
+## 9) Risk Mitigation
+
+### Identified Risks
+1. **HTMX Learning Curve** → Start with simple examples, incremental complexity
+2. **Mermaid.js Limitations** → Fallback to simple HTML/CSS for complex visualizations
+3. **Performance with Many Agents** → Pagination in registry, virtual scrolling
+4. **File Upload Size** → Client-side validation, size limits, progress indicators
+
+---
+
+## 10) Next Immediate Steps
+
+### Week 1 (UI Sprint)
+1. **Monday-Tuesday**: Flask setup + basic chat (Steps 21-22)
+2. **Wednesday-Thursday**: Workflow visualization (Step 23)
+3. **Friday**: Registry explorer (Step 24)
+
+### Week 2 (Polish Sprint)
+1. **Monday**: Dynamic creation showcase (Step 25)
+2. **Tuesday**: Results formatting (Step 26)
+3. **Wednesday-Thursday**: Integration and polish (Step 27)
+4. **Friday**: Demo preparation
+
+---
+
+## 11) Demo Scenarios for UI
+
+### Scenario 1: Simple Extraction
+"Extract emails from this text" → Show workflow → Display results
+
+### Scenario 2: Dynamic Creation
+"Analyze sentiment of customer feedback" → Create sentiment tool → Create analyzer agent → Execute → Show results
+
+### Scenario 3: Complex Pipeline
+Upload CSV → "Create statistical report with charts" → Show multi-agent workflow → Display rich results with visualizations
+
+### Scenario 4: Registry Growth
+Show registry before/after multiple requests → Demonstrate learning system
+
+---
+
+This updated roadmap integrates the UI implementation plan with your existing backend work, providing a clear path from the current state (completed backend) to a fully functional POC with an impressive user interface. The Flask-based approach maintains simplicity while delivering the visual impact needed for effective demonstrations.
 ```
 
-### 7.2 `tools.json` (logical schema)
+--------------------------------------------------------------------------------
 
-```json
-{
-  "<tool_name>": {
-    "description": "utility function",
-    "signature": "def <tool_name>(args) -> return_type",
-    "location": "generated/tools/<tool_name>.py",
-    "used_by_agents": ["agent_a", "agent_b"],
-    "created_by": "llm-id",
-    "created_at": "iso-8601",
-    "is_pure_function": true,
-    "tags": ["regex", "url"]
-  }
-}
+### File: Agent_Fabric_UI_Roadmap.md
+**Path:** `Agent_Fabric_UI_Roadmap.md`
+**Size:** 12,204 bytes
+**Modified:** 2025-09-07 15:01:58
+
+```markdown
+# Flask UI Implementation Roadmap
+## Step-by-Step Development Plan
+
+Based on your existing backend with `orchestrator.py`, here's a comprehensive roadmap to build the complete Flask UI system.
+
+---
+
+## **PHASE 1: Foundation & Flask Setup (Days 1-2)**
+
+### **Step 1: Project Structure Setup**
+**Files to Create:**
+```
+flask_app/
+├── app.py
+├── __init__.py
+├── config_ui.py
+└── requirements_ui.txt
 ```
 
----
+**Tasks:**
+- Create Flask app structure within existing project
+- Setup Flask configuration (debug mode, secret key, upload settings)
+- Install Flask dependencies: `flask`, `flask-cors`, `python-dotenv`
+- Create basic Flask app initialization
+- Test basic "Hello World" Flask route
 
-## 8) Example: Minimal Ticketing Agent (MVA)
-
-* **Scope now:** Jira‑only helper (read/parse/query).
-* **Inputs:** project key; filters (assignee/status/date range); fields.
-* **Output:** standard envelope, normalized ticket array.
-* **Tools:** `jira_client` (connector), `field_normalizer` (pure).
-* **Notes:** no workflow smarts; no side effects beyond declared Jira calls.
-
----
-
-## 9) Security, Safety, and Governance
-
-* **Sandbox codegen** execution.
-* **Allow‑list imports**; deny forbidden modules.
-* **Secret handling** explicit (no implicit env reads).
-* **Network egress** only via declared connectors; block raw sockets in tools.
-* **Review gates**: automated tests + lightweight human review for new connectors.
-
----
-
-## 10) Observability & Ops
-
-* **Run logs:** per‑agent start/stop, redacted inputs, sizes, durations.
-* **Metrics:** execution counts, p50/p95 latency per agent, codegen success rate, registry growth.
-* **Tracing:** workflow graph with node/edge timings.
-* **Cost:** token/API accounting per run.
-
----
-
-## 11) Versioning & Change Management
-
-* **SemVer**: bump minor for non‑breaking enhancements; major for schema changes.
-* **Immutability:** keep old versions until workflows migrate.
-* **Deprecation:** mark old entries; Orchestrator prefers latest non‑deprecated.
-
----
-
-## 12) Roadmap
-
-* **P0 (this week):** registries + four readers; factory basics; generate 3–5 tools + 3 tiny agents; one end‑to‑end LangGraph demo; enable Jira connector via factory path (behind review gate).
-* **P1:** strengthen validation (purity checks, allow‑list, unit tests); visualization/metrics/UI for registry & run history; on‑demand new connector path (e.g., GitHub) behind review gate.
-* **P2:** policy‑driven governance; caching/memoization for heavy tools; multi‑tenant credentials & role‑based data access.
-
----
-
-## 13) Risks & Mitigations
-
-* **Over‑complex codegen** → strict size/time budgets; factories reject oversized outputs.
-* **Hidden side effects** → purity tests; deny network/disk unless declared connector.
-* **Registry drift/dead entries** → usage tracking; scheduled prune.
-* **Vendor lock‑in** → narrow adapter interfaces; per‑vendor test harnesses.
-
----
-
-## 14) Success Criteria
-
-* ≥80% new capabilities via generated tools/agents **within size budgets**.
-* Median time to add a new utility/tool **< 5 min** including validation.
-* Stable P95 workflow latency for a 5‑node graph **< 20 s**.
-* **Zero policy violations** (no undeclared network I/O) in CI over 30 days.
-
----
-
-## 15) Implementation Plan — Steps 1–20
-
-### Phase 1: Foundation & Cleanup (Steps 1–5)
-
-**1 — Backup & Restructure:** snapshot repo; keep `.env`, `venv/`, `.git/`; establish lean tree (`generated/`, `core/`, registries, `config.py`).
-**2 — Configuration Setup:** model IDs, API keys, **size budgets** (agents 50–300, tools 20–100), retries/timeouts, import allow‑list, connector policy.
-**3 — Dual Registry Design:** define schemas; implement `core/registry.py` (load/save/search/deps/prune).
-**4 — Minimal Pre‑built:** implement four readers; prepare Jira connector **via factory path**.
-**5 — Seed Templates:** `example_tool.py`, `example_agent.py` for codegen prompts.
-
-### Phase 2: Core Engine (Steps 6–10)
-
-**6 — Tool Factory:** prompt for pure utilities; static checks; unit samples; write + update `tools.json`.
-**7 — Agent Factory:** small agents; standard envelope; schema checks; write + update `agents.json`.
-**8 — Workflow Engine:** LangGraph StateGraph; state fields; retries/backoff; timing capture; viz hook.
-**9 — Orchestrator:** capability lookup; smallest missing pieces first; build graph; execute; synthesize.
-**10 — Registry Mgmt:** deps, usage stats, search, cleanup, versioning & deprecation.
-
-### Phase 3: Dynamic Creation Testing (Steps 11–15)
-
-**11 — Create 10 Test Agents:** `extract_urls`, `create_simple_chart`, `fetch_webpage`, `parse_json`, `format_table`, `calculate_stats`, `detect_language`, `extract_dates`, `jira_fetch`, `send_slack`.
-**12 — Complex Workflow Tests:** PDF→text→URLs→fetch→summarize; CSV→stats→chart→report; Text→detect language→extract dates→translate→format.
-**13 — Streamlit UI (optional):** browse registries; upload inputs; preview workflow; run and view timings.
-**14 — LangGraph Visualization:** nodes/edges with status & timings.
-**15 — Demo Scenarios:** dynamic creation; tool reuse; 5+ node workflow; failure handling; latency comparison.
-
-### Phase 4: Testing & Docs (Steps 16–20)
-
-**16 — Comprehensive Testing:** 20 tools + 20 agents; connector mocks (Jira); negative tests (blocked imports, schema mismatch, net w/o connector).
-**17 — Documentation:** architecture, registries, factories, LangGraph patterns; prompts (do/don’t); size budgets; purity rules; deployment & security.
-**18 — Example Library:** common tool patterns (regex/date/normalization); agent patterns (extract/transform/format); workflow templates.
-**19 — Monitoring Dashboard:** usage per agent/tool, codegen success rates, workflow p50/p95, cost tracking.
-**20 — Final Demo Prep:** UI polish; scripted demos/videos; executive summary.
-
----
-
-## 16) Acceptance Checks (attach to Steps 4, 6–10)
-
-* **Step 4:** only four readers are prebuilt; each within LOC budget; smoke tests exist; no other feature agents prebuilt.
-* **Step 6:** `ensure_tool` idempotent; allow‑list/purity enforced; `tools.json` entries correct.
-* **Step 7:** `ensure_agent` idempotent; standard envelope; `agents.json` entries correct with `uses_tools`/schemas.
-* **Steps 8–10:** Orchestrator builds graph **from registry** (no hardcoding); engine tracks state/timings/errors; registry has usage/deprecation; no dead pointers.
-
----
-
-## 17) Operational Prompts: Audit & Setup
-
-**17.1 LLM Analysis Prompt — Agent Fabric Audit (Steps 1–10 only)**
-Use this when you want the LLM to audit your repo strictly up to Step 10, verify claims, and list gaps/issues without generating code. *(Paste your audit prompt here or reference from `config.py`.)*
-
-**17.2 System Prompt — Backend Audit & Setup (Steps 1–10 only)**
-Use this when you want the LLM to both verify Step‑10 compliance and output a concrete, code‑free setup + test plan honoring §4b (Starter Kit & Dynamic Creation Policy). *(Paste here or reference from `config.py`.)*
-
-> Tip: Keep both prompts under source control beside `knowledge_base.md` and reference them from `config.py` to reduce drift.
-
----
-
-## 18) Appendix: Sample Registry Entries
-
-### agents.json (example)
-
-```json
-{
-  "extract_urls": {
-    "description": "Extracts all URLs from text",
-    "uses_tools": ["regex_url_matcher"],
-    "input_schema": {"text": "string"},
-    "output_schema": {"urls": "array", "count": "integer"},
-    "location": "generated/agents/extract_urls.py",
-    "created_by": "claude-3-xxx",
-    "created_at": "2025-09-03T12:00:00Z",
-    "version": "1.0.0",
-    "execution_count": 0,
-    "avg_execution_time": 0.0,
-    "tags": ["text", "extraction"]
-  }
-}
+### **Step 2: Backend Integration Bridge**
+**Files to Create:**
+```
+flask_app/services/
+├── __init__.py
+├── orchestrator_service.py
+├── registry_service.py
+└── workflow_service.py
 ```
 
-### tools.json (example)
+**Functions to Implement:**
+- `orchestrator_service.py`:
+  - `process_user_request(request, files=None)`
+  - `get_workflow_status(workflow_id)`
+  - `cancel_workflow(workflow_id)`
+- `registry_service.py`:
+  - `get_agents_list()`
+  - `get_tools_list()`
+  - `get_registry_stats()`
+- `workflow_service.py`:
+  - `get_workflow_visualization(workflow_id)`
+  - `stream_workflow_updates(workflow_id)`
 
-```json
-{
-  "regex_url_matcher": {
-    "description": "Finds URLs in text using regex patterns",
-    "signature": "def regex_url_matcher(text: str) -> List[str]",
-    "location": "generated/tools/regex_url_matcher.py",
-    "used_by_agents": ["extract_urls"],
-    "created_by": "claude-3-xxx",
-    "created_at": "2025-09-03T11:59:00Z",
-    "is_pure_function": true,
-    "tags": ["regex", "url"]
-  }
-}
-```
+**Tasks:**
+- Import and integrate existing `core/orchestrator.py`
+- Create service wrapper functions for UI consumption
+- Add error handling and response formatting
+- Test backend connectivity
 
 ---
 
-## 19) TL;DR
+## **PHASE 2: Core Routes & API (Days 3-4)**
 
-Keep **agents tiny** and **tools pure**. Use **dual registries** as the source of truth. The **Orchestrator** plans; **LangGraph** executes. Only four readers are prebuilt; everything else is created on demand, validated, and registered. Ensure safety, observability, and versioned change management throughout.
+### **Step 3: Main Route Structure**
+**Files to Create:**
+```
+flask_app/routes/
+├── __init__.py
+├── main.py
+├── api.py
+├── orchestrator.py
+└── registry.py
+```
 
+**Routes to Implement:**
+- `main.py`:
+  - `GET /` - Main chat interface
+  - `GET /registry` - Registry explorer page
+  - `GET /workflows/<id>` - Workflow detail view
+- `api.py`:
+  - `POST /api/upload` - File upload handler
+  - `GET /api/health` - System health check
+  - `POST /api/test-connection` - Backend connectivity test
+
+### **Step 4: Orchestrator API Endpoints**
+**Routes in `orchestrator.py`:**
+- `POST /api/process` - Main request processing
+- `GET /api/workflow/<id>/status` - Get workflow status
+- `GET /api/workflow/<id>/stream` - SSE for real-time updates
+- `DELETE /api/workflow/<id>` - Cancel workflow
+- `GET /api/workflows` - List recent workflows
+
+**Functions to Implement:**
+- Request validation and sanitization
+- File handling and temporary storage
+- Async workflow status tracking
+- Server-sent events for real-time updates
+
+### **Step 5: Registry API Endpoints**
+**Routes in `registry.py`:**
+- `GET /api/registry/agents` - List all agents
+- `GET /api/registry/tools` - List all tools
+- `GET /api/registry/stats` - Registry statistics
+- `GET /api/registry/health` - Registry health check
+- `GET /api/registry/dependencies` - Dependency graph
+
+---
+
+## **PHASE 3: Base Templates & Static Assets (Days 5-6)**
+
+### **Step 6: Template Foundation**
+**Files to Create:**
+```
+flask_app/templates/
+├── base.html
+├── index.jinja2
+├── registry.html
+└── error.html
+```
+
+**Base Template Features (`base.html`):**
+- HTML5 structure with meta tags
+- Tailwind CSS CDN integration
+- HTMX library inclusion
+- Alpine.js integration
+- Custom CSS/JS file links
+- Navigation header with logo
+- Flash message container
+- Footer with status indicator
+
+### **Step 7: Static Assets Setup**
+**Files to Create:**
+```
+flask_app/static/
+├── css/
+│   ├── custom.css
+│   └── components.css
+├── js/
+│   ├── app.js
+│   ├── workflow-viz.js
+│   └── utils.js
+└── images/
+    └── logo.svg
+```
+
+**CSS Components:**
+- Chat interface styling
+- Workflow visualization containers
+- Registry card layouts
+- Loading animations
+- Status indicators
+
+**JavaScript Functions:**
+- HTMX event handlers
+- Alpine.js data initialization
+- Workflow visualization helpers
+- File upload utilities
+
+---
+
+## **PHASE 4: Chat Interface Implementation (Days 7-9)**
+
+### **Step 8: Main Chat Interface**
+**Files to Create/Update:**
+```
+flask_app/templates/
+├── components/
+│   ├── chat-container.html
+│   ├── message-input.html
+│   ├── file-upload.html
+│   └── typing-indicator.html
+└── partials/
+    ├── message.html
+    ├── status-update.html
+    └── error-message.html
+```
+
+**Chat Components to Build:**
+- Message container with scrolling
+- Rich text input with file attachment
+- Drag-and-drop file upload zone
+- Message history with timestamps
+- User/system message differentiation
+
+### **Step 9: Real-Time Message Updates**
+**HTMX Integration:**
+- `hx-post` for message submission
+- `hx-trigger` for auto-scrolling
+- `hx-swap` for message updates
+- `hx-sse` for real-time status
+
+**Functions to Implement:**
+- Message rendering with markdown support
+- File preview generation
+- Auto-resize textarea
+- Message status indicators (sending/sent/error)
+
+### **Step 10: Request Processing Flow**
+**Frontend Flow:**
+1. User types message + attaches files
+2. Frontend validates and shows loading
+3. HTMX posts to `/api/process`
+4. Server starts orchestrator workflow
+5. SSE stream provides status updates
+6. Results rendered in chat with agent attribution
+
+**Backend Handlers:**
+- Request preprocessing and validation
+- File storage and metadata extraction
+- Workflow initiation and tracking
+- Response streaming and formatting
+
+---
+
+## **PHASE 5: Workflow Visualization (Days 10-12)**
+
+### **Step 11: Workflow Display Components**
+**Files to Create:**
+```
+flask_app/templates/components/
+├── workflow-diagram.html
+├── agent-node.html
+├── execution-timeline.html
+└── progress-bar.html
+```
+
+**Visualization Features:**
+- Mermaid.js workflow diagrams
+- Node status indicators (pending/active/complete/error)
+- Execution timeline with timestamps
+- Progress bars for long-running tasks
+- Agent output previews
+
+### **Step 12: Real-Time Workflow Updates**
+**JavaScript Functions:**
+- `updateWorkflowDiagram(workflowData)`
+- `animateNodeTransition(nodeId, newStatus)`
+- `updateExecutionTimeline(events)`
+- `showAgentOutput(agentId, result)`
+
+**HTMX Patterns:**
+- `hx-get="/api/workflow/<id>/status"` with polling
+- `hx-trigger="every 1s"` for status updates
+- `hx-swap="innerHTML"` for diagram updates
+- `hx-target="#workflow-container"`
+
+### **Step 13: Workflow History & Details**
+**Pages to Create:**
+- Workflow list with filtering
+- Detailed workflow view with full execution log
+- Error analysis and debugging information
+- Performance metrics and timing data
+
+---
+
+## **PHASE 6: Registry Explorer (Days 13-14)**
+
+### **Step 14: Registry Browser Interface**
+**Files to Create:**
+```
+flask_app/templates/
+├── registry/
+│   ├── agents-grid.html
+│   ├── tools-grid.html
+│   ├── stats-dashboard.html
+│   └── dependencies-graph.html
+└── components/
+    ├── agent-card.html
+    ├── tool-card.html
+    └── metric-widget.html
+```
+
+**Registry Components:**
+- Agent cards with capabilities and metrics
+- Tool cards with usage statistics
+- Dependency visualization with D3.js or Mermaid
+- Search and filtering functionality
+- Performance metrics dashboard
+
+### **Step 15: Registry Analytics**
+**Analytics Features:**
+- Agent usage frequency charts
+- Tool reuse patterns
+- Creation timeline visualization
+- Performance trends
+- Error rate monitoring
+
+**Chart Integration:**
+- Chart.js for statistical visualizations
+- Interactive hover tooltips
+- Export functionality for reports
+- Real-time metric updates
+
+---
+
+## **PHASE 7: Dynamic Creation Theater (Days 15-16)**
+
+### **Step 16: Creation Visualization**
+**Files to Create:**
+```
+flask_app/templates/components/
+├── creation-stepper.html
+├── code-preview.html
+├── creation-success.html
+└── capability-badge.html
+```
+
+**Creation Flow Visualization:**
+1. **Analysis Step**: Show orchestrator analyzing request
+2. **Planning Step**: Display missing capabilities identified
+3. **Generation Step**: Code creation progress with Claude
+4. **Validation Step**: Testing and validation status
+5. **Registration Step**: Adding to registry
+6. **Success Step**: New capability celebration
+
+### **Step 17: Creation Progress Tracking**
+**Real-Time Updates:**
+- Progress stepper with current step highlighting
+- Code generation preview (if debug mode enabled)
+- Success animations and notifications
+- "New capability added" badges
+- Integration into chat flow
+
+---
+
+## **PHASE 8: Advanced Features (Days 17-18)**
+
+### **Step 18: File Handling & Preview**
+**File Processing Features:**
+- File type detection and validation
+- Preview generation for common formats
+- Progress indicators for large file uploads
+- File metadata display
+- Error handling for unsupported formats
+
+**Supported File Types:**
+- PDF preview with first page thumbnail
+- CSV/Excel data preview tables
+- Text file content preview
+- Image file display
+- JSON/XML structured preview
+
+### **Step 19: Error Handling & User Feedback**
+**Error Management:**
+- Graceful error page designs
+- Detailed error information for debugging
+- User-friendly error messages
+- Retry mechanisms for failed requests
+- Error reporting functionality
+
+**User Feedback Systems:**
+- Success/error toast notifications
+- Loading states and skeleton screens
+- Progress indicators for long operations
+- Confirmation dialogs for destructive actions
+
+---
+
+## **PHASE 9: Polish & Production Features (Days 19-21)**
+
+### **Step 20: UI Polish & Accessibility**
+**Accessibility Features:**
+- Proper ARIA labels and roles
+- Keyboard navigation support
+- Screen reader compatibility
+- High contrast mode support
+- Focus management
+
+**Visual Polish:**
+- Smooth animations and transitions
+- Responsive design for mobile/tablet
+- Dark/light theme toggle
+- Professional color scheme
+- Consistent spacing and typography
+
+### **Step 21: Performance Optimization**
+**Frontend Optimization:**
+- CSS/JS minification and compression
+- Image optimization and lazy loading
+- HTMX request debouncing
+- Local storage for user preferences
+- Service worker for offline support
+
+**Backend Integration:**
+- Response caching strategies
+- Database query optimization
+- File upload optimization
+- Memory usage monitoring
+
+### **Step 22: Production Deployment**
+**Deployment Preparation:**
+- Environment configuration management
+- Production vs development settings
+- Error logging and monitoring
+- Security headers and CSRF protection
+- Rate limiting for API endpoints
+
+---
+
+## **PHASE 10: Testing & Documentation (Days 22-23)**
+
+### **Step 23: Testing Suite**
+**Frontend Tests:**
+- HTMX interaction testing
+- JavaScript function unit tests
+- UI component integration tests
+- Cross-browser compatibility testing
+- Mobile responsiveness testing
+
+**Integration Tests:**
+- Full user journey testing
+- File upload and processing tests
+- Real-time update functionality
+- Error scenario testing
+
+### **Step 24: Documentation & Demo**
+**Documentation:**
+- User guide with screenshots
+- API documentation
+- Deployment instructions
+- Troubleshooting guide
+- Developer setup instructions
+
+**Demo Preparation:**
+- Demo script with example scenarios
+- Sample files for testing
+- Performance benchmarking
+- Video walkthrough creation
+
+---
+
+## **Development Timeline Summary**
+
+| Phase | Days | Focus | Key Deliverables |
+|-------|------|-------|------------------|
+| 1 | 1-2 | Foundation | Flask setup, backend integration |
+| 2 | 3-4 | API Layer | Routes, endpoints, data flow |
+| 3 | 5-6 | Templates | Base templates, static assets |
+| 4 | 7-9 | Chat UI | Interactive chat interface |
+| 5 | 10-12 | Workflows | Visualization, real-time updates |
+| 6 | 13-14 | Registry | Explorer, analytics dashboard |
+| 7 | 15-16 | Creation | Dynamic creation theater |
+| 8 | 17-18 | Advanced | File handling, error management |
+| 9 | 19-21 | Polish | Accessibility, performance, deployment |
+| 10 | 22-23 | Testing | Testing suite, documentation |
+
+**Total Estimated Time: 23 days (4-5 weeks)**
+
+Each step builds incrementally on the previous ones, ensuring you have a working system at every stage that can be tested and demonstrated.
 ```
 
 --------------------------------------------------------------------------------
@@ -547,7 +931,7 @@ Keep **agents tiny** and **tools pure**. Use **dual registries** as the source o
 ### File: KNOWLEDGE_BASE.md
 **Path:** `KNOWLEDGE_BASE.md`
 **Size:** 0 bytes
-**Modified:** 2025-09-07 00:07:54
+**Modified:** 2025-09-07 18:25:57
 
 ```markdown
 
@@ -588,7 +972,7 @@ POC in active development - implementing dynamic agent creation system.
 ### File: agents.json
 **Path:** `agents.json`
 **Size:** 5,238 bytes
-**Modified:** 2025-09-07 00:07:28
+**Modified:** 2025-09-07 00:35:16
 
 ```json
 {
@@ -785,7 +1169,7 @@ POC in active development - implementing dynamic agent creation system.
 ### File: agents.json.lock
 **Path:** `agents.json.lock`
 **Size:** 0 bytes
-**Modified:** 2025-09-07 00:03:02
+**Modified:** 2025-09-07 00:31:39
 
 *[Binary file or content not included]*
 
@@ -4631,6 +5015,2424 @@ if __name__ == "__main__":
 
 --------------------------------------------------------------------------------
 
+### File: flask_app/__init__.py
+**Path:** `flask_app/__init__.py`
+**Size:** 161 bytes
+**Modified:** 2025-09-07 12:05:15
+
+```python
+# flask_app/__init__.py
+"""
+Flask UI Application for Agentic Fabric POC
+Provides web interface for multi-agent orchestration platform
+"""
+
+__version__ = "1.0.0"
+
+```
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/app.py
+**Path:** `flask_app/app.py`
+**Size:** 9,205 bytes
+**Modified:** 2025-09-07 12:33:45
+
+```python
+# flask_app/app.py
+"""
+Main Flask Application
+Entry point for the Agentic Fabric web interface
+"""
+
+import json
+import os
+import sys
+from flask import Flask, render_template, request, jsonify, session
+from flask_cors import CORS
+
+# Add project root to Python path for backend imports
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(project_root)
+
+# Import UI configuration
+from flask_app.config_ui import config
+
+
+def create_app(config_name=None):
+    """
+    Application factory pattern for Flask app creation.
+
+    Args:
+        config_name: Configuration environment ('development', 'production')
+
+    Returns:
+        Configured Flask application instance
+    """
+    app = Flask(__name__)
+
+    # Determine configuration
+    config_name = config_name or os.environ.get("FLASK_ENV", "development")
+    app.config.from_object(config[config_name])
+
+    # Enable CORS for API endpoints
+    CORS(
+        app,
+        resources={
+            r"/api/*": {
+                "origins": "*",
+                "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+                "allow_headers": [
+                    "Content-Type",
+                    "Authorization",
+                    "HX-Request",
+                    "HX-Target",
+                ],
+            }
+        },
+    )
+
+    # Ensure upload directory exists
+    os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+
+    # Initialize extensions and register blueprints
+    register_blueprints(app)
+    register_error_handlers(app)
+    register_template_functions(app)
+
+    return app
+
+
+def register_blueprints(app):
+    """Register Flask blueprints for route organization."""
+
+    # Import route blueprints (will create these in next steps)
+    try:
+        from flask_app.routes.main import main_bp
+        from flask_app.routes.api import api_bp
+
+        app.register_blueprint(main_bp)
+        app.register_blueprint(api_bp, url_prefix="/api")
+
+    except ImportError as e:
+        app.logger.warning(f"Blueprint import failed: {e}.")
+
+
+def register_error_handlers(app):
+    """Register custom error handlers."""
+
+    @app.errorhandler(404)
+    def not_found_error(error):
+        return (
+            render_template(
+                "error.html", error_code=404, error_message="Page not found"
+            ),
+            404,
+        )
+
+    @app.errorhandler(500)
+    def internal_error(error):
+        return (
+            render_template(
+                "error.html", error_code=500, error_message="Internal server error"
+            ),
+            500,
+        )
+
+    @app.errorhandler(413)
+    def file_too_large(error):
+        return (
+            jsonify(
+                {
+                    "error": "File too large",
+                    "message": f'Maximum file size is {app.config["MAX_CONTENT_LENGTH"] // (1024*1024)}MB',
+                }
+            ),
+            413,
+        )
+
+
+def register_template_functions(app):
+    """Register custom template functions and filters."""
+
+    @app.template_filter("file_size")
+    def file_size_filter(size_bytes):
+        """Convert bytes to human readable format."""
+        if size_bytes == 0:
+            return "0 B"
+
+        size_names = ["B", "KB", "MB", "GB"]
+        import math
+
+        i = int(math.floor(math.log(size_bytes, 1024)))
+        p = math.pow(1024, i)
+        s = round(size_bytes / p, 2)
+        return f"{s} {size_names[i]}"
+
+    @app.template_filter("time_ago")
+    def time_ago_filter(timestamp):
+        """Convert timestamp to relative time."""
+        from datetime import datetime
+
+        if isinstance(timestamp, str):
+            try:
+                timestamp = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+            except:
+                return timestamp
+
+        now = datetime.now(timestamp.tzinfo if timestamp.tzinfo else None)
+        diff = now - timestamp
+
+        if diff.days > 0:
+            return f"{diff.days} day{'s' if diff.days != 1 else ''} ago"
+        elif diff.seconds > 3600:
+            hours = diff.seconds // 3600
+            return f"{hours} hour{'s' if hours != 1 else ''} ago"
+        elif diff.seconds > 60:
+            minutes = diff.seconds // 60
+            return f"{minutes} minute{'s' if minutes != 1 else ''} ago"
+        else:
+            return "just now"
+
+    @app.context_processor
+    def inject_globals():
+        """Inject global variables into all templates."""
+        return {
+            "app_name": "Agentic Fabric",
+            "app_version": "1.0.0",
+            "debug_mode": app.config.get("ENABLE_DEBUG_MODE", False),
+            "show_code_gen": app.config.get("SHOW_CODE_GENERATION", False),
+        }
+
+
+# Create app instance
+app = create_app()
+
+
+# Basic route for testing (will move to blueprints later)
+@app.route("/")
+def index():
+    """Temporary index route for testing."""
+    return """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Agentic Fabric POC</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
+            .container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+            .status { padding: 15px; margin: 10px 0; border-radius: 5px; }
+            .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+            .info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+            h1 { color: #333; margin-bottom: 30px; }
+            h2 { color: #666; margin-top: 30px; }
+            ul { line-height: 1.6; }
+            .next-steps { background: #fff3cd; border: 1px solid #ffeaa7; padding: 20px; border-radius: 5px; margin-top: 20px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🚀 Agentic Fabric POC - Flask UI</h1>
+            
+            <div class="status success">
+                ✅ <strong>Step 1 Complete:</strong> Flask application initialized successfully!
+            </div>
+            
+            <div class="status info">
+                🔧 <strong>Configuration:</strong> Development mode active
+            </div>
+            
+            <h2>System Status</h2>
+            <ul>
+                <li>✅ Flask application factory created</li>
+                <li>✅ Configuration system implemented</li>
+                <li>✅ Error handlers registered</li>
+                <li>✅ Template functions ready</li>
+                <li>✅ Upload directory prepared</li>
+                <li>⏳ Backend integration (next step)</li>
+                <li>⏳ Route blueprints (next step)</li>
+                <li>⏳ Templates (next step)</li>
+            </ul>
+            
+            <div class="next-steps">
+                <h3>Next Steps:</h3>
+                <ol>
+                    <li>Create route blueprints (main.py, api.py)</li>
+                    <li>Setup backend service integration</li>
+                    <li>Build base templates</li>
+                    <li>Implement chat interface</li>
+                </ol>
+            </div>
+            
+            <h2>Configuration Details</h2>
+            <ul>
+                <li><strong>Max File Size:</strong> {{ "%.0f"|format(config.MAX_CONTENT_LENGTH / (1024*1024)) }}MB</li>
+                <li><strong>Upload Folder:</strong> {{ config.UPLOAD_FOLDER }}</li>
+                <li><strong>Debug Mode:</strong> {{ config.DEBUG }}</li>
+                <li><strong>Session Lifetime:</strong> {{ config.PERMANENT_SESSION_LIFETIME }}</li>
+            </ul>
+        </div>
+    </body>
+    </html>
+    """
+
+
+@app.route("/favicon.ico")
+def favicon():
+    """Handle favicon requests to prevent 404 errors."""
+    from flask import send_from_directory
+
+    return send_from_directory(
+        os.path.join(app.root_path, "static"),
+        "favicon.ico",
+        mimetype="image/vnd.microsoft.icon",
+    )
+
+
+# Add this test route to flask_app/app.py
+@app.route("/test-backend")
+def test_backend():
+    """Test backend integration."""
+    from flask_app.services import OrchestratorService, RegistryService, WorkflowService
+
+    # Test services
+    orch_service = OrchestratorService()
+    reg_service = RegistryService()
+    workflow_service = WorkflowService()
+
+    results = {
+        "orchestrator_available": orch_service.is_backend_available(),
+        "registry_available": reg_service.is_available(),
+        "workflow_available": workflow_service.is_available(),
+        "registry_stats": (
+            reg_service.get_registry_stats() if reg_service.is_available() else {}
+        ),
+        "agents_count": (
+            len(reg_service.get_agents_list()) if reg_service.is_available() else 0
+        ),
+        "tools_count": (
+            len(reg_service.get_tools_list()) if reg_service.is_available() else 0
+        ),
+    }
+
+    return f"""
+    <h1>Backend Integration Test</h1>
+    <pre>{json.dumps(results, indent=2)}</pre>
+    <a href="/">← Back to main</a>
+    """
+
+
+if __name__ == "__main__":
+    # Development server
+    port = int(os.environ.get("PORT", 5000))
+    app.run(
+        host="127.0.0.1", port=port, debug=app.config.get("DEBUG", True), threaded=True
+    )
+
+```
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/config_ui.py
+**Path:** `flask_app/config_ui.py`
+**Size:** 1,690 bytes
+**Modified:** 2025-09-07 12:05:28
+
+```python
+# flask_app/config_ui.py
+"""
+Flask UI Configuration
+Separate from core config.py to avoid conflicts
+"""
+
+import os
+from datetime import timedelta
+
+
+class Config:
+    """Base configuration class."""
+
+    # Flask Core Settings
+    SECRET_KEY = (
+        os.environ.get("FLASK_SECRET_KEY")
+        or "agentic-fabric-dev-key-change-in-production"
+    )
+
+    # Upload Settings
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
+    UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads")
+    ALLOWED_EXTENSIONS = {
+        "txt",
+        "pdf",
+        "csv",
+        "json",
+        "xlsx",
+        "xls",
+        "docx",
+        "jpg",
+        "jpeg",
+        "png",
+    }
+
+    # Session Settings
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=2)
+
+    # HTMX Settings
+    HTMX_BOOSTED = True
+
+    # Backend Integration
+    BACKEND_TIMEOUT = 30  # seconds
+    MAX_WORKFLOW_TIME = 300  # 5 minutes max per workflow
+
+    # UI Settings
+    ITEMS_PER_PAGE = 20
+    ENABLE_DEBUG_MODE = os.environ.get("FLASK_DEBUG", "False").lower() == "true"
+    SHOW_CODE_GENERATION = os.environ.get("SHOW_CODE_GEN", "False").lower() == "true"
+
+    # Real-time Updates
+    SSE_HEARTBEAT_INTERVAL = 30  # seconds
+    WORKFLOW_POLL_INTERVAL = 1  # seconds
+
+
+class DevelopmentConfig(Config):
+    """Development configuration."""
+
+    DEBUG = True
+    TEMPLATES_AUTO_RELOAD = True
+    EXPLAIN_TEMPLATE_LOADING = False
+
+
+class ProductionConfig(Config):
+    """Production configuration."""
+
+    DEBUG = False
+    TESTING = False
+
+
+# Configuration mapping
+config = {
+    "development": DevelopmentConfig,
+    "production": ProductionConfig,
+    "default": DevelopmentConfig,
+}
+
+```
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/requirements_ui.txt
+**Path:** `flask_app/requirements_ui.txt`
+**Size:** 434 bytes
+**Modified:** 2025-09-07 12:06:24
+
+```text
+# Flask UI Requirements
+# Core Flask dependencies for the web interface
+
+# Web Framework
+Flask==3.0.0
+Flask-CORS==4.0.0
+
+# Template Engine (included with Flask)
+Jinja2==3.1.2
+
+# WSGI Server for production
+gunicorn==21.2.0
+
+# Development tools
+python-dotenv==1.0.0
+
+# File handling
+Werkzeug==3.0.1
+
+# Date/time utilities (already in main requirements)
+python-dateutil==2.9.0.post0
+
+# JSON handling (built-in)
+# Async support (built-in)
+```
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/routes/__init__.py
+**Path:** `flask_app/routes/__init__.py`
+**Size:** 224 bytes
+**Modified:** 2025-09-07 12:32:00
+
+```python
+# flask_app/routes/__init__.py
+"""
+Route Blueprints for Flask Application
+Organized by functionality: main, api, orchestrator, registry
+"""
+
+from .main import main_bp
+from .api import api_bp
+
+__all__ = ["main_bp", "api_bp"]
+
+```
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/routes/api.py
+**Path:** `flask_app/routes/api.py`
+**Size:** 16,476 bytes
+**Modified:** 2025-09-07 13:10:20
+
+```python
+# flask_app/routes/api.py
+"""
+API Routes Blueprint
+Handles AJAX requests, file uploads, and data endpoints
+"""
+
+import os
+import json
+import uuid
+from datetime import datetime
+from flask import Blueprint, request, jsonify, current_app, session
+from werkzeug.utils import secure_filename
+from flask_app.services.orchestrator_service import orchestrator_service
+from flask_app.services.registry_service import registry_service
+from flask_app.services.workflow_service import workflow_service
+
+api_bp = Blueprint("api", __name__)
+
+
+def allowed_file(filename):
+    """Check if file extension is allowed."""
+    return (
+        "." in filename
+        and filename.rsplit(".", 1)[1].lower()
+        in current_app.config["ALLOWED_EXTENSIONS"]
+    )
+
+
+@api_bp.route("/health")
+def health_check():
+    """System health check endpoint."""
+    try:
+        health_data = {
+            "status": "healthy",
+            "timestamp": datetime.now().isoformat(),
+            "services": {
+                "orchestrator": orchestrator_service.is_backend_available(),
+                "registry": registry_service.is_available(),
+                "workflow": workflow_service.is_available(),
+            },
+            "system_stats": orchestrator_service.get_system_stats(),
+            "version": "1.0.0",
+        }
+
+        # Determine overall health
+        all_services_up = all(health_data["services"].values())
+        health_data["status"] = "healthy" if all_services_up else "degraded"
+
+        status_code = 200 if all_services_up else 503
+        return jsonify(health_data), status_code
+
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "status": "unhealthy",
+                    "error": str(e),
+                    "timestamp": datetime.now().isoformat(),
+                }
+            ),
+            500,
+        )
+
+
+@api_bp.route("/upload", methods=["POST"])
+def upload_file():
+    """Handle file uploads."""
+    try:
+        if "files" not in request.files:
+            return jsonify({"error": "No files provided"}), 400
+
+        files = request.files.getlist("files")
+        uploaded_files = []
+
+        for file in files:
+            if file.filename == "":
+                continue
+
+            if file and allowed_file(file.filename):
+                # Generate unique filename
+                filename = secure_filename(file.filename)
+                unique_id = uuid.uuid4().hex[:8]
+                name, ext = os.path.splitext(filename)
+                unique_filename = f"{name}_{unique_id}{ext}"
+
+                # Save file
+                filepath = os.path.join(
+                    current_app.config["UPLOAD_FOLDER"], unique_filename
+                )
+                file.save(filepath)
+
+                # Get file metadata
+                file_stats = os.stat(filepath)
+
+                file_metadata = {
+                    "id": unique_id,
+                    "original_name": filename,
+                    "stored_name": unique_filename,
+                    "path": filepath,
+                    "size": file_stats.st_size,
+                    "type": file.content_type or "application/octet-stream",
+                    "uploaded_at": datetime.now().isoformat(),
+                }
+
+                uploaded_files.append(file_metadata)
+            else:
+                return (
+                    jsonify({"error": f"File type not allowed: {file.filename}"}),
+                    400,
+                )
+
+        return jsonify(
+            {"status": "success", "files": uploaded_files, "count": len(uploaded_files)}
+        )
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/process", methods=["POST"])
+def process_request():
+    """Main request processing endpoint."""
+    try:
+        data = request.get_json()
+
+        if not data or "request" not in data:
+            return jsonify({"error": "No request text provided"}), 400
+
+        request_text = data["request"].strip()
+        if not request_text:
+            return jsonify({"error": "Request text cannot be empty"}), 400
+
+        # Get processing options from request or session
+        auto_create = data.get("auto_create", session.get("auto_create", True))
+        workflow_type = data.get(
+            "workflow_type", session.get("workflow_type", "sequential")
+        )
+        files = data.get("files", [])
+
+        # Process request asynchronously
+        import asyncio
+
+        result = asyncio.run(
+            orchestrator_service.process_user_request(
+                request_text=request_text,
+                files=files,
+                auto_create=auto_create,
+                workflow_type=workflow_type,
+            )
+        )
+
+        return jsonify(result)
+
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "status": "error",
+                    "error": str(e),
+                    "message": "Request processing failed",
+                }
+            ),
+            500,
+        )
+
+
+@api_bp.route("/workflow/<workflow_id>/status")
+def get_workflow_status(workflow_id):
+    """Get current status of a workflow."""
+    try:
+        status = orchestrator_service.get_workflow_status(workflow_id)
+
+        if not status:
+            return jsonify({"error": "Workflow not found"}), 404
+
+        return jsonify(status)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/workflow/<workflow_id>/cancel", methods=["DELETE"])
+def cancel_workflow(workflow_id):
+    """Cancel an active workflow."""
+    try:
+        success = orchestrator_service.cancel_workflow(workflow_id)
+
+        if success:
+            return jsonify({"status": "cancelled", "workflow_id": workflow_id})
+        else:
+            return jsonify({"error": "Workflow not found or already completed"}), 404
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/workflow/<workflow_id>/stream")
+def stream_workflow_updates(workflow_id):
+    """Stream real-time workflow updates via Server-Sent Events."""
+    try:
+
+        def generate():
+            yield "data: " + json.dumps(
+                {
+                    "type": "connection",
+                    "message": "Connected to workflow stream",
+                    "workflow_id": workflow_id,
+                }
+            ) + "\n\n"
+
+            # Stream updates from workflow service
+            for update in workflow_service.stream_workflow_updates(workflow_id):
+                yield update
+
+        return current_app.response_class(
+            generate(),
+            mimetype="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "Access-Control-Allow-Origin": "*",
+            },
+        )
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/workflows")
+def list_workflows():
+    """Get list of workflows with pagination."""
+    try:
+        page = int(request.args.get("page", 1))
+        per_page = min(int(request.args.get("per_page", 20)), 100)  # Max 100 per page
+
+        all_workflows = orchestrator_service.get_workflow_history()
+        active_workflows = orchestrator_service.get_active_workflows()
+
+        # Simple pagination
+        start_idx = (page - 1) * per_page
+        end_idx = start_idx + per_page
+        workflows = all_workflows[start_idx:end_idx]
+
+        return jsonify(
+            {
+                "workflows": workflows,
+                "active_workflows": active_workflows,
+                "pagination": {
+                    "page": page,
+                    "per_page": per_page,
+                    "total": len(all_workflows),
+                    "pages": (len(all_workflows) + per_page - 1) // per_page,
+                },
+                "stats": orchestrator_service.get_system_stats(),
+            }
+        )
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/registry/agents")
+def list_agents():
+    """Get list of available agents."""
+    try:
+        tags = request.args.getlist("tags")
+        active_only = request.args.get("active_only", "true").lower() == "true"
+
+        agents = registry_service.get_agents_list(
+            tags=tags if tags else None, active_only=active_only
+        )
+
+        return jsonify({"agents": agents, "count": len(agents)})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/registry/tools")
+def list_tools():
+    """Get list of available tools."""
+    try:
+        tags = request.args.getlist("tags")
+        pure_only = request.args.get("pure_only", "false").lower() == "true"
+
+        tools = registry_service.get_tools_list(
+            tags=tags if tags else None, pure_only=pure_only
+        )
+
+        return jsonify({"tools": tools, "count": len(tools)})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/registry/stats")
+def registry_stats():
+    """Get registry statistics."""
+    try:
+        stats = registry_service.get_registry_stats()
+        return jsonify(stats)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/registry/search")
+def search_registry():
+    """Search agents and tools."""
+    try:
+        query = request.args.get("q", "").strip()
+
+        if not query:
+            return jsonify({"error": "Query parameter 'q' is required"}), 400
+
+        results = registry_service.search_components(query)
+        return jsonify(results)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/registry/dependencies")
+def get_dependencies():
+    """Get dependency graph data."""
+    try:
+        graph = registry_service.get_dependency_graph()
+        return jsonify(graph)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/test-connection")
+def test_connection():
+    """Test backend connectivity."""
+    try:
+        results = {
+            "timestamp": datetime.now().isoformat(),
+            "services": {
+                "orchestrator": {
+                    "available": orchestrator_service.is_backend_available(),
+                    "stats": orchestrator_service.get_system_stats(),
+                },
+                "registry": {
+                    "available": registry_service.is_available(),
+                    "stats": registry_service.get_registry_stats(),
+                },
+                "workflow": {"available": workflow_service.is_available()},
+            },
+        }
+
+        return jsonify(results)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# Error handlers for API routes
+@api_bp.errorhandler(400)
+def bad_request(error):
+    """Handle 400 errors in API."""
+    return jsonify({"error": "Bad request", "message": str(error)}), 400
+
+
+@api_bp.errorhandler(404)
+def not_found_api(error):
+    """Handle 404 errors in API."""
+    return jsonify({"error": "Endpoint not found"}), 404
+
+
+@api_bp.errorhandler(500)
+def internal_error_api(error):
+    """Handle 500 errors in API."""
+    return jsonify({"error": "Internal server error"}), 500
+
+
+@api_bp.route("/chat/message", methods=["POST"])
+def send_chat_message():
+    """Process a chat message with full workflow tracking."""
+    try:
+        data = request.get_json()
+
+        if not data or "message" not in data:
+            return jsonify({"error": "No message provided"}), 400
+
+        message = data["message"].strip()
+        if not message:
+            return jsonify({"error": "Message cannot be empty"}), 400
+
+        files = data.get("files", [])
+        settings = data.get("settings", {})
+
+        # Get user preferences
+        auto_create = settings.get("auto_create", session.get("auto_create", True))
+        workflow_type = settings.get(
+            "workflow_type", session.get("workflow_type", "sequential")
+        )
+
+        # Generate unique message ID for tracking
+        import uuid
+
+        message_id = f"msg_{uuid.uuid4().hex[:8]}"
+
+        # Store message in session for persistence
+        if "chat_history" not in session:
+            session["chat_history"] = []
+
+        session["chat_history"].append(
+            {
+                "id": message_id,
+                "message": message,
+                "timestamp": datetime.now().isoformat(),
+                "type": "user",
+                "files": files,
+            }
+        )
+
+        # Process through orchestrator
+        import asyncio
+
+        result = asyncio.run(
+            orchestrator_service.process_user_request(
+                request_text=message,
+                files=files,
+                auto_create=auto_create,
+                workflow_type=workflow_type,
+            )
+        )
+
+        # Add system response to chat history
+        system_response = {
+            "id": f"sys_{uuid.uuid4().hex[:8]}",
+            "message": result.get("response", "Request processed"),
+            "timestamp": datetime.now().isoformat(),
+            "type": "system",
+            "workflow_id": result.get("workflow_id"),
+            "status": result.get("status"),
+            "metadata": {
+                "agents_used": result.get("workflow", {}).get("steps", []),
+                "execution_time": result.get("execution_time", 0),
+                "components_created": result.get("metadata", {}).get(
+                    "components_created", 0
+                ),
+            },
+        }
+
+        session["chat_history"].append(system_response)
+        session.modified = True
+
+        return jsonify(
+            {
+                "status": "success",
+                "message_id": message_id,
+                "response": system_response,
+                "workflow_data": result,
+                "chat_updated": True,
+            }
+        )
+
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "status": "error",
+                    "error": str(e),
+                    "message": "Failed to process message",
+                }
+            ),
+            500,
+        )
+
+
+@api_bp.route("/chat/history")
+def get_chat_history():
+    """Get current chat history."""
+    try:
+        history = session.get("chat_history", [])
+        return jsonify({"history": history, "count": len(history)})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/chat/clear", methods=["POST"])
+def clear_chat_history():
+    """Clear chat history."""
+    try:
+        session["chat_history"] = []
+        session.modified = True
+        return jsonify({"status": "success", "message": "Chat history cleared"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/chat/export")
+def export_chat_history():
+    """Export chat history as JSON."""
+    try:
+        history = session.get("chat_history", [])
+
+        export_data = {
+            "exported_at": datetime.now().isoformat(),
+            "message_count": len(history),
+            "session_id": session.get("session_id", "unknown"),
+            "messages": history,
+        }
+
+        from flask import make_response
+
+        response = make_response(json.dumps(export_data, indent=2))
+        response.headers["Content-Type"] = "application/json"
+        response.headers["Content-Disposition"] = (
+            f'attachment; filename=chat_history_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
+        )
+
+        return response
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/workflow/<workflow_id>/visualization")
+def get_workflow_visualization(workflow_id):
+    """Get workflow visualization data."""
+    try:
+        viz_data = workflow_service.get_workflow_visualization(workflow_id)
+        return jsonify(viz_data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/files/<file_id>/preview")
+def get_file_preview(file_id):
+    """Get file preview data."""
+    try:
+        # This would implement file preview logic
+        # For now, return placeholder
+        return jsonify(
+            {
+                "file_id": file_id,
+                "preview": "File preview not yet implemented",
+                "type": "text",
+                "size": 0,
+            }
+        )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+```
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/routes/main.py
+**Path:** `flask_app/routes/main.py`
+**Size:** 10,241 bytes
+**Modified:** 2025-09-07 15:04:00
+
+```python
+# flask_app/routes/main.py
+"""
+Main Routes Blueprint
+Handles page rendering and navigation
+"""
+
+from flask import Blueprint, render_template, request, session, redirect, url_for, flash
+from flask_app.services.registry_service import registry_service
+from flask_app.services.orchestrator_service import orchestrator_service
+import os
+
+main_bp = Blueprint("main", __name__)
+
+
+@main_bp.route("/")
+def index():
+    """Main chat interface page with enhanced system status."""
+    try:
+        # Get comprehensive system status with safe defaults
+        system_status = {
+            "backend_available": registry_service.is_available(),
+            "registry_stats": registry_service.get_registry_stats() or {},
+            "recent_workflows": [],  # Start with empty list
+            "system_performance": {},  # Start with empty dict
+        }
+
+        # Only try to get workflows if orchestrator is available
+        try:
+            if orchestrator_service.is_backend_available():
+                system_status["recent_workflows"] = (
+                    orchestrator_service.get_workflow_history(limit=5) or []
+                )
+                system_status["system_performance"] = (
+                    orchestrator_service.get_system_stats() or {}
+                )
+        except Exception as e:
+            print(f"Warning: Could not get orchestrator data: {e}")
+            # Continue with empty data rather than failing
+
+        # Get session-based chat history with safe default
+        chat_history = session.get("chat_history", [])
+
+        # Get user preferences with safe defaults
+        user_settings = {
+            "auto_create": session.get("auto_create", True),
+            "workflow_type": session.get("workflow_type", "sequential"),
+            "theme": session.get("theme", "light"),
+            "show_debug": session.get("debug_mode", False),
+        }
+
+        return render_template(
+            "index.jinja2",  # Use correct template name
+            system_status=system_status,
+            chat_history=chat_history,
+            user_settings=user_settings,
+        )
+
+    except Exception as e:
+        print(f"Error in index route: {str(e)}")
+        import traceback
+
+        traceback.print_exc()
+        flash(f"Error loading chat interface: {str(e)}", "error")
+        return render_template(
+            "error.html", error_code=500, error_message="Failed to load chat interface"
+        )
+
+
+@main_bp.route("/registry")
+def registry():
+    """Registry explorer page."""
+    try:
+        # Get filter parameters
+        agent_tags = request.args.getlist("agent_tags")
+        tool_tags = request.args.getlist("tool_tags")
+        search_query = request.args.get("search", "").strip()
+
+        # Fetch data
+        agents = registry_service.get_agents_list(
+            tags=agent_tags if agent_tags else None
+        )
+        tools = registry_service.get_tools_list(tags=tool_tags if tool_tags else None)
+        registry_stats = registry_service.get_registry_stats()
+
+        # Apply search filter if provided
+        if search_query:
+            search_results = registry_service.search_components(search_query)
+            agents = search_results.get("agents", [])
+            tools = search_results.get("tools", [])
+
+        # Get all available tags for filters
+        all_agent_tags = set()
+        all_tool_tags = set()
+
+        for agent in registry_service.get_agents_list():
+            all_agent_tags.update(agent.get("tags", []))
+
+        for tool in registry_service.get_tools_list():
+            all_tool_tags.update(tool.get("tags", []))
+
+        return render_template(
+            "registry.html",
+            agents=agents,
+            tools=tools,
+            registry_stats=registry_stats,
+            all_agent_tags=sorted(all_agent_tags),
+            all_tool_tags=sorted(all_tool_tags),
+            current_filters={
+                "agent_tags": agent_tags,
+                "tool_tags": tool_tags,
+                "search": search_query,
+            },
+        )
+
+    except Exception as e:
+        flash(f"Error loading registry: {str(e)}", "error")
+        return render_template(
+            "error.html", error_code=500, error_message="Failed to load registry"
+        )
+
+
+@main_bp.route("/workflows")
+def workflows():
+    """Workflow history and management page."""
+    try:
+        # Get pagination parameters
+        page = int(request.args.get("page", 1))
+        per_page = int(request.args.get("per_page", 20))
+
+        # Get workflow history
+        all_workflows = orchestrator_service.get_workflow_history()
+        active_workflows = orchestrator_service.get_active_workflows()
+
+        # Simple pagination
+        start_idx = (page - 1) * per_page
+        end_idx = start_idx + per_page
+        workflows = all_workflows[start_idx:end_idx]
+
+        pagination_info = {
+            "page": page,
+            "per_page": per_page,
+            "total": len(all_workflows),
+            "pages": (len(all_workflows) + per_page - 1) // per_page,
+            "has_prev": page > 1,
+            "has_next": end_idx < len(all_workflows),
+        }
+
+        return render_template(
+            "workflows.html",
+            workflows=workflows,
+            active_workflows=active_workflows,
+            pagination=pagination_info,
+            system_stats=orchestrator_service.get_system_stats(),
+        )
+
+    except Exception as e:
+        flash(f"Error loading workflows: {str(e)}", "error")
+        return render_template(
+            "error.html", error_code=500, error_message="Failed to load workflows"
+        )
+
+
+@main_bp.route("/workflow/<workflow_id>")
+def workflow_detail(workflow_id):
+    """Detailed view of a specific workflow."""
+    try:
+        # Get workflow status and details
+        workflow_status = orchestrator_service.get_workflow_status(workflow_id)
+
+        if not workflow_status:
+            flash("Workflow not found", "error")
+            return redirect(url_for("main.workflows"))
+
+        # Get visualization data
+        from flask_app.services import workflow_service
+
+        viz_data = workflow_service.get_workflow_visualization(workflow_id)
+
+        return render_template(
+            "workflow_detail.jinja2",
+            workflow=workflow_status,
+            visualization=viz_data,
+            workflow_id=workflow_id,
+        )
+
+    except Exception as e:
+        flash(f"Error loading workflow details: {str(e)}", "error")
+        return redirect(url_for("main.workflows"))
+
+
+@main_bp.route("/agent/<agent_name>")
+def agent_detail(agent_name):
+    """Detailed view of a specific agent."""
+    try:
+        agent = registry_service.get_agent_details(agent_name)
+
+        if not agent:
+            flash("Agent not found", "error")
+            return redirect(url_for("main.registry"))
+
+        return render_template("agent_detail.html", agent=agent, agent_name=agent_name)
+
+    except Exception as e:
+        flash(f"Error loading agent details: {str(e)}", "error")
+        return redirect(url_for("main.registry"))
+
+
+@main_bp.route("/tool/<tool_name>")
+def tool_detail(tool_name):
+    """Detailed view of a specific tool."""
+    try:
+        tool = registry_service.get_tool_details(tool_name)
+
+        if not tool:
+            flash("Tool not found", "error")
+            return redirect(url_for("main.registry"))
+
+        return render_template("tool_detail.html", tool=tool, tool_name=tool_name)
+
+    except Exception as e:
+        flash(f"Error loading tool details: {str(e)}", "error")
+        return redirect(url_for("main.registry"))
+
+
+@main_bp.route("/dependencies")
+def dependencies():
+    """Dependency graph visualization page."""
+    try:
+        dependency_graph = registry_service.get_dependency_graph()
+
+        return render_template("dependencies.html", graph=dependency_graph)
+
+    except Exception as e:
+        flash(f"Error loading dependencies: {str(e)}", "error")
+        return render_template(
+            "error.html",
+            error_code=500,
+            error_message="Failed to load dependency graph",
+        )
+
+
+@main_bp.route("/help")
+def help_page():
+    """Help and documentation page."""
+    return render_template("help.html")
+
+
+@main_bp.route("/settings")
+def settings():
+    """Application settings page."""
+    try:
+        current_settings = {
+            "debug_mode": session.get("debug_mode", False),
+            "show_code_generation": session.get("show_code_generation", False),
+            "theme": session.get("theme", "light"),
+            "auto_create": session.get("auto_create", True),
+            "workflow_type": session.get("workflow_type", "sequential"),
+        }
+
+        return render_template("settings.html", settings=current_settings)
+
+    except Exception as e:
+        flash(f"Error loading settings: {str(e)}", "error")
+        return render_template(
+            "error.html", error_code=500, error_message="Failed to load settings"
+        )
+
+
+@main_bp.route("/settings", methods=["POST"])
+def update_settings():
+    """Update application settings."""
+    try:
+        # Update session settings
+        session["debug_mode"] = request.form.get("debug_mode") == "on"
+        session["show_code_generation"] = (
+            request.form.get("show_code_generation") == "on"
+        )
+        session["theme"] = request.form.get("theme", "light")
+        session["auto_create"] = request.form.get("auto_create") == "on"
+        session["workflow_type"] = request.form.get("workflow_type", "sequential")
+
+        flash("Settings updated successfully", "success")
+        return redirect(url_for("main.settings"))
+
+    except Exception as e:
+        flash(f"Error updating settings: {str(e)}", "error")
+        return redirect(url_for("main.settings"))
+
+
+# Error handlers for this blueprint
+@main_bp.errorhandler(404)
+def not_found(error):
+    """Handle 404 errors within main blueprint."""
+    return (
+        render_template("error.html", error_code=404, error_message="Page not found"),
+        404,
+    )
+
+
+@main_bp.errorhandler(500)
+def internal_error(error):
+    """Handle 500 errors within main blueprint."""
+    return (
+        render_template(
+            "error.html", error_code=500, error_message="Internal server error"
+        ),
+        500,
+    )
+
+```
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/services/__init__.py
+**Path:** `flask_app/services/__init__.py`
+**Size:** 353 bytes
+**Modified:** 2025-09-07 12:29:24
+
+```python
+# flask_app/services/__init__.py
+"""
+Service Layer for Backend Integration
+Bridges Flask UI with existing Agentic Fabric backend
+"""
+
+from .orchestrator_service import OrchestratorService
+from .registry_service import RegistryService
+from .workflow_service import WorkflowService
+
+__all__ = ["OrchestratorService", "RegistryService", "WorkflowService"]
+
+```
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/services/orchestrator_service.py
+**Path:** `flask_app/services/orchestrator_service.py`
+**Size:** 7,272 bytes
+**Modified:** 2025-09-07 15:04:39
+
+```python
+# flask_app/services/orchestrator_service.py
+"""
+Orchestrator Service
+Interfaces with core/orchestrator.py for request processing
+"""
+
+import os
+import sys
+import asyncio
+import json
+import uuid
+from datetime import datetime
+from typing import Dict, Any, List, Optional
+
+# Add project root to path for backend imports
+project_root = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
+sys.path.append(project_root)
+
+try:
+    from core.orchestrator import Orchestrator
+    from core.registry_singleton import get_shared_registry
+except ImportError as e:
+    print(f"Warning: Could not import backend components: {e}")
+    Orchestrator = None
+
+
+class OrchestratorService:
+    """Service layer for orchestrator operations."""
+
+    def __init__(self):
+        """Initialize orchestrator service."""
+        try:
+            self.orchestrator = Orchestrator() if Orchestrator else None
+        except Exception as e:
+            print(f"Warning: Could not initialize Orchestrator: {e}")
+            self.orchestrator = None
+        self.active_workflows = {}
+        self.workflow_history = []
+
+    def is_backend_available(self) -> bool:
+        """Check if backend components are available."""
+        return self.orchestrator is not None
+
+    async def process_user_request(
+        self,
+        request_text: str,
+        files: List[Dict] = None,
+        auto_create: bool = True,
+        workflow_type: str = "sequential",
+    ) -> Dict[str, Any]:
+        """
+        Process user request through orchestrator.
+
+        Args:
+            request_text: User's natural language request
+            files: List of uploaded files with metadata
+            auto_create: Whether to auto-create missing agents
+            workflow_type: Type of workflow execution
+
+        Returns:
+            Processed result with workflow information
+        """
+        workflow_id = f"wf_{uuid.uuid4().hex[:8]}"
+
+        try:
+            if not self.is_backend_available():
+                return {
+                    "status": "error",
+                    "workflow_id": workflow_id,
+                    "error": "Backend orchestrator not available",
+                    "message": "Please check backend configuration",
+                }
+
+            # Prepare request data
+            request_data = {
+                "request": request_text,
+                "files": files or [],
+                "workflow_id": workflow_id,
+                "workflow_type": workflow_type,
+                "auto_create": auto_create,
+                "started_at": datetime.now().isoformat(),
+            }
+
+            # Track workflow start
+            self.active_workflows[workflow_id] = {
+                "status": "processing",
+                "started_at": request_data["started_at"],
+                "request": request_text,
+                "files": len(files) if files else 0,
+            }
+
+            # Process through orchestrator
+            result = await self.orchestrator.process_request(
+                user_request=request_text, files=files, auto_create=auto_create
+            )
+
+            # Update workflow status
+            final_status = result.get("status", "unknown")
+            self.active_workflows[workflow_id]["status"] = final_status
+            self.active_workflows[workflow_id][
+                "completed_at"
+            ] = datetime.now().isoformat()
+
+            # Add workflow metadata
+            result["workflow_id"] = workflow_id
+            result["request_data"] = request_data
+
+            # Move to history if completed
+            if final_status in ["success", "error", "partial"]:
+                self.workflow_history.append(self.active_workflows[workflow_id])
+                if workflow_id in self.active_workflows:
+                    del self.active_workflows[workflow_id]
+
+            return result
+
+        except Exception as e:
+            # Handle processing errors
+            error_result = {
+                "status": "error",
+                "workflow_id": workflow_id,
+                "error": str(e),
+                "message": "Request processing failed",
+                "request_data": locals().get("request_data", {}),
+                "traceback": str(e),
+            }
+
+            # Update workflow status
+            if workflow_id in self.active_workflows:
+                self.active_workflows[workflow_id]["status"] = "error"
+                self.active_workflows[workflow_id]["error"] = str(e)
+
+            return error_result
+
+    def get_workflow_status(self, workflow_id: str) -> Optional[Dict[str, Any]]:
+        """Get current status of a workflow."""
+
+        # Check active workflows
+        if workflow_id in self.active_workflows:
+            return self.active_workflows[workflow_id]
+
+        # Check history
+        for workflow in self.workflow_history:
+            if workflow.get("workflow_id") == workflow_id:
+                return workflow
+
+        return None
+
+    def cancel_workflow(self, workflow_id: str) -> bool:
+        """Cancel an active workflow."""
+        if workflow_id in self.active_workflows:
+            self.active_workflows[workflow_id]["status"] = "cancelled"
+            self.active_workflows[workflow_id][
+                "cancelled_at"
+            ] = datetime.now().isoformat()
+            return True
+        return False
+
+    def get_active_workflows(self) -> List[Dict[str, Any]]:
+        """Get list of currently active workflows."""
+        return list(self.active_workflows.values())
+
+    def get_workflow_history(self, limit: int = 50) -> List[Dict[str, Any]]:
+        """Get recent workflow history."""
+        return self.workflow_history[-limit:] if self.workflow_history else []
+
+    def get_system_stats(self) -> Dict[str, Any]:
+        """Get system performance statistics."""
+        return {
+            "active_workflows": len(self.active_workflows),
+            "total_processed": len(self.workflow_history),
+            "backend_available": self.is_backend_available(),
+            "avg_processing_time": self._calculate_avg_processing_time(),
+            "success_rate": self._calculate_success_rate(),
+        }
+
+    def _calculate_avg_processing_time(self) -> float:
+        """Calculate average processing time from history."""
+        if not self.workflow_history:
+            return 0.0
+
+        total_time = 0
+        count = 0
+
+        for workflow in self.workflow_history:
+            if "started_at" in workflow and "completed_at" in workflow:
+                try:
+                    start = datetime.fromisoformat(workflow["started_at"])
+                    end = datetime.fromisoformat(workflow["completed_at"])
+                    total_time += (end - start).total_seconds()
+                    count += 1
+                except:
+                    continue
+
+        return total_time / count if count > 0 else 0.0
+
+    def _calculate_success_rate(self) -> float:
+        """Calculate success rate from history."""
+        if not self.workflow_history:
+            return 1.0
+
+        successful = sum(
+            1 for w in self.workflow_history if w.get("status") == "success"
+        )
+        return successful / len(self.workflow_history)
+
+
+# Global service instance
+orchestrator_service = OrchestratorService()
+
+```
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/services/registry_service.py
+**Path:** `flask_app/services/registry_service.py`
+**Size:** 10,450 bytes
+**Modified:** 2025-09-07 15:23:32
+
+```python
+# flask_app/services/registry_service.py
+"""
+Registry Service
+Interfaces with backend registry for agent/tool information
+"""
+
+import os
+import sys
+from typing import Dict, List, Any, Optional
+
+# Add project root to path
+project_root = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
+sys.path.append(project_root)
+
+try:
+    from core.registry_singleton import get_shared_registry
+    from core.registry import RegistryManager
+except ImportError as e:
+    print(f"Warning: Could not import registry components: {e}")
+    get_shared_registry = None
+
+
+class RegistryService:
+    """Service layer for registry operations."""
+
+    def __init__(self):
+        """Initialize registry service."""
+        self.registry = get_shared_registry() if get_shared_registry else None
+
+    def is_available(self) -> bool:
+        """Check if registry is available."""
+        return self.registry is not None
+
+    def get_agents_list(
+        self, tags: List[str] = None, active_only: bool = True
+    ) -> List[Dict[str, Any]]:
+        """Get list of available agents."""
+        if not self.is_available():
+            return []
+
+        try:
+            agents = self.registry.list_agents(tags=tags, active_only=active_only)
+
+            # Add formatted data for UI
+            for agent in agents:
+                agent["formatted_created_at"] = self._format_timestamp(
+                    agent.get("created_at")
+                )
+                agent["capabilities_summary"] = self._summarize_capabilities(agent)
+                agent["performance_indicator"] = self._get_performance_indicator(agent)
+
+            return agents
+        except Exception as e:
+            print(f"Error fetching agents: {e}")
+            return []
+
+    def get_tools_list(
+        self, tags: List[str] = None, pure_only: bool = False
+    ) -> List[Dict[str, Any]]:
+        """Get list of available tools."""
+        if not self.is_available():
+            return []
+
+        try:
+            tools = self.registry.list_tools(tags=tags, pure_only=pure_only)
+
+            # Add formatted data for UI
+            for tool in tools:
+                tool["formatted_created_at"] = self._format_timestamp(
+                    tool.get("created_at")
+                )
+                tool["usage_summary"] = self._get_tool_usage_summary(tool)
+                tool["complexity_level"] = self._assess_tool_complexity(tool)
+
+            return tools
+        except Exception as e:
+            print(f"Error fetching tools: {e}")
+            return []
+
+    def get_agent_details(self, agent_name: str) -> Optional[Dict[str, Any]]:
+        """Get detailed information about a specific agent."""
+        if not self.is_available():
+            return None
+
+        try:
+            agent = self.registry.get_agent(agent_name)
+            if agent:
+                # Add dependency information
+                agent["dependencies"] = self.registry.get_agent_dependencies(agent_name)
+                agent["formatted_created_at"] = self._format_timestamp(
+                    agent.get("created_at")
+                )
+
+            return agent
+        except Exception as e:
+            print(f"Error fetching agent details: {e}")
+            return None
+
+    def get_tool_details(self, tool_name: str) -> Optional[Dict[str, Any]]:
+        """Get detailed information about a specific tool."""
+        if not self.is_available():
+            return None
+
+        try:
+            tool = self.registry.get_tool(tool_name)
+            if tool:
+                # Add usage information
+                tool["used_by"] = self.registry.get_tool_usage(tool_name)
+                tool["formatted_created_at"] = self._format_timestamp(
+                    tool.get("created_at")
+                )
+
+            return tool
+        except Exception as e:
+            print(f"Error fetching tool details: {e}")
+            return None
+
+    def get_registry_stats(self) -> Dict[str, Any]:
+        """Get comprehensive registry statistics - FIXED."""
+        if not self.is_available():
+            return {
+                "available": False,
+                "statistics": {"total_agents": 0, "total_tools": 0},
+                "summary": {"health_score": 0, "status": "unavailable"},
+            }
+
+        try:
+            # Get actual counts from registry
+            agents = self.registry.list_agents(active_only=True)
+            tools = self.registry.list_tools()
+
+            stats = {
+                "total_agents": len(agents),
+                "total_tools": len(tools),
+                "total_components": len(agents) + len(tools),
+            }
+
+            # Calculate health score
+            health_score = 100 if stats["total_components"] > 0 else 0
+
+            return {
+                "available": True,
+                "statistics": stats,
+                "summary": {
+                    "health_score": health_score,
+                    "status": "healthy" if health_score > 50 else "degraded",
+                },
+            }
+        except Exception as e:
+            print(f"Error getting registry stats: {e}")
+            return {
+                "available": True,
+                "statistics": {"total_agents": 0, "total_tools": 0},
+                "summary": {"health_score": 0, "status": "error"},
+            }
+
+    def get_dependency_graph(self) -> Dict[str, Any]:
+        """Get dependency graph for visualization."""
+        if not self.is_available():
+            return {"nodes": [], "edges": []}
+
+        try:
+            deps = self.registry.get_dependency_graph()
+
+            # Convert to visualization format
+            nodes = []
+            edges = []
+
+            # Add agent nodes
+            for agent_name, tools in deps.get("agents_to_tools", {}).items():
+                nodes.append(
+                    {
+                        "id": agent_name,
+                        "type": "agent",
+                        "label": agent_name,
+                        "description": self._get_agent_description(agent_name),
+                    }
+                )
+
+                # Add edges to tools
+                for tool_name in tools:
+                    edges.append(
+                        {"from": tool_name, "to": agent_name, "type": "dependency"}
+                    )
+
+            # Add tool nodes
+            for tool_name, agents in deps.get("tools_to_agents", {}).items():
+                nodes.append(
+                    {
+                        "id": tool_name,
+                        "type": "tool",
+                        "label": tool_name,
+                        "description": self._get_tool_description(tool_name),
+                    }
+                )
+
+            return {
+                "nodes": nodes,
+                "edges": edges,
+                "stats": {
+                    "total_nodes": len(nodes),
+                    "total_edges": len(edges),
+                    "missing_dependencies": len(deps.get("missing_dependencies", [])),
+                    "unused_tools": len(deps.get("unused_tools", [])),
+                },
+            }
+
+        except Exception as e:
+            print(f"Error building dependency graph: {e}")
+            return {"nodes": [], "edges": [], "error": str(e)}
+
+    def search_components(self, query: str) -> Dict[str, List[Dict]]:
+        """Search agents and tools by query."""
+        if not self.is_available():
+            return {"agents": [], "tools": []}
+
+        try:
+            agents = self.registry.search_agents(query)
+            tools = self.registry.search_tools(query)
+
+            return {
+                "agents": agents,
+                "tools": tools,
+                "total_results": len(agents) + len(tools),
+            }
+        except Exception as e:
+            print(f"Error searching components: {e}")
+            return {"agents": [], "tools": [], "error": str(e)}
+
+    def _format_timestamp(self, timestamp: str = None) -> str:
+        """Format timestamp for display."""
+        if not timestamp:
+            from datetime import datetime
+
+            return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        try:
+            from datetime import datetime
+
+            dt = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+            return dt.strftime("%Y-%m-%d %H:%M:%S")
+        except:
+            return timestamp
+
+    def _summarize_capabilities(self, agent: Dict) -> str:
+        """Create a summary of agent capabilities."""
+        tools = agent.get("uses_tools", [])
+        tags = agent.get("tags", [])
+
+        if tools:
+            return f"Uses {len(tools)} tools: {', '.join(tools[:3])}{'...' if len(tools) > 3 else ''}"
+        elif tags:
+            return f"Tags: {', '.join(tags[:3])}{'...' if len(tags) > 3 else ''}"
+        else:
+            return "General purpose agent"
+
+    def _get_performance_indicator(self, agent: Dict) -> str:
+        """Get performance indicator for agent."""
+        exec_count = agent.get("execution_count", 0)
+        avg_time = agent.get("avg_execution_time", 0)
+
+        if exec_count == 0:
+            return "New"
+        elif avg_time < 2:
+            return "Fast"
+        elif avg_time < 10:
+            return "Normal"
+        else:
+            return "Slow"
+
+    def _get_tool_usage_summary(self, tool: Dict) -> str:
+        """Get usage summary for tool."""
+        used_by = tool.get("used_by_agents", [])
+        if not used_by:
+            return "Unused"
+        elif len(used_by) == 1:
+            return f"Used by {used_by[0]}"
+        else:
+            return f"Used by {len(used_by)} agents"
+
+    def _assess_tool_complexity(self, tool: Dict) -> str:
+        """Assess tool complexity level."""
+        line_count = tool.get("line_count", 0)
+        if line_count < 30:
+            return "Simple"
+        elif line_count < 100:
+            return "Medium"
+        else:
+            return "Complex"
+
+    def _get_agent_description(self, agent_name: str) -> str:
+        """Get agent description for visualization."""
+        agent = self.get_agent_details(agent_name)
+        return agent.get("description", "Agent") if agent else "Agent"
+
+    def _get_tool_description(self, tool_name: str) -> str:
+        """Get tool description for visualization."""
+        tool = self.get_tool_details(tool_name)
+        return tool.get("description", "Tool") if tool else "Tool"
+
+
+# Global service instance
+registry_service = RegistryService()
+
+```
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/services/workflow_service.py
+**Path:** `flask_app/services/workflow_service.py`
+**Size:** 13,491 bytes
+**Modified:** 2025-09-07 13:18:27
+
+```python
+# flask_app/services/workflow_service.py
+"""
+Workflow Service
+Handles workflow visualization and real-time updates
+"""
+
+import os
+import sys
+import json
+from typing import Dict, List, Any, Optional, Generator
+from datetime import datetime
+
+# Add project root to path
+project_root = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
+sys.path.append(project_root)
+
+try:
+    from core.workflow_engine import WorkflowEngine, WorkflowState
+except ImportError as e:
+    print(f"Warning: Could not import workflow components: {e}")
+    WorkflowEngine = None
+
+
+class WorkflowService:
+    """Service layer for workflow operations."""
+
+    def __init__(self):
+        """Initialize workflow service."""
+        self.workflow_engine = WorkflowEngine() if WorkflowEngine else None
+        self.workflow_cache = {}
+
+    def is_available(self) -> bool:
+        """Check if workflow engine is available."""
+        return self.workflow_engine is not None
+
+    def get_workflow_visualization(self, workflow_id: str) -> Dict[str, Any]:
+        """Get workflow visualization data."""
+        if not self.is_available():
+            return {"error": "Workflow engine not available"}
+
+        # Check cache first
+        if workflow_id in self.workflow_cache:
+            workflow_data = self.workflow_cache[workflow_id]
+        else:
+            # Get from workflow engine
+            workflow_status = self.workflow_engine.get_workflow_status(workflow_id)
+            if not workflow_status:
+                return {"error": "Workflow not found"}
+            workflow_data = workflow_status
+
+        return self._create_visualization_data(workflow_data)
+
+    def stream_workflow_updates(self, workflow_id: str) -> Generator[str, None, None]:
+        """Stream real-time workflow updates."""
+        if not self.is_available():
+            yield f"data: {json.dumps({'error': 'Workflow engine not available'})}\n\n"
+            return
+
+        # This would connect to real workflow engine streaming
+        # For now, simulate updates
+        import time
+
+        for i in range(10):  # Simulate 10 updates
+            time.sleep(1)
+
+            update = {
+                "workflow_id": workflow_id,
+                "timestamp": datetime.now().isoformat(),
+                "type": "status_update",
+                "data": {
+                    "step": i + 1,
+                    "status": "processing" if i < 9 else "completed",
+                    "message": f"Processing step {i + 1}/10",
+                },
+            }
+
+            yield f"data: {json.dumps(update)}\n\n"
+
+        # Final completion message
+        completion = {
+            "workflow_id": workflow_id,
+            "timestamp": datetime.now().isoformat(),
+            "type": "completion",
+            "data": {
+                "status": "completed",
+                "message": "Workflow completed successfully",
+            },
+        }
+        yield f"data: {json.dumps(completion)}\n\n"
+
+    def create_workflow_diagram(
+        self, agents: List[str], workflow_type: str = "sequential"
+    ) -> str:
+        """Create Mermaid diagram for workflow."""
+        if workflow_type == "sequential":
+            return self._create_sequential_diagram(agents)
+        elif workflow_type == "parallel":
+            return self._create_parallel_diagram(agents)
+        else:
+            return self._create_conditional_diagram(agents)
+
+    def get_execution_timeline(self, workflow_id: str) -> List[Dict[str, Any]]:
+        """Get execution timeline for workflow."""
+        if workflow_id in self.workflow_cache:
+            workflow_data = self.workflow_cache[workflow_id]
+            return self._extract_timeline(workflow_data)
+
+        return []
+
+    def _create_visualization_data(self, workflow_data: Dict) -> Dict[str, Any]:
+        """Create visualization data structure."""
+        agents = workflow_data.get("agents", [])
+        workflow_type = workflow_data.get("type", "sequential")
+
+        return {
+            "workflow_id": workflow_data.get("id", "unknown"),
+            "type": workflow_type,
+            "diagram": self.create_workflow_diagram(agents, workflow_type),
+            "nodes": self._create_node_data(agents, workflow_data),
+            "edges": self._create_edge_data(agents, workflow_type),
+            "timeline": self.get_execution_timeline(workflow_data.get("id", "")),
+            "status": workflow_data.get("status", "unknown"),
+            "progress": self._calculate_progress(workflow_data),
+        }
+
+    def _create_node_data(self, agents: List[str], workflow_data: Dict) -> List[Dict]:
+        """Create node data for visualization."""
+        nodes = []
+
+        for i, agent in enumerate(agents):
+            status = self._get_agent_status(agent, workflow_data)
+
+            nodes.append(
+                {
+                    "id": agent,
+                    "label": agent.replace("_", " ").title(),
+                    "type": "agent",
+                    "status": status,
+                    "position": {"x": i * 200, "y": 100},
+                    "metadata": {
+                        "execution_time": workflow_data.get("execution_times", {}).get(
+                            agent, 0
+                        ),
+                        "tools_used": workflow_data.get("tools_used", {}).get(
+                            agent, []
+                        ),
+                        "output_size": workflow_data.get("output_sizes", {}).get(
+                            agent, 0
+                        ),
+                    },
+                }
+            )
+
+        return nodes
+
+    def _create_edge_data(self, agents: List[str], workflow_type: str) -> List[Dict]:
+        """Create edge data for visualization."""
+        edges = []
+
+        if workflow_type == "sequential":
+            for i in range(len(agents) - 1):
+                edges.append(
+                    {"from": agents[i], "to": agents[i + 1], "type": "sequential"}
+                )
+        elif workflow_type == "parallel":
+            # All agents connect to a merge point
+            for agent in agents:
+                edges.append({"from": "start", "to": agent, "type": "parallel"})
+                edges.append({"from": agent, "to": "merge", "type": "parallel"})
+
+        return edges
+
+    def _create_sequential_diagram(self, agents: List[str]) -> str:
+        """Create Mermaid diagram for sequential workflow."""
+        diagram = "graph TD\n"
+        diagram += "    Start([Start])\n"
+
+        for i, agent in enumerate(agents):
+            agent_id = f"A{i+1}"
+            agent_label = agent.replace("_", " ").title()
+            diagram += f"    {agent_id}[{agent_label}]\n"
+
+            if i == 0:
+                diagram += f"    Start --> {agent_id}\n"
+            else:
+                prev_id = f"A{i}"
+                diagram += f"    {prev_id} --> {agent_id}\n"
+
+        diagram += f"    A{len(agents)} --> End([End])\n"
+
+        # Add styling
+        diagram += "\n    classDef startEnd fill:#e1f5fe\n"
+        diagram += "    classDef agent fill:#f3e5f5\n"
+        diagram += "    class Start,End startEnd\n"
+        diagram += (
+            f"    class {','.join([f'A{i+1}' for i in range(len(agents))])} agent\n"
+        )
+
+        return diagram
+
+    def _create_parallel_diagram(self, agents: List[str]) -> str:
+        """Create Mermaid diagram for parallel workflow."""
+        diagram = "graph TD\n"
+        diagram += "    Start([Start])\n"
+        diagram += "    Merge([Merge Results])\n"
+        diagram += "    End([End])\n"
+
+        for i, agent in enumerate(agents):
+            agent_id = f"A{i+1}"
+            agent_label = agent.replace("_", " ").title()
+            diagram += f"    {agent_id}[{agent_label}]\n"
+            diagram += f"    Start --> {agent_id}\n"
+            diagram += f"    {agent_id} --> Merge\n"
+
+        diagram += "    Merge --> End\n"
+
+        # Add styling
+        diagram += "\n    classDef startEnd fill:#e1f5fe\n"
+        diagram += "    classDef agent fill:#f3e5f5\n"
+        diagram += "    classDef merge fill:#fff3e0\n"
+        diagram += "    class Start,End startEnd\n"
+        diagram += "    class Merge merge\n"
+        diagram += (
+            f"    class {','.join([f'A{i+1}' for i in range(len(agents))])} agent\n"
+        )
+
+        return diagram
+
+    def _create_conditional_diagram(self, agents: List[str]) -> str:
+        """Create Mermaid diagram for conditional workflow."""
+        diagram = "graph TD\n"
+        diagram += "    Start([Start])\n"
+        diagram += "    Decision{Decision}\n"
+        diagram += "    Start --> Decision\n"
+
+        for i, agent in enumerate(agents):
+            agent_id = f"A{i+1}"
+            agent_label = agent.replace("_", " ").title()
+            diagram += f"    {agent_id}[{agent_label}]\n"
+            diagram += f"    Decision -->|Option {i+1}| {agent_id}\n"
+            diagram += f"    {agent_id} --> End([End])\n"
+
+        return diagram
+
+    def _get_agent_status(self, agent: str, workflow_data: Dict) -> str:
+        """Get current status of an agent in workflow."""
+        if agent in workflow_data.get("completed", []):
+            return "completed"
+        elif agent in workflow_data.get("active", []):
+            return "active"
+        elif agent in workflow_data.get("failed", []):
+            return "error"
+        else:
+            return "pending"
+
+    def _calculate_progress(self, workflow_data: Dict) -> float:
+        """Calculate overall workflow progress."""
+        total_agents = len(workflow_data.get("agents", []))
+        completed_agents = len(workflow_data.get("completed", []))
+
+        if total_agents == 0:
+            return 0.0
+
+        return (completed_agents / total_agents) * 100
+
+    def _extract_timeline(self, workflow_data: Dict) -> List[Dict[str, Any]]:
+        """Extract execution timeline from workflow data."""
+        timeline = []
+
+        # This would extract real timeline data from workflow execution
+        # For now, create sample timeline
+        events = workflow_data.get("events", [])
+
+        for event in events:
+            timeline.append(
+                {
+                    "timestamp": event.get("timestamp", datetime.now().isoformat()),
+                    "agent": event.get("agent", "unknown"),
+                    "event_type": event.get("type", "execution"),
+                    "message": event.get("message", "Agent executed"),
+                    "duration": event.get("duration", 0),
+                }
+            )
+
+        return sorted(timeline, key=lambda x: x["timestamp"])
+
+    # Add these methods to flask_app/services/workflow_service.py
+
+    def get_workflow_statistics(self) -> Dict[str, Any]:
+        """Get comprehensive workflow statistics."""
+        try:
+            # This would integrate with your actual workflow data
+            return {
+                "total_workflows": len(self.workflow_cache),
+                "active_workflows": sum(
+                    1
+                    for w in self.workflow_cache.values()
+                    if w.get("status") == "running"
+                ),
+                "success_rate": 0.85,  # Calculate from actual data
+                "avg_execution_time": 5.2,  # Calculate from actual data
+                "most_used_agents": ["email_extractor", "url_extractor"],
+                "performance_trends": {
+                    "last_hour": [1.2, 2.1, 1.8, 2.3, 1.9],
+                    "success_rates": [0.9, 0.85, 0.92, 0.88, 0.87],
+                },
+            }
+        except Exception as e:
+            print(f"Error getting workflow statistics: {e}")
+            return {}
+
+    def create_mermaid_workflow_diagram(
+        self, agents: List[str], status_data: Dict = None
+    ) -> str:
+        """Create a Mermaid diagram with real-time status."""
+        diagram = "graph TD\n"
+        diagram += "    Start([User Request])\n"
+
+        for i, agent in enumerate(agents):
+            agent_id = f"A{i+1}"
+            agent_label = agent.replace("_", " ").title()
+
+            # Determine status styling
+            if status_data and agent in status_data:
+                status = status_data[agent].get("status", "pending")
+                if status == "completed":
+                    diagram += f"    {agent_id}[{agent_label}]:::completed\n"
+                elif status == "active":
+                    diagram += f"    {agent_id}[{agent_label}]:::active\n"
+                elif status == "error":
+                    diagram += f"    {agent_id}[{agent_label}]:::error\n"
+                else:
+                    diagram += f"    {agent_id}[{agent_label}]:::pending\n"
+            else:
+                diagram += f"    {agent_id}[{agent_label}]\n"
+
+            # Add connections
+            if i == 0:
+                diagram += f"    Start --> {agent_id}\n"
+            else:
+                diagram += f"    A{i} --> {agent_id}\n"
+
+        diagram += f"    A{len(agents)} --> End([Response])\n"
+        diagram += "\n"
+
+        # Add CSS classes for styling
+        diagram += "    classDef completed fill:#d4edda,stroke:#c3e6cb,color:#155724\n"
+        diagram += "    classDef active fill:#fff3cd,stroke:#ffeaa7,color:#856404\n"
+        diagram += "    classDef error fill:#f8d7da,stroke:#f5c6cb,color:#721c24\n"
+        diagram += "    classDef pending fill:#f8f9fa,stroke:#dee2e6,color:#495057\n"
+
+        return diagram
+
+
+# Global service instance
+workflow_service = WorkflowService()
+
+```
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/static/css/custom.css
+**Path:** `flask_app/static/css/custom.css`
+**Size:** 8,304 bytes
+**Modified:** 2025-09-07 15:20:16
+
+*[Binary file or content not included]*
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/static/favicon.ico
+**Path:** `flask_app/static/favicon.ico`
+**Size:** 0 bytes
+**Modified:** 2025-09-07 12:52:59
+
+*[Binary file or content not included]*
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/static/js/app.js
+**Path:** `flask_app/static/js/app.js`
+**Size:** 23,840 bytes
+**Modified:** 2025-09-07 15:21:43
+
+*[Binary file or content not included]*
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/templates/base.html
+**Path:** `flask_app/templates/base.html`
+**Size:** 12,256 bytes
+**Modified:** 2025-09-07 12:49:34
+
+*[Binary file or content not included]*
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/templates/components/chat-container.html
+**Path:** `flask_app/templates/components/chat-container.html`
+**Size:** 21,313 bytes
+**Modified:** 2025-09-07 13:10:54
+
+*[Binary file or content not included]*
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/templates/components/workflow-panel.html
+**Path:** `flask_app/templates/components/workflow-panel.html`
+**Size:** 16,163 bytes
+**Modified:** 2025-09-07 13:11:41
+
+*[Binary file or content not included]*
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/templates/components/workflow-visualization.html
+**Path:** `flask_app/templates/components/workflow-visualization.html`
+**Size:** 12,539 bytes
+**Modified:** 2025-09-07 13:15:36
+
+*[Binary file or content not included]*
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/templates/dependencies.html
+**Path:** `flask_app/templates/dependencies.html`
+**Size:** 18,099 bytes
+**Modified:** 2025-09-07 13:17:31
+
+*[Binary file or content not included]*
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/templates/error.html
+**Path:** `flask_app/templates/error.html`
+**Size:** 796 bytes
+**Modified:** 2025-09-07 12:38:11
+
+*[Binary file or content not included]*
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/templates/help.html
+**Path:** `flask_app/templates/help.html`
+**Size:** 1,418 bytes
+**Modified:** 2025-09-07 12:54:08
+
+*[Binary file or content not included]*
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/templates/index.jinja2
+**Path:** `flask_app/templates/index.jinja2`
+**Size:** 8,482 bytes
+**Modified:** 2025-09-07 18:19:47
+
+*[Binary file or content not included]*
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/templates/partials/chat-message.html
+**Path:** `flask_app/templates/partials/chat-message.html`
+**Size:** 1,380 bytes
+**Modified:** 2025-09-07 13:14:07
+
+*[Binary file or content not included]*
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/templates/partials/workflow-status.jinja2
+**Path:** `flask_app/templates/partials/workflow-status.jinja2`
+**Size:** 1,232 bytes
+**Modified:** 2025-09-07 13:22:50
+
+*[Binary file or content not included]*
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/templates/registry.html
+**Path:** `flask_app/templates/registry.html`
+**Size:** 11,230 bytes
+**Modified:** 2025-09-07 12:52:43
+
+*[Binary file or content not included]*
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/templates/settings.html
+**Path:** `flask_app/templates/settings.html`
+**Size:** 1,933 bytes
+**Modified:** 2025-09-07 12:54:29
+
+*[Binary file or content not included]*
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/templates/workflow_detail.jinja2
+**Path:** `flask_app/templates/workflow_detail.jinja2`
+**Size:** 18,007 bytes
+**Modified:** 2025-09-07 13:22:48
+
+*[Binary file or content not included]*
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/templates/workflows.html
+**Path:** `flask_app/templates/workflows.html`
+**Size:** 14,244 bytes
+**Modified:** 2025-09-07 13:16:21
+
+*[Binary file or content not included]*
+
+--------------------------------------------------------------------------------
+
 ### File: generated/__init__.py
 **Path:** `generated/__init__.py`
 **Size:** 0 bytes
@@ -6758,7 +9560,7 @@ if __name__ == "__main__":
 ### File: tools.json
 **Path:** `tools.json`
 **Size:** 5,956 bytes
-**Modified:** 2025-09-07 00:07:28
+**Modified:** 2025-09-07 00:35:16
 
 ```json
 {
@@ -6967,7 +9769,7 @@ if __name__ == "__main__":
 ### File: tools.json.lock
 **Path:** `tools.json.lock`
 **Size:** 0 bytes
-**Modified:** 2025-09-07 00:03:25
+**Modified:** 2025-09-07 00:32:10
 
 *[Binary file or content not included]*
 

@@ -1,0 +1,24 @@
+# Flask UI Requirements
+# Core Flask dependencies for the web interface
+
+# Web Framework
+Flask==3.0.0
+Flask-CORS==4.0.0
+
+# Template Engine (included with Flask)
+Jinja2==3.1.2
+
+# WSGI Server for production
+gunicorn==21.2.0
+
+# Development tools
+python-dotenv==1.0.0
+
+# File handling
+Werkzeug==3.0.1
+
+# Date/time utilities (already in main requirements)
+python-dateutil==2.9.0.post0
+
+# JSON handling (built-in)
+# Async support (built-in)

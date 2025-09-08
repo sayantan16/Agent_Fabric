@@ -1,0 +1,637 @@
+{% extends "base.html" %} {% block title %}Dependencies - {{ super() }}{%
+endblock %} {% block content %}
+<div class="space-y-8" x-data="dependenciesPageData()">
+  <!-- Header -->
+  <div class="flex justify-between items-start">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">Dependency Graph</h1>
+      <p class="mt-2 text-gray-600">
+        Visualize relationships between agents and tools
+      </p>
+    </div>
+
+    <!-- Controls -->
+    <div class="flex items-center space-x-3">
+      <select
+        x-model="viewType"
+        @change="updateVisualization()"
+        class="border border-gray-300 rounded-md px-3 py-2"
+      >
+        <option value="all">All Components</option>
+        <option value="agents">Agents Only</option>
+        <option value="tools">Tools Only</option>
+        <option value="missing">Missing Dependencies</option>
+      </select>
+
+      <button @click="refreshData()" class="btn btn-secondary">
+        <svg
+          class="w-4 h-4 mr-2"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+          ></path>
+        </svg>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Overview -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div class="bg-white rounded-lg shadow p-6 text-center">
+      <div
+        class="text-2xl font-bold text-blue-600"
+        x-text="stats.total_agents"
+      ></div>
+      <div class="text-sm text-gray-600">Total Agents</div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6 text-center">
+      <div
+        class="text-2xl font-bold text-green-600"
+        x-text="stats.total_tools"
+      ></div>
+      <div class="text-sm text-gray-600">Total Tools</div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6 text-center">
+      <div
+        class="text-2xl font-bold text-yellow-600"
+        x-text="stats.missing_dependencies"
+      ></div>
+      <div class="text-sm text-gray-600">Missing Deps</div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6 text-center">
+      <div
+        class="text-2xl font-bold text-purple-600"
+        x-text="stats.unused_tools"
+      ></div>
+      <div class="text-sm text-gray-600">Unused Tools</div>
+    </div>
+  </div>
+
+  <!-- Main Visualization -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-gray-900">
+          Dependency Visualization
+        </h2>
+        <div class="flex items-center space-x-2">
+          <button
+            @click="layoutType = 'hierarchical'"
+            :class="layoutType === 'hierarchical' ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-secondary'"
+          >
+            Hierarchical
+          </button>
+          <button
+            @click="layoutType = 'network'"
+            :class="layoutType === 'network' ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-secondary'"
+          >
+            Network
+          </button>
+          <button
+            @click="layoutType = 'mermaid'; updateVisualization()"
+            :class="layoutType === 'mermaid' ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-secondary'"
+          >
+            Diagram
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-6">
+      <!-- Mermaid Diagram View -->
+      <div x-show="layoutType === 'mermaid'" class="min-h-[500px]">
+        <div
+          id="dependency-mermaid"
+          class="border border-gray-200 rounded-lg p-4 bg-gray-50"
+        >
+          <div id="mermaid-diagram" class="mermaid"></div>
+        </div>
+      </div>
+
+      <!-- Network View -->
+      <div x-show="layoutType === 'network'" class="min-h-[500px]">
+        <div
+          id="network-container"
+          class="border border-gray-200 rounded-lg bg-gray-50"
+        >
+          <div class="flex items-center justify-center h-96 text-gray-500">
+            <div class="text-center">
+              <svg
+                class="w-12 h-12 mx-auto mb-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                ></path>
+              </svg>
+              <p>Interactive network visualization</p>
+              <p class="text-sm mt-1">Coming in advanced features</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hierarchical View -->
+      <div x-show="layoutType === 'hierarchical'" class="min-h-[500px]">
+        <div class="space-y-6">
+          <!-- Tools Level -->
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 mb-4">
+              🔧 Tools (Foundation Layer)
+            </h3>
+            <div
+              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+            >
+              <template x-for="tool in filteredTools" :key="tool.name">
+                <div
+                  class="bg-green-50 border border-green-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                  @click="highlightConnections(tool.name, 'tool')"
+                >
+                  <div class="flex items-center justify-between mb-2">
+                    <h4
+                      class="font-medium text-green-900"
+                      x-text="tool.name"
+                    ></h4>
+                    <span
+                      class="badge badge-sm badge-success"
+                      x-text="tool.usage_count || 0"
+                    ></span>
+                  </div>
+                  <p
+                    class="text-sm text-green-700"
+                    x-text="tool.description"
+                  ></p>
+                  <div class="mt-2 text-xs text-green-600">
+                    <span x-text="tool.used_by?.length || 0"></span> agents use
+                    this
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- Dependency Arrows -->
+          <div class="flex justify-center">
+            <div class="text-gray-400 text-center">
+              <svg
+                class="w-8 h-8 mx-auto"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                ></path>
+              </svg>
+              <p class="text-sm mt-1">Dependencies flow upward</p>
+            </div>
+          </div>
+
+          <!-- Agents Level -->
+          <div>
+            <h3 class="text-lg font-medium text-gray-900 mb-4">
+              🤖 Agents (Execution Layer)
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <template x-for="agent in filteredAgents" :key="agent.name">
+                <div
+                  class="bg-blue-50 border border-blue-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                  @click="highlightConnections(agent.name, 'agent')"
+                >
+                  <div class="flex items-center justify-between mb-2">
+                    <h4
+                      class="font-medium text-blue-900"
+                      x-text="agent.name"
+                    ></h4>
+                    <span
+                      class="badge badge-sm badge-primary"
+                      x-text="agent.execution_count || 0"
+                    ></span>
+                  </div>
+                  <p
+                    class="text-sm text-blue-700"
+                    x-text="agent.description"
+                  ></p>
+                  <div class="mt-2">
+                    <span class="text-xs text-blue-600">Uses tools:</span>
+                    <div class="flex flex-wrap gap-1 mt-1">
+                      <template x-for="tool in agent.uses_tools" :key="tool">
+                        <span
+                          class="badge badge-xs badge-success"
+                          x-text="tool"
+                        ></span>
+                      </template>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Issues and Recommendations -->
+  <div x-show="issues.length > 0" class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-900 text-red-600">
+        ⚠️ Dependency Issues
+      </h2>
+    </div>
+
+    <div class="p-6">
+      <div class="space-y-4">
+        <template x-for="issue in issues" :key="issue.id">
+          <div class="border border-red-200 bg-red-50 rounded-lg p-4">
+            <div class="flex items-start justify-between">
+              <div>
+                <h3 class="font-medium text-red-900" x-text="issue.title"></h3>
+                <p
+                  class="text-sm text-red-700 mt-1"
+                  x-text="issue.description"
+                ></p>
+
+                <div x-show="issue.affected_components" class="mt-2">
+                  <span class="text-xs text-red-600">Affected:</span>
+                  <template
+                    x-for="component in issue.affected_components"
+                    :key="component"
+                  >
+                    <span
+                      class="badge badge-xs badge-error ml-1"
+                      x-text="component"
+                    ></span>
+                  </template>
+                </div>
+              </div>
+
+              <button
+                x-show="issue.fix_action"
+                @click="fixIssue(issue)"
+                class="btn btn-sm btn-danger"
+              >
+                Fix
+              </button>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+
+  <!-- Component Details Panel -->
+  <div x-show="selectedComponent" class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-gray-900">
+          <span
+            x-text="selectedComponent?.type === 'agent' ? '🤖' : '🔧'"
+          ></span>
+          <span x-text="selectedComponent?.name"></span>
+        </h2>
+        <button
+          @click="selectedComponent = null"
+          class="text-gray-400 hover:text-gray-600"
+        >
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            ></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h3 class="font-medium text-gray-900 mb-3">Details</h3>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between">
+              <span class="text-gray-600">Type:</span>
+              <span x-text="selectedComponent?.type"></span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Status:</span>
+              <span
+                class="badge badge-sm badge-success"
+                x-text="selectedComponent?.status"
+              ></span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Created:</span>
+              <span x-text="selectedComponent?.created_at"></span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="font-medium text-gray-900 mb-3">
+            <span
+              x-text="selectedComponent?.type === 'agent' ? 'Uses Tools' : 'Used By Agents'"
+            ></span>
+          </h3>
+          <div class="space-y-1">
+            <template
+              x-for="connection in selectedComponent?.connections"
+              :key="connection"
+            >
+              <a
+                :href="`${selectedComponent?.type === 'agent' ? '/tool/' : '/agent/'}${connection}`"
+                class="block text-sm text-blue-600 hover:text-blue-800"
+                x-text="connection"
+              ></a>
+            </template>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function dependenciesPageData() {
+    return {
+      // View configuration
+      viewType: 'all',
+      layoutType: 'mermaid',
+
+      // Data
+      agents: [],
+      tools: [],
+      dependencies: [],
+      stats: {
+        total_agents: 0,
+        total_tools: 0,
+        missing_dependencies: 0,
+        unused_tools: 0,
+      },
+
+      // UI state
+      selectedComponent: null,
+      highlightedConnections: [],
+      issues: [],
+
+      // Mermaid diagram content
+      mermaidDiagram: `graph TD
+          subgraph "Tools"
+              T1[extract_emails]
+              T2[extract_urls]
+              T3[calculate_mean]
+              T4[read_text]
+              T5[read_csv]
+              T6[read_json]
+              T7[read_pdf]
+          end
+
+          subgraph "Agents"
+              A1[email_extractor]
+              A2[url_extractor]
+              A3[read_text_agent]
+              A4[read_csv_agent]
+          end
+
+          %% Tool to Agent Dependencies
+          T1 --> A1
+          T2 --> A2
+          T4 --> A3
+          T4 --> A1
+          T4 --> A2
+
+          %% Styling
+          classDef tool fill:#d4edda,stroke:#c3e6cb,stroke-width:2px
+          classDef agent fill:#cce5ff,stroke:#99ccff,stroke-width:2px
+          classDef unused fill:#f8d7da,stroke:#f5c6cb,stroke-width:2px
+
+          class T1,T2,T3,T4,T5,T6,T7 tool
+          class A1,A2,A3,A4 agent
+          class T3,T5,T6,T7 unused`,
+
+      // Initialize
+      init() {
+        this.loadDependencyData();
+        this.$nextTick(() => {
+          this.renderMermaidDiagram();
+        });
+      },
+
+      // Computed properties
+      get filteredAgents() {
+        return this.agents.filter((agent) => {
+          if (this.viewType === 'tools') return false;
+          if (this.viewType === 'missing')
+            return agent.missing_tools?.length > 0;
+          return true;
+        });
+      },
+
+      get filteredTools() {
+        return this.tools.filter((tool) => {
+          if (this.viewType === 'agents') return false;
+          if (this.viewType === 'missing') return !tool.used_by?.length;
+          return true;
+        });
+      },
+
+      // Load dependency data
+      async loadDependencyData() {
+        try {
+          const response = await fetch('/api/registry/dependencies');
+          const data = await response.json();
+
+          if (data.nodes && data.edges) {
+            this.agents = data.nodes.filter((n) => n.type === 'agent');
+            this.tools = data.nodes.filter((n) => n.type === 'tool');
+            this.dependencies = data.edges;
+            this.stats = data.stats || this.stats;
+
+            this.detectIssues();
+            this.updateMermaidDiagram();
+            this.$nextTick(() => {
+              this.renderMermaidDiagram();
+            });
+          }
+        } catch (error) {
+          console.error('Failed to load dependency data:', error);
+          if (window.appUtils) {
+            window.appUtils.showNotification(
+              'Failed to load dependencies',
+              'error'
+            );
+          }
+        }
+      },
+
+      // Generate dynamic Mermaid diagram
+      generateMermaidDiagram() {
+        if (!this.agents.length && !this.tools.length) {
+          return `graph TD
+              A[No Data Available]
+              classDef default fill:#f9f9f9,stroke:#999`;
+        }
+
+        let diagram = 'graph TD\n';
+
+        // Add tools subgraph
+        if (this.tools.length > 0) {
+          diagram += '    subgraph "Tools"\n';
+          this.tools.forEach((tool, index) => {
+            const toolId = `T${index + 1}`;
+            diagram += `        ${toolId}[${tool.name}]\n`;
+          });
+          diagram += '    end\n\n';
+        }
+
+        // Add agents subgraph
+        if (this.agents.length > 0) {
+          diagram += '    subgraph "Agents"\n';
+          this.agents.forEach((agent, index) => {
+            const agentId = `A${index + 1}`;
+            diagram += `        ${agentId}[${agent.name}]\n`;
+          });
+          diagram += '    end\n\n';
+        }
+
+        // Add dependencies
+        diagram += '    %% Dependencies\n';
+        this.dependencies.forEach((dep) => {
+          const fromIndex = this.tools.findIndex((t) => t.name === dep.from);
+          const toIndex = this.agents.findIndex((a) => a.name === dep.to);
+          if (fromIndex !== -1 && toIndex !== -1) {
+            diagram += `    T${fromIndex + 1} --> A${toIndex + 1}\n`;
+          }
+        });
+
+        // Add styling
+        diagram += `
+          %% Styling
+          classDef tool fill:#d4edda,stroke:#c3e6cb,stroke-width:2px
+          classDef agent fill:#cce5ff,stroke:#99ccff,stroke-width:2px
+          classDef unused fill:#f8d7da,stroke:#f5c6cb,stroke-width:2px
+
+          class ${this.tools.map((_, i) => `T${i + 1}`).join(',')} tool
+          class ${this.agents.map((_, i) => `A${i + 1}`).join(',')} agent`;
+
+        return diagram;
+      },
+
+      // Render Mermaid into the container
+      renderMermaidDiagram() {
+        const el = document.getElementById('mermaid-diagram');
+        if (el && typeof mermaid !== 'undefined') {
+          el.innerHTML = this.mermaidDiagram; // inject graph text
+          mermaid.init(undefined, el); // render it
+        }
+      },
+
+      // Detect dependency issues
+      detectIssues() {
+        this.issues = [];
+
+        // Find unused tools
+        const unusedTools = this.tools.filter((tool) => !tool.used_by?.length);
+        if (unusedTools.length > 0) {
+          this.issues.push({
+            id: 'unused_tools',
+            title: 'Unused Tools',
+            description: `${unusedTools.length} tools are not used by any agents`,
+            affected_components: unusedTools.map((t) => t.name),
+            fix_action: 'cleanup',
+          });
+        }
+
+        // Find missing dependencies
+        const agentsWithMissing = this.agents.filter(
+          (agent) => agent.missing_tools?.length > 0
+        );
+        if (agentsWithMissing.length > 0) {
+          this.issues.push({
+            id: 'missing_deps',
+            title: 'Missing Dependencies',
+            description: `${agentsWithMissing.length} agents have missing tool dependencies`,
+            affected_components: agentsWithMissing.map((a) => a.name),
+            fix_action: 'create_tools',
+          });
+        }
+      },
+
+      // Highlight connections
+      highlightConnections(componentName, type) {
+        this.selectedComponent = {
+          name: componentName,
+          type: type,
+          ...this[type === 'agent' ? 'agents' : 'tools'].find(
+            (c) => c.name === componentName
+          ),
+        };
+
+        if (type === 'agent') {
+          const agent = this.agents.find((a) => a.name === componentName);
+          this.selectedComponent.connections = agent?.uses_tools || [];
+        } else {
+          const tool = this.tools.find((t) => t.name === componentName);
+          this.selectedComponent.connections = tool?.used_by || [];
+        }
+      },
+
+      // Update visualization
+      updateVisualization() {
+        if (this.layoutType === 'mermaid') {
+          this.updateMermaidDiagram();
+          this.$nextTick(() => {
+            this.renderMermaidDiagram();
+          });
+        }
+      },
+
+      // Refresh data
+      async refreshData() {
+        await this.loadDependencyData();
+        this.updateVisualization();
+      },
+
+      // Fix dependency issues
+      async fixIssue(issue) {
+        if (!confirm(`Fix ${issue.title}?`)) return;
+
+        try {
+          if (window.appUtils) {
+            window.appUtils.showNotification(
+              'Fix functionality coming soon',
+              'info'
+            );
+          }
+        } catch (error) {
+          if (window.appUtils) {
+            window.appUtils.showNotification('Fix failed', 'error');
+          }
+        }
+      },
+    };
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,39 @@
+<!-- Workflow Status Partial for Real-time Updates -->
+<div
+  id="workflow-status-{{ workflow_id }}"
+  class="bg-gray-50 rounded-lg p-4 space-y-3"
+  hx-get="/api/workflow/{{ workflow_id }}/status"
+  hx-trigger="every 2s"
+  hx-swap="innerHTML"
+  hx-target="this"
+>
+  <div class="flex items-center justify-between">
+    <span class="text-xs text-gray-500">{{ workflow_id }}</span>
+    <span
+      class="badge badge-{{ 'success' if status == 'completed' else 'warning' if status == 'processing' else 'error' }}"
+    >
+      {{ status | title }}
+    </span>
+  </div>
+
+  {% if progress is defined %}
+  <div class="progress-bar">
+    <div class="progress-fill" style="width: {{ progress }}%"></div>
+  </div>
+  {% endif %} {% if current_step %}
+  <div class="text-sm">
+    <span class="text-gray-700">Current:</span>
+    <span class="font-medium text-gray-900">{{ current_step }}</span>
+  </div>
+  {% endif %} {% if agents_completed %}
+  <div class="text-sm">
+    <span class="text-gray-700">Completed:</span>
+    <span class="font-medium text-green-600"
+      >{{ agents_completed | length }}</span
+    >
+    {% if agents_total %}
+    <span class="text-gray-500">/ {{ agents_total }}</span>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>

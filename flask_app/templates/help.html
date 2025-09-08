@@ -1,0 +1,41 @@
+{% extends "base.html" %} {% block title %}Help - {{ super() }}{% endblock %} {%
+block content %}
+<div class="max-w-4xl mx-auto space-y-8">
+  <div>
+    <h1 class="text-3xl font-bold text-gray-900">Help & Documentation</h1>
+    <p class="mt-2 text-gray-600">
+      Learn how to use Agentic Fabric effectively
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="text-xl font-semibold">Getting Started</h2>
+      </div>
+      <div class="card-body">
+        <ul class="space-y-2 text-sm">
+          <li>• Upload files or type requests in the chat</li>
+          <li>• Use natural language to describe tasks</li>
+          <li>• View results and workflow progress in real-time</li>
+          <li>• Explore the registry to see available agents</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2 class="text-xl font-semibold">Example Requests</h2>
+      </div>
+      <div class="card-body">
+        <ul class="space-y-2 text-sm">
+          <li>• "Extract all email addresses from this text"</li>
+          <li>• "Create a summary of the uploaded PDF"</li>
+          <li>• "Generate statistics from the CSV data"</li>
+          <li>• "Find URLs and phone numbers in the document"</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

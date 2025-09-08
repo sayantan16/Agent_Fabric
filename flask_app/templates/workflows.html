@@ -1,0 +1,453 @@
+{% extends "base.html" %} {% block title %}Workflows - {{ super() }}{% endblock
+%} {% block content %}
+<div class="space-y-8" x-data="workflowsPageData()">
+  <!-- Header with Stats -->
+  <div class="flex justify-between items-start">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">Workflow Management</h1>
+      <p class="mt-2 text-gray-600">
+        Monitor and analyze workflow executions across the system
+      </p>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="grid grid-cols-4 gap-4 text-center">
+        <div>
+          <div class="text-2xl font-bold text-blue-600">
+            {{ active_workflows|length }}
+          </div>
+          <div class="text-sm text-gray-600">Active</div>
+        </div>
+        <div>
+          <div class="text-2xl font-bold text-green-600">
+            {{ workflows|length }}
+          </div>
+          <div class="text-sm text-gray-600">Total</div>
+        </div>
+        <div>
+          <div class="text-2xl font-bold text-purple-600">
+            {{ "%.1f"|format(system_stats.avg_processing_time if
+            system_stats.avg_processing_time else 0) }}s
+          </div>
+          <div class="text-sm text-gray-600">Avg Time</div>
+        </div>
+        <div>
+          <div class="text-2xl font-bold text-yellow-600">
+            {{ "%.0f"|format((system_stats.success_rate * 100) if
+            system_stats.success_rate else 0) }}%
+          </div>
+          <div class="text-sm text-gray-600">Success Rate</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter and Controls -->
+  <div class="bg-white rounded-lg shadow p-6">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <select
+          x-model="filters.status"
+          @change="applyFilters()"
+          class="border border-gray-300 rounded-md px-3 py-2"
+        >
+          <option value="">All Statuses</option>
+          <option value="success">Success</option>
+          <option value="error">Error</option>
+          <option value="processing">Processing</option>
+          <option value="partial">Partial</option>
+        </select>
+
+        <select
+          x-model="filters.timeRange"
+          @change="applyFilters()"
+          class="border border-gray-300 rounded-md px-3 py-2"
+        >
+          <option value="all">All Time</option>
+          <option value="today">Today</option>
+          <option value="week">This Week</option>
+          <option value="month">This Month</option>
+        </select>
+
+        <button @click="refreshWorkflows()" class="btn btn-secondary">
+          <svg
+            class="w-4 h-4 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            ></path>
+          </svg>
+          Refresh
+        </button>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <button
+          @click="viewMode = 'grid'"
+          :class="viewMode === 'grid' ? 'btn btn-primary' : 'btn btn-secondary'"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+            ></path>
+          </svg>
+        </button>
+        <button
+          @click="viewMode = 'timeline'"
+          :class="viewMode === 'timeline' ? 'btn btn-primary' : 'btn btn-secondary'"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h2m5 0h2a2 2 0 002-2V7a2 2 0 00-2-2h-2m-5-4a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H9a2 2 0 01-2-2V5z"
+            ></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Workflows Section -->
+  {% if active_workflows %}
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-900">🟢 Active Workflows</h2>
+    </div>
+    <div class="p-6">
+      <div class="space-y-4">
+        {% for workflow in active_workflows %}
+        <div class="border border-yellow-200 bg-yellow-50 rounded-lg p-4">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="font-medium text-gray-900">
+                {{ workflow.request[:60] }}...
+              </h3>
+              <p class="text-sm text-gray-600">
+                Started {{ workflow.started_at|time_ago }}
+              </p>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class="badge badge-warning animate-pulse"
+                >{{ workflow.status|title }}</span
+              >
+              <button
+                @click="cancelWorkflow('{{ workflow.workflow_id }}')"
+                class="btn btn-sm btn-danger"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+
+          <!-- Real-time progress -->
+          <div
+            id="workflow-progress-{{ workflow.workflow_id }}"
+            hx-get="/api/workflow/{{ workflow.workflow_id }}/status"
+            hx-trigger="every 1s"
+            hx-swap="innerHTML"
+          >
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 30%"></div>
+            </div>
+            <div class="text-sm text-gray-600 mt-1">Processing...</div>
+          </div>
+
+          <div class="mt-3">
+            <a
+              href="{{ url_for('main.workflow_detail', workflow_id=workflow.workflow_id) }}"
+              class="text-blue-600 hover:text-blue-800 text-sm"
+              >View Details →</a
+            >
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Workflow History -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-900">Workflow History</h2>
+    </div>
+
+    <!-- Grid View -->
+    <div x-show="viewMode === 'grid'" class="p-6">
+      {% if workflows %}
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for workflow in workflows %}
+        <div
+          class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 overflow-hidden group"
+        >
+          <!-- Header with status tint -->
+          <div
+            class="px-6 py-4 border-b border-gray-100 {% if workflow.status == 'success' %}bg-green-50{% elif workflow.status == 'error' %}bg-red-50{% else %}bg-yellow-50{% endif %}"
+          >
+            <div class="flex items-center justify-between">
+              <span
+                class="badge {% if workflow.status == 'success' %}badge-success{% elif workflow.status == 'error' %}badge-error{% else %}badge-warning{% endif %}"
+              >
+                {{ workflow.status|title }}
+              </span>
+              <span class="text-xs text-gray-500"
+                >{{ workflow.started_at|time_ago }}</span
+              >
+            </div>
+          </div>
+
+          <!-- Body -->
+          <div class="p-6">
+            <h3 class="font-semibold text-gray-900 mb-3 leading-tight">
+              {{ workflow.request[:50] }}{% if workflow.request|length > 50
+              %}...{% endif %}
+            </h3>
+
+            <!-- Stats tiles -->
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              {% if workflow.execution_time %}
+              <div class="bg-blue-50 rounded-lg p-3 text-center">
+                <div class="text-lg font-bold text-blue-600">
+                  {{ "%.1f"|format(workflow.execution_time) }}s
+                </div>
+                <div class="text-xs text-blue-600">Execution Time</div>
+              </div>
+              {% endif %} {% if workflow.files %}
+              <div class="bg-purple-50 rounded-lg p-3 text-center">
+                <div class="text-lg font-bold text-purple-600">
+                  {{ workflow.files }}
+                </div>
+                <div class="text-xs text-purple-600">Files</div>
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- Progress bar for processing -->
+            {% if workflow.status == 'processing' %}
+            <div>
+              <div class="flex justify-between text-sm text-gray-600 mb-1">
+                <span>Processing...</span>
+                <span>30%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 30%"></div>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Footer -->
+          <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
+            <a
+              href="{{ url_for('main.workflow_detail', workflow_id=workflow.workflow_id) }}"
+              class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium text-sm group-hover:translate-x-1 transition-transform"
+            >
+              <svg
+                class="w-4 h-4 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h2m5 0h2a2 2 0 002-2V7a2 2 0 00-2-2h-2m-5-4a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H9a2 2 0 01-2-2V5z"
+                ></path>
+              </svg>
+              View Details
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="text-center py-12">
+        <svg
+          class="mx-auto h-12 w-12 text-gray-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h2m5 0h2a2 2 0 002-2V7a2 2 0 00-2-2h-2m-5-4a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H9a2 2 0 01-2-2V5z"
+          ></path>
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">
+          No workflows found
+        </h3>
+        <p class="mt-1 text-sm text-gray-500">
+          Start by creating your first workflow in the chat interface.
+        </p>
+        <div class="mt-6">
+          <a href="{{ url_for('main.index') }}" class="btn btn-primary"
+            >Go to Chat</a
+          >
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Timeline View -->
+    <div x-show="viewMode === 'timeline'" class="p-6">
+      {% if workflows %}
+      <div class="relative">
+        <!-- Timeline line -->
+        <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+
+        <div class="space-y-6">
+          {% for workflow in workflows %}
+          <div class="relative flex items-start space-x-4">
+            <!-- Timeline dot -->
+            <div
+              class="flex-shrink-0 w-4 h-4 rounded-full border-2 border-white shadow {% if workflow.status == 'success' %}bg-green-500{% elif workflow.status == 'error' %}bg-red-500{% else %}bg-yellow-500{% endif %}"
+            ></div>
+
+            <!-- Timeline content -->
+            <div class="flex-1 bg-gray-50 rounded-lg p-4">
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="font-medium text-gray-900">
+                  {{ workflow.request[:60] }}{% if workflow.request|length > 60
+                  %}...{% endif %}
+                </h3>
+                <span class="text-sm text-gray-500"
+                  >{{ workflow.started_at|time_ago }}</span
+                >
+              </div>
+
+              <div class="flex items-center justify-between">
+                <span
+                  class="badge {% if workflow.status == 'success' %}badge-success{% elif workflow.status == 'error' %}badge-error{% else %}badge-warning{% endif %}"
+                >
+                  {{ workflow.status|title }}
+                </span>
+                <a
+                  href="{{ url_for('main.workflow_detail', workflow_id=workflow.workflow_id) }}"
+                  class="text-blue-600 hover:text-blue-800 text-sm"
+                  >View →</a
+                >
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Pagination -->
+    {% if pagination.pages > 1 %}
+    <div class="px-6 py-4 border-t border-gray-200">
+      <div class="flex items-center justify-between">
+        <div class="text-sm text-gray-700">
+          Showing {{ ((pagination.page - 1) * pagination.per_page) + 1 }} to {{
+          pagination.page * pagination.per_page if pagination.page *
+          pagination.per_page < pagination.total else pagination.total }} of {{
+          pagination.total }} workflows
+        </div>
+
+        <div class="flex items-center space-x-2">
+          {% if pagination.has_prev %}
+          <a
+            href="{{ url_for('main.workflows', page=pagination.page-1) }}"
+            class="btn btn-sm btn-secondary"
+            >Previous</a
+          >
+          {% endif %}
+
+          <span class="px-3 py-1 text-sm"
+            >Page {{ pagination.page }} of {{ pagination.pages }}</span
+          >
+
+          {% if pagination.has_next %}
+          <a
+            href="{{ url_for('main.workflows', page=pagination.page+1) }}"
+            class="btn btn-sm btn-secondary"
+            >Next</a
+          >
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  function workflowsPageData() {
+    return {
+      viewMode: 'grid',
+      filters: {
+        status: '',
+        timeRange: 'all',
+      },
+
+      applyFilters() {
+        // Implement filtering logic
+        const params = new URLSearchParams();
+        if (this.filters.status) params.set('status', this.filters.status);
+        if (this.filters.timeRange !== 'all')
+          params.set('time', this.filters.timeRange);
+
+        window.location.search = params.toString();
+      },
+
+      async refreshWorkflows() {
+        window.location.reload();
+      },
+
+      async cancelWorkflow(workflowId) {
+        if (!confirm('Cancel this workflow?')) return;
+
+        try {
+          const response = await fetch(`/api/workflow/${workflowId}/cancel`, {
+            method: 'DELETE',
+          });
+
+          const data = await response.json();
+
+          if (data.status === 'cancelled') {
+            window.appUtils.showNotification('Workflow cancelled', 'success');
+            this.refreshWorkflows();
+          } else {
+            window.appUtils.showNotification(
+              'Failed to cancel workflow',
+              'error'
+            );
+          }
+        } catch (error) {
+          window.appUtils.showNotification(
+            'Error cancelling workflow',
+            'error'
+          );
+        }
+      },
+    };
+  }
+</script>
+{% endblock %}

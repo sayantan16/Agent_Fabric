@@ -1,0 +1,490 @@
+{% extends "base.html" %} {% block title %}Workflow {{ workflow_id }} - {{
+super() }}{% endblock %} {% block content %}
+<div class="space-y-8" x-data="workflowDetailData('{{ workflow_id }}')">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <nav class="text-sm text-gray-500 mb-2">
+        <a href="{{ url_for('main.workflows') }}" class="hover:text-gray-700"
+          >Workflows</a
+        >
+        <span class="mx-2">/</span>
+        <span class="text-gray-900">{{ workflow_id }}</span>
+      </nav>
+      <h1 class="text-3xl font-bold text-gray-900">Workflow Details</h1>
+      <p class="mt-2 text-gray-600">{{ workflow.request }}</p>
+    </div>
+
+    <div class="flex items-center space-x-3">
+      <span
+        class="badge badge-lg {% if workflow.status == 'success' %}badge-success{% elif workflow.status == 'error' %}badge-error{% elif workflow.status == 'processing' %}badge-warning{% else %}badge-secondary{% endif %}"
+      >
+        {{ workflow.status|title }}
+      </span>
+
+      {% if workflow.status == 'processing' %}
+      <button @click="cancelWorkflow()" class="btn btn-danger">Cancel</button>
+      {% endif %}
+
+      <button @click="refreshWorkflow()" class="btn btn-secondary">
+        <svg
+          class="w-4 h-4 mr-2"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+          ></path>
+        </svg>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Workflow Overview -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Main Content -->
+    <div class="lg:col-span-2 space-y-6">
+      <!-- Workflow Diagram -->
+      <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-gray-900">Execution Flow</h2>
+            <div class="flex items-center space-x-2">
+              <button
+                @click="diagramType = 'mermaid'"
+                :class="diagramType === 'mermaid' ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-secondary'"
+              >
+                Diagram
+              </button>
+              <button
+                @click="diagramType = 'timeline'"
+                :class="diagramType === 'timeline' ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-secondary'"
+              >
+                Timeline
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-6">
+          <!-- Mermaid Diagram -->
+          <div x-show="diagramType === 'mermaid'">
+            <div
+              id="workflow-mermaid"
+              class="border border-gray-200 rounded-lg p-4 bg-gray-50 min-h-[400px]"
+            >
+              <div class="mermaid">
+                graph TD Start([User Request]) --> A1[email_extractor] A1 -->
+                A2[url_extractor] A2 --> A3[data_formatter] A3 -->
+                End([Response]) classDef completed fill:#d4edda,stroke:#c3e6cb
+                classDef active fill:#fff3cd,stroke:#ffeaa7 classDef pending
+                fill:#f8f9fa,stroke:#dee2e6 class A1,A2 completed class A3
+                active
+              </div>
+            </div>
+          </div>
+
+          <!-- Timeline View -->
+          <div x-show="diagramType === 'timeline'">
+            {% if visualization.timeline %}
+            <div class="space-y-4">
+              {% for event in visualization.timeline %}
+              <div class="flex items-start space-x-4">
+                <div
+                  class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center {% if event.status == 'completed' %}bg-green-100 text-green-600{% elif event.status == 'active' %}bg-yellow-100 text-yellow-600{% else %}bg-gray-100 text-gray-600{% endif %}"
+                >
+                  {% if event.status == 'completed' %}
+                  <svg
+                    class="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  {% elif event.status == 'active' %}
+                  <div
+                    class="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"
+                  ></div>
+                  {% else %}
+                  <div class="w-3 h-3 bg-gray-400 rounded-full"></div>
+                  {% endif %}
+                </div>
+
+                <div class="flex-1">
+                  <div class="flex items-center justify-between">
+                    <h3 class="font-medium text-gray-900">{{ event.agent }}</h3>
+                    <span class="text-sm text-gray-500"
+                      >{{ event.timestamp|time_ago }}</span
+                    >
+                  </div>
+                  <p class="text-sm text-gray-600">{{ event.message }}</p>
+                  {% if event.duration %}
+                  <p class="text-xs text-gray-500 mt-1">
+                    Duration: {{ event.duration }}s
+                  </p>
+                  {% endif %}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-8 text-gray-500">
+              <p>Timeline data not available</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Agent Execution Details -->
+      <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-semibold text-gray-900">Agent Execution</h2>
+        </div>
+
+        <div class="divide-y divide-gray-200">
+          {% if workflow.results %} {% for agent_name, result in
+          workflow.results.items() %}
+          <div class="p-6">
+            <div class="flex items-start justify-between mb-4">
+              <div>
+                <h3 class="font-medium text-gray-900">{{ agent_name }}</h3>
+                <p class="text-sm text-gray-600">
+                  {{ result.metadata.get('description', 'Agent execution') }}
+                </p>
+              </div>
+              <div class="flex items-center space-x-2">
+                <span
+                  class="badge {% if result.status == 'success' %}badge-success{% else %}badge-error{% endif %}"
+                >
+                  {{ result.status|title }}
+                </span>
+                {% if result.metadata.execution_time %}
+                <span class="text-sm text-gray-500"
+                  >{{ "%.2f"|format(result.metadata.execution_time) }}s</span
+                >
+                {% endif %}
+              </div>
+            </div>
+
+            {% if result.metadata.tools_used %}
+            <div class="mb-3">
+              <span class="text-sm text-gray-700 mr-2">Tools used:</span>
+              {% for tool in result.metadata.tools_used %}
+              <span class="badge badge-sm badge-success mr-1">{{ tool }}</span>
+              {% endfor %}
+            </div>
+            {% endif %} {% if result.status == 'success' and result.data %}
+            <details class="mt-3">
+              <summary
+                class="cursor-pointer text-sm text-blue-600 hover:text-blue-800"
+              >
+                Show Output Data
+              </summary>
+              <div class="mt-2 p-3 bg-gray-50 rounded border">
+                <pre class="text-xs text-gray-700 whitespace-pre-wrap">
+{{ result.data | tojson(indent=2) }}</pre
+                >
+              </div>
+            </details>
+            {% endif %} {% if result.status == 'error' and result.metadata.error
+            %}
+            <div class="mt-3 p-3 bg-red-50 border border-red-200 rounded">
+              <h4 class="text-sm font-medium text-red-800 mb-1">
+                Error Details:
+              </h4>
+              <p class="text-sm text-red-700">{{ result.metadata.error }}</p>
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %} {% else %}
+          <div class="p-6 text-center text-gray-500">
+            <p>No execution results available</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-6">
+      <!-- Workflow Metadata -->
+      <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-semibold text-gray-900">Metadata</h2>
+        </div>
+
+        <div class="p-6 space-y-4">
+          <div>
+            <span class="text-sm text-gray-600">Workflow ID:</span>
+            <p class="font-mono text-sm text-gray-900">{{ workflow_id }}</p>
+          </div>
+
+          <div>
+            <span class="text-sm text-gray-600">Started:</span>
+            <p class="text-sm text-gray-900">
+              {{ workflow.started_at|time_ago }}
+            </p>
+            <p class="text-xs text-gray-500">{{ workflow.started_at }}</p>
+          </div>
+
+          {% if workflow.completed_at %}
+          <div>
+            <span class="text-sm text-gray-600">Completed:</span>
+            <p class="text-sm text-gray-900">
+              {{ workflow.completed_at|time_ago }}
+            </p>
+          </div>
+          {% endif %} {% if workflow.execution_time %}
+          <div>
+            <span class="text-sm text-gray-600">Total Time:</span>
+            <p class="text-sm text-gray-900">
+              {{ "%.2f"|format(workflow.execution_time) }}s
+            </p>
+          </div>
+          {% endif %} {% if workflow.files %}
+          <div>
+            <span class="text-sm text-gray-600">Files:</span>
+            <p class="text-sm text-gray-900">{{ workflow.files }} uploaded</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Live Status (for active workflows) -->
+      {% if workflow.status == 'processing' %}
+      <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-semibold text-gray-900">🔴 Live Status</h2>
+        </div>
+
+        <div
+          id="live-status"
+          class="p-6"
+          hx-get="/api/workflow/{{ workflow_id }}/status"
+          hx-trigger="every 2s"
+          hx-swap="innerHTML"
+        >
+          <div class="animate-pulse">
+            <div class="text-sm text-gray-600">Checking status...</div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Performance Metrics -->
+      <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-semibold text-gray-900">Performance</h2>
+        </div>
+
+        <div class="p-6">
+          {% if workflow.execution_metrics %}
+          <div class="space-y-3">
+            {% for agent, time in workflow.execution_metrics.items() %}
+            <div class="flex justify-between items-center">
+              <span class="text-sm text-gray-600">{{ agent }}</span>
+              <span class="text-sm font-medium text-gray-900"
+                >{{ "%.2f"|format(time) }}s</span
+              >
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p class="text-sm text-gray-500">No metrics available</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h2 class="text-lg font-semibold text-gray-900">Actions</h2>
+        </div>
+
+        <div class="p-6 space-y-3">
+          <button @click="exportWorkflow()" class="btn btn-secondary w-full">
+            <svg
+              class="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              ></path>
+            </svg>
+            Export Details
+          </button>
+
+          {% if workflow.status == 'success' %}
+          <button @click="retryWorkflow()" class="btn btn-primary w-full">
+            <svg
+              class="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              ></path>
+            </svg>
+            Retry Workflow
+          </button>
+          {% endif %}
+
+          <a
+            href="{{ url_for('main.workflows') }}"
+            class="btn btn-secondary w-full"
+          >
+            <svg
+              class="w-4 h-4 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              ></path>
+            </svg>
+            Back to Workflows
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function workflowDetailData(workflowId) {
+     return {
+         workflowId: workflowId,
+         diagramType: 'mermaid',
+
+         init() {
+             // Initialize Mermaid diagram
+             this.$nextTick(() => {
+                 if (typeof mermaid !== 'undefined') {
+                     mermaid.init();
+                 }
+             });
+
+             // Setup real-time updates for active workflows
+             {% if workflow.status == 'processing' %}
+             this.setupRealtimeUpdates();
+             {% endif %}
+         },
+
+         setupRealtimeUpdates() {
+             // Connect to SSE for real-time updates
+             const eventSource = new EventSource(`/api/workflow/${this.workflowId}/stream`);
+
+             eventSource.onmessage = (event) => {
+                 const data = JSON.parse(event.data);
+                 this.handleRealtimeUpdate(data);
+             };
+
+             eventSource.onerror = () => {
+                 console.error('SSE connection failed');
+                 eventSource.close();
+             };
+         },
+
+         handleRealtimeUpdate(data) {
+             if (data.type === 'completion') {
+                 // Refresh page when workflow completes
+                 setTimeout(() => window.location.reload(), 1000);
+             }
+         },
+
+         async refreshWorkflow() {
+             window.location.reload();
+         },
+
+         async cancelWorkflow() {
+             if (!confirm('Are you sure you want to cancel this workflow?')) return;
+
+             try {
+                 const response = await fetch(`/api/workflow/${this.workflowId}/cancel`, {
+                     method: 'DELETE'
+                 });
+
+                 const data = await response.json();
+
+                 if (data.status === 'cancelled') {
+                     window.appUtils.showNotification('Workflow cancelled', 'success');
+                     setTimeout(() => window.location.reload(), 1000);
+                 } else {
+                     window.appUtils.showNotification('Failed to cancel workflow', 'error');
+                 }
+             } catch (error) {
+                 window.appUtils.showNotification('Error cancelling workflow', 'error');
+             }
+         },
+
+         async retryWorkflow() {
+             try {
+                 // Navigate back to chat with the original request
+                 const originalRequest = "{{ workflow.request | e }}";
+                 sessionStorage.setItem('retryRequest', originalRequest);
+                 window.location.href = "{{ url_for('main.index') }}";
+             } catch (error) {
+                 window.appUtils.showNotification('Error setting up retry', 'error');
+             }
+         },
+
+         async exportWorkflow() {
+             try {
+                 const exportData = {
+                     workflow_id: this.workflowId,
+                     request: "{{ workflow.request | e }}",
+                     status: "{{ workflow.status }}",
+                     started_at: "{{ workflow.started_at }}",
+                     completed_at: "{{ workflow.completed_at }}",
+                     execution_time: {{ workflow.execution_time or 0 }},
+                     results: {{ workflow.results | tojson | safe }},
+                     exported_at: new Date().toISOString()
+                 };
+
+                 const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+                     type: 'application/json'
+                 });
+
+                 const url = URL.createObjectURL(blob);
+                 const a = document.createElement('a');
+                 a.href = url;
+                 a.download = `workflow_${this.workflowId}_${new Date().toISOString().split('T')[0]}.json`;
+                 document.body.appendChild(a);
+                 a.click();
+                 document.body.removeChild(a);
+                 URL.revokeObjectURL(url);
+
+                 window.appUtils.showNotification('Workflow exported', 'success');
+             } catch (error) {
+                 window.appUtils.showNotification('Export failed', 'error');
+             }
+         }
+     }
+  }
+</script>
+{% endblock %}

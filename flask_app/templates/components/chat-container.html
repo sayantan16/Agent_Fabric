@@ -1,0 +1,663 @@
+<!-- Chat Container Component -->
+<div id="chat-container" class="h-full flex flex-col" x-data="chatData()">
+  <!-- Chat Messages Area -->
+  <div
+    id="chat-messages"
+    class="flex-1 overflow-y-auto space-y-4 p-4 bg-gray-50"
+    x-ref="messagesContainer"
+  >
+    <!-- Welcome Message -->
+    <div class="chat-message system animate-fade-in">
+      <div class="chat-avatar bg-purple-500">
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+          ></path>
+        </svg>
+      </div>
+      <div class="chat-bubble system">
+        <div class="text-sm">
+          <p class="font-medium mb-2">Welcome to Agentic Fabric! 🚀</p>
+          <p class="mb-2">
+            I can help you with complex tasks using intelligent AI agents:
+          </p>
+          <ul class="list-disc list-inside space-y-1 text-xs">
+            <li>
+              <strong>Document Analysis:</strong> PDF summaries, data extraction
+            </li>
+            <li>
+              <strong>Data Processing:</strong> CSV analysis, statistical
+              reports
+            </li>
+            <li>
+              <strong>Content Extraction:</strong> Emails, URLs, phone numbers
+            </li>
+            <li>
+              <strong>Multi-step Workflows:</strong> Complex orchestrated tasks
+            </li>
+          </ul>
+          <div class="mt-3 p-2 bg-purple-50 rounded text-xs">
+            <strong>Try these examples:</strong><br />
+            • "Extract all email addresses from this text"<br />
+            • "Analyze the uploaded CSV and create a summary"<br />
+            • "Find key insights in this PDF document"
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dynamic Messages will be inserted here -->
+    <template x-for="message in messages" :key="message.id">
+      <div class="chat-message animate-fade-in" :class="message.type">
+        <div
+          class="chat-avatar"
+          :class="message.type === 'user' ? 'bg-blue-500' : 'bg-purple-500'"
+        >
+          <span
+            x-text="message.type === 'user' ? 'U' : 'AI'"
+            class="text-xs font-bold"
+          ></span>
+        </div>
+        <div class="chat-bubble" :class="message.type">
+          <div class="text-sm" x-html="formatMessage(message.message)"></div>
+
+          <!-- Workflow Info for System Messages -->
+          <template x-if="message.type === 'system' && message.metadata">
+            <div class="mt-2 text-xs opacity-75">
+              <div
+                x-show="message.metadata.agents_used && message.metadata.agents_used.length > 0"
+              >
+                <strong>Agents used:</strong>
+                <span x-text="message.metadata.agents_used.join(', ')"></span>
+              </div>
+              <div x-show="message.metadata.execution_time">
+                <strong>Execution time:</strong>
+                <span x-text="message.metadata.execution_time + 's'"></span>
+              </div>
+              <div
+                x-show="message.metadata.components_created > 0"
+                class="text-green-300"
+              >
+                ✨
+                <span x-text="message.metadata.components_created"></span> new
+                components created!
+              </div>
+            </div>
+          </template>
+
+          <!-- Timestamp -->
+          <div
+            class="text-xs opacity-50 mt-1"
+            x-text="formatTimestamp(message.timestamp)"
+          ></div>
+        </div>
+      </div>
+    </template>
+
+    <!-- Typing Indicator -->
+    <div x-show="isTyping" class="chat-message system animate-fade-in">
+      <div class="chat-avatar bg-purple-500">
+        <div class="flex space-x-1">
+          <div class="w-1 h-1 bg-white rounded-full animate-bounce"></div>
+          <div
+            class="w-1 h-1 bg-white rounded-full animate-bounce"
+            style="animation-delay: 0.1s"
+          ></div>
+          <div
+            class="w-1 h-1 bg-white rounded-full animate-bounce"
+            style="animation-delay: 0.2s"
+          ></div>
+        </div>
+      </div>
+      <div class="chat-bubble system">
+        <div class="text-sm text-gray-600">
+          <span x-text="typingMessage"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- File Upload and Message Input -->
+  <div class="border-t border-gray-200 bg-white">
+    <!-- File Upload Status -->
+    <div
+      x-show="uploadedFiles.length > 0"
+      class="px-4 py-2 border-b border-gray-100"
+    >
+      <div class="text-sm text-gray-600 mb-2">Uploaded files:</div>
+      <div class="space-y-1">
+        <template x-for="file in uploadedFiles" :key="file.id">
+          <div
+            class="flex items-center justify-between bg-gray-50 rounded px-3 py-2"
+          >
+            <div class="flex items-center space-x-2">
+              <svg
+                class="w-4 h-4 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                ></path>
+              </svg>
+              <span
+                class="text-sm text-gray-900"
+                x-text="file.original_name"
+              ></span>
+              <span
+                class="text-xs text-gray-500"
+                x-text="formatFileSize(file.size)"
+              ></span>
+            </div>
+            <button
+              @click="removeFile(file.id)"
+              class="text-red-500 hover:text-red-700"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                ></path>
+              </svg>
+            </button>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- Drag and Drop Area -->
+    <div
+      x-show="!uploadedFiles.length"
+      class="file-drop-zone mx-4 mt-4"
+      @dragover.prevent="isDragOver = true"
+      @dragleave.prevent="isDragOver = false"
+      @drop.prevent="handleFileDrop($event)"
+      :class="{ 'dragover': isDragOver }"
+    >
+      <input
+        type="file"
+        x-ref="fileInput"
+        multiple
+        class="hidden"
+        accept=".txt,.pdf,.csv,.json,.xlsx,.xls,.docx,.jpg,.jpeg,.png"
+        @change="handleFileSelect($event)"
+      />
+      <div class="text-center py-6">
+        <svg
+          class="mx-auto h-12 w-12 text-gray-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+          ></path>
+        </svg>
+        <p class="mt-2 text-sm text-gray-600">
+          Drop files here or
+          <button
+            type="button"
+            @click="$refs.fileInput.click()"
+            class="text-blue-600 hover:text-blue-500"
+          >
+            browse
+          </button>
+        </p>
+        <p class="text-xs text-gray-500">
+          PDF, CSV, TXT, JSON, Excel files supported (max 16MB)
+        </p>
+      </div>
+    </div>
+
+    <!-- Message Input Area -->
+    <div class="p-4">
+      <form @submit.prevent="sendMessage()" class="space-y-3">
+        <!-- Message Input -->
+        <div class="flex space-x-3">
+          <div class="flex-1">
+            <textarea
+              x-model="currentMessage"
+              x-ref="messageInput"
+              rows="1"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all"
+              placeholder="Ask me anything... (Ctrl+Enter to send)"
+              @input="autoResize($refs.messageInput)"
+              @keydown.ctrl.enter.prevent="sendMessage()"
+              @keydown.meta.enter.prevent="sendMessage()"
+              :disabled="isProcessing"
+            ></textarea>
+          </div>
+          <button
+            type="submit"
+            class="btn btn-primary min-w-[100px]"
+            :disabled="isProcessing || !currentMessage.trim()"
+            :class="{ 'opacity-50 cursor-not-allowed': isProcessing || !currentMessage.trim() }"
+          >
+            <svg
+              x-show="!isProcessing"
+              class="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+              ></path>
+            </svg>
+            <svg
+              x-show="isProcessing"
+              class="w-5 h-5 mr-2 animate-spin"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              ></path>
+            </svg>
+            <span x-text="isProcessing ? 'Processing...' : 'Send'"></span>
+          </button>
+        </div>
+
+        <!-- Quick Action Buttons -->
+        <div class="flex flex-wrap gap-2">
+          <button
+            type="button"
+            @click="insertQuickMessage('Extract all email addresses from the uploaded file')"
+            class="btn btn-sm btn-secondary"
+          >
+            📧 Extract Emails
+          </button>
+          <button
+            type="button"
+            @click="insertQuickMessage('Create a statistical summary of the data')"
+            class="btn btn-sm btn-secondary"
+          >
+            📊 Statistical Analysis
+          </button>
+          <button
+            type="button"
+            @click="insertQuickMessage('Summarize the main points of this document')"
+            class="btn btn-sm btn-secondary"
+          >
+            📝 Summarize Document
+          </button>
+          <button
+            type="button"
+            @click="insertQuickMessage('Find all URLs and phone numbers in the text')"
+            class="btn btn-sm btn-secondary"
+          >
+            🔗 Extract Contacts
+          </button>
+        </div>
+
+        <!-- Settings Toggle -->
+        <div class="flex items-center justify-between text-sm">
+          <div class="flex items-center space-x-4">
+            <label class="flex items-center">
+              <input
+                type="checkbox"
+                x-model="settings.auto_create"
+                class="mr-2"
+              />
+              <span class="text-gray-600">Auto-create missing agents</span>
+            </label>
+            <select
+              x-model="settings.workflow_type"
+              class="text-sm border border-gray-300 rounded px-2 py-1"
+            >
+              <option value="sequential">Sequential</option>
+              <option value="parallel">Parallel</option>
+            </select>
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <button
+              type="button"
+              @click="clearChat()"
+              class="text-gray-500 hover:text-gray-700"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                ></path>
+              </svg>
+            </button>
+            <button
+              type="button"
+              @click="exportChat()"
+              class="text-gray-500 hover:text-gray-700"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                ></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function chatData() {
+    return {
+      // Chat State
+      messages: [],
+      currentMessage: '',
+      isProcessing: false,
+      isTyping: false,
+      typingMessage: 'AI is thinking...',
+
+      // File State
+      uploadedFiles: [],
+      isDragOver: false,
+
+      // Settings
+      settings: {
+        auto_create: true,
+        workflow_type: 'sequential',
+      },
+
+      // Current workflow tracking
+      currentWorkflowId: null,
+
+      // Initialize
+      init() {
+        this.loadChatHistory();
+        this.setupSSE();
+      },
+
+      // Message handling
+      async sendMessage() {
+        if (!this.currentMessage.trim() || this.isProcessing) return;
+
+        const message = this.currentMessage.trim();
+        this.currentMessage = '';
+
+        // Add user message immediately
+        this.addMessage(message, 'user');
+
+        // Show typing indicator
+        this.isTyping = true;
+        this.isProcessing = true;
+
+        try {
+          const response = await fetch('/api/chat/message', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              message: message,
+              files: this.uploadedFiles,
+              settings: this.settings,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (data.status === 'success') {
+            // Add system response
+            this.addMessage(
+              data.response.message,
+              'system',
+              data.response.metadata,
+              data.response.workflow_id
+            );
+
+            // Track workflow if created
+            if (data.response.workflow_id) {
+              this.currentWorkflowId = data.response.workflow_id;
+              this.trackWorkflow(data.response.workflow_id);
+            }
+
+            // Clear uploaded files after successful processing
+            this.uploadedFiles = [];
+          } else {
+            this.addMessage(`Error: ${data.error || data.message}`, 'system');
+          }
+        } catch (error) {
+          this.addMessage(`Error: ${error.message}`, 'system');
+        } finally {
+          this.isTyping = false;
+          this.isProcessing = false;
+          this.scrollToBottom();
+        }
+      },
+
+      addMessage(content, type = 'system', metadata = null, workflowId = null) {
+        const message = {
+          id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          message: content,
+          type: type,
+          timestamp: new Date().toISOString(),
+          metadata: metadata,
+          workflow_id: workflowId,
+        };
+
+        this.messages.push(message);
+        this.$nextTick(() => this.scrollToBottom());
+      },
+
+      insertQuickMessage(text) {
+        this.currentMessage = text;
+        this.$refs.messageInput.focus();
+      },
+
+      // File handling
+      async handleFileDrop(event) {
+        this.isDragOver = false;
+        const files = Array.from(event.dataTransfer.files);
+        await this.uploadFiles(files);
+      },
+
+      async handleFileSelect(event) {
+        const files = Array.from(event.target.files);
+        await this.uploadFiles(files);
+      },
+
+      async uploadFiles(files) {
+        if (!files.length) return;
+
+        const formData = new FormData();
+        files.forEach((file) => formData.append('files', file));
+
+        try {
+          this.isProcessing = true;
+
+          const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData,
+          });
+
+          const data = await response.json();
+
+          if (data.status === 'success') {
+            this.uploadedFiles.push(...data.files);
+            this.showNotification(
+              `Uploaded ${data.count} file(s) successfully`,
+              'success'
+            );
+          } else {
+            this.showNotification(data.error || 'Upload failed', 'error');
+          }
+        } catch (error) {
+          this.showNotification('Upload failed: ' + error.message, 'error');
+        } finally {
+          this.isProcessing = false;
+        }
+      },
+
+      removeFile(fileId) {
+        this.uploadedFiles = this.uploadedFiles.filter(
+          (file) => file.id !== fileId
+        );
+      },
+
+      // Chat management
+      async loadChatHistory() {
+        try {
+          const response = await fetch('/api/chat/history');
+          const data = await response.json();
+
+          if (data.history) {
+            this.messages = data.history;
+            this.$nextTick(() => this.scrollToBottom());
+          }
+        } catch (error) {
+          console.error('Failed to load chat history:', error);
+        }
+      },
+
+      async clearChat() {
+        if (!confirm('Clear all chat messages?')) return;
+
+        try {
+          const response = await fetch('/api/chat/clear', { method: 'POST' });
+          const data = await response.json();
+
+          if (data.status === 'success') {
+            this.messages = [];
+            this.uploadedFiles = [];
+            this.currentWorkflowId = null;
+            this.showNotification('Chat cleared', 'success');
+          }
+        } catch (error) {
+          this.showNotification('Failed to clear chat', 'error');
+        }
+      },
+
+      async exportChat() {
+        try {
+          window.open('/api/chat/export', '_blank');
+        } catch (error) {
+          this.showNotification('Failed to export chat', 'error');
+        }
+      },
+
+      // Workflow tracking
+      setupSSE() {
+        // Set up Server-Sent Events for real-time updates
+        // This will be expanded in later steps
+      },
+
+      trackWorkflow(workflowId) {
+        // Track workflow progress
+        // This will connect to SSE endpoint for real-time updates
+        const eventSource = new EventSource(
+          `/api/workflow/${workflowId}/stream`
+        );
+
+        eventSource.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          this.handleWorkflowUpdate(data);
+        };
+
+        eventSource.onerror = (error) => {
+          console.error('Workflow SSE error:', error);
+          eventSource.close();
+        };
+      },
+
+      handleWorkflowUpdate(data) {
+        if (data.type === 'status_update') {
+          this.typingMessage = data.data.message || 'Processing...';
+        } else if (data.type === 'completion') {
+          this.isTyping = false;
+          this.addMessage('✅ Workflow completed successfully!', 'system');
+        }
+      },
+
+      // Utility functions
+      scrollToBottom() {
+        this.$nextTick(() => {
+          const container = this.$refs.messagesContainer;
+          if (container) {
+            container.scrollTop = container.scrollHeight;
+          }
+        });
+      },
+
+      autoResize(textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = Math.min(textarea.scrollHeight, 150) + 'px';
+      },
+
+      formatMessage(message) {
+        // Basic markdown-like formatting
+        return message
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.*?)\*/g, '<em>$1</em>')
+          .replace(
+            /`(.*?)`/g,
+            '<code class="bg-gray-200 px-1 rounded">$1</code>'
+          )
+          .replace(/\n/g, '<br>');
+      },
+
+      formatTimestamp(timestamp) {
+        return new Date(timestamp).toLocaleTimeString();
+      },
+
+      formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+      },
+
+      showNotification(message, type = 'info') {
+        // Use global notification system
+        window.appUtils.showNotification(message, type);
+      },
+    };
+  }
+</script>
