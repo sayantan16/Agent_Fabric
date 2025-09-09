@@ -54,7 +54,7 @@ class ProjectKnowledgeExtractor:
         }
 
         # Maximum file size to include (in bytes)
-        self.max_file_size = 50000  # 50KB
+        self.max_file_size = 20000000  # 20MB
 
     def should_exclude_dir(self, dir_name):
         """Check if directory should be excluded"""
