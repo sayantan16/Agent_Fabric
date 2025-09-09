@@ -3,6 +3,7 @@
   id="workflow-panel"
   class="w-80 bg-white border-l border-gray-200 flex flex-col"
   x-data="workflowPanelData()"
+  x-init="init()"
 >
   <!-- Panel Header -->
   <div class="p-4 border-b border-gray-200">
@@ -21,68 +22,27 @@
         <div class="flex items-center justify-between">
           <span
             class="text-xs text-gray-500"
-            x-text="currentWorkflow?.id"
+            x-text="currentWorkflow?.id || 'No ID'"
           ></span>
           <span
-            class="badge"
+            class="px-2 py-1 rounded-full text-xs"
             :class="{
-                              'badge-warning': currentWorkflow?.status === 'processing',
-                              'badge-success': currentWorkflow?.status === 'completed',
-                              'badge-error': currentWorkflow?.status === 'error'
-                          }"
+              'bg-yellow-100 text-yellow-800': currentWorkflow?.status === 'processing',
+              'bg-green-100 text-green-800': currentWorkflow?.status === 'completed',
+              'bg-red-100 text-red-800': currentWorkflow?.status === 'error',
+              'bg-gray-100 text-gray-800': !currentWorkflow?.status
+            }"
             x-text="currentWorkflow?.status || 'unknown'"
           ></span>
         </div>
 
-        <!-- Progress Bar -->
-        <div class="progress-bar">
-          <div
-            class="progress-fill"
-            :style="`width: ${currentWorkflow?.progress || 0}%`"
-          ></div>
-        </div>
-
-        <!-- Current Step -->
-        <div x-show="currentWorkflow?.current_step">
-          <span class="text-sm text-gray-700">Current step:</span>
+        <!-- Request Preview -->
+        <div x-show="currentWorkflow?.request">
+          <span class="text-sm text-gray-700">Request:</span>
           <div
             class="text-sm font-medium text-gray-900"
-            x-text="currentWorkflow?.current_step"
+            x-text="(currentWorkflow?.request || '').substring(0, 100) + '...'"
           ></div>
-        </div>
-
-        <!-- Execution Timeline -->
-        <div
-          x-show="currentWorkflow?.timeline && currentWorkflow.timeline.length > 0"
-        >
-          <span class="text-sm text-gray-700 mb-2 block"
-            >Execution Timeline:</span
-          >
-          <div class="space-y-2 max-h-32 overflow-y-auto">
-            <template
-              x-for="event in currentWorkflow.timeline"
-              :key="event.timestamp"
-            >
-              <div class="flex items-start space-x-2 text-xs">
-                <div
-                  class="status-dot mt-1"
-                  :class="{
-                                        'status-active': event.status === 'completed',
-                                        'status-pending': event.status === 'running',
-                                        'status-error': event.status === 'error'
-                                    }"
-                ></div>
-                <div class="flex-1">
-                  <div class="font-medium" x-text="event.agent"></div>
-                  <div class="text-gray-500" x-text="event.message"></div>
-                  <div
-                    class="text-gray-400"
-                    x-text="formatTime(event.timestamp)"
-                  ></div>
-                </div>
-              </div>
-            </template>
-          </div>
         </div>
       </div>
     </div>
@@ -92,11 +52,21 @@
       <h3 class="text-sm font-medium text-gray-900 mb-3">System Status</h3>
 
       <div class="space-y-3">
+        <!-- Connection Status -->
+        <div class="flex justify-between items-center">
+          <span class="text-sm text-gray-600">Backend</span>
+          <span
+            class="px-2 py-1 rounded-full text-xs"
+            :class="connected ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+            x-text="connected ? 'Connected' : 'Disconnected'"
+          ></span>
+        </div>
+
         <!-- Component Counts -->
         <div class="flex justify-between items-center">
           <span class="text-sm text-gray-600">Agents</span>
           <span
-            class="badge badge-primary"
+            class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs"
             x-text="systemStats.agents_count || 0"
           ></span>
         </div>
@@ -104,222 +74,10 @@
         <div class="flex justify-between items-center">
           <span class="text-sm text-gray-600">Tools</span>
           <span
-            class="badge badge-success"
+            class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs"
             x-text="systemStats.tools_count || 0"
           ></span>
         </div>
-
-        <!-- Health Score -->
-        <div class="flex justify-between items-center">
-          <span class="text-sm text-gray-600">Health Score</span>
-          <span
-            class="badge"
-            :class="{
-                             'badge-success': systemStats.health_score >= 80,
-                             'badge-warning': systemStats.health_score >= 60 && systemStats.health_score < 80,
-                             'badge-error': systemStats.health_score < 60
-                         }"
-          >
-            <span x-text="systemStats.health_score || 0"></span>%
-          </span>
-        </div>
-
-        <!-- Performance Metrics -->
-        <div x-show="systemStats.avg_response_time">
-          <div class="flex justify-between items-center">
-            <span class="text-sm text-gray-600">Avg Response</span>
-            <span
-              class="text-sm font-medium"
-              x-text="systemStats.avg_response_time + 's'"
-            ></span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Recent Activity -->
-    <div
-      class="p-4 border-b border-gray-200"
-      x-show="recentActivity.length > 0"
-    >
-      <h3 class="text-sm font-medium text-gray-900 mb-3">Recent Activity</h3>
-
-      <div class="space-y-3 max-h-48 overflow-y-auto">
-        <template x-for="activity in recentActivity" :key="activity.id">
-          <div class="text-sm">
-            <div class="flex justify-between items-start">
-              <span
-                class="text-gray-900 font-medium truncate flex-1 mr-2"
-                x-text="activity.title"
-              ></span>
-              <span
-                class="badge badge-sm"
-                :class="{
-                                     'badge-success': activity.status === 'success',
-                                     'badge-error': activity.status === 'error',
-                                     'badge-warning': activity.status === 'partial'
-                                 }"
-                x-text="activity.status"
-              ></span>
-            </div>
-            <div
-              class="text-gray-500 text-xs mt-1"
-              x-text="formatTimeAgo(activity.timestamp)"
-            ></div>
-          </div>
-        </template>
-      </div>
-    </div>
-
-    <!-- Component Creation Showcase -->
-    <div
-      x-show="creationActivity.length > 0"
-      class="p-4 border-b border-gray-200"
-    >
-      <h3 class="text-sm font-medium text-gray-900 mb-3">
-        🚀 New Capabilities Created
-      </h3>
-
-      <div class="space-y-2">
-        <template x-for="creation in creationActivity" :key="creation.id">
-          <div
-            class="bg-green-50 border border-green-200 rounded-lg p-3 animate-fade-in"
-          >
-            <div class="flex items-center space-x-2 mb-1">
-              <span
-                class="text-green-600 text-sm font-medium"
-                x-text="creation.type === 'agent' ? '🤖' : '🔧'"
-              ></span>
-              <span
-                class="text-green-900 font-medium text-sm"
-                x-text="creation.name"
-              ></span>
-            </div>
-            <div
-              class="text-green-700 text-xs"
-              x-text="creation.description"
-            ></div>
-            <div
-              class="text-green-600 text-xs mt-1"
-              x-text="'Created ' + formatTimeAgo(creation.created_at)"
-            ></div>
-          </div>
-        </template>
-      </div>
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="p-4">
-      <h3 class="text-sm font-medium text-gray-900 mb-3">Quick Access</h3>
-
-      <div class="space-y-2">
-        <a
-          href="{{ url_for('main.registry') }}"
-          class="flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
-        >
-          <svg
-            class="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-            ></path>
-          </svg>
-          <span>Browse Registry</span>
-        </a>
-
-        <a
-          href="{{ url_for('main.workflows') }}"
-          class="flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
-        >
-          <svg
-            class="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h2m5 0h2a2 2 0 002-2V7a2 2 0 00-2-2h-2m-5-4a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H9a2 2 0 01-2-2V5z"
-            ></path>
-          </svg>
-          <span>Workflow History</span>
-        </a>
-
-        <a
-          href="{{ url_for('main.dependencies') }}"
-          class="flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
-        >
-          <svg
-            class="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-            ></path>
-          </svg>
-          <span>Dependencies</span>
-        </a>
-
-        <a
-          href="{{ url_for('main.help_page') }}"
-          class="flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
-        >
-          <svg
-            class="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            ></path>
-          </svg>
-          <span>Help & Examples</span>
-        </a>
-
-        <button
-          @click="refreshStats()"
-          class="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-800 transition-colors w-full text-left"
-        >
-          <svg
-            class="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-            ></path>
-          </svg>
-          <span>Refresh Status</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Performance Chart (if space allows) -->
-    <div class="p-4" x-show="showChart">
-      <h3 class="text-sm font-medium text-gray-900 mb-3">Performance</h3>
-      <div class="h-24">
-        <canvas id="mini-performance-chart"></canvas>
       </div>
     </div>
   </div>
@@ -330,144 +88,101 @@
     return {
       // Current workflow state
       currentWorkflow: null,
+      connected: false,
 
       // System statistics
       systemStats: {
-        connected: false,
         agents_count: 0,
         tools_count: 0,
-        health_score: 0,
-        avg_response_time: 0,
       },
 
-      // Activity tracking
-      recentActivity: [],
-      creationActivity: [],
-
-      // UI state
-      showChart: false,
+      // ADD THIS PROPERTY:
+      workflowResults: {
+        agentsUsed: 0,
+        executionTime: 0,
+        status: 'Idle',
+        componentsCreated: 0,
+      },
 
       // Initialize
       init() {
+        this.loadWorkflowStatus();
         this.loadSystemStats();
-        this.loadRecentActivity();
         this.setupPeriodicRefresh();
       },
 
-      // Update current workflow
-      setCurrentWorkflow(workflowData) {
-        this.currentWorkflow = workflowData;
-      },
-
-      // Update workflow progress
-      updateWorkflowProgress(progressData) {
-        if (this.currentWorkflow) {
-          this.currentWorkflow.progress = progressData.progress || 0;
-          this.currentWorkflow.current_step = progressData.current_step;
-          this.currentWorkflow.status = progressData.status;
-
-          if (progressData.timeline) {
-            this.currentWorkflow.timeline = progressData.timeline;
-          }
-        }
-      },
-
-      // Add creation activity
-      addCreationActivity(type, name, description) {
-        const creation = {
-          id: Date.now(),
-          type: type,
-          name: name,
-          description: description,
-          created_at: new Date().toISOString(),
+      // ADD THIS NEW METHOD HERE:
+      updateFromExecution(workflowData) {
+        // Update current workflow with execution results
+        this.currentWorkflow = {
+          id: workflowData.workflow_id,
+          request: workflowData.request,
+          status: 'completed',
+          started_at: new Date().toISOString(),
+          timeline: [],
+          progress: 100,
         };
 
-        this.creationActivity.unshift(creation);
+        // Update workflow results
+        this.workflowResults = {
+          agentsUsed: workflowData.agents ? workflowData.agents.length : 0,
+          executionTime: workflowData.execution_time || 0,
+          status: 'Success',
+          componentsCreated: workflowData.components_created || 0,
+        };
 
-        // Keep only recent 5 creations
-        if (this.creationActivity.length > 5) {
-          this.creationActivity = this.creationActivity.slice(0, 5);
+        // Update system stats if needed
+        this.loadSystemStats();
+      },
+
+      // Load current workflow status
+      async loadWorkflowStatus() {
+        try {
+          const response = await fetch('/api/workflow/status/current');
+          if (response.ok) {
+            const data = await response.json();
+            this.currentWorkflow = data.current_workflow;
+            this.connected = true;
+          } else {
+            this.connected = false;
+          }
+        } catch (error) {
+          console.log('Failed to fetch workflow status:', error);
+          this.connected = false;
+          this.currentWorkflow = null;
         }
-
-        // Auto-remove after 30 seconds
-        setTimeout(() => {
-          this.creationActivity = this.creationActivity.filter(
-            (c) => c.id !== creation.id
-          );
-        }, 30000);
       },
 
       // Load system statistics
       async loadSystemStats() {
         try {
           const response = await fetch('/api/health');
-          const data = await response.json();
-
-          this.systemStats = {
-            connected: data.status === 'healthy',
-            agents_count: data.services?.registry?.stats?.total_agents || 0,
-            tools_count: data.services?.registry?.stats?.total_tools || 0,
-            health_score: data.services?.registry?.stats?.health_score || 0,
-            avg_response_time: data.system_stats?.avg_processing_time || 0,
-          };
+          if (response.ok) {
+            const data = await response.json();
+            this.systemStats = {
+              agents_count: data.services?.registry?.stats?.total_agents || 0,
+              tools_count: data.services?.registry?.stats?.total_tools || 0,
+            };
+          }
         } catch (error) {
           console.error('Failed to load system stats:', error);
-          this.systemStats.connected = false;
-        }
-      },
-
-      // Load recent activity
-      async loadRecentActivity() {
-        try {
-          const response = await fetch('/api/workflows?per_page=5');
-          const data = await response.json();
-
-          this.recentActivity = (data.workflows || []).map((workflow) => ({
-            id: workflow.workflow_id,
-            title: workflow.request?.substring(0, 30) + '...' || 'Workflow',
-            status: workflow.status,
-            timestamp: workflow.started_at,
-          }));
-        } catch (error) {
-          console.error('Failed to load recent activity:', error);
         }
       },
 
       // Refresh all stats
       async refreshStats() {
-        await Promise.all([this.loadSystemStats(), this.loadRecentActivity()]);
+        await Promise.all([this.loadWorkflowStatus(), this.loadSystemStats()]);
       },
 
       // Setup periodic refresh
       setupPeriodicRefresh() {
         setInterval(() => {
-          this.loadSystemStats();
-        }, 30000); // Refresh every 30 seconds
+          this.loadWorkflowStatus();
+        }, 5000); // Every 5 seconds
 
         setInterval(() => {
-          this.loadRecentActivity();
-        }, 60000); // Refresh activity every minute
-      },
-
-      // Utility functions
-      formatTime(timestamp) {
-        return new Date(timestamp).toLocaleTimeString();
-      },
-
-      formatTimeAgo(timestamp) {
-        const now = new Date();
-        const time = new Date(timestamp);
-        const diffMs = now - time;
-        const diffMins = Math.floor(diffMs / (1000 * 60));
-
-        if (diffMins < 1) return 'just now';
-        if (diffMins < 60) return `${diffMins}m ago`;
-
-        const diffHours = Math.floor(diffMins / 60);
-        if (diffHours < 24) return `${diffHours}h ago`;
-
-        const diffDays = Math.floor(diffHours / 24);
-        return `${diffDays}d ago`;
+          this.loadSystemStats();
+        }, 30000); // Every 30 seconds
       },
     };
   }

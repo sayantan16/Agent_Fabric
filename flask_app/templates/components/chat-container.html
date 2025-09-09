@@ -20,55 +20,73 @@
     </button>
   </div>
 
-  <!-- Chat Messages Container -->
+  <!-- Chat Messages Container - IMPROVED VERSION -->
   <div
     id="chat-messages"
-    class="flex-1 overflow-y-auto space-y-4 p-4 bg-gray-50"
+    class="flex-1 overflow-y-auto p-6 space-y-6 bg-gray-50"
     x-ref="messagesContainer"
   >
-    <!-- Welcome Banner (only if no existing messages) -->
+    <!-- Welcome Banner -->
     <div
       x-show="!hasExistingMessages"
-      class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4 mb-4"
+      class="bg-gradient-to-br from-blue-50 to-indigo-100 border border-blue-200 rounded-xl p-6 shadow-sm"
     >
-      <div class="flex items-start space-x-3">
+      <div class="flex items-start space-x-4">
         <div class="flex-shrink-0">
           <div
-            class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center"
+            class="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-lg"
           >
-            <span class="text-white font-bold text-sm">AF</span>
+            <span class="text-white font-bold text-lg">AF</span>
           </div>
         </div>
         <div class="flex-1">
-          <h3 class="text-lg font-semibold text-gray-800 mb-2">
-            Welcome to Agentic Fabric! 🚀
+          <h3 class="text-xl font-semibold text-gray-800 mb-3">
+            Welcome to Agentic Fabric!
           </h3>
-          <p class="text-gray-600 mb-3">
-            I can help you with complex tasks using intelligent AI agents:
+          <p class="text-gray-600 mb-4 leading-relaxed">
+            I orchestrate intelligent AI agents to handle complex tasks through
+            natural conversation.
           </p>
-          <ul class="text-sm text-gray-600 space-y-1 mb-4">
-            <li>
-              <strong>Document Analysis:</strong> PDF summaries, data extraction
-            </li>
-            <li>
-              <strong>Data Processing:</strong> CSV analysis, statistical
-              reports
-            </li>
-            <li>
-              <strong>Content Extraction:</strong> Emails, URLs, phone numbers
-            </li>
-            <li>
-              <strong>Multi-step Workflows:</strong> Complex orchestrated tasks
-            </li>
-          </ul>
-          <div class="mt-3">
-            <button
-              @click="insertSampleMessage('Extract all email addresses and URLs from this text: Please contact support@company.com or visit https://company.com')"
-              class="text-blue-600 hover:text-blue-800 text-sm underline"
-            >
-              Try: "Extract emails and URLs"
-            </button>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+            <div class="bg-white bg-opacity-60 rounded-lg p-3">
+              <div class="font-medium text-gray-800 mb-1">
+                Document Analysis
+              </div>
+              <div class="text-sm text-gray-600">
+                PDF summaries, data extraction
+              </div>
+            </div>
+            <div class="bg-white bg-opacity-60 rounded-lg p-3">
+              <div class="font-medium text-gray-800 mb-1">Data Processing</div>
+              <div class="text-sm text-gray-600">
+                CSV analysis, statistical reports
+              </div>
+            </div>
+            <div class="bg-white bg-opacity-60 rounded-lg p-3">
+              <div class="font-medium text-gray-800 mb-1">
+                Content Extraction
+              </div>
+              <div class="text-sm text-gray-600">
+                Emails, URLs, phone numbers
+              </div>
+            </div>
+            <div class="bg-white bg-opacity-60 rounded-lg p-3">
+              <div class="font-medium text-gray-800 mb-1">
+                Multi-step Workflows
+              </div>
+              <div class="text-sm text-gray-600">
+                Complex orchestrated tasks
+              </div>
+            </div>
           </div>
+
+          <button
+            @click="insertSampleMessage('Extract all email addresses and URLs from this text: Contact support@company.com or visit https://example.com')"
+            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+          >
+            Try Sample Request
+          </button>
         </div>
       </div>
     </div>
@@ -76,25 +94,59 @@
     <!-- Existing Chat History from Flask Session -->
     {% if chat_history %} {% for message in chat_history %}
     <div
-      class="flex {{ 'justify-end' if message.type == 'user' else 'justify-start' }} mb-4"
+      class="flex {{ 'justify-end' if message.type == 'user' else 'justify-start' }}"
     >
       <div
-        class="max-w-[80%] p-4 rounded-lg {{ 'bg-blue-600 text-white' if message.type == 'user' else 'bg-gray-100 text-gray-800' }}"
+        class="flex max-w-[85%] {{ 'flex-row-reverse' if message.type == 'user' else 'flex-row' }} items-end space-x-3"
       >
-        <div class="prose max-w-none">{{ message.message|safe }}</div>
-        {% if message.metadata %}
+        <!-- Avatar -->
         <div
-          class="mt-3 p-3 bg-white bg-opacity-20 rounded border-l-4 border-white"
+          class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center {{ 'bg-blue-600' if message.type == 'user' else 'bg-gray-600' }}"
         >
-          <div class="text-sm font-medium">Workflow:</div>
-          <div class="text-xs mt-1">
-            Agents: {{ message.metadata.agents_used|length if
-            message.metadata.agents_used else 0 }}<br />
-            Time: {{ "%.1f"|format(message.metadata.execution_time or 0) }}s
+          <span class="text-white text-sm font-medium">
+            {{ 'You' if message.type == 'user' else 'AI' }}
+          </span>
+        </div>
+
+        <!-- Message Bubble -->
+        <div class="flex-1">
+          <div
+            class="{{
+          'bg-blue-600 text-white rounded-2xl rounded-br-md' if message.type == 'user' 
+          else 'bg-white text-gray-800 rounded-2xl rounded-bl-md border border-gray-200 shadow-sm'
+        }} px-4 py-3"
+          >
+            <div
+              class="prose max-w-none {{ 'prose-invert' if message.type == 'user' else '' }}"
+            >
+              {{ message.message|safe }}
+            </div>
+
+            <!-- Workflow Info for System Messages -->
+            {% if message.metadata and message.type == 'system' %}
+            <div class="mt-3 pt-3 border-t border-gray-200 border-opacity-20">
+              <div class="flex items-center justify-between text-xs opacity-75">
+                <div class="flex items-center space-x-4">
+                  {% if message.metadata.agents_used %}
+                  <span>Agents: {{ message.metadata.agents_used|length }}</span>
+                  {% endif %} {% if message.metadata.execution_time %}
+                  <span
+                    >{{ "%.1f"|format(message.metadata.execution_time) }}s</span
+                  >
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Timestamp -->
+          <div
+            class="mt-1 text-xs text-gray-500 {{ 'text-right' if message.type == 'user' else 'text-left' }}"
+          >
+            {{ message.timestamp }}
           </div>
         </div>
-        {% endif %}
-        <div class="text-xs opacity-50 mt-1">{{ message.timestamp }}</div>
       </div>
     </div>
     {% endfor %} {% endif %}
@@ -102,65 +154,108 @@
     <!-- Dynamic Messages (Alpine.js managed) -->
     <template x-for="message in messages" :key="message.id">
       <div
-        class="flex mb-4"
+        class="flex"
         :class="message.type === 'user' ? 'justify-end' : 'justify-start'"
       >
         <div
-          class="max-w-[80%] p-4 rounded-lg"
-          :class="message.type === 'user' ? 'bg-blue-600 text-white' : 
-                   message.type === 'error' ? 'bg-red-100 text-red-800 border border-red-200' : 
-                   'bg-gray-100 text-gray-800'"
+          class="flex max-w-[85%] items-end space-x-3"
+          :class="message.type === 'user' ? 'flex-row-reverse space-x-reverse' : 'flex-row'"
         >
-          <div class="prose max-w-none">
-            <div x-html="formatMessage(message.message)"></div>
+          <!-- Avatar -->
+          <div
+            class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center"
+            :class="message.type === 'user' ? 'bg-blue-600' : 
+                     message.type === 'error' ? 'bg-red-500' : 'bg-gray-600'"
+          >
+            <span
+              class="text-white text-sm font-medium"
+              x-text="message.type === 'user' ? 'You' : 'AI'"
+            ></span>
           </div>
 
-          <!-- Workflow Info for System Messages -->
-          <template x-if="message.type === 'system' && message.metadata">
+          <!-- Message Bubble -->
+          <div class="flex-1">
             <div
-              class="mt-3 p-3 bg-white bg-opacity-20 rounded border-l-4 border-white"
+              class="px-4 py-3"
+              :class="message.type === 'user' ? 'bg-blue-600 text-white rounded-2xl rounded-br-md' : 
+                       message.type === 'error' ? 'bg-red-50 text-red-800 rounded-2xl rounded-bl-md border border-red-200' : 
+                       'bg-white text-gray-800 rounded-2xl rounded-bl-md border border-gray-200 shadow-sm'"
             >
-              <div class="text-sm font-medium">Workflow:</div>
-              <div class="text-xs mt-1">
-                <div
-                  x-show="message.metadata.agents_used && message.metadata.agents_used.length > 0"
-                >
-                  <strong>Agents:</strong>
-                  <span x-text="message.metadata.agents_used.join(', ')"></span>
-                </div>
-                <div x-show="message.metadata.execution_time">
-                  <strong>Time:</strong>
-                  <span x-text="message.metadata.execution_time + 's'"></span>
-                </div>
+              <div
+                class="prose max-w-none"
+                :class="message.type === 'user' ? 'prose-invert' : ''"
+              >
+                <div x-html="formatMessage(message.message)"></div>
               </div>
-            </div>
-          </template>
 
-          <!-- Timestamp -->
-          <div
-            class="text-xs opacity-50 mt-1"
-            x-text="formatTimestamp(message.timestamp)"
-          ></div>
+              <!-- Workflow Info for System Messages -->
+              <template x-if="message.type === 'system' && message.metadata">
+                <div
+                  class="mt-3 pt-3 border-t border-gray-200 border-opacity-20"
+                >
+                  <div
+                    class="flex items-center justify-between text-xs opacity-75"
+                  >
+                    <div class="flex items-center space-x-4">
+                      <template
+                        x-if="message.metadata.agents_used && message.metadata.agents_used.length > 0"
+                      >
+                        <span
+                          x-text="'Agents: ' + message.metadata.agents_used.length"
+                        ></span>
+                      </template>
+                      <template x-if="message.metadata.execution_time">
+                        <span
+                          x-text="message.metadata.execution_time + 's'"
+                        ></span>
+                      </template>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </div>
+
+            <!-- Timestamp -->
+            <div
+              class="mt-1 text-xs text-gray-500"
+              :class="message.type === 'user' ? 'text-right' : 'text-left'"
+              x-text="formatTimestamp(message.timestamp)"
+            ></div>
+          </div>
         </div>
       </div>
     </template>
 
     <!-- Typing Indicator -->
-    <div x-show="isTyping" class="flex justify-start mb-4">
-      <div class="bg-gray-100 text-gray-600 p-4 rounded-lg max-w-[80%]">
-        <div class="flex items-center">
-          <div class="flex space-x-1 mr-3">
-            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-            <div
-              class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-              style="animation-delay: 0.1s"
-            ></div>
-            <div
-              class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-              style="animation-delay: 0.2s"
-            ></div>
+    <div x-show="isTyping" class="flex justify-start">
+      <div class="flex items-end space-x-3 max-w-[85%]">
+        <!-- AI Avatar -->
+        <div
+          class="flex-shrink-0 w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center"
+        >
+          <span class="text-white text-sm font-medium">AI</span>
+        </div>
+
+        <!-- Typing Bubble -->
+        <div
+          class="bg-white border border-gray-200 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm"
+        >
+          <div class="flex items-center space-x-2">
+            <div class="flex space-x-1">
+              <div
+                class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+              ></div>
+              <div
+                class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                style="animation-delay: 0.1s"
+              ></div>
+              <div
+                class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                style="animation-delay: 0.2s"
+              ></div>
+            </div>
+            <span class="text-gray-500 text-sm" x-text="typingMessage"></span>
           </div>
-          <span x-text="typingMessage"></span>
         </div>
       </div>
     </div>
@@ -354,9 +449,9 @@
           console.log('🔍 Backend response:', data);
 
           if (data.status === 'success') {
-            this.addMessage(data.response, 'system', data.metadata, data.workflow_id);
+              this.addMessage(data.response, 'system', data.metadata, data.workflow_id);
           } else {
-            this.addMessage(`Error: ${data.error || 'Unknown error'}`, 'error');
+              this.addMessage(`Error: ${data.error || 'Unknown error'}`, 'error');
           }
         } catch (err) {
           console.error('Error sending message:', err);

@@ -1,6 +1,6 @@
 # AGENTIC FABRIC POC - COMPLETE PROJECT KNOWLEDGE BASE
 ================================================================================
-Generated: 2025-09-08 22:10:46
+Generated: 2025-09-08 23:51:41
 Project Root: /Users/sayantankundu/Documents/Agent Fabric
 
 ## PROJECT OVERVIEW
@@ -40,6 +40,7 @@ Agent Fabric/
 │   ├── templates/
 │   │   ├── components/
 │   │   │   ├── chat-container.html
+│   │   │   ├── sidebar.html
 │   │   │   ├── workflow-panel.html
 │   │   │   └── workflow-visualization.html
 │   │   ├── partials/
@@ -931,7 +932,7 @@ Each step builds incrementally on the previous ones, ensuring you have a working
 ### File: KNOWLEDGE_BASE.md
 **Path:** `KNOWLEDGE_BASE.md`
 **Size:** 0 bytes
-**Modified:** 2025-09-08 22:10:24
+**Modified:** 2025-09-08 23:51:33
 
 ```markdown
 
@@ -971,8 +972,8 @@ POC in active development - implementing dynamic agent creation system.
 
 ### File: agents.json
 **Path:** `agents.json`
-**Size:** 5,238 bytes
-**Modified:** 2025-09-08 09:05:32
+**Size:** 5,813 bytes
+**Modified:** 2025-09-08 23:29:00
 
 ```json
 {
@@ -980,7 +981,9 @@ POC in active development - implementing dynamic agent creation system.
     "email_extractor": {
       "name": "email_extractor",
       "description": "Extracts email addresses from text input",
-      "uses_tools": ["extract_emails"],
+      "uses_tools": [
+        "extract_emails"
+      ],
       "input_schema": {
         "data": "any"
       },
@@ -998,16 +1001,22 @@ POC in active development - implementing dynamic agent creation system.
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-01-01T00:00:00",
       "version": "1.0.0",
-      "execution_count": 0,
-      "avg_execution_time": 0.0,
-      "tags": ["extraction", "emails"],
+      "execution_count": 3,
+      "avg_execution_time": 0.001,
+      "tags": [
+        "extraction",
+        "emails"
+      ],
       "line_count": 98,
-      "status": "active"
+      "status": "active",
+      "last_executed": "2025-09-08T23:29:00.135005"
     },
     "url_extractor": {
       "name": "url_extractor",
       "description": "Extracts URLs from text input",
-      "uses_tools": ["extract_urls"],
+      "uses_tools": [
+        "extract_urls"
+      ],
       "input_schema": {
         "data": "any"
       },
@@ -1025,11 +1034,15 @@ POC in active development - implementing dynamic agent creation system.
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-09-04T12:30:00",
       "version": "1.0.0",
-      "execution_count": 0,
+      "execution_count": 3,
       "avg_execution_time": 0.0,
-      "tags": ["extraction", "urls"],
+      "tags": [
+        "extraction",
+        "urls"
+      ],
       "line_count": 80,
-      "status": "active"
+      "status": "active",
+      "last_executed": "2025-09-08T23:29:00.137209"
     },
     "read_text": {
       "name": "read_text",
@@ -1041,19 +1054,34 @@ POC in active development - implementing dynamic agent creation system.
       },
       "output_schema": {
         "type": "object",
-        "required": ["status", "data", "metadata"],
+        "required": [
+          "status",
+          "data",
+          "metadata"
+        ],
         "properties": {
           "status": {
             "type": "string",
-            "enum": ["success", "error", "partial"]
+            "enum": [
+              "success",
+              "error",
+              "partial"
+            ]
           },
           "data": {
-            "type": ["object", "array", "null"],
+            "type": [
+              "object",
+              "array",
+              "null"
+            ],
             "description": "Agent-specific output data"
           },
           "metadata": {
             "type": "object",
-            "required": ["agent", "execution_time"],
+            "required": [
+              "agent",
+              "execution_time"
+            ],
             "properties": {
               "agent": {
                 "type": "string"
@@ -1105,19 +1133,34 @@ POC in active development - implementing dynamic agent creation system.
       },
       "output_schema": {
         "type": "object",
-        "required": ["status", "data", "metadata"],
+        "required": [
+          "status",
+          "data",
+          "metadata"
+        ],
         "properties": {
           "status": {
             "type": "string",
-            "enum": ["success", "error", "partial"]
+            "enum": [
+              "success",
+              "error",
+              "partial"
+            ]
           },
           "data": {
-            "type": ["object", "array", "null"],
+            "type": [
+              "object",
+              "array",
+              "null"
+            ],
             "description": "Agent-specific output data"
           },
           "metadata": {
             "type": "object",
-            "required": ["agent", "execution_time"],
+            "required": [
+              "agent",
+              "execution_time"
+            ],
             "properties": {
               "agent": {
                 "type": "string"
@@ -1161,7 +1204,6 @@ POC in active development - implementing dynamic agent creation system.
     }
   }
 }
-
 ```
 
 --------------------------------------------------------------------------------
@@ -3781,8 +3823,8 @@ def force_global_reload():
 
 ### File: core/workflow_engine.py
 **Path:** `core/workflow_engine.py`
-**Size:** 32,468 bytes
-**Modified:** 2025-09-06 23:39:29
+**Size:** 33,037 bytes
+**Modified:** 2025-09-08 22:55:07
 
 ```python
 """
@@ -4178,30 +4220,31 @@ class WorkflowEngine:
                 agent_state = dict(state)
 
                 # Execute with timeout
-                import signal
+                # Execute with timeout using threading instead of signal
+                import threading
+                import time
 
-                def timeout_handler(signum, frame):
-                    raise TimeoutError(
-                        f"Agent {agent_name} timeout after {AGENT_TIMEOUT_SECONDS}s"
-                    )
+                def run_agent_with_timeout():
+                    nonlocal agent_state, execution_error
+                    try:
+                        agent_state = agent_func(agent_state)
+                    except Exception as e:
+                        execution_error = e
 
-                signal.signal(signal.SIGALRM, timeout_handler)
-                signal.alarm(AGENT_TIMEOUT_SECONDS)
+                execution_error = None
+                agent_thread = threading.Thread(target=run_agent_with_timeout)
+                agent_thread.start()
+                agent_thread.join(timeout=AGENT_TIMEOUT_SECONDS)
 
-                try:
-                    # Execute agent with error recovery
-                    agent_state = agent_func(agent_state)
-
-                    # Merge state changes back
-                    for key, value in agent_state.items():
-                        state[key] = value
-
-                except TimeoutError as e:
-                    # Handle timeout specifically
+                if agent_thread.is_alive():
+                    # Timeout occurred
                     state["errors"].append(
-                        {"agent": agent_name, "error": str(e), "type": "timeout"}
+                        {
+                            "agent": agent_name,
+                            "error": f"Agent {agent_name} timeout after {AGENT_TIMEOUT_SECONDS}s",
+                            "type": "timeout",
+                        }
                     )
-                    # Create error result but don't stop workflow
                     state["results"][agent_name] = {
                         "status": "error",
                         "data": None,
@@ -4211,8 +4254,9 @@ class WorkflowEngine:
                             "execution_time": AGENT_TIMEOUT_SECONDS,
                         },
                     }
-                finally:
-                    signal.alarm(0)
+                elif execution_error:
+                    # Agent had an error
+                    raise execution_error
 
                 # Record execution time
                 execution_time = (datetime.now() - start_time).total_seconds()
@@ -4441,23 +4485,35 @@ class WorkflowEngine:
 
         print(f"DEBUG: Loading agent '{agent_name}'")
 
-        # Check cache first
-        if agent_name in self.loaded_agents:
-            return self.loaded_agents[agent_name]
-
         # Get agent info from registry
         agent_info = self.registry.get_agent(agent_name)
         if not agent_info:
             print(f"DEBUG: Agent '{agent_name}' not found in registry")
             raise ValueError(f"Agent '{agent_name}' not found in registry")
+
         print(f"DEBUG: Agent info found: {agent_info.get('location')}")
 
         # Load the agent module
         agent_path = agent_info["location"]
+
+        # FIX: Handle relative paths correctly
+        if not os.path.isabs(agent_path):
+            # Get project root (parent of current directory when running from flask_app)
+            current_dir = os.getcwd()
+            if current_dir.endswith("flask_app"):
+                project_root = os.path.dirname(current_dir)
+            else:
+                project_root = current_dir
+            agent_path = os.path.join(project_root, agent_path)
+
+        print(f"DEBUG: Full agent path: {agent_path}")
+
         if not os.path.exists(agent_path):
             raise FileNotFoundError(f"Agent file not found: {agent_path}")
 
         # Import the module
+        import importlib.util
+
         spec = importlib.util.spec_from_file_location(
             f"{agent_name}_module", agent_path
         )
@@ -5409,8 +5465,8 @@ __all__ = ["main_bp", "api_bp"]
 
 ### File: flask_app/routes/api.py
 **Path:** `flask_app/routes/api.py`
-**Size:** 19,857 bytes
-**Modified:** 2025-09-08 22:04:27
+**Size:** 23,718 bytes
+**Modified:** 2025-09-08 23:42:06
 
 ```python
 # flask_app/routes/api.py - STREAMLINED VERSION
@@ -6004,6 +6060,101 @@ def _calculate_workflow_progress(self, workflow_data: Dict) -> int:
         return 50  # Assume 50% when processing
     else:
         return 0
+
+
+# @api_bp.route("/workflow/status/current")
+# def get_current_workflow_status():
+#     """Get current workflow status for sidebar display."""
+#     try:
+#         # Get active workflows from orchestrator service
+#         active_workflows = orchestrator_service.get_active_workflows()
+#         recent_workflows = orchestrator_service.get_workflow_history(limit=1)
+
+#         # If there's an active workflow, show it
+#         if active_workflows:
+#             current = active_workflows[0]
+#             return jsonify(
+#                 {
+#                     "status": "active",
+#                     "message": f"Processing: {current.get('request', 'Unknown task')[:50]}...",
+#                     "current_workflow": {
+#                         "id": current.get("workflow_id"),
+#                         "request": current.get("request"),
+#                         "status": current.get("status"),
+#                         "started_at": current.get("started_at"),
+#                         "timeline": [],
+#                         "progress": (
+#                             50 if current.get("status") == "processing" else 100
+#                         ),
+#                     },
+#                     "workflow_results": {
+#                         "agentsUsed": len(current.get("agents", [])),
+#                         "executionTime": current.get("execution_time", 0),
+#                         "status": current.get("status", "Processing"),
+#                         "componentsCreated": 0,
+#                     },
+#                 }
+#             )
+
+#         # If no active workflow, show the most recent completed one
+#         elif recent_workflows:
+#             recent = recent_workflows[0]
+#             return jsonify(
+#                 {
+#                     "status": "completed",
+#                     "message": f"Last execution: {recent.get('request', 'Unknown task')[:50]}...",
+#                     "current_workflow": {
+#                         "id": recent.get("workflow_id"),
+#                         "request": recent.get("request"),
+#                         "status": "completed",
+#                         "started_at": recent.get("started_at"),
+#                         "timeline": [],
+#                         "progress": 100,
+#                     },
+#                     "workflow_results": {
+#                         "agentsUsed": recent.get(
+#                             "files", 0
+#                         ),  # This might need adjustment based on your data
+#                         "executionTime": recent.get("execution_time", 0),
+#                         "status": "Success",
+#                         "componentsCreated": 0,
+#                     },
+#                 }
+#             )
+
+#         # No workflows at all
+#         else:
+#             return jsonify(
+#                 {
+#                     "status": "idle",
+#                     "message": "No recent workflows",
+#                     "current_workflow": None,
+#                     "workflow_results": {
+#                         "agentsUsed": 0,
+#                         "executionTime": 0,
+#                         "status": "Idle",
+#                         "componentsCreated": 0,
+#                     },
+#                 }
+#             )
+
+#     except Exception as e:
+#         return (
+#             jsonify(
+#                 {
+#                     "status": "error",
+#                     "message": f"Error getting workflow status: {str(e)}",
+#                     "current_workflow": None,
+#                     "workflow_results": {
+#                         "agentsUsed": 0,
+#                         "executionTime": 0,
+#                         "status": "Error",
+#                         "componentsCreated": 0,
+#                     },
+#                 }
+#             ),
+#             500,
+#         )
 
 ```
 
@@ -7561,8 +7712,8 @@ workflow_service = WorkflowService()
 
 ### File: flask_app/static/js/app.js
 **Path:** `flask_app/static/js/app.js`
-**Size:** 17,617 bytes
-**Modified:** 2025-09-08 22:08:52
+**Size:** 18,226 bytes
+**Modified:** 2025-09-08 23:42:21
 
 *[Binary file or content not included]*
 
@@ -7570,8 +7721,8 @@ workflow_service = WorkflowService()
 
 ### File: flask_app/templates/base.html
 **Path:** `flask_app/templates/base.html`
-**Size:** 14,252 bytes
-**Modified:** 2025-09-08 21:06:25
+**Size:** 13,865 bytes
+**Modified:** 2025-09-08 22:23:37
 
 *[Binary file or content not included]*
 
@@ -7579,8 +7730,17 @@ workflow_service = WorkflowService()
 
 ### File: flask_app/templates/components/chat-container.html
 **Path:** `flask_app/templates/components/chat-container.html`
-**Size:** 15,249 bytes
-**Modified:** 2025-09-08 22:06:07
+**Size:** 18,905 bytes
+**Modified:** 2025-09-08 23:47:59
+
+*[Binary file or content not included]*
+
+--------------------------------------------------------------------------------
+
+### File: flask_app/templates/components/sidebar.html
+**Path:** `flask_app/templates/components/sidebar.html`
+**Size:** 8,404 bytes
+**Modified:** 2025-09-08 23:45:51
 
 *[Binary file or content not included]*
 
@@ -7588,8 +7748,8 @@ workflow_service = WorkflowService()
 
 ### File: flask_app/templates/components/workflow-panel.html
 **Path:** `flask_app/templates/components/workflow-panel.html`
-**Size:** 16,202 bytes
-**Modified:** 2025-09-08 00:27:11
+**Size:** 5,963 bytes
+**Modified:** 2025-09-08 23:28:14
 
 *[Binary file or content not included]*
 
@@ -7597,8 +7757,8 @@ workflow_service = WorkflowService()
 
 ### File: flask_app/templates/components/workflow-visualization.html
 **Path:** `flask_app/templates/components/workflow-visualization.html`
-**Size:** 18,106 bytes
-**Modified:** 2025-09-08 09:56:38
+**Size:** 18,108 bytes
+**Modified:** 2025-09-08 23:14:19
 
 *[Binary file or content not included]*
 
@@ -7633,8 +7793,8 @@ workflow_service = WorkflowService()
 
 ### File: flask_app/templates/index.jinja2
 **Path:** `flask_app/templates/index.jinja2`
-**Size:** 7,740 bytes
-**Modified:** 2025-09-08 10:16:34
+**Size:** 1,981 bytes
+**Modified:** 2025-09-08 23:45:24
 
 *[Binary file or content not included]*
 
@@ -9821,7 +9981,7 @@ if __name__ == "__main__":
 ### File: tools.json
 **Path:** `tools.json`
 **Size:** 5,956 bytes
-**Modified:** 2025-09-08 09:05:40
+**Modified:** 2025-09-08 23:29:00
 
 ```json
 {

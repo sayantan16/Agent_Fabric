@@ -44,7 +44,6 @@
           >
             AF
           </div>
-          <h1 class="text-xl font-semibold text-gray-900">{{ app_name }}</h1>
         </a>
       </div>
 
@@ -75,137 +74,16 @@
         >
           Dependencies
         </a>
-
-        <!-- System Status -->
-        <div class="flex items-center space-x-2">
-          <div
-            id="status-indicator"
-            class="w-2 h-2 bg-red-500 rounded-full"
-          ></div>
-          <span id="status-text" class="text-sm text-gray-500">Connected</span>
-        </div>
       </div>
     </nav>
 
     <!-- Main Content Area -->
     <div class="flex-1 flex overflow-hidden min-h-0">
-      <!-- Sidebar (only on chat page) -->
-      {% if request.endpoint == 'main.index' %}
-      <div
-        class="w-80 bg-white border-r border-gray-200 flex-shrink-0 flex flex-col"
-      >
-        <!-- Workflow Status Panel -->
-        <div class="p-4 border-b border-gray-200">
-          <h3 class="text-sm font-medium text-gray-900 mb-3">
-            Workflow Status
-          </h3>
-          <div id="workflow-status">
-            <div class="text-sm text-gray-500" id="workflow-message">
-              Real-time execution monitoring
-            </div>
-
-            <!-- Active Workflow Display -->
-            <div id="active-workflow" class="mt-3 hidden">
-              <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs font-medium text-blue-800">ACTIVE</span>
-                  <span class="text-xs text-blue-600" id="workflow-time"
-                    >0s</span
-                  >
-                </div>
-                <div class="text-sm text-blue-900 mb-2" id="workflow-task">
-                  Processing request...
-                </div>
-
-                <!-- Progress Bar -->
-                <div class="w-full bg-blue-200 rounded-full h-2 mb-2">
-                  <div
-                    class="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                    id="workflow-progress"
-                    style="width: 0%"
-                  ></div>
-                </div>
-
-                <div class="text-xs text-blue-700" id="workflow-step">
-                  Initializing...
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- System Status Panel -->
-        <div class="p-4 border-b border-gray-200">
-          <h3 class="text-sm font-medium text-gray-900 mb-3">System Status</h3>
-          <div id="system-status">
-            <div class="space-y-2 text-sm">
-              <div class="flex justify-between items-center"></div>
-              <div class="flex justify-between">
-                <span>Agents</span>
-                <span id="agents-count" class="text-gray-500">4</span>
-              </div>
-              <div class="flex justify-between">
-                <span>Tools</span>
-                <span id="tools-count" class="text-gray-500">11</span>
-              </div>
-              <div class="flex justify-between">
-                <span>Health Score</span>
-                <span id="health-score" class="text-gray-500">100%</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Quick Access Panel -->
-        <div class="p-4 flex-1">
-          <h3 class="text-sm font-medium text-gray-900 mb-3">Quick Access</h3>
-          <div class="space-y-2">
-            <a
-              href="{{ url_for('main.registry') }}"
-              class="block text-sm text-blue-600 hover:text-blue-800"
-              >Browse Registry</a
-            >
-            <a
-              href="{{ url_for('main.workflows') }}"
-              class="block text-sm text-blue-600 hover:text-blue-800"
-              >Workflow History</a
-            >
-            <a
-              href="{{ url_for('main.dependencies') }}"
-              class="block text-sm text-blue-600 hover:text-blue-800"
-              >Dependencies</a
-            >
-            <a
-              href="{{ url_for('main.help_page') }}"
-              class="block text-sm text-blue-600 hover:text-blue-800"
-              >Help & Examples</a
-            >
-            <button
-              onclick="location.reload()"
-              class="block text-sm text-gray-600 hover:text-gray-800"
-            >
-              Refresh Status
-            </button>
-          </div>
-        </div>
-      </div>
-      {% endif %}
-
       <!-- Main Content -->
       <div class="flex-1 overflow-auto min-h-0">
         {% block content %}{% endblock %}
       </div>
     </div>
-
-    <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 px-4 py-2 flex-shrink-0">
-      <div class="flex items-center justify-between text-sm text-gray-500">
-        <span>© 2025 {{ app_name }} v1.0.0 - Multi-Agent AI Orchestration</span>
-        <div class="flex items-center space-x-4">
-          <a href="#" class="hover:text-gray-700">Help</a>
-        </div>
-      </div>
-    </footer>
 
     <!-- Custom JavaScript -->
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>

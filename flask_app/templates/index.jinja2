@@ -2,19 +2,14 @@
 {% block title %}Chat - Agentic Fabric{% endblock %}
 
 {% block content %}
-<!-- Full screen layout without container constraint -->
-<div class="flex flex-col" style="height: calc(100vh - 64px);">
+<!-- Full screen layout with sidebar -->
+<div class="flex" style="height: calc(100vh - 64px);">
+    <!-- Sidebar -->
+    {% include 'components/sidebar.html' %}
+    
     <!-- Main Content Area -->
-    <div class="flex flex-1 overflow-hidden">
-        <!-- Chat Section (Main Area) -->
-        <div class="flex-1 flex flex-col overflow-hidden">
-            {% include 'components/chat-container.html' %}
-        </div>
-
-        <!-- Workflow Panel (Right Sidebar) - Initially Hidden for Chat Focus -->
-        <div id="workflow-panel" class="w-80 bg-white border-l border-gray-200 flex flex-col overflow-hidden hidden">
-            {% include 'components/workflow-panel.html' %}
-        </div>
+    <div class="flex-1 flex flex-col overflow-hidden">
+        {% include 'components/chat-container.html' %}
     </div>
 </div>
 
@@ -24,81 +19,18 @@
 </div>
 
 <script>
-// Global functions for workflow integration (simplified for now)
+// Simplified workflow functions (keeping your existing ones)
 window.showWorkflowVisualization = function(workflowData) {
     console.log('Workflow visualization requested:', workflowData);
-    // For now, just show the workflow panel
-    const panel = document.getElementById('workflow-panel');
-    if (panel) {
-        panel.classList.remove('hidden');
-    }
-    // TODO: Implement full workflow visualization later
 };
 
 window.hideWorkflowVisualization = function() {
-    const panel = document.getElementById('workflow-panel');
-    if (panel) {
-        panel.classList.add('hidden');
-    }
-    const viz = document.getElementById('workflow-visualization');
-    if (viz) {
-        viz.classList.add('hidden');
-    }
-};
-
-window.toggleWorkflowPanel = function() {
-    const panel = document.getElementById('workflow-panel');
-    if (panel) {
-        panel.classList.toggle('hidden');
-    }
+    console.log('Hide workflow visualization');
 };
 
 // Initialize on DOM load
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Agentic Fabric Chat Interface Loaded');
-    
-    // Setup global drag and drop for file uploads
-    let dragCounter = 0;
-    
-    document.addEventListener('dragenter', function(e) {
-        e.preventDefault();
-        dragCounter++;
-        document.body.classList.add('drag-active');
-    });
-    
-    document.addEventListener('dragleave', function(e) {
-        e.preventDefault();
-        dragCounter--;
-        if (dragCounter === 0) {
-            document.body.classList.remove('drag-active');
-        }
-    });
-    
-    document.addEventListener('dragover', function(e) {
-        e.preventDefault();
-    });
-    
-    document.addEventListener('drop', function(e) {
-        e.preventDefault();
-        dragCounter = 0;
-        document.body.classList.remove('drag-active');
-        
-        // Let the chat component handle the files if it has the handler
-        const chatComponent = document.querySelector('[x-data*="chatData"]');
-        if (chatComponent && e.dataTransfer.files.length > 0) {
-            // Try to find the Alpine.js instance and call file handler
-            try {
-                const alpineData = Alpine.$data(chatComponent);
-                if (alpineData && typeof alpineData.handleFileDrop === 'function') {
-                    alpineData.handleFileDrop(e);
-                } else if (alpineData && typeof alpineData.uploadFiles === 'function') {
-                    alpineData.uploadFiles(Array.from(e.dataTransfer.files));
-                }
-            } catch (error) {
-                console.log('Global file drop handling not available:', error);
-            }
-        }
-    });
     
     // Setup keyboard shortcuts
     document.addEventListener('keydown', function(e) {
@@ -110,47 +42,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 messageInput.focus();
             }
         }
-        
-        // Escape to close panels
-        if (e.key === 'Escape') {
-            const workflowPanel = document.getElementById('workflow-panel');
-            if (workflowPanel && !workflowPanel.classList.contains('hidden')) {
-                window.hideWorkflowVisualization();
-            }
-        }
-    });
-    
-    // Setup HTMX success handling for chat-specific actions
-    document.body.addEventListener('htmx:afterRequest', function(e) {
-        if (e.detail.xhr.status >= 200 && e.detail.xhr.status < 300) {
-            // Handle successful requests - could add specific chat handling here
-        }
     });
 });
 </script>
 
 <style>
-/* Chat-specific styles */
-.drag-active {
-    background-color: rgba(59, 130, 246, 0.05);
+/* Enhanced chat message styles */
+.chat-message {
+    animation: fadeInUp 0.3s ease-out;
 }
 
-/* Workflow panel animations */
-@keyframes slideInRight {
-    from { transform: translateX(100%); }
-    to { transform: translateX(0); }
-}
-
-@keyframes slideOutRight {
-    from { transform: translateX(0); }
-    to { transform: translateX(100%); }
-}
-
-#workflow-panel:not(.hidden) {
-    animation: slideInRight 0.3s ease-out;
-}
-
-/* Message animations */
 @keyframes fadeInUp {
     from { 
         opacity: 0; 
@@ -160,57 +61,6 @@ document.addEventListener('DOMContentLoaded', function() {
         opacity: 1; 
         transform: translateY(0); 
     }
-}
-
-.animate-fade-in-up {
-    animation: fadeInUp 0.3s ease-out;
-}
-
-/* Enhanced chat message styles */
-.chat-message {
-    animation: fadeInUp 0.3s ease-out;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    #workflow-panel {
-        position: fixed;
-        top: 64px;
-        right: 0;
-        bottom: 0;
-        z-index: 30;
-        width: 100%;
-        max-width: 400px;
-    }
-    
-    #workflow-panel:not(.hidden) {
-        box-shadow: -4px 0 8px rgba(0, 0, 0, 0.1);
-    }
-}
-
-/* Processing states */
-.processing {
-    pointer-events: none;
-    opacity: 0.7;
-}
-
-.processing textarea,
-.processing button {
-    cursor: not-allowed;
-}
-
-/* Notification positioning adjustments */
-#notification-container {
-    top: 5rem; /* Below the nav bar */
-}
-
-/* Improved focus states */
-textarea:focus,
-input:focus {
-    outline: none;
-    ring: 2px;
-    ring-color: #3b82f6;
-    border-color: transparent;
 }
 
 /* Better button states */
@@ -224,51 +74,4 @@ button:not(:disabled):hover {
     transition: transform 0.1s ease;
 }
 </style>
-{% endblock %}
-
-{% block extra_js %}
-<!-- Chat interface specific JavaScript -->
-<script>
-// Additional chat enhancements can go here
-console.log('Chat interface enhanced JavaScript loaded');
-
-// Helper function for formatted timestamps
-window.formatChatTimestamp = function(timestamp) {
-    try {
-        const date = new Date(timestamp);
-        const now = new Date();
-        const diff = now - date;
-        
-        // Less than 1 minute ago
-        if (diff < 60000) {
-            return 'just now';
-        }
-        // Less than 1 hour ago
-        else if (diff < 3600000) {
-            const minutes = Math.floor(diff / 60000);
-            return `${minutes}m ago`;
-        }
-        // Less than 24 hours ago
-        else if (diff < 86400000) {
-            const hours = Math.floor(diff / 3600000);
-            return `${hours}h ago`;
-        }
-        // More than 24 hours ago
-        else {
-            return date.toLocaleDateString();
-        }
-    } catch (error) {
-        return timestamp;
-    }
-};
-
-// Helper function for file size formatting
-window.formatFileSize = function(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-};
-</script>
 {% endblock %}

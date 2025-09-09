@@ -8,6 +8,20 @@ window.AgenticFabric = {
   systemStatus: 'unknown',
 };
 
+// window.updateWorkflowPanel = function (workflowData) {
+//   // Update global state
+//   window.AgenticFabric.currentWorkflow = workflowData;
+
+//   // Force refresh of the workflow panel
+//   const workflowPanel = document.querySelector('[x-data*="workflowPanelData"]');
+//   if (workflowPanel) {
+//     const alpineData = Alpine.$data(workflowPanel);
+//     if (alpineData && alpineData.updateFromExecution) {
+//       alpineData.updateFromExecution(workflowData);
+//     }
+//   }
+// };
+
 // Initialize application
 document.addEventListener('DOMContentLoaded', function () {
   // Clear chat functionality

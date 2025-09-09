@@ -589,3 +589,98 @@ def _calculate_workflow_progress(self, workflow_data: Dict) -> int:
         return 50  # Assume 50% when processing
     else:
         return 0
+
+
+# @api_bp.route("/workflow/status/current")
+# def get_current_workflow_status():
+#     """Get current workflow status for sidebar display."""
+#     try:
+#         # Get active workflows from orchestrator service
+#         active_workflows = orchestrator_service.get_active_workflows()
+#         recent_workflows = orchestrator_service.get_workflow_history(limit=1)
+
+#         # If there's an active workflow, show it
+#         if active_workflows:
+#             current = active_workflows[0]
+#             return jsonify(
+#                 {
+#                     "status": "active",
+#                     "message": f"Processing: {current.get('request', 'Unknown task')[:50]}...",
+#                     "current_workflow": {
+#                         "id": current.get("workflow_id"),
+#                         "request": current.get("request"),
+#                         "status": current.get("status"),
+#                         "started_at": current.get("started_at"),
+#                         "timeline": [],
+#                         "progress": (
+#                             50 if current.get("status") == "processing" else 100
+#                         ),
+#                     },
+#                     "workflow_results": {
+#                         "agentsUsed": len(current.get("agents", [])),
+#                         "executionTime": current.get("execution_time", 0),
+#                         "status": current.get("status", "Processing"),
+#                         "componentsCreated": 0,
+#                     },
+#                 }
+#             )
+
+#         # If no active workflow, show the most recent completed one
+#         elif recent_workflows:
+#             recent = recent_workflows[0]
+#             return jsonify(
+#                 {
+#                     "status": "completed",
+#                     "message": f"Last execution: {recent.get('request', 'Unknown task')[:50]}...",
+#                     "current_workflow": {
+#                         "id": recent.get("workflow_id"),
+#                         "request": recent.get("request"),
+#                         "status": "completed",
+#                         "started_at": recent.get("started_at"),
+#                         "timeline": [],
+#                         "progress": 100,
+#                     },
+#                     "workflow_results": {
+#                         "agentsUsed": recent.get(
+#                             "files", 0
+#                         ),  # This might need adjustment based on your data
+#                         "executionTime": recent.get("execution_time", 0),
+#                         "status": "Success",
+#                         "componentsCreated": 0,
+#                     },
+#                 }
+#             )
+
+#         # No workflows at all
+#         else:
+#             return jsonify(
+#                 {
+#                     "status": "idle",
+#                     "message": "No recent workflows",
+#                     "current_workflow": None,
+#                     "workflow_results": {
+#                         "agentsUsed": 0,
+#                         "executionTime": 0,
+#                         "status": "Idle",
+#                         "componentsCreated": 0,
+#                     },
+#                 }
+#             )
+
+#     except Exception as e:
+#         return (
+#             jsonify(
+#                 {
+#                     "status": "error",
+#                     "message": f"Error getting workflow status: {str(e)}",
+#                     "current_workflow": None,
+#                     "workflow_results": {
+#                         "agentsUsed": 0,
+#                         "executionTime": 0,
+#                         "status": "Error",
+#                         "componentsCreated": 0,
+#                     },
+#                 }
+#             ),
+#             500,
+#         )

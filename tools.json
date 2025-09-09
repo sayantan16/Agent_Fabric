@@ -15,7 +15,9 @@
         "reader"
       ],
       "line_count": 35,
-      "status": "active"
+      "status": "active",
+      "used_by": [],
+      "formatted_created_at": "2025-01-01 00:00:00"
     },
     "read_json": {
       "name": "read_json",
@@ -33,7 +35,9 @@
         "json"
       ],
       "line_count": 38,
-      "status": "active"
+      "status": "active",
+      "used_by": [],
+      "formatted_created_at": "2025-01-01 00:00:00"
     },
     "read_csv": {
       "name": "read_csv",
@@ -51,7 +55,9 @@
         "csv"
       ],
       "line_count": 37,
-      "status": "active"
+      "status": "active",
+      "used_by": [],
+      "formatted_created_at": "2025-01-01 00:00:00"
     },
     "read_pdf": {
       "name": "read_pdf",
@@ -69,7 +75,9 @@
         "pdf"
       ],
       "line_count": 42,
-      "status": "active"
+      "status": "active",
+      "used_by": [],
+      "formatted_created_at": "2025-01-01 00:00:00"
     },
     "extract_urls": {
       "name": "extract_urls",
@@ -90,7 +98,12 @@
         "url"
       ],
       "line_count": 28,
-      "status": "active"
+      "status": "active",
+      "used_by": [
+        "url_extractor",
+        "text_analyzer"
+      ],
+      "formatted_created_at": "2025-01-01 00:00:00"
     },
     "extract_emails": {
       "name": "extract_emails",
@@ -111,7 +124,12 @@
         "email"
       ],
       "line_count": 28,
-      "status": "active"
+      "status": "active",
+      "used_by": [
+        "email_extractor",
+        "text_analyzer"
+      ],
+      "formatted_created_at": "2025-01-01 00:00:00"
     },
     "calculate_mean": {
       "name": "calculate_mean",
@@ -129,7 +147,9 @@
         "statistics"
       ],
       "line_count": 39,
-      "status": "active"
+      "status": "active",
+      "used_by": [],
+      "formatted_created_at": "2025-01-01 00:00:00"
     },
     "extract_phones": {
       "name": "extract_phones",
@@ -145,7 +165,9 @@
         "extraction"
       ],
       "line_count": 37,
-      "status": "active"
+      "status": "active",
+      "used_by": [],
+      "formatted_created_at": "2025-09-04 23:14:54"
     },
     "calculate_median": {
       "name": "calculate_median",
@@ -161,7 +183,9 @@
         "calculation"
       ],
       "line_count": 32,
-      "status": "active"
+      "status": "active",
+      "used_by": [],
+      "formatted_created_at": "2025-09-04 23:14:54"
     },
     "calculate_std": {
       "name": "calculate_std",
@@ -177,7 +201,9 @@
         "calculation"
       ],
       "line_count": 32,
-      "status": "active"
+      "status": "active",
+      "used_by": [],
+      "formatted_created_at": "2025-09-04 23:14:54"
     },
     "analyze_sentiment": {
       "name": "analyze_sentiment",
@@ -193,6 +219,24 @@
         "analysis"
       ],
       "line_count": 47,
+      "status": "active",
+      "used_by": [],
+      "formatted_created_at": "2025-09-04 23:26:14"
+    },
+    "count_words": {
+      "name": "count_words",
+      "description": "Count the number of words in a given text",
+      "signature": "def count_words(input_data=None)",
+      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/tools/count_words.py",
+      "is_prebuilt": false,
+      "is_pure_function": true,
+      "used_by_agents": [
+        "word_counter"
+      ],
+      "created_by": "claude-3-haiku-20240307",
+      "created_at": "2025-09-09T00:03:54.897491",
+      "tags": [],
+      "line_count": 32,
       "status": "active"
     }
   }
