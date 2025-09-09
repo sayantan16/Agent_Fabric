@@ -2,208 +2,273 @@
 {% block title %}Chat - Agentic Fabric{% endblock %}
 
 {% block content %}
-<!-- Remove the conflicting max-w-7xl wrapper from base.html for this page -->
+<!-- Full screen layout without container constraint -->
 <div class="flex flex-col" style="height: calc(100vh - 64px);">
-    <!-- Header -->
-    <div class="bg-white border-b px-6 py-3 flex-shrink-0">
-        <h1 class="text-xl font-semibold text-gray-800">AI Assistant</h1>
-        <p class="text-xs text-gray-600">Multi-agent orchestration powered by Claude and GPT-4</p>
-    </div>
-    
     <!-- Main Content Area -->
     <div class="flex flex-1 overflow-hidden">
-        <!-- Chat Section -->
+        <!-- Chat Section (Main Area) -->
         <div class="flex-1 flex flex-col overflow-hidden">
-            <!-- Welcome Message (collapsible) -->
-            <div id="welcome-message" class="bg-gradient-to-r from-blue-50 to-indigo-50 border-b p-4 transition-all duration-300 flex-shrink-0">
-                <button onclick="toggleWelcome()" class="float-right text-gray-400 hover:text-gray-600">✕</button>
-                <h2 class="text-base font-semibold mb-2">Welcome to Agentic Fabric!</h2>
-                <p class="text-sm text-gray-700 mb-2">I can help you with complex tasks using intelligent AI agents:</p>
-                <ul class="text-xs space-y-1 text-gray-600">
-                    <li>• <strong>Document Analysis:</strong> PDF summaries, data extraction</li>
-                    <li>• <strong>Data Processing:</strong> CSV analysis, statistical reports</li>
-                    <li>• <strong>Content Extraction:</strong> Emails, URLs, phone numbers</li>
-                    <li>• <strong>Multi-step Workflows:</strong> Complex orchestrated tasks</li>
-                </ul>
-                <div class="mt-3 flex flex-wrap gap-2">
-                    <button onclick="setExample('Extract all email addresses from this text')" 
-                            class="px-2 py-1 bg-white rounded text-xs hover:bg-gray-50 border">
-                        "Extract all email addresses from this text"
-                    </button>
-                    <button onclick="setExample('Analyze the uploaded CSV and create a summary')" 
-                            class="px-2 py-1 bg-white rounded text-xs hover:bg-gray-50 border">
-                        "Analyze the uploaded CSV and create a summary"
-                    </button>
-                </div>
-            </div>
-
-            <!-- Chat Messages -->
-            <div id="chat-messages" class="flex-1 overflow-y-auto p-4">
-                <!-- Messages will appear here -->
-            </div>
-
-            <!-- Input Area -->
-            <div class="border-t bg-white p-3 flex-shrink-0">
-                <div class="flex gap-2 max-w-4xl mx-auto">
-                    <button class="p-2 text-gray-500 hover:text-gray-700">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
-                        </svg>
-                    </button>
-                    <input type="text" id="message-input" 
-                           placeholder="Ask me anything... (Ctrl+Enter to send)"
-                           class="flex-1 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <button onclick="sendMessage()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
-                        Send
-                    </button>
-                </div>
-                <div class="mt-2 flex gap-2 max-w-4xl mx-auto">
-                    <span class="text-xs text-gray-500">Quick actions:</span>
-                    <button onclick="setExample('Extract Emails')" class="text-xs px-2 py-1 bg-gray-100 rounded hover:bg-gray-200">Extract Emails</button>
-                    <button onclick="setExample('Statistical Analysis')" class="text-xs px-2 py-1 bg-gray-100 rounded hover:bg-gray-200">Statistical Analysis</button>
-                </div>
-            </div>
+            {% include 'components/chat-container.html' %}
         </div>
 
-        <!-- Right Sidebar -->
-        <div class="w-72 bg-gray-50 border-l flex flex-col overflow-hidden">
-            <!-- Workflow Status -->
-            <div class="p-3 border-b bg-white">
-                <h3 class="font-semibold text-sm text-gray-800">Workflow Status</h3>
-                <p class="text-xs text-gray-600 mt-1">Real-time execution monitoring</p>
-            </div>
-
-            <!-- System Status -->
-            <div class="p-3 border-b bg-white">
-                <h3 class="font-semibold text-sm text-gray-800 mb-2">System Status</h3>
-                <div class="space-y-1 text-xs">
-                    <div class="flex justify-between">
-                        <span>Backend</span>
-                        <span id="backend-status" class="text-green-600">Connected</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span>Agents</span>
-                        <span id="agent-count">4</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span>Tools</span>
-                        <span id="tool-count">11</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span>Health Score</span>
-                        <span id="health-score">100%</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Quick Access -->
-            <div class="flex-1 p-3 overflow-y-auto">
-                <h3 class="font-semibold text-sm text-gray-800 mb-2">Quick Access</h3>
-                <div class="space-y-1">
-                    <a href="/registry" class="block p-2 text-xs text-gray-700 hover:bg-white rounded">Browse Registry</a>
-                    <a href="/workflows" class="block p-2 text-xs text-gray-700 hover:bg-white rounded">Workflow History</a>
-                    <a href="/dependencies" class="block p-2 text-xs text-gray-700 hover:bg-white rounded">Dependencies</a>
-                    <a href="/help" class="block p-2 text-xs text-gray-700 hover:bg-white rounded">Help & Examples</a>
-                    <button onclick="refreshStatus()" class="block w-full text-left p-2 text-xs text-gray-700 hover:bg-white rounded">Refresh Status</button>
-                </div>
-            </div>
+        <!-- Workflow Panel (Right Sidebar) - Initially Hidden for Chat Focus -->
+        <div id="workflow-panel" class="w-80 bg-white border-l border-gray-200 flex flex-col overflow-hidden hidden">
+            {% include 'components/workflow-panel.html' %}
         </div>
     </div>
 </div>
 
+<!-- Workflow Visualization Modal (Hidden by default) -->
+<div id="workflow-visualization" class="hidden">
+    {% include 'components/workflow-visualization.html' %}
+</div>
+
 <script>
-let welcomeHidden = false;
-
-function toggleWelcome() {
-    const welcome = document.getElementById('welcome-message');
-    if (welcome) {
-        welcome.style.display = 'none';
-        welcomeHidden = true;
+// Global functions for workflow integration (simplified for now)
+window.showWorkflowVisualization = function(workflowData) {
+    console.log('Workflow visualization requested:', workflowData);
+    // For now, just show the workflow panel
+    const panel = document.getElementById('workflow-panel');
+    if (panel) {
+        panel.classList.remove('hidden');
     }
-}
+    // TODO: Implement full workflow visualization later
+};
 
-function setExample(text) {
-    document.getElementById('message-input').value = text;
-}
-
-async function sendMessage() {
-    const input = document.getElementById('message-input');
-    const message = input.value.trim();
-    
-    if (!message) return;
-    
-    // Hide welcome on first message
-    if (!welcomeHidden) {
-        toggleWelcome();
+window.hideWorkflowVisualization = function() {
+    const panel = document.getElementById('workflow-panel');
+    if (panel) {
+        panel.classList.add('hidden');
     }
+    const viz = document.getElementById('workflow-visualization');
+    if (viz) {
+        viz.classList.add('hidden');
+    }
+};
+
+window.toggleWorkflowPanel = function() {
+    const panel = document.getElementById('workflow-panel');
+    if (panel) {
+        panel.classList.toggle('hidden');
+    }
+};
+
+// Initialize on DOM load
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Agentic Fabric Chat Interface Loaded');
     
-    // Add user message
-    addMessage(message, 'user');
-    input.value = '';
+    // Setup global drag and drop for file uploads
+    let dragCounter = 0;
     
-    // Send to backend
-    try {
-        const response = await fetch('/api/chat/message', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({message: message})
-        });
-        
-        const data = await response.json();
-        if (data.response) {
-            addMessage(data.response.message || 'Processing...', 'assistant');
+    document.addEventListener('dragenter', function(e) {
+        e.preventDefault();
+        dragCounter++;
+        document.body.classList.add('drag-active');
+    });
+    
+    document.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        dragCounter--;
+        if (dragCounter === 0) {
+            document.body.classList.remove('drag-active');
         }
-    } catch (error) {
-        addMessage('Error: Could not process request', 'assistant');
-    }
-}
-
-function addMessage(text, type) {
-    const container = document.getElementById('chat-messages');
-    const msgDiv = document.createElement('div');
-    msgDiv.className = `mb-3 ${type === 'user' ? 'text-right' : 'text-left'}`;
-    msgDiv.innerHTML = `
-        <div class="inline-block max-w-lg px-4 py-2 rounded-lg ${
-            type === 'user' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800'
-        }">
-            ${text}
-        </div>
-    `;
-    container.appendChild(msgDiv);
-    container.scrollTop = container.scrollHeight;
-}
-
-// Load system status - ENHANCED VERSION
-async function refreshStatus() {
-    try {
-        const response = await fetch('/api/registry/stats');
-        const data = await response.json();
+    });
+    
+    document.addEventListener('dragover', function(e) {
+        e.preventDefault();
+    });
+    
+    document.addEventListener('drop', function(e) {
+        e.preventDefault();
+        dragCounter = 0;
+        document.body.classList.remove('drag-active');
         
-        if (data.available) {
-            document.getElementById('backend-status').textContent = 'Connected';
-            document.getElementById('backend-status').className = 'text-green-600';
-            document.getElementById('agent-count').textContent = data.statistics.total_agents || 4;
-            document.getElementById('tool-count').textContent = data.statistics.total_tools || 11;
-            document.getElementById('health-score').textContent = (data.summary.health_score || 100) + '%';
-        } else {
-            document.getElementById('backend-status').textContent = 'Disconnected';
-            document.getElementById('backend-status').className = 'text-red-600';
+        // Let the chat component handle the files if it has the handler
+        const chatComponent = document.querySelector('[x-data*="chatData"]');
+        if (chatComponent && e.dataTransfer.files.length > 0) {
+            // Try to find the Alpine.js instance and call file handler
+            try {
+                const alpineData = Alpine.$data(chatComponent);
+                if (alpineData && typeof alpineData.handleFileDrop === 'function') {
+                    alpineData.handleFileDrop(e);
+                } else if (alpineData && typeof alpineData.uploadFiles === 'function') {
+                    alpineData.uploadFiles(Array.from(e.dataTransfer.files));
+                }
+            } catch (error) {
+                console.log('Global file drop handling not available:', error);
+            }
         }
-    } catch (error) {
-        console.error('Status refresh error:', error);
-        document.getElementById('backend-status').textContent = 'Disconnected';
-        document.getElementById('backend-status').className = 'text-red-600';
-    }
-}
-
-// Initialize status on load
-document.addEventListener('DOMContentLoaded', refreshStatus);
-
-// Keyboard shortcut
-document.addEventListener('keydown', function(e) {
-    if (e.ctrlKey && e.key === 'Enter') {
-        sendMessage();
-    }
+    });
+    
+    // Setup keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Ctrl/Cmd + K to focus message input
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            const messageInput = document.querySelector('textarea[x-model="currentMessage"]');
+            if (messageInput) {
+                messageInput.focus();
+            }
+        }
+        
+        // Escape to close panels
+        if (e.key === 'Escape') {
+            const workflowPanel = document.getElementById('workflow-panel');
+            if (workflowPanel && !workflowPanel.classList.contains('hidden')) {
+                window.hideWorkflowVisualization();
+            }
+        }
+    });
+    
+    // Setup HTMX success handling for chat-specific actions
+    document.body.addEventListener('htmx:afterRequest', function(e) {
+        if (e.detail.xhr.status >= 200 && e.detail.xhr.status < 300) {
+            // Handle successful requests - could add specific chat handling here
+        }
+    });
 });
+</script>
+
+<style>
+/* Chat-specific styles */
+.drag-active {
+    background-color: rgba(59, 130, 246, 0.05);
+}
+
+/* Workflow panel animations */
+@keyframes slideInRight {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+@keyframes slideOutRight {
+    from { transform: translateX(0); }
+    to { transform: translateX(100%); }
+}
+
+#workflow-panel:not(.hidden) {
+    animation: slideInRight 0.3s ease-out;
+}
+
+/* Message animations */
+@keyframes fadeInUp {
+    from { 
+        opacity: 0; 
+        transform: translateY(10px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.3s ease-out;
+}
+
+/* Enhanced chat message styles */
+.chat-message {
+    animation: fadeInUp 0.3s ease-out;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #workflow-panel {
+        position: fixed;
+        top: 64px;
+        right: 0;
+        bottom: 0;
+        z-index: 30;
+        width: 100%;
+        max-width: 400px;
+    }
+    
+    #workflow-panel:not(.hidden) {
+        box-shadow: -4px 0 8px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Processing states */
+.processing {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.processing textarea,
+.processing button {
+    cursor: not-allowed;
+}
+
+/* Notification positioning adjustments */
+#notification-container {
+    top: 5rem; /* Below the nav bar */
+}
+
+/* Improved focus states */
+textarea:focus,
+input:focus {
+    outline: none;
+    ring: 2px;
+    ring-color: #3b82f6;
+    border-color: transparent;
+}
+
+/* Better button states */
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+button:not(:disabled):hover {
+    transform: translateY(-1px);
+    transition: transform 0.1s ease;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chat interface specific JavaScript -->
+<script>
+// Additional chat enhancements can go here
+console.log('Chat interface enhanced JavaScript loaded');
+
+// Helper function for formatted timestamps
+window.formatChatTimestamp = function(timestamp) {
+    try {
+        const date = new Date(timestamp);
+        const now = new Date();
+        const diff = now - date;
+        
+        // Less than 1 minute ago
+        if (diff < 60000) {
+            return 'just now';
+        }
+        // Less than 1 hour ago
+        else if (diff < 3600000) {
+            const minutes = Math.floor(diff / 60000);
+            return `${minutes}m ago`;
+        }
+        // Less than 24 hours ago
+        else if (diff < 86400000) {
+            const hours = Math.floor(diff / 3600000);
+            return `${hours}h ago`;
+        }
+        // More than 24 hours ago
+        else {
+            return date.toLocaleDateString();
+        }
+    } catch (error) {
+        return timestamp;
+    }
+};
+
+// Helper function for file size formatting
+window.formatFileSize = function(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};
 </script>
 {% endblock %}

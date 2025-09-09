@@ -3,7 +3,9 @@
     "email_extractor": {
       "name": "email_extractor",
       "description": "Extracts email addresses from text input",
-      "uses_tools": ["extract_emails"],
+      "uses_tools": [
+        "extract_emails"
+      ],
       "input_schema": {
         "data": "any"
       },
@@ -21,16 +23,22 @@
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-01-01T00:00:00",
       "version": "1.0.0",
-      "execution_count": 0,
-      "avg_execution_time": 0.0,
-      "tags": ["extraction", "emails"],
+      "execution_count": 1,
+      "avg_execution_time": 0.001,
+      "tags": [
+        "extraction",
+        "emails"
+      ],
       "line_count": 98,
-      "status": "active"
+      "status": "active",
+      "last_executed": "2025-09-08T22:56:46.793630"
     },
     "url_extractor": {
       "name": "url_extractor",
       "description": "Extracts URLs from text input",
-      "uses_tools": ["extract_urls"],
+      "uses_tools": [
+        "extract_urls"
+      ],
       "input_schema": {
         "data": "any"
       },
@@ -48,11 +56,15 @@
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-09-04T12:30:00",
       "version": "1.0.0",
-      "execution_count": 0,
+      "execution_count": 1,
       "avg_execution_time": 0.0,
-      "tags": ["extraction", "urls"],
+      "tags": [
+        "extraction",
+        "urls"
+      ],
       "line_count": 80,
-      "status": "active"
+      "status": "active",
+      "last_executed": "2025-09-08T22:56:46.800738"
     },
     "read_text": {
       "name": "read_text",
@@ -64,19 +76,34 @@
       },
       "output_schema": {
         "type": "object",
-        "required": ["status", "data", "metadata"],
+        "required": [
+          "status",
+          "data",
+          "metadata"
+        ],
         "properties": {
           "status": {
             "type": "string",
-            "enum": ["success", "error", "partial"]
+            "enum": [
+              "success",
+              "error",
+              "partial"
+            ]
           },
           "data": {
-            "type": ["object", "array", "null"],
+            "type": [
+              "object",
+              "array",
+              "null"
+            ],
             "description": "Agent-specific output data"
           },
           "metadata": {
             "type": "object",
-            "required": ["agent", "execution_time"],
+            "required": [
+              "agent",
+              "execution_time"
+            ],
             "properties": {
               "agent": {
                 "type": "string"
@@ -128,19 +155,34 @@
       },
       "output_schema": {
         "type": "object",
-        "required": ["status", "data", "metadata"],
+        "required": [
+          "status",
+          "data",
+          "metadata"
+        ],
         "properties": {
           "status": {
             "type": "string",
-            "enum": ["success", "error", "partial"]
+            "enum": [
+              "success",
+              "error",
+              "partial"
+            ]
           },
           "data": {
-            "type": ["object", "array", "null"],
+            "type": [
+              "object",
+              "array",
+              "null"
+            ],
             "description": "Agent-specific output data"
           },
           "metadata": {
             "type": "object",
-            "required": ["agent", "execution_time"],
+            "required": [
+              "agent",
+              "execution_time"
+            ],
             "properties": {
               "agent": {
                 "type": "string"

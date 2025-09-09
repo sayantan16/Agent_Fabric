@@ -1,11 +1,12 @@
-# flask_app/services/__init__.py
-"""
-Service Layer for Backend Integration
-Bridges Flask UI with existing Agentic Fabric backend
-"""
+from .orchestrator_service import OrchestratorService, orchestrator_service
+from .registry_service import RegistryService, registry_service
+from .workflow_service import WorkflowService, workflow_service
 
-from .orchestrator_service import OrchestratorService
-from .registry_service import RegistryService
-from .workflow_service import WorkflowService
-
-__all__ = ["OrchestratorService", "RegistryService", "WorkflowService"]
+__all__ = [
+    "OrchestratorService",
+    "RegistryService",
+    "WorkflowService",
+    "orchestrator_service",
+    "registry_service",
+    "workflow_service",
+]

@@ -1,35 +1,52 @@
-<!-- Chat Container Component -->
-<div id="chat-container" class="h-full flex flex-col" x-data="chatData()">
-  <!-- Chat Messages Area -->
+<!-- flask_app/templates/components/chat-container.html - COMPLETE FIXED VERSION -->
+<div
+  class="flex flex-col h-full bg-white rounded-lg shadow-sm border"
+  x-data="chatData()"
+  x-init="init()"
+>
+  <!-- Chat Header -->
+  <div class="flex items-center justify-between p-4 border-b border-gray-200">
+    <div>
+      <h2 class="text-lg font-semibold text-gray-900">AI Assistant</h2>
+      <p class="text-sm text-gray-600">
+        Multi-agent orchestration powered by Claude and GPT-4
+      </p>
+    </div>
+    <button
+      id="clear-chat-btn"
+      class="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+    >
+      Clear Chat
+    </button>
+  </div>
+
+  <!-- Chat Messages Container -->
   <div
     id="chat-messages"
     class="flex-1 overflow-y-auto space-y-4 p-4 bg-gray-50"
     x-ref="messagesContainer"
   >
-    <!-- Welcome Message -->
-    <div class="chat-message system animate-fade-in">
-      <div class="chat-avatar bg-purple-500">
-        <svg
-          class="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-          ></path>
-        </svg>
-      </div>
-      <div class="chat-bubble system">
-        <div class="text-sm">
-          <p class="font-medium mb-2">Welcome to Agentic Fabric! 🚀</p>
-          <p class="mb-2">
+    <!-- Welcome Banner (only if no existing messages) -->
+    <div
+      x-show="!hasExistingMessages"
+      class="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4 mb-4"
+    >
+      <div class="flex items-start space-x-3">
+        <div class="flex-shrink-0">
+          <div
+            class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center"
+          >
+            <span class="text-white font-bold text-sm">AF</span>
+          </div>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-lg font-semibold text-gray-800 mb-2">
+            Welcome to Agentic Fabric! 🚀
+          </h3>
+          <p class="text-gray-600 mb-3">
             I can help you with complex tasks using intelligent AI agents:
           </p>
-          <ul class="list-disc list-inside space-y-1 text-xs">
+          <ul class="text-sm text-gray-600 space-y-1 mb-4">
             <li>
               <strong>Document Analysis:</strong> PDF summaries, data extraction
             </li>
@@ -44,51 +61,77 @@
               <strong>Multi-step Workflows:</strong> Complex orchestrated tasks
             </li>
           </ul>
-          <div class="mt-3 p-2 bg-purple-50 rounded text-xs">
-            <strong>Try these examples:</strong><br />
-            • "Extract all email addresses from this text"<br />
-            • "Analyze the uploaded CSV and create a summary"<br />
-            • "Find key insights in this PDF document"
+          <div class="mt-3">
+            <button
+              @click="insertSampleMessage('Extract all email addresses and URLs from this text: Please contact support@company.com or visit https://company.com')"
+              class="text-blue-600 hover:text-blue-800 text-sm underline"
+            >
+              Try: "Extract emails and URLs"
+            </button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Dynamic Messages will be inserted here -->
-    <template x-for="message in messages" :key="message.id">
-      <div class="chat-message animate-fade-in" :class="message.type">
+    <!-- Existing Chat History from Flask Session -->
+    {% if chat_history %} {% for message in chat_history %}
+    <div
+      class="flex {{ 'justify-end' if message.type == 'user' else 'justify-start' }} mb-4"
+    >
+      <div
+        class="max-w-[80%] p-4 rounded-lg {{ 'bg-blue-600 text-white' if message.type == 'user' else 'bg-gray-100 text-gray-800' }}"
+      >
+        <div class="prose max-w-none">{{ message.message|safe }}</div>
+        {% if message.metadata %}
         <div
-          class="chat-avatar"
-          :class="message.type === 'user' ? 'bg-blue-500' : 'bg-purple-500'"
+          class="mt-3 p-3 bg-white bg-opacity-20 rounded border-l-4 border-white"
         >
-          <span
-            x-text="message.type === 'user' ? 'U' : 'AI'"
-            class="text-xs font-bold"
-          ></span>
+          <div class="text-sm font-medium">Workflow:</div>
+          <div class="text-xs mt-1">
+            Agents: {{ message.metadata.agents_used|length if
+            message.metadata.agents_used else 0 }}<br />
+            Time: {{ "%.1f"|format(message.metadata.execution_time or 0) }}s
+          </div>
         </div>
-        <div class="chat-bubble" :class="message.type">
-          <div class="text-sm" x-html="formatMessage(message.message)"></div>
+        {% endif %}
+        <div class="text-xs opacity-50 mt-1">{{ message.timestamp }}</div>
+      </div>
+    </div>
+    {% endfor %} {% endif %}
+
+    <!-- Dynamic Messages (Alpine.js managed) -->
+    <template x-for="message in messages" :key="message.id">
+      <div
+        class="flex mb-4"
+        :class="message.type === 'user' ? 'justify-end' : 'justify-start'"
+      >
+        <div
+          class="max-w-[80%] p-4 rounded-lg"
+          :class="message.type === 'user' ? 'bg-blue-600 text-white' : 
+                   message.type === 'error' ? 'bg-red-100 text-red-800 border border-red-200' : 
+                   'bg-gray-100 text-gray-800'"
+        >
+          <div class="prose max-w-none">
+            <div x-html="formatMessage(message.message)"></div>
+          </div>
 
           <!-- Workflow Info for System Messages -->
           <template x-if="message.type === 'system' && message.metadata">
-            <div class="mt-2 text-xs opacity-75">
-              <div
-                x-show="message.metadata.agents_used && message.metadata.agents_used.length > 0"
-              >
-                <strong>Agents used:</strong>
-                <span x-text="message.metadata.agents_used.join(', ')"></span>
-              </div>
-              <div x-show="message.metadata.execution_time">
-                <strong>Execution time:</strong>
-                <span x-text="message.metadata.execution_time + 's'"></span>
-              </div>
-              <div
-                x-show="message.metadata.components_created > 0"
-                class="text-green-300"
-              >
-                ✨
-                <span x-text="message.metadata.components_created"></span> new
-                components created!
+            <div
+              class="mt-3 p-3 bg-white bg-opacity-20 rounded border-l-4 border-white"
+            >
+              <div class="text-sm font-medium">Workflow:</div>
+              <div class="text-xs mt-1">
+                <div
+                  x-show="message.metadata.agents_used && message.metadata.agents_used.length > 0"
+                >
+                  <strong>Agents:</strong>
+                  <span x-text="message.metadata.agents_used.join(', ')"></span>
+                </div>
+                <div x-show="message.metadata.execution_time">
+                  <strong>Time:</strong>
+                  <span x-text="message.metadata.execution_time + 's'"></span>
+                </div>
               </div>
             </div>
           </template>
@@ -103,284 +146,133 @@
     </template>
 
     <!-- Typing Indicator -->
-    <div x-show="isTyping" class="chat-message system animate-fade-in">
-      <div class="chat-avatar bg-purple-500">
-        <div class="flex space-x-1">
-          <div class="w-1 h-1 bg-white rounded-full animate-bounce"></div>
-          <div
-            class="w-1 h-1 bg-white rounded-full animate-bounce"
-            style="animation-delay: 0.1s"
-          ></div>
-          <div
-            class="w-1 h-1 bg-white rounded-full animate-bounce"
-            style="animation-delay: 0.2s"
-          ></div>
-        </div>
-      </div>
-      <div class="chat-bubble system">
-        <div class="text-sm text-gray-600">
+    <div x-show="isTyping" class="flex justify-start mb-4">
+      <div class="bg-gray-100 text-gray-600 p-4 rounded-lg max-w-[80%]">
+        <div class="flex items-center">
+          <div class="flex space-x-1 mr-3">
+            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+            <div
+              class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+              style="animation-delay: 0.1s"
+            ></div>
+            <div
+              class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+              style="animation-delay: 0.2s"
+            ></div>
+          </div>
           <span x-text="typingMessage"></span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- File Upload and Message Input -->
-  <div class="border-t border-gray-200 bg-white">
-    <!-- File Upload Status -->
-    <div
-      x-show="uploadedFiles.length > 0"
-      class="px-4 py-2 border-b border-gray-100"
-    >
-      <div class="text-sm text-gray-600 mb-2">Uploaded files:</div>
-      <div class="space-y-1">
-        <template x-for="file in uploadedFiles" :key="file.id">
+  <!-- Chat Input Container -->
+  <div class="p-4 border-t border-gray-200 bg-white">
+    <!-- Message Input Form -->
+    <form id="chat-form" @submit.prevent="sendMessage()" class="space-y-3">
+      <div class="flex items-end space-x-3">
+        <!-- File Attachment Button -->
+        <div class="relative">
+          <input
+            type="file"
+            id="file-upload-input"
+            class="hidden"
+            multiple
+            accept=".txt,.pdf,.csv,.json,.xlsx,.xls,.docx,.jpg,.jpeg,.png"
+          />
+          <button
+            type="button"
+            id="file-upload-btn"
+            class="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            📎
+          </button>
+          <!-- File preview area -->
           <div
-            class="flex items-center justify-between bg-gray-50 rounded px-3 py-2"
+            id="file-preview"
+            class="hidden absolute bottom-12 left-0 bg-white border rounded-lg shadow-lg p-2 w-64"
           >
-            <div class="flex items-center space-x-2">
-              <svg
-                class="w-4 h-4 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                ></path>
-              </svg>
-              <span
-                class="text-sm text-gray-900"
-                x-text="file.original_name"
-              ></span>
-              <span
-                class="text-xs text-gray-500"
-                x-text="formatFileSize(file.size)"
-              ></span>
-            </div>
-            <button
-              @click="removeFile(file.id)"
-              class="text-red-500 hover:text-red-700"
-            >
-              <svg
-                class="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                ></path>
-              </svg>
-            </button>
+            <div id="file-list" class="text-sm"></div>
           </div>
-        </template>
-      </div>
-    </div>
+        </div>
 
-    <!-- Drag and Drop Area -->
-    <div
-      x-show="!uploadedFiles.length"
-      class="file-drop-zone mx-4 mt-4"
-      @dragover.prevent="isDragOver = true"
-      @dragleave.prevent="isDragOver = false"
-      @drop.prevent="handleFileDrop($event)"
-      :class="{ 'dragover': isDragOver }"
-    >
-      <input
-        type="file"
-        x-ref="fileInput"
-        multiple
-        class="hidden"
-        accept=".txt,.pdf,.csv,.json,.xlsx,.xls,.docx,.jpg,.jpeg,.png"
-        @change="handleFileSelect($event)"
-      />
-      <div class="text-center py-6">
-        <svg
-          class="mx-auto h-12 w-12 text-gray-400"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-          ></path>
-        </svg>
-        <p class="mt-2 text-sm text-gray-600">
-          Drop files here or
-          <button
-            type="button"
-            @click="$refs.fileInput.click()"
-            class="text-blue-600 hover:text-blue-500"
-          >
-            browse
-          </button>
-        </p>
-        <p class="text-xs text-gray-500">
-          PDF, CSV, TXT, JSON, Excel files supported (max 16MB)
-        </p>
-      </div>
-    </div>
-
-    <!-- Message Input Area -->
-    <div class="p-4">
-      <form @submit.prevent="sendMessage()" class="space-y-3">
         <!-- Message Input -->
-        <div class="flex space-x-3">
-          <div class="flex-1">
-            <textarea
-              x-model="currentMessage"
-              x-ref="messageInput"
-              rows="1"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all"
-              placeholder="Ask me anything... (Ctrl+Enter to send)"
-              @input="autoResize($refs.messageInput)"
-              @keydown.ctrl.enter.prevent="sendMessage()"
-              @keydown.meta.enter.prevent="sendMessage()"
-              :disabled="isProcessing"
-            ></textarea>
-          </div>
-          <button
-            type="submit"
-            class="btn btn-primary min-w-[100px]"
-            :disabled="isProcessing || !currentMessage.trim()"
-            :class="{ 'opacity-50 cursor-not-allowed': isProcessing || !currentMessage.trim() }"
-          >
-            <svg
-              x-show="!isProcessing"
-              class="w-5 h-5 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-              ></path>
-            </svg>
-            <svg
-              x-show="isProcessing"
-              class="w-5 h-5 mr-2 animate-spin"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-              ></path>
-            </svg>
-            <span x-text="isProcessing ? 'Processing...' : 'Send'"></span>
-          </button>
+        <div class="flex-1 relative">
+          <textarea
+            x-model="currentMessage"
+            x-ref="messageInput"
+            rows="1"
+            class="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            placeholder="Ask me anything... (Ctrl+Enter to send)"
+            @input="autoResize($refs.messageInput)"
+            @keydown.ctrl.enter.prevent="sendMessage()"
+            :disabled="isProcessing"
+            style="min-height: 44px; max-height: 120px"
+          ></textarea>
         </div>
 
-        <!-- Quick Action Buttons -->
-        <div class="flex flex-wrap gap-2">
-          <button
-            type="button"
-            @click="insertQuickMessage('Extract all email addresses from the uploaded file')"
-            class="btn btn-sm btn-secondary"
+        <!-- Send Button -->
+        <button
+          type="submit"
+          class="flex-shrink-0 w-10 h-10 bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center justify-center transition-colors disabled:opacity-50"
+          :disabled="isProcessing || (!currentMessage.trim() && !(window.selectedFiles && window.selectedFiles.length))"
+        >
+          <svg
+            x-show="!isProcessing"
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            📧 Extract Emails
-          </button>
-          <button
-            type="button"
-            @click="insertQuickMessage('Create a statistical summary of the data')"
-            class="btn btn-sm btn-secondary"
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+            ></path>
+          </svg>
+          <svg
+            x-show="isProcessing"
+            class="w-5 h-5 animate-spin"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            📊 Statistical Analysis
-          </button>
-          <button
-            type="button"
-            @click="insertQuickMessage('Summarize the main points of this document')"
-            class="btn btn-sm btn-secondary"
-          >
-            📝 Summarize Document
-          </button>
-          <button
-            type="button"
-            @click="insertQuickMessage('Find all URLs and phone numbers in the text')"
-            class="btn btn-sm btn-secondary"
-          >
-            🔗 Extract Contacts
-          </button>
-        </div>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            ></path>
+          </svg>
+        </button>
+      </div>
 
-        <!-- Settings Toggle -->
-        <div class="flex items-center justify-between text-sm">
-          <div class="flex items-center space-x-4">
-            <label class="flex items-center">
-              <input
-                type="checkbox"
-                x-model="settings.auto_create"
-                class="mr-2"
-              />
-              <span class="text-gray-600">Auto-create missing agents</span>
-            </label>
-            <select
-              x-model="settings.workflow_type"
-              class="text-sm border border-gray-300 rounded px-2 py-1"
-            >
-              <option value="sequential">Sequential</option>
-              <option value="parallel">Parallel</option>
-            </select>
-          </div>
-
-          <div class="flex items-center space-x-2">
-            <button
-              type="button"
-              @click="clearChat()"
-              class="text-gray-500 hover:text-gray-700"
-            >
-              <svg
-                class="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                ></path>
-              </svg>
-            </button>
-            <button
-              type="button"
-              @click="exportChat()"
-              class="text-gray-500 hover:text-gray-700"
-            >
-              <svg
-                class="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                ></path>
-              </svg>
-            </button>
-          </div>
+      <!-- Settings -->
+      <div class="flex items-center justify-between text-sm">
+        <div class="flex items-center space-x-4">
+          <label class="flex items-center">
+            <input
+              type="checkbox"
+              x-model="settings.auto_create"
+              class="mr-2"
+            />
+            <span class="text-gray-600">Auto-create missing agents</span>
+          </label>
+          <select
+            x-model="settings.workflow_type"
+            class="text-sm border border-gray-300 rounded px-2 py-1"
+          >
+            <option value="sequential">Sequential</option>
+            <option value="parallel">Parallel</option>
+          </select>
         </div>
-      </form>
+      </div>
+    </form>
+
+    <!-- Help Text -->
+    <div class="mt-2 text-xs text-gray-500">
+      💡 Try: "Extract emails from text" or "Analyze this data"
     </div>
   </div>
 </div>
@@ -395,82 +287,99 @@
       isTyping: false,
       typingMessage: 'AI is thinking...',
 
-      // File State
-      uploadedFiles: [],
-      isDragOver: false,
-
       // Settings
       settings: {
         auto_create: true,
         workflow_type: 'sequential',
       },
 
-      // Current workflow tracking
-      currentWorkflowId: null,
+      hasExistingMessages: {{ 'true' if chat_history else 'false' }},
 
-      // Initialize
       init() {
-        this.loadChatHistory();
-        this.setupSSE();
+        console.log('Chat system initialized');
       },
 
-      // Message handling
+      // ⬇⬇ REPLACE THIS WHOLE METHOD ⬇⬇
       async sendMessage() {
-        if (!this.currentMessage.trim() || this.isProcessing) return;
+        if (this.isProcessing) return;
 
-        const message = this.currentMessage.trim();
+        const fileInput = document.getElementById('file-upload-input');
+        const filesArr = fileInput?.files ? Array.from(fileInput.files) : [];
+        const message = (this.currentMessage || '').trim();
+
+        // Block only when both message AND files are empty
+        if (!message && filesArr.length === 0) return;
+
+        // Clear the textarea immediately for snappy UX
         this.currentMessage = '';
 
-        // Add user message immediately
-        this.addMessage(message, 'user');
+        // Show user's message bubble (or a placeholder if files-only)
+        const userBubble = message || `${filesArr.length} file${filesArr.length > 1 ? 's' : ''} attached`;
+        this.addMessage(userBubble, 'user');
+        this.scrollToBottom();
 
-        // Show typing indicator
+        // Typing/processing state
         this.isTyping = true;
         this.isProcessing = true;
 
         try {
-          const response = await fetch('/api/chat/message', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              message: message,
-              files: this.uploadedFiles,
-              settings: this.settings,
-            }),
-          });
+          // 1) Upload files (if any)
+          let uploadedFiles = [];
+          if (filesArr.length > 0) {
+            const fd = new FormData();
+            for (const f of filesArr) fd.append('files', f);
 
-          const data = await response.json();
+            const uploadResp = await fetch('/api/upload', {
+              method: 'POST',
+              body: fd
+            });
+            if (!uploadResp.ok) throw new Error(`Upload failed: ${uploadResp.status}`);
+            const uploadJson = await uploadResp.json();
+            uploadedFiles = Array.isArray(uploadJson.files) ? uploadJson.files : [];
+          }
+
+          // 2) Send chat message with file references + settings
+          const resp = await fetch('/api/chat/message', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              message,
+              files: uploadedFiles,
+              settings: this.settings
+            })
+          });
+          const data = await resp.json();
+
+          // ADD THIS DEBUG LINE:
+          console.log('🔍 Backend response:', data);
 
           if (data.status === 'success') {
-            // Add system response
-            this.addMessage(
-              data.response.message,
-              'system',
-              data.response.metadata,
-              data.response.workflow_id
-            );
-
-            // Track workflow if created
-            if (data.response.workflow_id) {
-              this.currentWorkflowId = data.response.workflow_id;
-              this.trackWorkflow(data.response.workflow_id);
-            }
-
-            // Clear uploaded files after successful processing
-            this.uploadedFiles = [];
+            this.addMessage(data.response, 'system', data.metadata, data.workflow_id);
           } else {
-            this.addMessage(`Error: ${data.error || data.message}`, 'system');
+            this.addMessage(`Error: ${data.error || 'Unknown error'}`, 'error');
           }
-        } catch (error) {
-          this.addMessage(`Error: ${error.message}`, 'system');
+        } catch (err) {
+          console.error('Error sending message:', err);
+          this.addMessage(`Error: ${err.message}`, 'error');
         } finally {
           this.isTyping = false;
           this.isProcessing = false;
           this.scrollToBottom();
+
+          // 3) Reset file UI (preview, button color, input value)
+          if (typeof window.resetFileSelection === 'function') {
+            window.resetFileSelection();
+          } else {
+            // Fallback cleanup (in case initializeFileUpload hasn't run yet)
+            if (fileInput) fileInput.value = '';
+            const preview = document.getElementById('file-preview');
+            if (preview) preview.classList.add('hidden');
+            const uploadBtn = document.getElementById('file-upload-btn');
+            if (uploadBtn) uploadBtn.classList.remove('text-blue-600');
+          }
         }
       },
+      // ⬆⬆ REPLACE THIS WHOLE METHOD ⬆⬆
 
       addMessage(content, type = 'system', metadata = null, workflowId = null) {
         const message = {
@@ -481,141 +390,16 @@
           metadata: metadata,
           workflow_id: workflowId,
         };
-
         this.messages.push(message);
         this.$nextTick(() => this.scrollToBottom());
       },
 
-      insertQuickMessage(text) {
+      insertSampleMessage(text) {
         this.currentMessage = text;
         this.$refs.messageInput.focus();
+        this.autoResize(this.$refs.messageInput);
       },
 
-      // File handling
-      async handleFileDrop(event) {
-        this.isDragOver = false;
-        const files = Array.from(event.dataTransfer.files);
-        await this.uploadFiles(files);
-      },
-
-      async handleFileSelect(event) {
-        const files = Array.from(event.target.files);
-        await this.uploadFiles(files);
-      },
-
-      async uploadFiles(files) {
-        if (!files.length) return;
-
-        const formData = new FormData();
-        files.forEach((file) => formData.append('files', file));
-
-        try {
-          this.isProcessing = true;
-
-          const response = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData,
-          });
-
-          const data = await response.json();
-
-          if (data.status === 'success') {
-            this.uploadedFiles.push(...data.files);
-            this.showNotification(
-              `Uploaded ${data.count} file(s) successfully`,
-              'success'
-            );
-          } else {
-            this.showNotification(data.error || 'Upload failed', 'error');
-          }
-        } catch (error) {
-          this.showNotification('Upload failed: ' + error.message, 'error');
-        } finally {
-          this.isProcessing = false;
-        }
-      },
-
-      removeFile(fileId) {
-        this.uploadedFiles = this.uploadedFiles.filter(
-          (file) => file.id !== fileId
-        );
-      },
-
-      // Chat management
-      async loadChatHistory() {
-        try {
-          const response = await fetch('/api/chat/history');
-          const data = await response.json();
-
-          if (data.history) {
-            this.messages = data.history;
-            this.$nextTick(() => this.scrollToBottom());
-          }
-        } catch (error) {
-          console.error('Failed to load chat history:', error);
-        }
-      },
-
-      async clearChat() {
-        if (!confirm('Clear all chat messages?')) return;
-
-        try {
-          const response = await fetch('/api/chat/clear', { method: 'POST' });
-          const data = await response.json();
-
-          if (data.status === 'success') {
-            this.messages = [];
-            this.uploadedFiles = [];
-            this.currentWorkflowId = null;
-            this.showNotification('Chat cleared', 'success');
-          }
-        } catch (error) {
-          this.showNotification('Failed to clear chat', 'error');
-        }
-      },
-
-      async exportChat() {
-        try {
-          window.open('/api/chat/export', '_blank');
-        } catch (error) {
-          this.showNotification('Failed to export chat', 'error');
-        }
-      },
-
-      // Workflow tracking
-      setupSSE() {
-        // Set up Server-Sent Events for real-time updates
-        // This will be expanded in later steps
-      },
-
-      trackWorkflow(workflowId) {
-        // Track workflow progress
-        // This will connect to SSE endpoint for real-time updates
-        const eventSource = new EventSource(
-          `/api/workflow/${workflowId}/stream`
-        );
-
-        eventSource.onmessage = (event) => {
-          const data = JSON.parse(event.data);
-          this.handleWorkflowUpdate(data);
-        };
-
-        eventSource.onerror = (error) => {
-          console.error('Workflow SSE error:', error);
-          eventSource.close();
-        };
-      },
-
-      handleWorkflowUpdate(data) {
-        if (data.type === 'status_update') {
-          this.typingMessage = data.data.message || 'Processing...';
-        } else if (data.type === 'completion') {
-          this.isTyping = false;
-          this.addMessage('✅ Workflow completed successfully!', 'system');
-        }
-      },
-
-      // Utility functions
       scrollToBottom() {
         this.$nextTick(() => {
           const container = this.$refs.messagesContainer;
@@ -627,36 +411,22 @@
 
       autoResize(textarea) {
         textarea.style.height = 'auto';
-        textarea.style.height = Math.min(textarea.scrollHeight, 150) + 'px';
+        const maxHeight = 120;
+        textarea.style.height = Math.min(textarea.scrollHeight, maxHeight) + 'px';
       },
 
       formatMessage(message) {
-        // Basic markdown-like formatting
         return message
           .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
           .replace(/\*(.*?)\*/g, '<em>$1</em>')
-          .replace(
-            /`(.*?)`/g,
-            '<code class="bg-gray-200 px-1 rounded">$1</code>'
-          )
-          .replace(/\n/g, '<br>');
+          .replace(/\n/g, '<br>')
+          .replace(/•/g, '&bull;')
+          .replace(/📧/g, '📧')
+          .replace(/🔗/g, '🔗');
       },
 
       formatTimestamp(timestamp) {
         return new Date(timestamp).toLocaleTimeString();
-      },
-
-      formatFileSize(bytes) {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-      },
-
-      showNotification(message, type = 'info') {
-        // Use global notification system
-        window.appUtils.showNotification(message, type);
       },
     };
   }

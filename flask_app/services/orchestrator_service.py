@@ -99,6 +99,12 @@ class OrchestratorService:
                 user_request=request_text, files=files, auto_create=auto_create
             )
 
+            # ADD DEBUG to see what's returned:
+            print(f"DEBUG: Orchestrator returned: {result.keys()}")
+            print(
+                f"DEBUG: Response field: {result.get('response', 'NO RESPONSE FIELD')[:200]}"
+            )
+
             # Update workflow status
             final_status = result.get("status", "unknown")
             self.active_workflows[workflow_id]["status"] = final_status
@@ -106,9 +112,39 @@ class OrchestratorService:
                 "completed_at"
             ] = datetime.now().isoformat()
 
-            # Add workflow metadata
-            result["workflow_id"] = workflow_id
-            result["request_data"] = request_data
+            # Calculate execution time
+            execution_time = 0
+            if workflow_id in self.active_workflows:
+                try:
+                    start = datetime.fromisoformat(
+                        self.active_workflows[workflow_id]["started_at"]
+                    )
+                    execution_time = (datetime.now() - start).total_seconds()
+                except:
+                    execution_time = 0
+
+            # Extract workflow info
+            workflow_info = result.get("workflow", {})
+            if isinstance(workflow_info, dict) and "steps" not in workflow_info:
+                workflow_info = {"steps": result.get("agents", [])}
+
+            # Format response to match frontend expectations
+            formatted_response = {
+                "status": final_status,
+                "workflow_id": workflow_id,
+                "response": result.get("response", "Request processed successfully."),
+                "workflow": workflow_info,
+                "execution_time": execution_time,
+                "results": result.get("results", {}),
+                "metadata": {
+                    "agents_used": workflow_info.get("steps", []),
+                    "execution_time": execution_time,
+                    "components_created": result.get("metadata", {}).get(
+                        "components_created", 0
+                    ),
+                    "workflow_type": workflow_type,
+                },
+            }
 
             # Move to history if completed
             if final_status in ["success", "error", "partial"]:
@@ -116,7 +152,7 @@ class OrchestratorService:
                 if workflow_id in self.active_workflows:
                     del self.active_workflows[workflow_id]
 
-            return result
+            return formatted_response
 
         except Exception as e:
             # Handle processing errors

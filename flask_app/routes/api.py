@@ -1,14 +1,22 @@
-# flask_app/routes/api.py
+# flask_app/routes/api.py - STREAMLINED VERSION
 """
-API Routes Blueprint
+API Routes Blueprint - Streamlined for Agentic Fabric POC
 Handles AJAX requests, file uploads, and data endpoints
 """
 
 import os
 import json
+from typing import Any, Dict
 import uuid
 from datetime import datetime
-from flask import Blueprint, request, jsonify, current_app, session
+from flask import (
+    Blueprint,
+    request,
+    jsonify,
+    current_app,
+    session,
+    make_response,
+)
 from werkzeug.utils import secure_filename
 from flask_app.services.orchestrator_service import orchestrator_service
 from flask_app.services.registry_service import registry_service
@@ -30,23 +38,52 @@ def allowed_file(filename):
 def health_check():
     """System health check endpoint."""
     try:
+        registry_stats = registry_service.get_registry_stats()
+
+        # Ensure proper structure
+        if not registry_stats or not registry_stats.get("available", False):
+            registry_stats = {
+                "available": False,
+                "statistics": {"total_agents": 0, "total_tools": 0},
+                "summary": {"health_score": 0, "status": "unavailable"},
+            }
+
         health_data = {
             "status": "healthy",
             "timestamp": datetime.now().isoformat(),
             "services": {
                 "orchestrator": orchestrator_service.is_backend_available(),
-                "registry": registry_service.is_available(),
-                "workflow": workflow_service.is_available(),
+                "registry": {
+                    "available": registry_stats.get("available", False),
+                    "stats": registry_stats.get(
+                        "statistics", {"total_agents": 0, "total_tools": 0}
+                    ),
+                    "health_score": registry_stats.get("summary", {}).get(
+                        "health_score", 0
+                    ),
+                    "status": registry_stats.get("summary", {}).get(
+                        "status", "unknown"
+                    ),
+                },
             },
             "system_stats": orchestrator_service.get_system_stats(),
             "version": "1.0.0",
         }
 
         # Determine overall health
-        all_services_up = all(health_data["services"].values())
-        health_data["status"] = "healthy" if all_services_up else "degraded"
+        orchestrator_ok = health_data["services"]["orchestrator"]
+        registry_ok = health_data["services"]["registry"]["available"]
 
-        status_code = 200 if all_services_up else 503
+        if orchestrator_ok and registry_ok:
+            health_data["status"] = "healthy"
+            status_code = 200
+        elif orchestrator_ok or registry_ok:
+            health_data["status"] = "degraded"
+            status_code = 200
+        else:
+            health_data["status"] = "unhealthy"
+            status_code = 503
+
         return jsonify(health_data), status_code
 
     except Exception as e:
@@ -91,7 +128,6 @@ def upload_file():
 
                 # Get file metadata
                 file_stats = os.stat(filepath)
-
                 file_metadata = {
                     "id": unique_id,
                     "original_name": filename,
@@ -101,7 +137,6 @@ def upload_file():
                     "type": file.content_type or "application/octet-stream",
                     "uploaded_at": datetime.now().isoformat(),
                 }
-
                 uploaded_files.append(file_metadata)
             else:
                 return (
@@ -117,270 +152,11 @@ def upload_file():
         return jsonify({"error": str(e)}), 500
 
 
-@api_bp.route("/process", methods=["POST"])
-def process_request():
-    """Main request processing endpoint."""
-    try:
-        data = request.get_json()
-
-        if not data or "request" not in data:
-            return jsonify({"error": "No request text provided"}), 400
-
-        request_text = data["request"].strip()
-        if not request_text:
-            return jsonify({"error": "Request text cannot be empty"}), 400
-
-        # Get processing options from request or session
-        auto_create = data.get("auto_create", session.get("auto_create", True))
-        workflow_type = data.get(
-            "workflow_type", session.get("workflow_type", "sequential")
-        )
-        files = data.get("files", [])
-
-        # Process request asynchronously
-        import asyncio
-
-        result = asyncio.run(
-            orchestrator_service.process_user_request(
-                request_text=request_text,
-                files=files,
-                auto_create=auto_create,
-                workflow_type=workflow_type,
-            )
-        )
-
-        return jsonify(result)
-
-    except Exception as e:
-        return (
-            jsonify(
-                {
-                    "status": "error",
-                    "error": str(e),
-                    "message": "Request processing failed",
-                }
-            ),
-            500,
-        )
-
-
-@api_bp.route("/workflow/<workflow_id>/status")
-def get_workflow_status(workflow_id):
-    """Get current status of a workflow."""
-    try:
-        status = orchestrator_service.get_workflow_status(workflow_id)
-
-        if not status:
-            return jsonify({"error": "Workflow not found"}), 404
-
-        return jsonify(status)
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/workflow/<workflow_id>/cancel", methods=["DELETE"])
-def cancel_workflow(workflow_id):
-    """Cancel an active workflow."""
-    try:
-        success = orchestrator_service.cancel_workflow(workflow_id)
-
-        if success:
-            return jsonify({"status": "cancelled", "workflow_id": workflow_id})
-        else:
-            return jsonify({"error": "Workflow not found or already completed"}), 404
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/workflow/<workflow_id>/stream")
-def stream_workflow_updates(workflow_id):
-    """Stream real-time workflow updates via Server-Sent Events."""
-    try:
-
-        def generate():
-            yield "data: " + json.dumps(
-                {
-                    "type": "connection",
-                    "message": "Connected to workflow stream",
-                    "workflow_id": workflow_id,
-                }
-            ) + "\n\n"
-
-            # Stream updates from workflow service
-            for update in workflow_service.stream_workflow_updates(workflow_id):
-                yield update
-
-        return current_app.response_class(
-            generate(),
-            mimetype="text/event-stream",
-            headers={
-                "Cache-Control": "no-cache",
-                "Connection": "keep-alive",
-                "Access-Control-Allow-Origin": "*",
-            },
-        )
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/workflows")
-def list_workflows():
-    """Get list of workflows with pagination."""
-    try:
-        page = int(request.args.get("page", 1))
-        per_page = min(int(request.args.get("per_page", 20)), 100)  # Max 100 per page
-
-        all_workflows = orchestrator_service.get_workflow_history()
-        active_workflows = orchestrator_service.get_active_workflows()
-
-        # Simple pagination
-        start_idx = (page - 1) * per_page
-        end_idx = start_idx + per_page
-        workflows = all_workflows[start_idx:end_idx]
-
-        return jsonify(
-            {
-                "workflows": workflows,
-                "active_workflows": active_workflows,
-                "pagination": {
-                    "page": page,
-                    "per_page": per_page,
-                    "total": len(all_workflows),
-                    "pages": (len(all_workflows) + per_page - 1) // per_page,
-                },
-                "stats": orchestrator_service.get_system_stats(),
-            }
-        )
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/registry/agents")
-def list_agents():
-    """Get list of available agents."""
-    try:
-        tags = request.args.getlist("tags")
-        active_only = request.args.get("active_only", "true").lower() == "true"
-
-        agents = registry_service.get_agents_list(
-            tags=tags if tags else None, active_only=active_only
-        )
-
-        return jsonify({"agents": agents, "count": len(agents)})
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/registry/tools")
-def list_tools():
-    """Get list of available tools."""
-    try:
-        tags = request.args.getlist("tags")
-        pure_only = request.args.get("pure_only", "false").lower() == "true"
-
-        tools = registry_service.get_tools_list(
-            tags=tags if tags else None, pure_only=pure_only
-        )
-
-        return jsonify({"tools": tools, "count": len(tools)})
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/registry/stats")
-def registry_stats():
-    """Get registry statistics."""
-    try:
-        stats = registry_service.get_registry_stats()
-        return jsonify(stats)
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/registry/search")
-def search_registry():
-    """Search agents and tools."""
-    try:
-        query = request.args.get("q", "").strip()
-
-        if not query:
-            return jsonify({"error": "Query parameter 'q' is required"}), 400
-
-        results = registry_service.search_components(query)
-        return jsonify(results)
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/registry/dependencies")
-def get_dependencies():
-    """Get dependency graph data."""
-    try:
-        graph = registry_service.get_dependency_graph()
-        return jsonify(graph)
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/test-connection")
-def test_connection():
-    """Test backend connectivity."""
-    try:
-        results = {
-            "timestamp": datetime.now().isoformat(),
-            "services": {
-                "orchestrator": {
-                    "available": orchestrator_service.is_backend_available(),
-                    "stats": orchestrator_service.get_system_stats(),
-                },
-                "registry": {
-                    "available": registry_service.is_available(),
-                    "stats": registry_service.get_registry_stats(),
-                },
-                "workflow": {"available": workflow_service.is_available()},
-            },
-        }
-
-        return jsonify(results)
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-# Error handlers for API routes
-@api_bp.errorhandler(400)
-def bad_request(error):
-    """Handle 400 errors in API."""
-    return jsonify({"error": "Bad request", "message": str(error)}), 400
-
-
-@api_bp.errorhandler(404)
-def not_found_api(error):
-    """Handle 404 errors in API."""
-    return jsonify({"error": "Endpoint not found"}), 404
-
-
-@api_bp.errorhandler(500)
-def internal_error_api(error):
-    """Handle 500 errors in API."""
-    return jsonify({"error": "Internal server error"}), 500
-
-
 @api_bp.route("/chat/message", methods=["POST"])
 def send_chat_message():
-    """Process a chat message with full workflow tracking."""
+    """Process a chat message with natural language support."""
     try:
         data = request.get_json()
-
         if not data or "message" not in data:
             return jsonify({"error": "No message provided"}), 400
 
@@ -397,41 +173,48 @@ def send_chat_message():
             "workflow_type", session.get("workflow_type", "sequential")
         )
 
-        # Generate unique message ID for tracking
-        import uuid
-
+        # Generate unique message ID
         message_id = f"msg_{uuid.uuid4().hex[:8]}"
 
-        # Store message in session for persistence
+        # Store in session
         if "chat_history" not in session:
             session["chat_history"] = []
 
-        session["chat_history"].append(
-            {
-                "id": message_id,
-                "message": message,
-                "timestamp": datetime.now().isoformat(),
-                "type": "user",
-                "files": files,
-            }
-        )
+        user_message = {
+            "id": message_id,
+            "message": message,
+            "timestamp": datetime.now().isoformat(),
+            "type": "user",
+            "files": files,
+        }
+        session["chat_history"].append(user_message)
 
         # Process through orchestrator
         import asyncio
 
-        result = asyncio.run(
-            orchestrator_service.process_user_request(
-                request_text=message,
-                files=files,
-                auto_create=auto_create,
-                workflow_type=workflow_type,
+        try:
+            result = asyncio.run(
+                orchestrator_service.process_user_request(
+                    request_text=message,
+                    files=files,
+                    auto_create=auto_create,
+                    workflow_type=workflow_type,
+                )
             )
-        )
+        except Exception as e:
+            result = {
+                "status": "error",
+                "error": str(e),
+                "response": f"I encountered an error processing your request: {str(e)}",
+            }
 
-        # Add system response to chat history
+        # Create natural language response
+        response_text = create_natural_response(result, message)
+
+        # Add system response to session
         system_response = {
             "id": f"sys_{uuid.uuid4().hex[:8]}",
-            "message": result.get("response", "Request processed"),
+            "message": response_text,
             "timestamp": datetime.now().isoformat(),
             "type": "system",
             "workflow_id": result.get("workflow_id"),
@@ -442,6 +225,7 @@ def send_chat_message():
                 "components_created": result.get("metadata", {}).get(
                     "components_created", 0
                 ),
+                "workflow_type": workflow_type,
             },
         }
 
@@ -452,8 +236,12 @@ def send_chat_message():
             {
                 "status": "success",
                 "message_id": message_id,
-                "response": system_response,
-                "workflow_data": result,
+                "response": response_text,
+                "workflow_id": result.get("workflow_id"),
+                "workflow": result.get("workflow", {}),
+                "execution_time": result.get("execution_time", 0),
+                "results": result.get("results", {}),
+                "metadata": system_response["metadata"],
                 "chat_updated": True,
             }
         )
@@ -464,11 +252,211 @@ def send_chat_message():
                 {
                     "status": "error",
                     "error": str(e),
-                    "message": "Failed to process message",
+                    "response": f"I'm having technical difficulties: {str(e)}",
                 }
             ),
             500,
         )
+
+
+def create_natural_response(result, original_request):
+    """Create a natural language response from orchestrator results."""
+
+    # Check if we have a synthesized response from orchestrator
+    if result.get("response"):
+        # Use the orchestrator's synthesized response
+        return result["response"]
+
+    # Fallback: Create response from components
+    if result.get("status") == "error":
+        error_msg = result.get("error", "An unknown error occurred")
+        return f"I encountered an error while processing your request: {error_msg}\n\nPlease try again or provide more specific information."
+
+    # Build response from results
+    response_parts = []
+
+    # Add opening based on request type
+    if "extract" in original_request.lower():
+        response_parts.append(
+            "I've extracted the requested information from your content:"
+        )
+    elif "analyze" in original_request.lower():
+        response_parts.append("I've completed the analysis of your content:")
+    else:
+        response_parts.append("I've processed your request successfully:")
+
+    # Process agent results
+    agent_results = result.get("results", {})
+    workflow_steps = result.get("workflow", {}).get("steps", [])
+
+    # Extract meaningful content from each agent
+    all_emails = []
+    all_urls = []
+    all_phones = []
+    other_data = {}
+
+    for agent_name, agent_result in agent_results.items():
+        if (
+            not isinstance(agent_result, dict)
+            or agent_result.get("status") != "success"
+        ):
+            continue
+
+        agent_data = agent_result.get("data", {})
+
+        # Collect specific data types
+        if isinstance(agent_data, dict):
+            if "emails" in agent_data:
+                all_emails.extend(agent_data["emails"])
+            if "urls" in agent_data:
+                all_urls.extend(agent_data["urls"])
+            if "phones" in agent_data:
+                all_phones.extend(agent_data["phones"])
+
+            # Collect other data
+            for key, value in agent_data.items():
+                if key not in ["emails", "urls", "phones"]:
+                    other_data[key] = value
+
+    # Format findings
+    if all_emails:
+        response_parts.append(f"\n📧 **Email Addresses Found ({len(all_emails)}):**")
+        for email in all_emails[:10]:  # Limit display
+            response_parts.append(f"  • {email}")
+        if len(all_emails) > 10:
+            response_parts.append(f"  • ... and {len(all_emails) - 10} more")
+
+    if all_urls:
+        response_parts.append(f"\n🔗 **URLs Found ({len(all_urls)}):**")
+        for url in all_urls[:10]:
+            response_parts.append(f"  • {url}")
+        if len(all_urls) > 10:
+            response_parts.append(f"  • ... and {len(all_urls) - 10} more")
+
+    if all_phones:
+        response_parts.append(f"\n📞 **Phone Numbers Found ({len(all_phones)}):**")
+        for phone in all_phones[:10]:
+            response_parts.append(f"  • {phone}")
+
+    # Add other data if present
+    if other_data:
+        response_parts.append("\n📊 **Additional Information:**")
+        for key, value in list(other_data.items())[:5]:
+            response_parts.append(f"  • {key.replace('_', ' ').title()}: {value}")
+
+    # If no specific data found
+    if not (all_emails or all_urls or all_phones or other_data):
+        response_parts.append(
+            "\nNo specific data items were extracted from your content."
+        )
+
+    # Add execution summary
+    if workflow_steps:
+        response_parts.append(f"\n---")
+        response_parts.append(
+            f"*Processed using {len(workflow_steps)} agents in {result.get('execution_time', 0):.1f} seconds*"
+        )
+
+    return "\n".join(response_parts)
+
+
+def extract_content_summary(agent_results):
+    """Extract meaningful content from agent results."""
+    content_parts = []
+
+    for agent_name, agent_result in agent_results.items():
+        if (
+            not isinstance(agent_result, dict)
+            or agent_result.get("status") != "success"
+        ):
+            continue
+
+        agent_data = agent_result.get("data", {})
+
+        # Email extraction
+        if "email" in agent_name.lower() and isinstance(agent_data, dict):
+            emails = agent_data.get("emails", [])
+            if emails:
+                content_parts.append(f"Found **{len(emails)} email addresses**:")
+                for email in emails[:5]:  # Show first 5
+                    content_parts.append(f"   • {email}")
+                if len(emails) > 5:
+                    content_parts.append(f"   • ... and {len(emails) - 5} more")
+
+        # URL extraction
+        elif "url" in agent_name.lower() and isinstance(agent_data, dict):
+            urls = agent_data.get("urls", [])
+            if urls:
+                content_parts.append(f"Found **{len(urls)} URLs**:")
+                for url in urls[:3]:  # Show first 3
+                    content_parts.append(f"   • {url}")
+                if len(urls) > 3:
+                    content_parts.append(f"   • ... and {len(urls) - 3} more")
+
+        # Generic data processing
+        else:
+            if isinstance(agent_data, dict) and agent_data:
+                summary_items = []
+                for key, value in list(agent_data.items())[:3]:
+                    if isinstance(value, list):
+                        summary_items.append(
+                            f"**{key.replace('_', ' ').title()}**: {len(value)} items"
+                        )
+                    elif isinstance(value, (int, float)):
+                        summary_items.append(
+                            f"**{key.replace('_', ' ').title()}**: {value}"
+                        )
+
+                if summary_items:
+                    content_parts.append(
+                        f"**{agent_name.replace('_', ' ').title()} Results:**"
+                    )
+                    content_parts.extend([f"   • {item}" for item in summary_items])
+
+    return content_parts
+
+
+# Simple API endpoints
+@api_bp.route("/workflow/<workflow_id>/status")
+def get_workflow_status(workflow_id):
+    """Get workflow status."""
+    try:
+        status = orchestrator_service.get_workflow_status(workflow_id)
+        if not status:
+            return jsonify({"error": "Workflow not found"}), 404
+        return jsonify(status)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/registry/agents")
+def list_agents():
+    """Get list of available agents."""
+    try:
+        agents = registry_service.get_agents_list()
+        return jsonify({"agents": agents, "count": len(agents)})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/registry/tools")
+def list_tools():
+    """Get list of available tools."""
+    try:
+        tools = registry_service.get_tools_list()
+        return jsonify({"tools": tools, "count": len(tools)})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/registry/stats")
+def registry_stats():
+    """Get registry statistics."""
+    try:
+        stats = registry_service.get_registry_stats()
+        return jsonify(stats)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @api_bp.route("/chat/history")
@@ -497,51 +485,107 @@ def export_chat_history():
     """Export chat history as JSON."""
     try:
         history = session.get("chat_history", [])
-
         export_data = {
             "exported_at": datetime.now().isoformat(),
             "message_count": len(history),
-            "session_id": session.get("session_id", "unknown"),
             "messages": history,
         }
-
-        from flask import make_response
 
         response = make_response(json.dumps(export_data, indent=2))
         response.headers["Content-Type"] = "application/json"
         response.headers["Content-Disposition"] = (
             f'attachment; filename=chat_history_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
         )
-
         return response
-
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
-@api_bp.route("/workflow/<workflow_id>/visualization")
-def get_workflow_visualization(workflow_id):
-    """Get workflow visualization data."""
-    try:
-        viz_data = workflow_service.get_workflow_visualization(workflow_id)
-        return jsonify(viz_data)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+# Error handlers
+@api_bp.errorhandler(400)
+def bad_request(error):
+    """Handle 400 errors."""
+    return jsonify({"error": "Bad request"}), 400
 
 
-@api_bp.route("/files/<file_id>/preview")
-def get_file_preview(file_id):
-    """Get file preview data."""
+@api_bp.errorhandler(404)
+def not_found_api(error):
+    """Handle 404 errors."""
+    return jsonify({"error": "Endpoint not found"}), 404
+
+
+@api_bp.errorhandler(500)
+def internal_error_api(error):
+    """Handle 500 errors."""
+    return jsonify({"error": "Internal server error"}), 500
+
+
+@api_bp.route("/workflows")
+def list_workflows():
+    """Get workflow history."""
     try:
-        # This would implement file preview logic
-        # For now, return placeholder
+        per_page = min(int(request.args.get("per_page", 20)), 100)
+        workflows = orchestrator_service.get_workflow_history(limit=per_page)
         return jsonify(
-            {
-                "file_id": file_id,
-                "preview": "File preview not yet implemented",
-                "type": "text",
-                "size": 0,
-            }
+            {"workflows": workflows, "count": len(workflows), "total": len(workflows)}
         )
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/registry/dependencies")
+def get_dependencies():
+    """Get dependency graph."""
+    try:
+        deps = registry_service.get_dependency_graph()
+        return jsonify(deps)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+def get_current_workflow_status(self) -> Dict[str, Any]:
+    """Get current workflow execution status for sidebar display."""
+    try:
+        # Get active workflows from orchestrator service
+        from flask_app.services.orchestrator_service import orchestrator_service
+
+        active_workflows = orchestrator_service.get_active_workflows()
+
+        if not active_workflows:
+            return {
+                "status": "idle",
+                "message": "No active workflows",
+                "current_workflow": None,
+            }
+
+        # Get the most recent active workflow
+        current = active_workflows[0]
+
+        return {
+            "status": "active",
+            "message": f"Processing: {current.get('request', 'Unknown task')[:50]}...",
+            "current_workflow": {
+                "id": current.get("workflow_id"),
+                "request": current.get("request"),
+                "status": current.get("status"),
+                "started_at": current.get("started_at"),
+                "progress": self._calculate_workflow_progress(current),
+            },
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"Error getting workflow status: {str(e)}",
+            "current_workflow": None,
+        }
+
+
+def _calculate_workflow_progress(self, workflow_data: Dict) -> int:
+    """Calculate workflow progress percentage."""
+    # This is a simple calculation - you can make it more sophisticated
+    if workflow_data.get("status") == "completed":
+        return 100
+    elif workflow_data.get("status") == "processing":
+        return 50  # Assume 50% when processing
+    else:
+        return 0

@@ -286,8 +286,6 @@ class WorkflowService:
 
         return sorted(timeline, key=lambda x: x["timestamp"])
 
-    # Add these methods to flask_app/services/workflow_service.py
-
     def get_workflow_statistics(self) -> Dict[str, Any]:
         """Get comprehensive workflow statistics."""
         try:
@@ -352,6 +350,52 @@ class WorkflowService:
         diagram += "    classDef pending fill:#f8f9fa,stroke:#dee2e6,color:#495057\n"
 
         return diagram
+
+    def get_current_workflow_status(self) -> Dict[str, Any]:
+        """Get current workflow execution status for sidebar display."""
+        try:
+            # Get active workflows from orchestrator service
+            from flask_app.services.orchestrator_service import orchestrator_service
+
+            active_workflows = orchestrator_service.get_active_workflows()
+
+            if not active_workflows:
+                return {
+                    "status": "idle",
+                    "message": "No active workflows",
+                    "current_workflow": None,
+                }
+
+            # Get the most recent active workflow
+            current = active_workflows[0]
+
+            return {
+                "status": "active",
+                "message": f"Processing: {current.get('request', 'Unknown task')[:50]}...",
+                "current_workflow": {
+                    "id": current.get("workflow_id"),
+                    "request": current.get("request"),
+                    "status": current.get("status"),
+                    "started_at": current.get("started_at"),
+                    "progress": self._calculate_workflow_progress(current),
+                },
+            }
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Error getting workflow status: {str(e)}",
+                "current_workflow": None,
+            }
+
+    def _calculate_workflow_progress(self, workflow_data: Dict) -> int:
+        """Calculate workflow progress percentage."""
+        # This is a simple calculation - you can make it more sophisticated
+        if workflow_data.get("status") == "completed":
+            return 100
+        elif workflow_data.get("status") == "processing":
+            return 50  # Assume 50% when processing
+        else:
+            return 0
 
 
 # Global service instance

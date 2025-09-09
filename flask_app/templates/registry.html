@@ -1,384 +1,193 @@
-{% extends "base.html" %} {% block title %}Registry - {{ super() }}{% endblock
+{% extends "base.html" %} {% block title %}Registry - {{ app_name }}{% endblock
 %} {% block content %}
-<div class="space-y-8">
-  <!-- Header -->
-  <div class="flex justify-between items-start">
-    <div>
-      <h1 class="text-3xl font-bold text-gray-900">Component Registry</h1>
-      <p class="mt-2 text-gray-600">
-        Explore available agents and tools in the system
-      </p>
-    </div>
-
-    <!-- Registry Stats - FIXED -->
-    {% if registry_stats.available %}
-    <div class="bg-white rounded-lg shadow p-6">
-      <div class="grid grid-cols-3 gap-4 text-center">
-        <div>
+<div class="h-full flex flex-col">
+  <!-- Registry Header -->
+  <div class="bg-white border-b border-gray-200 p-6 flex-shrink-0">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Component Registry</h1>
+        <p class="text-gray-600 mt-1">
+          Explore available agents and tools in the system
+        </p>
+      </div>
+      <div class="flex items-center space-x-6">
+        <div class="text-center">
           <div class="text-2xl font-bold text-blue-600">
-            {{ agents|length }}
+            {{ registry_stats.statistics.total_agents or 0 }}
           </div>
-          <div class="text-sm text-gray-600">Agents</div>
+          <div class="text-sm text-gray-500">Agents</div>
         </div>
-        <div>
+        <div class="text-center">
           <div class="text-2xl font-bold text-green-600">
-            {{ tools|length }}
+            {{ registry_stats.statistics.total_tools or 0 }}
           </div>
-          <div class="text-sm text-gray-600">Tools</div>
+          <div class="text-sm text-gray-500">Tools</div>
         </div>
-        <div>
+        <div class="text-center">
           <div class="text-2xl font-bold text-purple-600">
-            {{ "%.0f"|format(registry_stats.summary.health_score|default(0)) }}%
+            {{ registry_stats.summary.health_score or 0 }}%
           </div>
-          <div class="text-sm text-gray-600">Health</div>
+          <div class="text-sm text-gray-500">Health</div>
         </div>
       </div>
     </div>
-    {% endif %}
   </div>
 
-  <!-- Search and Filters -->
-  <div class="bg-white rounded-lg shadow p-6">
-    <form method="GET" class="space-y-4">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <!-- Search -->
-        <div>
-          <label
-            for="search"
-            class="block text-sm font-medium text-gray-700 mb-1"
-            >Search</label
-          >
-          <input
-            type="text"
-            id="search"
-            name="search"
-            value="{{ current_filters.search }}"
-            placeholder="Search agents and tools..."
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-          />
-        </div>
-
-        <!-- Agent Tags -->
-        <div>
-          <label
-            for="agent_tags"
-            class="block text-sm font-medium text-gray-700 mb-1"
-            >Agent Tags</label
-          >
-          <select
-            id="agent_tags"
-            name="agent_tags"
-            multiple
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-          >
-            {% for tag in all_agent_tags %}
-            <option
-              value="{{ tag }}"
-              {%
-              if
-              tag
-              in
-              current_filters.agent_tags
-              %}selected{%
-              endif
-              %}
-            >
-              {{ tag }}
-            </option>
-            {% endfor %}
-          </select>
-        </div>
-
-        <!-- Tool Tags -->
-        <div>
-          <label
-            for="tool_tags"
-            class="block text-sm font-medium text-gray-700 mb-1"
-            >Tool Tags</label
-          >
-          <select
-            id="tool_tags"
-            name="tool_tags"
-            multiple
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-          >
-            {% for tag in all_tool_tags %}
-            <option
-              value="{{ tag }}"
-              {%
-              if
-              tag
-              in
-              current_filters.tool_tags
-              %}selected{%
-              endif
-              %}
-            >
-              {{ tag }}
-            </option>
-            {% endfor %}
-          </select>
-        </div>
+  <!-- Filters and Search -->
+  <div class="bg-gray-50 border-b border-gray-200 p-4 flex-shrink-0">
+    <div class="flex items-center space-x-4">
+      <div class="flex-1">
+        <input
+          type="text"
+          placeholder="Search agents and tools..."
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        />
       </div>
-
-      <div class="flex space-x-3">
-        <button type="submit" class="btn btn-primary">Apply Filters</button>
-        <a href="{{ url_for('main.registry') }}" class="btn btn-secondary"
-          >Clear</a
-        >
-      </div>
-    </form>
-  </div>
-
-  <!-- Enhanced Agents Section -->
-  <div>
-    <div class="flex items-center justify-between mb-6">
-      <h2 class="text-2xl font-bold text-gray-900 flex items-center">
-        <span
-          class="bg-blue-100 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold mr-3"
-          >A</span
-        >
-        Agents
-        <span class="badge badge-primary ml-3">{{ agents|length }}</span>
-      </h2>
-    </div>
-
-    {% if agents %}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {% for agent in agents %}
-      <div
-        class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 overflow-hidden group"
+      <button
+        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
       >
-        <!-- Agent Header -->
-        <div
-          class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-blue-100"
-        >
-          <div class="flex items-center justify-between">
-            <div class="flex items-center">
-              <div
-                class="bg-blue-500 text-white w-10 h-10 rounded-lg flex items-center justify-center font-semibold text-sm mr-3"
-              >
-                {{ agent.name[0:2].upper() }}
-              </div>
-              <div>
-                <h3 class="text-lg font-semibold text-gray-900">
-                  {{ agent.name }}
-                </h3>
-                <span
-                  class="badge {% if agent.performance_indicator == 'Fast' %}badge-success{% elif agent.performance_indicator == 'Normal' %}badge-primary{% elif agent.performance_indicator == 'Slow' %}badge-warning{% else %}badge-secondary{% endif %} text-xs"
+        Apply Filters
+      </button>
+      <button class="text-gray-600 hover:text-gray-800">Clear</button>
+    </div>
+  </div>
+
+  <!-- Content Area with Proper Scrolling -->
+  <div class="flex-1 overflow-auto">
+    <div class="p-6">
+      <!-- Agents Section -->
+      <div class="mb-8">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+          <span class="bg-blue-100 text-blue-600 px-2 py-1 rounded text-sm mr-2"
+            >A</span
+          >
+          Agents {{ agents|length }}
+        </h2>
+        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          {% for agent in agents %}
+          <div
+            class="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow"
+          >
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center">
+                <div
+                  class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center text-white font-medium text-sm"
                 >
-                  {{ agent.performance_indicator }}
-                </span>
+                  {{ agent.name[:2].upper() }}
+                </div>
+                <div class="ml-3">
+                  <h3 class="font-medium text-gray-900">
+                    {{ agent.name.replace('_', ' ').title() }}
+                  </h3>
+                  <span class="text-xs text-gray-500"
+                    >{{ 'Prebuilt' if agent.is_prebuilt else 'Generated'
+                    }}</span
+                  >
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <!-- Agent Body -->
-        <div class="p-6">
-          <p class="text-gray-600 mb-4 leading-relaxed">
-            {{ agent.description }}
-          </p>
+            <p class="text-sm text-gray-600 mb-4">{{ agent.description }}</p>
 
-          <!-- Tools Used -->
-          <div class="mb-4">
-            <h4
-              class="text-sm font-semibold text-gray-700 mb-2 flex items-center"
-            >
-              <svg
-                class="w-4 h-4 mr-1 text-green-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                ></path>
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                ></path>
-              </svg>
-              Tools Used
-            </h4>
-            <div class="flex flex-wrap gap-1">
+            <div class="space-y-2">
+              <div class="flex items-center text-sm">
+                <span class="text-gray-500">🔧 Tools Used</span>
+              </div>
               {% if agent.uses_tools %} {% for tool in agent.uses_tools %}
               <span
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded"
                 >{{ tool }}</span
               >
               {% endfor %} {% else %}
-              <span class="text-sm text-gray-500 italic">No tools</span>
+              <span class="text-xs text-gray-400">No tools</span>
               {% endif %}
             </div>
-          </div>
 
-          <!-- Stats Grid -->
+            <div
+              class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between text-sm"
+            >
+              <div class="flex items-center space-x-4">
+                <span class="text-gray-500"
+                  >{{ agent.execution_count or 0 }} Executions</span
+                >
+                <span class="text-gray-500"
+                  >{{ "%.1f"|format(agent.avg_execution_time or 0) }}s Avg
+                  Time</span
+                >
+              </div>
+              <button class="text-blue-600 hover:text-blue-800">
+                View Details
+              </button>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Tools Section -->
+      <div>
+        <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+          <span
+            class="bg-green-100 text-green-600 px-2 py-1 rounded text-sm mr-2"
+            >T</span
+          >
+          Tools {{ tools|length }}
+        </h2>
+        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          {% for tool in tools %}
           <div
-            class="grid grid-cols-2 gap-4 py-3 px-4 bg-gray-50 rounded-lg mb-4"
+            class="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow"
           >
-            <div class="text-center">
-              <div class="text-lg font-bold text-gray-900">
-                {{ agent.execution_count or 0 }}
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center">
+                <div
+                  class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center text-white font-medium text-sm"
+                >
+                  {{ tool.name[:2].upper() }}
+                </div>
+                <div class="ml-3">
+                  <h3 class="font-medium text-gray-900">
+                    {{ tool.name.replace('_', ' ').title() }}
+                  </h3>
+                  <span class="text-xs text-gray-500"
+                    >{{ 'Prebuilt' if tool.is_prebuilt else 'Generated' }}</span
+                  >
+                </div>
               </div>
-              <div class="text-xs text-gray-500">Executions</div>
             </div>
-            <div class="text-center">
-              <div class="text-lg font-bold text-gray-900">
-                {{ "%.1f"|format(agent.avg_execution_time or 0) }}s
+
+            <p class="text-sm text-gray-600 mb-4">{{ tool.description }}</p>
+
+            <div class="space-y-2">
+              <div class="flex items-center text-sm">
+                <span class="text-gray-500">👥 Used By</span>
               </div>
-              <div class="text-xs text-gray-500">Avg Time</div>
+              {% if tool.used_by_agents %} {% for agent in tool.used_by_agents
+              %}
+              <span
+                class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
+                >{{ agent }}</span
+              >
+              {% endfor %} {% else %}
+              <span class="text-xs text-gray-400">Unused</span>
+              {% endif %}
             </div>
-          </div>
 
-          <!-- Tags -->
-          {% if agent.tags %}
-          <div class="mb-4">
-            <div class="flex flex-wrap gap-1">
-              {% for tag in agent.tags %}
-              <span class="badge badge-secondary text-xs">{{ tag }}</span>
-              {% endfor %}
-            </div>
-          </div>
-          {% endif %}
-        </div>
-
-        <!-- Agent Footer -->
-        <div
-          class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-between items-center"
-        >
-          <span class="text-sm text-gray-500"
-            >{{ agent.formatted_created_at or agent.created_at }}</span
-          >
-          <a
-            href="{{ url_for('main.agent_detail', agent_name=agent.name) }}"
-            class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium text-sm group-hover:translate-x-1 transition-transform"
-          >
-            View Details
-            <svg
-              class="w-4 h-4 ml-1"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+            <div
+              class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between text-sm"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 5l7 7-7 7"
-              ></path>
-            </svg>
-          </a>
+              <span class="text-gray-500"
+                >{{ tool.line_count or 0 }} Lines</span
+              >
+              <button class="text-blue-600 hover:text-blue-800">
+                View Details
+              </button>
+            </div>
+          </div>
+          {% endfor %}
         </div>
       </div>
-      {% endfor %}
     </div>
-    {% endif %}
-  </div>
-
-  <!-- Enhanced Tools Section -->
-  <div>
-    <div class="flex items-center justify-between mb-6">
-      <h2 class="text-2xl font-bold text-gray-900 flex items-center">
-        <span
-          class="bg-green-100 text-green-600 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold mr-3"
-          >T</span
-        >
-        Tools
-        <span class="badge badge-success ml-3">{{ tools|length }}</span>
-      </h2>
-    </div>
-
-    {% if tools %}
-    <div
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-    >
-      {% for tool in tools %}
-      <div
-        class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 overflow-hidden group"
-      >
-        <!-- Tool Header -->
-        <div
-          class="bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-3 border-b border-green-100"
-        >
-          <div class="flex items-center justify-between">
-            <div class="flex items-center">
-              <div
-                class="bg-green-500 text-white w-8 h-8 rounded-lg flex items-center justify-center font-semibold text-xs mr-2"
-              >
-                {{ tool.name[0:2].upper() }}
-              </div>
-              <h3 class="text-base font-semibold text-gray-900 truncate">
-                {{ tool.name }}
-              </h3>
-            </div>
-          </div>
-          <div class="flex space-x-1 mt-2">
-            {% if tool.is_pure_function %}
-            <span class="badge badge-success text-xs">Pure</span>
-            {% else %}
-            <span class="badge badge-warning text-xs">Stateful</span>
-            {% endif %}
-            <span
-              class="badge {% if tool.complexity_level == 'Simple' %}badge-primary{% elif tool.complexity_level == 'Medium' %}badge-warning{% else %}badge-error{% endif %} text-xs"
-            >
-              {{ tool.complexity_level }}
-            </span>
-          </div>
-        </div>
-
-        <!-- Tool Body -->
-        <div class="p-4">
-          <p class="text-gray-600 text-sm mb-3 leading-relaxed">
-            {{ tool.description }}
-          </p>
-
-          <!-- Usage Info -->
-          <div class="bg-gray-50 rounded-lg p-3 mb-3">
-            <div class="text-xs text-gray-500 mb-1">Usage</div>
-            <div class="text-sm font-medium text-gray-700">
-              {{ tool.usage_summary }}
-            </div>
-          </div>
-
-          <!-- Tool Stats -->
-          <div class="grid grid-cols-2 gap-2 text-xs">
-            <div class="flex justify-between">
-              <span class="text-gray-500">Lines:</span>
-              <span class="font-medium">{{ tool.line_count }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-gray-500">Type:</span>
-              <span class="font-medium"
-                >{{ "Prebuilt" if tool.is_prebuilt else "Generated" }}</span
-              >
-            </div>
-          </div>
-        </div>
-
-        <!-- Tool Footer -->
-        <div
-          class="px-4 py-3 bg-gray-50 border-t border-gray-100 flex justify-between items-center"
-        >
-          <span class="text-xs text-gray-500"
-            >{{ tool.formatted_created_at or tool.created_at }}</span
-          >
-          <a
-            href="{{ url_for('main.tool_detail', tool_name=tool.name) }}"
-            class="text-blue-600 hover:text-blue-800 font-medium text-xs group-hover:translate-x-1 transition-transform"
-          >
-            Details →
-          </a>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
   </div>
 </div>
 {% endblock %}

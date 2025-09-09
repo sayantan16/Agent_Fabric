@@ -1,45 +1,34 @@
-<!-- Workflow Visualization Component -->
+<!-- flask_app/templates/components/workflow-visualization.html -->
+
+<!-- Workflow Visualization Modal/Overlay -->
 <div
-  id="workflow-viz"
-  class="bg-white rounded-lg border border-gray-200 p-6"
-  x-data="workflowVizData()"
+  id="workflow-visualization-overlay"
+  class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center"
+  x-data="workflowVisualizationData()"
+  x-show="isVisible"
+  @click.self="hideVisualization()"
 >
-  <!-- Header -->
-  <div class="flex items-center justify-between mb-4">
-    <h3 class="text-lg font-semibold text-gray-900">Workflow Execution</h3>
-    <div class="flex items-center space-x-2">
-      <button @click="toggleView()" class="btn btn-sm btn-secondary">
-        <span
-          x-text="viewMode === 'diagram' ? 'List View' : 'Diagram View'"
-        ></span>
-      </button>
-      <button @click="refreshVisualization()" class="btn btn-sm btn-secondary">
-        <svg
-          class="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-          ></path>
-        </svg>
-      </button>
-    </div>
-  </div>
-
-  <!-- Diagram View -->
-  <div x-show="viewMode === 'diagram'" class="transition-all duration-300">
+  <!-- Visualization Panel -->
+  <div
+    class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden"
+    @click.stop
+  >
+    <!-- Header -->
     <div
-      id="mermaid-diagram"
-      class="border border-gray-200 rounded-lg p-4 bg-gray-50 min-h-[300px] flex items-center justify-center"
+      class="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50"
     >
-      <div x-show="!diagramLoaded" class="text-center text-gray-500">
+      <div>
+        <h3 class="text-lg font-semibold text-gray-900">Workflow Execution</h3>
+        <p class="text-sm text-gray-600">
+          Real-time agent orchestration visualization
+        </p>
+      </div>
+      <button
+        @click="hideVisualization()"
+        class="text-gray-500 hover:text-gray-700 p-2"
+      >
         <svg
-          class="w-8 h-8 animate-spin mx-auto mb-2"
+          class="w-6 h-6"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -48,339 +37,517 @@
             stroke-linecap="round"
             stroke-linejoin="round"
             stroke-width="2"
-            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            d="M6 18L18 6M6 6l12 12"
           ></path>
         </svg>
-        <p>Loading workflow diagram...</p>
-      </div>
+      </button>
     </div>
-  </div>
 
-  <!-- List View -->
-  <div x-show="viewMode === 'list'" class="transition-all duration-300">
-    <div class="space-y-3">
-      <template x-for="(step, index) in workflowSteps" :key="step.id">
-        <div
-          class="workflow-node"
-          :class="{
-                         'pending': step.status === 'pending',
-                         'active': step.status === 'active', 
-                         'completed': step.status === 'completed',
-                         'error': step.status === 'error'
-                     }"
-        >
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-              <!-- Status Icon -->
-              <div class="flex-shrink-0">
-                <svg
-                  x-show="step.status === 'pending'"
-                  class="w-5 h-5 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                  ></path>
-                </svg>
-                <svg
-                  x-show="step.status === 'active'"
-                  class="w-5 h-5 text-blue-500 animate-spin"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                  ></path>
-                </svg>
-                <svg
-                  x-show="step.status === 'completed'"
-                  class="w-5 h-5 text-green-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M5 13l4 4L19 7"
-                  ></path>
-                </svg>
-                <svg
-                  x-show="step.status === 'error'"
-                  class="w-5 h-5 text-red-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  ></path>
-                </svg>
-              </div>
-
-              <!-- Step Info -->
-              <div>
-                <div class="font-medium text-gray-900" x-text="step.name"></div>
-                <div
-                  class="text-sm text-gray-600"
-                  x-text="step.description"
-                ></div>
-              </div>
-            </div>
-
-            <!-- Timing and Tools -->
-            <div class="text-right text-sm text-gray-500">
-              <div
-                x-show="step.execution_time"
-                x-text="step.execution_time + 's'"
-              ></div>
-              <div
-                x-show="step.tools && step.tools.length > 0"
-                class="flex space-x-1 mt-1"
-              >
-                <template x-for="tool in step.tools" :key="tool">
-                  <span
-                    class="badge badge-sm badge-success"
-                    x-text="tool"
-                  ></span>
-                </template>
-              </div>
-            </div>
-          </div>
-
-          <!-- Progress Bar for Active Steps -->
-          <div
-            x-show="step.status === 'active' && step.progress !== undefined"
-            class="mt-3"
+    <!-- Content -->
+    <div class="p-6 overflow-y-auto" style="max-height: calc(90vh - 140px)">
+      <!-- Overall Progress -->
+      <div class="mb-6">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-sm font-medium text-gray-700"
+            >Overall Progress</span
           >
-            <div class="progress-bar">
-              <div
-                class="progress-fill transition-all duration-300"
-                :style="`width: ${step.progress}%`"
-              ></div>
-            </div>
+          <span
+            class="text-sm text-gray-500"
+            x-text="Math.round(overallProgress) + '% Complete'"
+          ></span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-3">
+          <div
+            class="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500"
+            :style="`width: ${overallProgress}%`"
+          ></div>
+        </div>
+      </div>
+
+      <!-- Current Step Display -->
+      <div
+        x-show="currentStep.name"
+        class="mb-6 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500"
+      >
+        <div class="flex items-center">
+          <div
+            class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600 mr-3"
+          ></div>
+          <div>
             <div
-              class="text-xs text-gray-500 mt-1"
-              x-text="`${step.progress}% complete`"
+              class="font-medium text-blue-900"
+              x-text="currentStep.name"
+            ></div>
+            <div
+              class="text-sm text-blue-700"
+              x-text="currentStep.description"
             ></div>
           </div>
+        </div>
+      </div>
 
-          <!-- Error Details -->
-          <div
-            x-show="step.status === 'error' && step.error"
-            class="mt-3 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-700"
-          >
-            <strong>Error:</strong> <span x-text="step.error"></span>
-          </div>
-
-          <!-- Output Preview for Completed Steps -->
-          <div x-show="step.status === 'completed' && step.output" class="mt-3">
-            <button
-              @click="step.showOutput = !step.showOutput"
-              class="text-xs text-blue-600 hover:text-blue-800"
-            >
-              <span x-text="step.showOutput ? 'Hide' : 'Show'"></span> Output
-            </button>
+      <!-- Workflow Steps -->
+      <div class="mb-6">
+        <h4 class="text-sm font-medium text-gray-700 mb-3">Execution Steps</h4>
+        <div class="space-y-3">
+          <template x-for="(step, index) in workflowSteps" :key="step.id">
             <div
-              x-show="step.showOutput"
-              class="mt-2 p-2 bg-gray-50 rounded text-xs font-mono"
+              class="flex items-center p-3 rounded-lg transition-all duration-300"
+              :class="{
+                                 'bg-green-50 border border-green-200': step.status === 'completed',
+                                 'bg-blue-50 border border-blue-200': step.status === 'active',
+                                 'bg-red-50 border border-red-200': step.status === 'error',
+                                 'bg-gray-50 border border-gray-200': step.status === 'pending'
+                             }"
             >
-              <pre x-text="JSON.stringify(step.output, null, 2)"></pre>
+              <!-- Step Number/Status -->
+              <div
+                class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mr-3"
+                :class="{
+                                     'bg-green-500 text-white': step.status === 'completed',
+                                     'bg-blue-500 text-white': step.status === 'active',
+                                     'bg-red-500 text-white': step.status === 'error',
+                                     'bg-gray-300 text-gray-600': step.status === 'pending'
+                                 }"
+              >
+                <span x-show="step.status === 'completed'">✓</span>
+                <span x-show="step.status === 'active'">●</span>
+                <span x-show="step.status === 'error'">✗</span>
+                <span
+                  x-show="step.status === 'pending'"
+                  x-text="index + 1"
+                ></span>
+              </div>
+
+              <!-- Step Content -->
+              <div class="flex-1">
+                <div
+                  class="font-medium"
+                  :class="{
+                                         'text-green-900': step.status === 'completed',
+                                         'text-blue-900': step.status === 'active',
+                                         'text-red-900': step.status === 'error',
+                                         'text-gray-700': step.status === 'pending'
+                                     }"
+                  x-text="step.name"
+                ></div>
+                <div
+                  class="text-sm"
+                  :class="{
+                                         'text-green-700': step.status === 'completed',
+                                         'text-blue-700': step.status === 'active',
+                                         'text-red-700': step.status === 'error',
+                                         'text-gray-500': step.status === 'pending'
+                                     }"
+                  x-text="step.description"
+                ></div>
+                <div
+                  x-show="step.executionTime"
+                  class="text-xs text-gray-500 mt-1"
+                >
+                  Execution time:
+                  <span x-text="step.executionTime + 's'"></span>
+                </div>
+              </div>
+
+              <!-- Loading Spinner for Active Step -->
+              <div
+                x-show="step.status === 'active'"
+                class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"
+              ></div>
             </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- Agent Creation Panel -->
+      <div
+        x-show="showCreationPanel"
+        class="mb-6 p-4 bg-purple-50 rounded-lg border-l-4 border-purple-500"
+      >
+        <h4 class="font-medium text-purple-900 mb-2">Dynamic Agent Creation</h4>
+        <div class="space-y-2">
+          <template x-for="creation in creationSteps" :key="creation.id">
+            <div class="flex items-center text-sm">
+              <div
+                class="w-2 h-2 bg-purple-500 rounded-full mr-2 flex-shrink-0"
+              ></div>
+              <span class="text-purple-700" x-text="creation.message"></span>
+              <div
+                x-show="creation.active"
+                class="ml-2 animate-spin rounded-full h-3 w-3 border-b-2 border-purple-600"
+              ></div>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- Results Summary -->
+      <div
+        x-show="workflowCompleted && workflowResults"
+        class="p-4 bg-green-50 rounded-lg border-l-4 border-green-500"
+      >
+        <h4 class="font-medium text-green-900 mb-2">Execution Complete</h4>
+        <div class="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <span class="font-medium text-green-800">Agents Used:</span>
+            <span
+              class="text-green-700"
+              x-text="workflowResults.agentsUsed || 0"
+            ></span>
+          </div>
+          <div>
+            <span class="font-medium text-green-800">Execution Time:</span>
+            <span
+              class="text-green-700"
+              x-text="(workflowResults.executionTime || 0) + 's'"
+            ></span>
+          </div>
+          <div>
+            <span class="font-medium text-green-800">Status:</span>
+            <span
+              class="text-green-700"
+              x-text="workflowResults.status || 'Success'"
+            ></span>
+          </div>
+          <div>
+            <span class="font-medium text-green-800">Components Created:</span>
+            <span
+              class="text-green-700"
+              x-text="workflowResults.componentsCreated || 0"
+            ></span>
           </div>
         </div>
-      </template>
-    </div>
-  </div>
-
-  <!-- Workflow Summary -->
-  <div
-    x-show="workflowCompleted"
-    class="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg"
-  >
-    <div class="flex items-center space-x-2 mb-2">
-      <svg
-        class="w-5 h-5 text-green-500"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-        ></path>
-      </svg>
-      <span class="font-medium text-green-900">Workflow Completed</span>
-    </div>
-    <div class="text-sm text-green-700">
-      <div>
-        Total execution time: <span x-text="totalExecutionTime + 's'"></span>
       </div>
-      <div>Agents executed: <span x-text="completedSteps"></span></div>
-      <div x-show="componentsCreated > 0">
-        New components created: <span x-text="componentsCreated"></span>
+
+      <!-- Error Details -->
+      <div
+        x-show="workflowError"
+        class="p-4 bg-red-50 rounded-lg border-l-4 border-red-500"
+      >
+        <h4 class="font-medium text-red-900 mb-2">Execution Error</h4>
+        <div class="text-sm text-red-700" x-text="workflowError"></div>
+      </div>
+    </div>
+
+    <!-- Footer Actions -->
+    <div
+      class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between items-center"
+    >
+      <div class="text-sm text-gray-600">
+        <span x-show="workflowId"
+          >Workflow ID:
+          <code class="bg-gray-200 px-1 rounded" x-text="workflowId"></code
+        ></span>
+      </div>
+      <div class="flex space-x-3">
+        <button
+          x-show="workflowCompleted"
+          @click="exportResults()"
+          class="btn btn-secondary btn-sm"
+        >
+          Export Results
+        </button>
+        <button @click="hideVisualization()" class="btn btn-primary btn-sm">
+          Close
+        </button>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-  function workflowVizData() {
+  function workflowVisualizationData() {
     return {
-      // Visualization state
-      viewMode: 'diagram', // 'diagram' or 'list'
-      diagramLoaded: false,
+      // Visibility state
+      isVisible: false,
 
       // Workflow data
+      workflowId: null,
+      workflowData: null,
+
+      // Progress tracking
+      overallProgress: 0,
+      currentStep: { name: '', description: '' },
+
+      // Workflow steps
       workflowSteps: [],
+
+      // Creation tracking
+      showCreationPanel: false,
+      creationSteps: [],
+
+      // Completion state
       workflowCompleted: false,
-      totalExecutionTime: 0,
-      completedSteps: 0,
-      componentsCreated: 0,
+      workflowResults: null,
+      workflowError: null,
 
-      // Initialize
-      init() {
-        this.loadSampleWorkflow();
+      // Show visualization
+      showVisualization(workflowData) {
+        console.log('🔄 Showing workflow visualization:', workflowData);
+
+        this.isVisible = true;
+        this.workflowData = workflowData;
+        this.workflowId = workflowData.workflow_id || `wf_${Date.now()}`;
+
+        // Reset state
+        this.resetState();
+
+        // Initialize workflow steps
+        this.initializeWorkflowSteps(workflowData);
+
+        // Start simulation
+        this.simulateWorkflowExecution();
       },
 
-      // Toggle between diagram and list view
-      toggleView() {
-        this.viewMode = this.viewMode === 'diagram' ? 'list' : 'diagram';
-
-        if (this.viewMode === 'diagram' && !this.diagramLoaded) {
-          this.renderDiagram();
-        }
+      // Hide visualization
+      hideVisualization() {
+        this.isVisible = false;
+        this.resetState();
       },
 
-      // Load sample workflow for demonstration
-      loadSampleWorkflow() {
+      // Reset state
+      resetState() {
+        this.overallProgress = 0;
+        this.currentStep = { name: '', description: '' };
+        this.workflowSteps = [];
+        this.showCreationPanel = false;
+        this.creationSteps = [];
+        this.workflowCompleted = false;
+        this.workflowResults = null;
+        this.workflowError = null;
+      },
+
+      // Initialize workflow steps
+      initializeWorkflowSteps(workflowData) {
+        // Base workflow steps
         this.workflowSteps = [
           {
-            id: 'step1',
-            name: 'email_extractor',
-            description: 'Extract email addresses from input text',
-            status: 'completed',
-            execution_time: 1.2,
-            tools: ['extract_emails'],
-            output: { emails: ['test@example.com'], count: 1 },
+            id: 'analyze',
+            name: 'Analyzing Request',
+            description: 'Understanding your request and requirements',
+            status: 'pending',
           },
           {
-            id: 'step2',
-            name: 'url_extractor',
-            description: 'Extract URLs from input text',
-            status: 'completed',
-            execution_time: 0.8,
-            tools: ['extract_urls'],
-            output: { urls: ['https://example.com'], count: 1 },
+            id: 'plan',
+            name: 'Planning Workflow',
+            description: 'Selecting optimal agents and execution strategy',
+            status: 'pending',
           },
           {
-            id: 'step3',
-            name: 'data_formatter',
-            description: 'Format extracted data into report',
-            status: 'active',
-            progress: 65,
-            tools: ['format_report'],
+            id: 'validate',
+            name: 'Validating Components',
+            description: 'Checking agent and tool availability',
+            status: 'pending',
+          },
+          {
+            id: 'execute',
+            name: 'Executing Agents',
+            description: 'Running intelligent agents with your data',
+            status: 'pending',
+          },
+          {
+            id: 'synthesize',
+            name: 'Synthesizing Results',
+            description: 'Combining and formatting outputs',
+            status: 'pending',
           },
         ];
 
-        this.calculateStats();
-      },
-
-      // Update workflow with real data
-      updateWorkflow(workflowData) {
-        if (workflowData.steps) {
-          this.workflowSteps = workflowData.steps;
-          this.calculateStats();
-
-          if (this.viewMode === 'diagram') {
-            this.renderDiagram();
-          }
+        // Add dynamic creation step if needed
+        if (
+          workflowData.metadata &&
+          workflowData.metadata.components_created > 0
+        ) {
+          this.workflowSteps.splice(3, 0, {
+            id: 'create',
+            name: 'Creating New Agents',
+            description: 'Dynamically generating required capabilities',
+            status: 'pending',
+          });
         }
       },
 
-      // Calculate workflow statistics
-      calculateStats() {
-        this.completedSteps = this.workflowSteps.filter(
+      // Simulate workflow execution
+      async simulateWorkflowExecution() {
+        for (let i = 0; i < this.workflowSteps.length; i++) {
+          const step = this.workflowSteps[i];
+
+          // Mark step as active
+          step.status = 'active';
+          this.currentStep = { name: step.name, description: step.description };
+          this.updateProgress();
+
+          // Special handling for different steps
+          if (step.id === 'create') {
+            this.showAgentCreation();
+            await this.sleep(3000);
+          } else if (step.id === 'execute') {
+            this.showAgentExecution();
+            await this.sleep(2500);
+          } else {
+            await this.sleep(1500);
+          }
+
+          // Mark step as completed
+          step.status = 'completed';
+          step.executionTime = Math.random() * 2 + 0.5; // Random execution time
+          this.updateProgress();
+        }
+
+        // Mark as completed
+        this.workflowCompleted = true;
+        this.currentStep = {
+          name: 'Workflow Complete',
+          description: 'All agents executed successfully',
+        };
+        this.overallProgress = 100;
+
+        // Set results
+        this.workflowResults = {
+          agentsUsed: this.workflowData?.workflow?.steps?.length || 0,
+          executionTime:
+            this.workflowData?.execution_time ||
+            (Math.random() * 5 + 2).toFixed(1),
+          status: this.workflowData?.status || 'Success',
+          componentsCreated:
+            this.workflowData?.metadata?.components_created || 0,
+        };
+      },
+
+      // Update progress
+      updateProgress() {
+        const completedSteps = this.workflowSteps.filter(
           (step) => step.status === 'completed'
         ).length;
-        this.workflowCompleted = this.workflowSteps.every(
-          (step) => step.status === 'completed' || step.status === 'error'
-        );
-
-        this.totalExecutionTime = this.workflowSteps
-          .filter((step) => step.execution_time)
-          .reduce((sum, step) => sum + step.execution_time, 0);
+        this.overallProgress =
+          (completedSteps / this.workflowSteps.length) * 100;
       },
 
-      // Render Mermaid diagram
-      renderDiagram() {
-        const diagramContainer = document.getElementById('mermaid-diagram');
-        if (!diagramContainer) return;
+      // Show agent creation
+      showAgentCreation() {
+        this.showCreationPanel = true;
+        this.creationSteps = [
+          { id: 1, message: 'Analyzing capability requirements', active: true },
+          {
+            id: 2,
+            message: 'Generating agent code with Claude',
+            active: false,
+          },
+          { id: 3, message: 'Validating generated code', active: false },
+          { id: 4, message: 'Registering new agent', active: false },
+        ];
 
-        // Create diagram definition
-        const agentNames = this.workflowSteps.map((step) => step.name);
-        const diagram = window.chatUtils.createMermaidDiagram(
-          agentNames,
-          'sequential'
-        );
+        // Simulate creation steps
+        let currentStep = 0;
+        const stepInterval = setInterval(() => {
+          if (currentStep < this.creationSteps.length) {
+            this.creationSteps[currentStep].active = false;
+            currentStep++;
+            if (currentStep < this.creationSteps.length) {
+              this.creationSteps[currentStep].active = true;
+            }
+          } else {
+            clearInterval(stepInterval);
+          }
+        }, 750);
+      },
 
-        // Clear container
-        diagramContainer.innerHTML = '';
-
-        // Render with Mermaid
-        if (typeof mermaid !== 'undefined') {
-          const diagramId = 'workflow-diagram-' + Date.now();
-          diagramContainer.innerHTML = `<div class="mermaid" id="${diagramId}">${diagram}</div>`;
-
-          mermaid.init(undefined, `#${diagramId}`);
-          this.diagramLoaded = true;
-        } else {
-          diagramContainer.innerHTML =
-            '<p class="text-gray-500">Mermaid not loaded</p>';
+      // Show agent execution
+      showAgentExecution() {
+        if (this.workflowData?.workflow?.steps) {
+          const agents = this.workflowData.workflow.steps;
+          this.currentStep = {
+            name: 'Executing Agents',
+            description: `Running ${
+              agents.length
+            } intelligent agents: ${agents.join(', ')}`,
+          };
         }
       },
 
-      // Refresh visualization
-      refreshVisualization() {
-        if (this.viewMode === 'diagram') {
-          this.diagramLoaded = false;
-          this.renderDiagram();
-        }
+      // Export results
+      exportResults() {
+        if (this.workflowData) {
+          const exportData = {
+            workflow_id: this.workflowId,
+            exported_at: new Date().toISOString(),
+            workflow_data: this.workflowData,
+            execution_summary: this.workflowResults,
+          };
 
-        // Could fetch fresh data here
-        this.calculateStats();
+          const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+            type: 'application/json',
+          });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `workflow_${this.workflowId}_results.json`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }
       },
 
-      // Update step status (called from external updates)
-      updateStepStatus(stepId, status, data = {}) {
-        const step = this.workflowSteps.find((s) => s.id === stepId);
-        if (step) {
-          step.status = status;
-
-          if (data.progress !== undefined) step.progress = data.progress;
-          if (data.execution_time !== undefined)
-            step.execution_time = data.execution_time;
-          if (data.error) step.error = data.error;
-          if (data.output) step.output = data.output;
-
-          this.calculateStats();
-        }
+      // Utility functions
+      sleep(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
       },
     };
   }
+
+  // Global workflow visualizer instance for integration
+  const workflowVisualizer = {
+    showWorkflow: function (workflowData) {
+      // Find the Alpine.js component and call its method
+      const component = document.querySelector(
+        '[x-data*="workflowVisualizationData"]'
+      );
+      if (component) {
+        const alpineData = Alpine.$data(component);
+        if (alpineData && alpineData.showVisualization) {
+          alpineData.showVisualization(workflowData);
+        }
+      }
+    },
+
+    hideWorkflow: function () {
+      const component = document.querySelector(
+        '[x-data*="workflowVisualizationData"]'
+      );
+      if (component) {
+        const alpineData = Alpine.$data(component);
+        if (alpineData && alpineData.hideVisualization) {
+          alpineData.hideVisualization();
+        }
+      }
+    },
+  };
+
+  // Make globally available
+  window.showWorkflowVisualization = function (workflowData) {
+    workflowVisualizer.showWorkflow(workflowData);
+  };
+
+  window.hideWorkflowVisualization = function () {
+    workflowVisualizer.hideWorkflow();
+  };
+  // Enhanced workflow visualization
+  function initWorkflowVisualization() {
+    if (typeof mermaid !== 'undefined') {
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: 'default',
+        flowchart: {
+          useMaxWidth: true,
+          htmlLabels: true,
+          curve: 'basis',
+        },
+      });
+    }
+  }
+
+  // Call on page load
+  document.addEventListener('DOMContentLoaded', initWorkflowVisualization);
 </script>

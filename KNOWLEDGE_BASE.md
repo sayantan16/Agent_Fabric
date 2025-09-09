@@ -1,6 +1,6 @@
 # AGENTIC FABRIC POC - COMPLETE PROJECT KNOWLEDGE BASE
 ================================================================================
-Generated: 2025-09-07 18:26:05
+Generated: 2025-09-08 22:10:46
 Project Root: /Users/sayantankundu/Documents/Agent Fabric
 
 ## PROJECT OVERVIEW
@@ -931,7 +931,7 @@ Each step builds incrementally on the previous ones, ensuring you have a working
 ### File: KNOWLEDGE_BASE.md
 **Path:** `KNOWLEDGE_BASE.md`
 **Size:** 0 bytes
-**Modified:** 2025-09-07 18:25:57
+**Modified:** 2025-09-08 22:10:24
 
 ```markdown
 
@@ -972,7 +972,7 @@ POC in active development - implementing dynamic agent creation system.
 ### File: agents.json
 **Path:** `agents.json`
 **Size:** 5,238 bytes
-**Modified:** 2025-09-07 00:35:16
+**Modified:** 2025-09-08 09:05:32
 
 ```json
 {
@@ -1169,7 +1169,7 @@ POC in active development - implementing dynamic agent creation system.
 ### File: agents.json.lock
 **Path:** `agents.json.lock`
 **Size:** 0 bytes
-**Modified:** 2025-09-07 00:31:39
+**Modified:** 2025-09-08 00:54:41
 
 *[Binary file or content not included]*
 
@@ -5035,8 +5035,8 @@ __version__ = "1.0.0"
 
 ### File: flask_app/app.py
 **Path:** `flask_app/app.py`
-**Size:** 9,205 bytes
-**Modified:** 2025-09-07 12:33:45
+**Size:** 6,303 bytes
+**Modified:** 2025-09-08 00:36:38
 
 ```python
 # flask_app/app.py
@@ -5207,74 +5207,6 @@ def register_template_functions(app):
 
 # Create app instance
 app = create_app()
-
-
-# Basic route for testing (will move to blueprints later)
-@app.route("/")
-def index():
-    """Temporary index route for testing."""
-    return """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Agentic Fabric POC</title>
-        <style>
-            body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
-            .container { max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-            .status { padding: 15px; margin: 10px 0; border-radius: 5px; }
-            .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
-            .info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
-            h1 { color: #333; margin-bottom: 30px; }
-            h2 { color: #666; margin-top: 30px; }
-            ul { line-height: 1.6; }
-            .next-steps { background: #fff3cd; border: 1px solid #ffeaa7; padding: 20px; border-radius: 5px; margin-top: 20px; }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <h1>🚀 Agentic Fabric POC - Flask UI</h1>
-            
-            <div class="status success">
-                ✅ <strong>Step 1 Complete:</strong> Flask application initialized successfully!
-            </div>
-            
-            <div class="status info">
-                🔧 <strong>Configuration:</strong> Development mode active
-            </div>
-            
-            <h2>System Status</h2>
-            <ul>
-                <li>✅ Flask application factory created</li>
-                <li>✅ Configuration system implemented</li>
-                <li>✅ Error handlers registered</li>
-                <li>✅ Template functions ready</li>
-                <li>✅ Upload directory prepared</li>
-                <li>⏳ Backend integration (next step)</li>
-                <li>⏳ Route blueprints (next step)</li>
-                <li>⏳ Templates (next step)</li>
-            </ul>
-            
-            <div class="next-steps">
-                <h3>Next Steps:</h3>
-                <ol>
-                    <li>Create route blueprints (main.py, api.py)</li>
-                    <li>Setup backend service integration</li>
-                    <li>Build base templates</li>
-                    <li>Implement chat interface</li>
-                </ol>
-            </div>
-            
-            <h2>Configuration Details</h2>
-            <ul>
-                <li><strong>Max File Size:</strong> {{ "%.0f"|format(config.MAX_CONTENT_LENGTH / (1024*1024)) }}MB</li>
-                <li><strong>Upload Folder:</strong> {{ config.UPLOAD_FOLDER }}</li>
-                <li><strong>Debug Mode:</strong> {{ config.DEBUG }}</li>
-                <li><strong>Session Lifetime:</strong> {{ config.PERMANENT_SESSION_LIFETIME }}</li>
-            </ul>
-        </div>
-    </body>
-    </html>
-    """
 
 
 @app.route("/favicon.ico")
@@ -5477,21 +5409,29 @@ __all__ = ["main_bp", "api_bp"]
 
 ### File: flask_app/routes/api.py
 **Path:** `flask_app/routes/api.py`
-**Size:** 16,476 bytes
-**Modified:** 2025-09-07 13:10:20
+**Size:** 19,857 bytes
+**Modified:** 2025-09-08 22:04:27
 
 ```python
-# flask_app/routes/api.py
+# flask_app/routes/api.py - STREAMLINED VERSION
 """
-API Routes Blueprint
+API Routes Blueprint - Streamlined for Agentic Fabric POC
 Handles AJAX requests, file uploads, and data endpoints
 """
 
 import os
 import json
+from typing import Any, Dict
 import uuid
 from datetime import datetime
-from flask import Blueprint, request, jsonify, current_app, session
+from flask import (
+    Blueprint,
+    request,
+    jsonify,
+    current_app,
+    session,
+    make_response,
+)
 from werkzeug.utils import secure_filename
 from flask_app.services.orchestrator_service import orchestrator_service
 from flask_app.services.registry_service import registry_service
@@ -5513,23 +5453,52 @@ def allowed_file(filename):
 def health_check():
     """System health check endpoint."""
     try:
+        registry_stats = registry_service.get_registry_stats()
+
+        # Ensure proper structure
+        if not registry_stats or not registry_stats.get("available", False):
+            registry_stats = {
+                "available": False,
+                "statistics": {"total_agents": 0, "total_tools": 0},
+                "summary": {"health_score": 0, "status": "unavailable"},
+            }
+
         health_data = {
             "status": "healthy",
             "timestamp": datetime.now().isoformat(),
             "services": {
                 "orchestrator": orchestrator_service.is_backend_available(),
-                "registry": registry_service.is_available(),
-                "workflow": workflow_service.is_available(),
+                "registry": {
+                    "available": registry_stats.get("available", False),
+                    "stats": registry_stats.get(
+                        "statistics", {"total_agents": 0, "total_tools": 0}
+                    ),
+                    "health_score": registry_stats.get("summary", {}).get(
+                        "health_score", 0
+                    ),
+                    "status": registry_stats.get("summary", {}).get(
+                        "status", "unknown"
+                    ),
+                },
             },
             "system_stats": orchestrator_service.get_system_stats(),
             "version": "1.0.0",
         }
 
         # Determine overall health
-        all_services_up = all(health_data["services"].values())
-        health_data["status"] = "healthy" if all_services_up else "degraded"
+        orchestrator_ok = health_data["services"]["orchestrator"]
+        registry_ok = health_data["services"]["registry"]["available"]
 
-        status_code = 200 if all_services_up else 503
+        if orchestrator_ok and registry_ok:
+            health_data["status"] = "healthy"
+            status_code = 200
+        elif orchestrator_ok or registry_ok:
+            health_data["status"] = "degraded"
+            status_code = 200
+        else:
+            health_data["status"] = "unhealthy"
+            status_code = 503
+
         return jsonify(health_data), status_code
 
     except Exception as e:
@@ -5574,7 +5543,6 @@ def upload_file():
 
                 # Get file metadata
                 file_stats = os.stat(filepath)
-
                 file_metadata = {
                     "id": unique_id,
                     "original_name": filename,
@@ -5584,7 +5552,6 @@ def upload_file():
                     "type": file.content_type or "application/octet-stream",
                     "uploaded_at": datetime.now().isoformat(),
                 }
-
                 uploaded_files.append(file_metadata)
             else:
                 return (
@@ -5600,270 +5567,11 @@ def upload_file():
         return jsonify({"error": str(e)}), 500
 
 
-@api_bp.route("/process", methods=["POST"])
-def process_request():
-    """Main request processing endpoint."""
-    try:
-        data = request.get_json()
-
-        if not data or "request" not in data:
-            return jsonify({"error": "No request text provided"}), 400
-
-        request_text = data["request"].strip()
-        if not request_text:
-            return jsonify({"error": "Request text cannot be empty"}), 400
-
-        # Get processing options from request or session
-        auto_create = data.get("auto_create", session.get("auto_create", True))
-        workflow_type = data.get(
-            "workflow_type", session.get("workflow_type", "sequential")
-        )
-        files = data.get("files", [])
-
-        # Process request asynchronously
-        import asyncio
-
-        result = asyncio.run(
-            orchestrator_service.process_user_request(
-                request_text=request_text,
-                files=files,
-                auto_create=auto_create,
-                workflow_type=workflow_type,
-            )
-        )
-
-        return jsonify(result)
-
-    except Exception as e:
-        return (
-            jsonify(
-                {
-                    "status": "error",
-                    "error": str(e),
-                    "message": "Request processing failed",
-                }
-            ),
-            500,
-        )
-
-
-@api_bp.route("/workflow/<workflow_id>/status")
-def get_workflow_status(workflow_id):
-    """Get current status of a workflow."""
-    try:
-        status = orchestrator_service.get_workflow_status(workflow_id)
-
-        if not status:
-            return jsonify({"error": "Workflow not found"}), 404
-
-        return jsonify(status)
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/workflow/<workflow_id>/cancel", methods=["DELETE"])
-def cancel_workflow(workflow_id):
-    """Cancel an active workflow."""
-    try:
-        success = orchestrator_service.cancel_workflow(workflow_id)
-
-        if success:
-            return jsonify({"status": "cancelled", "workflow_id": workflow_id})
-        else:
-            return jsonify({"error": "Workflow not found or already completed"}), 404
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/workflow/<workflow_id>/stream")
-def stream_workflow_updates(workflow_id):
-    """Stream real-time workflow updates via Server-Sent Events."""
-    try:
-
-        def generate():
-            yield "data: " + json.dumps(
-                {
-                    "type": "connection",
-                    "message": "Connected to workflow stream",
-                    "workflow_id": workflow_id,
-                }
-            ) + "\n\n"
-
-            # Stream updates from workflow service
-            for update in workflow_service.stream_workflow_updates(workflow_id):
-                yield update
-
-        return current_app.response_class(
-            generate(),
-            mimetype="text/event-stream",
-            headers={
-                "Cache-Control": "no-cache",
-                "Connection": "keep-alive",
-                "Access-Control-Allow-Origin": "*",
-            },
-        )
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/workflows")
-def list_workflows():
-    """Get list of workflows with pagination."""
-    try:
-        page = int(request.args.get("page", 1))
-        per_page = min(int(request.args.get("per_page", 20)), 100)  # Max 100 per page
-
-        all_workflows = orchestrator_service.get_workflow_history()
-        active_workflows = orchestrator_service.get_active_workflows()
-
-        # Simple pagination
-        start_idx = (page - 1) * per_page
-        end_idx = start_idx + per_page
-        workflows = all_workflows[start_idx:end_idx]
-
-        return jsonify(
-            {
-                "workflows": workflows,
-                "active_workflows": active_workflows,
-                "pagination": {
-                    "page": page,
-                    "per_page": per_page,
-                    "total": len(all_workflows),
-                    "pages": (len(all_workflows) + per_page - 1) // per_page,
-                },
-                "stats": orchestrator_service.get_system_stats(),
-            }
-        )
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/registry/agents")
-def list_agents():
-    """Get list of available agents."""
-    try:
-        tags = request.args.getlist("tags")
-        active_only = request.args.get("active_only", "true").lower() == "true"
-
-        agents = registry_service.get_agents_list(
-            tags=tags if tags else None, active_only=active_only
-        )
-
-        return jsonify({"agents": agents, "count": len(agents)})
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/registry/tools")
-def list_tools():
-    """Get list of available tools."""
-    try:
-        tags = request.args.getlist("tags")
-        pure_only = request.args.get("pure_only", "false").lower() == "true"
-
-        tools = registry_service.get_tools_list(
-            tags=tags if tags else None, pure_only=pure_only
-        )
-
-        return jsonify({"tools": tools, "count": len(tools)})
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/registry/stats")
-def registry_stats():
-    """Get registry statistics."""
-    try:
-        stats = registry_service.get_registry_stats()
-        return jsonify(stats)
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/registry/search")
-def search_registry():
-    """Search agents and tools."""
-    try:
-        query = request.args.get("q", "").strip()
-
-        if not query:
-            return jsonify({"error": "Query parameter 'q' is required"}), 400
-
-        results = registry_service.search_components(query)
-        return jsonify(results)
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/registry/dependencies")
-def get_dependencies():
-    """Get dependency graph data."""
-    try:
-        graph = registry_service.get_dependency_graph()
-        return jsonify(graph)
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/test-connection")
-def test_connection():
-    """Test backend connectivity."""
-    try:
-        results = {
-            "timestamp": datetime.now().isoformat(),
-            "services": {
-                "orchestrator": {
-                    "available": orchestrator_service.is_backend_available(),
-                    "stats": orchestrator_service.get_system_stats(),
-                },
-                "registry": {
-                    "available": registry_service.is_available(),
-                    "stats": registry_service.get_registry_stats(),
-                },
-                "workflow": {"available": workflow_service.is_available()},
-            },
-        }
-
-        return jsonify(results)
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-# Error handlers for API routes
-@api_bp.errorhandler(400)
-def bad_request(error):
-    """Handle 400 errors in API."""
-    return jsonify({"error": "Bad request", "message": str(error)}), 400
-
-
-@api_bp.errorhandler(404)
-def not_found_api(error):
-    """Handle 404 errors in API."""
-    return jsonify({"error": "Endpoint not found"}), 404
-
-
-@api_bp.errorhandler(500)
-def internal_error_api(error):
-    """Handle 500 errors in API."""
-    return jsonify({"error": "Internal server error"}), 500
-
-
 @api_bp.route("/chat/message", methods=["POST"])
 def send_chat_message():
-    """Process a chat message with full workflow tracking."""
+    """Process a chat message with natural language support."""
     try:
         data = request.get_json()
-
         if not data or "message" not in data:
             return jsonify({"error": "No message provided"}), 400
 
@@ -5880,41 +5588,48 @@ def send_chat_message():
             "workflow_type", session.get("workflow_type", "sequential")
         )
 
-        # Generate unique message ID for tracking
-        import uuid
-
+        # Generate unique message ID
         message_id = f"msg_{uuid.uuid4().hex[:8]}"
 
-        # Store message in session for persistence
+        # Store in session
         if "chat_history" not in session:
             session["chat_history"] = []
 
-        session["chat_history"].append(
-            {
-                "id": message_id,
-                "message": message,
-                "timestamp": datetime.now().isoformat(),
-                "type": "user",
-                "files": files,
-            }
-        )
+        user_message = {
+            "id": message_id,
+            "message": message,
+            "timestamp": datetime.now().isoformat(),
+            "type": "user",
+            "files": files,
+        }
+        session["chat_history"].append(user_message)
 
         # Process through orchestrator
         import asyncio
 
-        result = asyncio.run(
-            orchestrator_service.process_user_request(
-                request_text=message,
-                files=files,
-                auto_create=auto_create,
-                workflow_type=workflow_type,
+        try:
+            result = asyncio.run(
+                orchestrator_service.process_user_request(
+                    request_text=message,
+                    files=files,
+                    auto_create=auto_create,
+                    workflow_type=workflow_type,
+                )
             )
-        )
+        except Exception as e:
+            result = {
+                "status": "error",
+                "error": str(e),
+                "response": f"I encountered an error processing your request: {str(e)}",
+            }
 
-        # Add system response to chat history
+        # Create natural language response
+        response_text = create_natural_response(result, message)
+
+        # Add system response to session
         system_response = {
             "id": f"sys_{uuid.uuid4().hex[:8]}",
-            "message": result.get("response", "Request processed"),
+            "message": response_text,
             "timestamp": datetime.now().isoformat(),
             "type": "system",
             "workflow_id": result.get("workflow_id"),
@@ -5925,6 +5640,7 @@ def send_chat_message():
                 "components_created": result.get("metadata", {}).get(
                     "components_created", 0
                 ),
+                "workflow_type": workflow_type,
             },
         }
 
@@ -5935,8 +5651,12 @@ def send_chat_message():
             {
                 "status": "success",
                 "message_id": message_id,
-                "response": system_response,
-                "workflow_data": result,
+                "response": response_text,
+                "workflow_id": result.get("workflow_id"),
+                "workflow": result.get("workflow", {}),
+                "execution_time": result.get("execution_time", 0),
+                "results": result.get("results", {}),
+                "metadata": system_response["metadata"],
                 "chat_updated": True,
             }
         )
@@ -5947,11 +5667,211 @@ def send_chat_message():
                 {
                     "status": "error",
                     "error": str(e),
-                    "message": "Failed to process message",
+                    "response": f"I'm having technical difficulties: {str(e)}",
                 }
             ),
             500,
         )
+
+
+def create_natural_response(result, original_request):
+    """Create a natural language response from orchestrator results."""
+
+    # Check if we have a synthesized response from orchestrator
+    if result.get("response"):
+        # Use the orchestrator's synthesized response
+        return result["response"]
+
+    # Fallback: Create response from components
+    if result.get("status") == "error":
+        error_msg = result.get("error", "An unknown error occurred")
+        return f"I encountered an error while processing your request: {error_msg}\n\nPlease try again or provide more specific information."
+
+    # Build response from results
+    response_parts = []
+
+    # Add opening based on request type
+    if "extract" in original_request.lower():
+        response_parts.append(
+            "I've extracted the requested information from your content:"
+        )
+    elif "analyze" in original_request.lower():
+        response_parts.append("I've completed the analysis of your content:")
+    else:
+        response_parts.append("I've processed your request successfully:")
+
+    # Process agent results
+    agent_results = result.get("results", {})
+    workflow_steps = result.get("workflow", {}).get("steps", [])
+
+    # Extract meaningful content from each agent
+    all_emails = []
+    all_urls = []
+    all_phones = []
+    other_data = {}
+
+    for agent_name, agent_result in agent_results.items():
+        if (
+            not isinstance(agent_result, dict)
+            or agent_result.get("status") != "success"
+        ):
+            continue
+
+        agent_data = agent_result.get("data", {})
+
+        # Collect specific data types
+        if isinstance(agent_data, dict):
+            if "emails" in agent_data:
+                all_emails.extend(agent_data["emails"])
+            if "urls" in agent_data:
+                all_urls.extend(agent_data["urls"])
+            if "phones" in agent_data:
+                all_phones.extend(agent_data["phones"])
+
+            # Collect other data
+            for key, value in agent_data.items():
+                if key not in ["emails", "urls", "phones"]:
+                    other_data[key] = value
+
+    # Format findings
+    if all_emails:
+        response_parts.append(f"\n📧 **Email Addresses Found ({len(all_emails)}):**")
+        for email in all_emails[:10]:  # Limit display
+            response_parts.append(f"  • {email}")
+        if len(all_emails) > 10:
+            response_parts.append(f"  • ... and {len(all_emails) - 10} more")
+
+    if all_urls:
+        response_parts.append(f"\n🔗 **URLs Found ({len(all_urls)}):**")
+        for url in all_urls[:10]:
+            response_parts.append(f"  • {url}")
+        if len(all_urls) > 10:
+            response_parts.append(f"  • ... and {len(all_urls) - 10} more")
+
+    if all_phones:
+        response_parts.append(f"\n📞 **Phone Numbers Found ({len(all_phones)}):**")
+        for phone in all_phones[:10]:
+            response_parts.append(f"  • {phone}")
+
+    # Add other data if present
+    if other_data:
+        response_parts.append("\n📊 **Additional Information:**")
+        for key, value in list(other_data.items())[:5]:
+            response_parts.append(f"  • {key.replace('_', ' ').title()}: {value}")
+
+    # If no specific data found
+    if not (all_emails or all_urls or all_phones or other_data):
+        response_parts.append(
+            "\nNo specific data items were extracted from your content."
+        )
+
+    # Add execution summary
+    if workflow_steps:
+        response_parts.append(f"\n---")
+        response_parts.append(
+            f"*Processed using {len(workflow_steps)} agents in {result.get('execution_time', 0):.1f} seconds*"
+        )
+
+    return "\n".join(response_parts)
+
+
+def extract_content_summary(agent_results):
+    """Extract meaningful content from agent results."""
+    content_parts = []
+
+    for agent_name, agent_result in agent_results.items():
+        if (
+            not isinstance(agent_result, dict)
+            or agent_result.get("status") != "success"
+        ):
+            continue
+
+        agent_data = agent_result.get("data", {})
+
+        # Email extraction
+        if "email" in agent_name.lower() and isinstance(agent_data, dict):
+            emails = agent_data.get("emails", [])
+            if emails:
+                content_parts.append(f"Found **{len(emails)} email addresses**:")
+                for email in emails[:5]:  # Show first 5
+                    content_parts.append(f"   • {email}")
+                if len(emails) > 5:
+                    content_parts.append(f"   • ... and {len(emails) - 5} more")
+
+        # URL extraction
+        elif "url" in agent_name.lower() and isinstance(agent_data, dict):
+            urls = agent_data.get("urls", [])
+            if urls:
+                content_parts.append(f"Found **{len(urls)} URLs**:")
+                for url in urls[:3]:  # Show first 3
+                    content_parts.append(f"   • {url}")
+                if len(urls) > 3:
+                    content_parts.append(f"   • ... and {len(urls) - 3} more")
+
+        # Generic data processing
+        else:
+            if isinstance(agent_data, dict) and agent_data:
+                summary_items = []
+                for key, value in list(agent_data.items())[:3]:
+                    if isinstance(value, list):
+                        summary_items.append(
+                            f"**{key.replace('_', ' ').title()}**: {len(value)} items"
+                        )
+                    elif isinstance(value, (int, float)):
+                        summary_items.append(
+                            f"**{key.replace('_', ' ').title()}**: {value}"
+                        )
+
+                if summary_items:
+                    content_parts.append(
+                        f"**{agent_name.replace('_', ' ').title()} Results:**"
+                    )
+                    content_parts.extend([f"   • {item}" for item in summary_items])
+
+    return content_parts
+
+
+# Simple API endpoints
+@api_bp.route("/workflow/<workflow_id>/status")
+def get_workflow_status(workflow_id):
+    """Get workflow status."""
+    try:
+        status = orchestrator_service.get_workflow_status(workflow_id)
+        if not status:
+            return jsonify({"error": "Workflow not found"}), 404
+        return jsonify(status)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/registry/agents")
+def list_agents():
+    """Get list of available agents."""
+    try:
+        agents = registry_service.get_agents_list()
+        return jsonify({"agents": agents, "count": len(agents)})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/registry/tools")
+def list_tools():
+    """Get list of available tools."""
+    try:
+        tools = registry_service.get_tools_list()
+        return jsonify({"tools": tools, "count": len(tools)})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/registry/stats")
+def registry_stats():
+    """Get registry statistics."""
+    try:
+        stats = registry_service.get_registry_stats()
+        return jsonify(stats)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @api_bp.route("/chat/history")
@@ -5980,54 +5900,110 @@ def export_chat_history():
     """Export chat history as JSON."""
     try:
         history = session.get("chat_history", [])
-
         export_data = {
             "exported_at": datetime.now().isoformat(),
             "message_count": len(history),
-            "session_id": session.get("session_id", "unknown"),
             "messages": history,
         }
-
-        from flask import make_response
 
         response = make_response(json.dumps(export_data, indent=2))
         response.headers["Content-Type"] = "application/json"
         response.headers["Content-Disposition"] = (
             f'attachment; filename=chat_history_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
         )
-
         return response
-
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
-@api_bp.route("/workflow/<workflow_id>/visualization")
-def get_workflow_visualization(workflow_id):
-    """Get workflow visualization data."""
-    try:
-        viz_data = workflow_service.get_workflow_visualization(workflow_id)
-        return jsonify(viz_data)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+# Error handlers
+@api_bp.errorhandler(400)
+def bad_request(error):
+    """Handle 400 errors."""
+    return jsonify({"error": "Bad request"}), 400
 
 
-@api_bp.route("/files/<file_id>/preview")
-def get_file_preview(file_id):
-    """Get file preview data."""
+@api_bp.errorhandler(404)
+def not_found_api(error):
+    """Handle 404 errors."""
+    return jsonify({"error": "Endpoint not found"}), 404
+
+
+@api_bp.errorhandler(500)
+def internal_error_api(error):
+    """Handle 500 errors."""
+    return jsonify({"error": "Internal server error"}), 500
+
+
+@api_bp.route("/workflows")
+def list_workflows():
+    """Get workflow history."""
     try:
-        # This would implement file preview logic
-        # For now, return placeholder
+        per_page = min(int(request.args.get("per_page", 20)), 100)
+        workflows = orchestrator_service.get_workflow_history(limit=per_page)
         return jsonify(
-            {
-                "file_id": file_id,
-                "preview": "File preview not yet implemented",
-                "type": "text",
-                "size": 0,
-            }
+            {"workflows": workflows, "count": len(workflows), "total": len(workflows)}
         )
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/registry/dependencies")
+def get_dependencies():
+    """Get dependency graph."""
+    try:
+        deps = registry_service.get_dependency_graph()
+        return jsonify(deps)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+def get_current_workflow_status(self) -> Dict[str, Any]:
+    """Get current workflow execution status for sidebar display."""
+    try:
+        # Get active workflows from orchestrator service
+        from flask_app.services.orchestrator_service import orchestrator_service
+
+        active_workflows = orchestrator_service.get_active_workflows()
+
+        if not active_workflows:
+            return {
+                "status": "idle",
+                "message": "No active workflows",
+                "current_workflow": None,
+            }
+
+        # Get the most recent active workflow
+        current = active_workflows[0]
+
+        return {
+            "status": "active",
+            "message": f"Processing: {current.get('request', 'Unknown task')[:50]}...",
+            "current_workflow": {
+                "id": current.get("workflow_id"),
+                "request": current.get("request"),
+                "status": current.get("status"),
+                "started_at": current.get("started_at"),
+                "progress": self._calculate_workflow_progress(current),
+            },
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"Error getting workflow status: {str(e)}",
+            "current_workflow": None,
+        }
+
+
+def _calculate_workflow_progress(self, workflow_data: Dict) -> int:
+    """Calculate workflow progress percentage."""
+    # This is a simple calculation - you can make it more sophisticated
+    if workflow_data.get("status") == "completed":
+        return 100
+    elif workflow_data.get("status") == "processing":
+        return 50  # Assume 50% when processing
+    else:
+        return 0
 
 ```
 
@@ -6035,8 +6011,8 @@ def get_file_preview(file_id):
 
 ### File: flask_app/routes/main.py
 **Path:** `flask_app/routes/main.py`
-**Size:** 10,241 bytes
-**Modified:** 2025-09-07 15:04:00
+**Size:** 11,464 bytes
+**Modified:** 2025-09-08 21:06:56
 
 ```python
 # flask_app/routes/main.py
@@ -6057,6 +6033,8 @@ main_bp = Blueprint("main", __name__)
 def index():
     """Main chat interface page with enhanced system status."""
     try:
+        # Get chat history from session
+        chat_history = session.get("chat_history", [])
         # Get comprehensive system status with safe defaults
         system_status = {
             "backend_available": registry_service.is_available(),
@@ -6116,12 +6094,21 @@ def registry():
         tool_tags = request.args.getlist("tool_tags")
         search_query = request.args.get("search", "").strip()
 
-        # Fetch data
-        agents = registry_service.get_agents_list(
-            tags=agent_tags if agent_tags else None
+        # Fetch data with safe defaults
+        agents = (
+            registry_service.get_agents_list(tags=agent_tags if agent_tags else None)
+            or []
         )
-        tools = registry_service.get_tools_list(tags=tool_tags if tool_tags else None)
-        registry_stats = registry_service.get_registry_stats()
+
+        tools = (
+            registry_service.get_tools_list(tags=tool_tags if tool_tags else None) or []
+        )
+
+        registry_stats = registry_service.get_registry_stats() or {
+            "available": False,
+            "statistics": {"total_agents": 0, "total_tools": 0},
+            "summary": {"health_score": 0, "status": "unavailable"},
+        }
 
         # Apply search filter if provided
         if search_query:
@@ -6133,10 +6120,10 @@ def registry():
         all_agent_tags = set()
         all_tool_tags = set()
 
-        for agent in registry_service.get_agents_list():
+        for agent in registry_service.get_agents_list() or []:
             all_agent_tags.update(agent.get("tags", []))
 
-        for tool in registry_service.get_tools_list():
+        for tool in registry_service.get_tools_list() or []:
             all_tool_tags.update(tool.get("tags", []))
 
         return render_template(
@@ -6154,6 +6141,10 @@ def registry():
         )
 
     except Exception as e:
+        print(f"Registry error: {str(e)}")
+        import traceback
+
+        traceback.print_exc()
         flash(f"Error loading registry: {str(e)}", "error")
         return render_template(
             "error.html", error_code=500, error_message="Failed to load registry"
@@ -6164,15 +6155,22 @@ def registry():
 def workflows():
     """Workflow history and management page."""
     try:
+        # Get real workflow history from orchestrator service
+        all_workflows = []
+        active_workflows = []
+
+        try:
+            all_workflows = orchestrator_service.get_workflow_history() or []
+            active_workflows = orchestrator_service.get_active_workflows() or []
+        except Exception as e:
+            print(f"Error getting workflow data: {e}")
+            # Fallback to empty lists
+
         # Get pagination parameters
         page = int(request.args.get("page", 1))
         per_page = int(request.args.get("per_page", 20))
 
-        # Get workflow history
-        all_workflows = orchestrator_service.get_workflow_history()
-        active_workflows = orchestrator_service.get_active_workflows()
-
-        # Simple pagination
+        # Apply pagination
         start_idx = (page - 1) * per_page
         end_idx = start_idx + per_page
         workflows = all_workflows[start_idx:end_idx]
@@ -6181,9 +6179,23 @@ def workflows():
             "page": page,
             "per_page": per_page,
             "total": len(all_workflows),
-            "pages": (len(all_workflows) + per_page - 1) // per_page,
+            "pages": max(1, (len(all_workflows) + per_page - 1) // per_page),
             "has_prev": page > 1,
             "has_next": end_idx < len(all_workflows),
+        }
+
+        # Get system stats
+        system_stats = {
+            "avg_processing_time": sum(
+                w.get("execution_time", 0) for w in all_workflows
+            )
+            / max(len(all_workflows), 1),
+            "success_rate": len(
+                [w for w in all_workflows if w.get("status") == "success"]
+            )
+            / max(len(all_workflows), 1),
+            "total_processed": len(all_workflows),
+            "active_workflows": len(active_workflows),
         }
 
         return render_template(
@@ -6191,10 +6203,11 @@ def workflows():
             workflows=workflows,
             active_workflows=active_workflows,
             pagination=pagination_info,
-            system_stats=orchestrator_service.get_system_stats(),
+            system_stats=system_stats,
         )
 
     except Exception as e:
+        print(f"Workflows error: {str(e)}")
         flash(f"Error loading workflows: {str(e)}", "error")
         return render_template(
             "error.html", error_code=500, error_message="Failed to load workflows"
@@ -6354,21 +6367,22 @@ def internal_error(error):
 
 ### File: flask_app/services/__init__.py
 **Path:** `flask_app/services/__init__.py`
-**Size:** 353 bytes
-**Modified:** 2025-09-07 12:29:24
+**Size:** 368 bytes
+**Modified:** 2025-09-08 21:07:09
 
 ```python
-# flask_app/services/__init__.py
-"""
-Service Layer for Backend Integration
-Bridges Flask UI with existing Agentic Fabric backend
-"""
+from .orchestrator_service import OrchestratorService, orchestrator_service
+from .registry_service import RegistryService, registry_service
+from .workflow_service import WorkflowService, workflow_service
 
-from .orchestrator_service import OrchestratorService
-from .registry_service import RegistryService
-from .workflow_service import WorkflowService
-
-__all__ = ["OrchestratorService", "RegistryService", "WorkflowService"]
+__all__ = [
+    "OrchestratorService",
+    "RegistryService",
+    "WorkflowService",
+    "orchestrator_service",
+    "registry_service",
+    "workflow_service",
+]
 
 ```
 
@@ -6376,8 +6390,8 @@ __all__ = ["OrchestratorService", "RegistryService", "WorkflowService"]
 
 ### File: flask_app/services/orchestrator_service.py
 **Path:** `flask_app/services/orchestrator_service.py`
-**Size:** 7,272 bytes
-**Modified:** 2025-09-07 15:04:39
+**Size:** 11,710 bytes
+**Modified:** 2025-09-08 22:03:45
 
 ```python
 # flask_app/services/orchestrator_service.py
@@ -6391,7 +6405,7 @@ import sys
 import asyncio
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional
 
 # Add project root to path for backend imports
@@ -6420,6 +6434,9 @@ class OrchestratorService:
             self.orchestrator = None
         self.active_workflows = {}
         self.workflow_history = []
+
+        # Add sample data for demonstration
+        self.create_sample_workflows()
 
     def is_backend_available(self) -> bool:
         """Check if backend components are available."""
@@ -6478,6 +6495,12 @@ class OrchestratorService:
                 user_request=request_text, files=files, auto_create=auto_create
             )
 
+            # ADD DEBUG to see what's returned:
+            print(f"DEBUG: Orchestrator returned: {result.keys()}")
+            print(
+                f"DEBUG: Response field: {result.get('response', 'NO RESPONSE FIELD')[:200]}"
+            )
+
             # Update workflow status
             final_status = result.get("status", "unknown")
             self.active_workflows[workflow_id]["status"] = final_status
@@ -6485,9 +6508,39 @@ class OrchestratorService:
                 "completed_at"
             ] = datetime.now().isoformat()
 
-            # Add workflow metadata
-            result["workflow_id"] = workflow_id
-            result["request_data"] = request_data
+            # Calculate execution time
+            execution_time = 0
+            if workflow_id in self.active_workflows:
+                try:
+                    start = datetime.fromisoformat(
+                        self.active_workflows[workflow_id]["started_at"]
+                    )
+                    execution_time = (datetime.now() - start).total_seconds()
+                except:
+                    execution_time = 0
+
+            # Extract workflow info
+            workflow_info = result.get("workflow", {})
+            if isinstance(workflow_info, dict) and "steps" not in workflow_info:
+                workflow_info = {"steps": result.get("agents", [])}
+
+            # Format response to match frontend expectations
+            formatted_response = {
+                "status": final_status,
+                "workflow_id": workflow_id,
+                "response": result.get("response", "Request processed successfully."),
+                "workflow": workflow_info,
+                "execution_time": execution_time,
+                "results": result.get("results", {}),
+                "metadata": {
+                    "agents_used": workflow_info.get("steps", []),
+                    "execution_time": execution_time,
+                    "components_created": result.get("metadata", {}).get(
+                        "components_created", 0
+                    ),
+                    "workflow_type": workflow_type,
+                },
+            }
 
             # Move to history if completed
             if final_status in ["success", "error", "partial"]:
@@ -6495,7 +6548,7 @@ class OrchestratorService:
                 if workflow_id in self.active_workflows:
                     del self.active_workflows[workflow_id]
 
-            return result
+            return formatted_response
 
         except Exception as e:
             # Handle processing errors
@@ -6541,11 +6594,33 @@ class OrchestratorService:
 
     def get_active_workflows(self) -> List[Dict[str, Any]]:
         """Get list of currently active workflows."""
-        return list(self.active_workflows.values())
+        active = list(self.active_workflows.values())
+
+        # Ensure each active workflow has required fields
+        for workflow in active:
+            workflow.setdefault(
+                "workflow_id", workflow.get("id", f"active_{len(active)}")
+            )
+            workflow.setdefault("request", "Active workflow processing...")
+            workflow.setdefault("status", "processing")
+            workflow.setdefault("started_at", datetime.now().isoformat())
+
+        return active
 
     def get_workflow_history(self, limit: int = 50) -> List[Dict[str, Any]]:
         """Get recent workflow history."""
-        return self.workflow_history[-limit:] if self.workflow_history else []
+        history = self.workflow_history[-limit:] if self.workflow_history else []
+
+        # Ensure each workflow has required fields for the template
+        for workflow in history:
+            workflow.setdefault("workflow_id", f"wf_{len(history)}")
+            workflow.setdefault("request", "Sample workflow request")
+            workflow.setdefault("status", "completed")
+            workflow.setdefault("started_at", datetime.now().isoformat())
+            workflow.setdefault("execution_time", 2.5)
+            workflow.setdefault("files", 0)
+
+        return history
 
     def get_system_stats(self) -> Dict[str, Any]:
         """Get system performance statistics."""
@@ -6587,6 +6662,46 @@ class OrchestratorService:
         )
         return successful / len(self.workflow_history)
 
+    def create_sample_workflows(self):
+        """Create sample workflow data for demonstration."""
+        if not self.workflow_history:  # Only create if empty
+            sample_workflows = [
+                {
+                    "workflow_id": "wf_demo_001",
+                    "request": "Extract emails from uploaded document",
+                    "status": "success",
+                    "started_at": (datetime.now() - timedelta(hours=2)).isoformat(),
+                    "completed_at": (
+                        datetime.now() - timedelta(hours=2) + timedelta(minutes=5)
+                    ).isoformat(),
+                    "execution_time": 4.2,
+                    "files": 1,
+                },
+                {
+                    "workflow_id": "wf_demo_002",
+                    "request": "Analyze CSV data and create statistical report",
+                    "status": "success",
+                    "started_at": (datetime.now() - timedelta(hours=1)).isoformat(),
+                    "completed_at": (
+                        datetime.now() - timedelta(hours=1) + timedelta(minutes=8)
+                    ).isoformat(),
+                    "execution_time": 7.8,
+                    "files": 1,
+                },
+                {
+                    "workflow_id": "wf_demo_003",
+                    "request": "Extract phone numbers and URLs from text",
+                    "status": "partial",
+                    "started_at": (datetime.now() - timedelta(minutes=30)).isoformat(),
+                    "completed_at": (
+                        datetime.now() - timedelta(minutes=25)
+                    ).isoformat(),
+                    "execution_time": 3.1,
+                    "files": 0,
+                },
+            ]
+            self.workflow_history.extend(sample_workflows)
+
 
 # Global service instance
 orchestrator_service = OrchestratorService()
@@ -6597,8 +6712,8 @@ orchestrator_service = OrchestratorService()
 
 ### File: flask_app/services/registry_service.py
 **Path:** `flask_app/services/registry_service.py`
-**Size:** 10,450 bytes
-**Modified:** 2025-09-07 15:23:32
+**Size:** 14,398 bytes
+**Modified:** 2025-09-08 09:36:39
 
 ```python
 # flask_app/services/registry_service.py
@@ -6720,6 +6835,8 @@ class RegistryService:
             print(f"Error fetching tool details: {e}")
             return None
 
+    # flask_app/services/registry_service.py - Replace the get_registry_stats method
+
     def get_registry_stats(self) -> Dict[str, Any]:
         """Get comprehensive registry statistics - FIXED."""
         if not self.is_available():
@@ -6730,39 +6847,118 @@ class RegistryService:
             }
 
         try:
-            # Get actual counts from registry
-            agents = self.registry.list_agents(active_only=True)
-            tools = self.registry.list_tools()
+            # Get actual registry data directly
+            registry = self.registry
+
+            # Get agents and tools lists
+            agents_data = registry.agents.get("agents", {})
+            tools_data = registry.tools.get("tools", {})
+
+            # Filter active components
+            active_agents = [
+                a for a in agents_data.values() if a.get("status") == "active"
+            ]
+            active_tools = [
+                t for t in tools_data.values() if t.get("status") == "active"
+            ]
+
+            print(f"DEBUG: Registry stats calculation:")
+            print(f"  Total agents in registry: {len(agents_data)}")
+            print(f"  Active agents: {len(active_agents)}")
+            print(f"  Total tools in registry: {len(tools_data)}")
+            print(f"  Active tools: {len(active_tools)}")
 
             stats = {
-                "total_agents": len(agents),
-                "total_tools": len(tools),
-                "total_components": len(agents) + len(tools),
+                "total_agents": len(active_agents),
+                "total_tools": len(active_tools),
+                "total_components": len(active_agents) + len(active_tools),
+                "prebuilt_agents": len(
+                    [a for a in active_agents if a.get("is_prebuilt", False)]
+                ),
+                "generated_agents": len(
+                    [a for a in active_agents if not a.get("is_prebuilt", False)]
+                ),
+                "execution_count": sum(
+                    a.get("execution_count", 0) for a in active_agents
+                ),
             }
 
             # Calculate health score
             health_score = 100 if stats["total_components"] > 0 else 0
+            if stats["total_agents"] > 0:
+                # Better health calculation
+                base_score = 50
+                agent_bonus = min(
+                    30, stats["total_agents"] * 5
+                )  # Up to 30 points for agents
+                tool_bonus = min(
+                    20, stats["total_tools"] * 2
+                )  # Up to 20 points for tools
+                health_score = base_score + agent_bonus + tool_bonus
 
             return {
                 "available": True,
                 "statistics": stats,
                 "summary": {
-                    "health_score": health_score,
-                    "status": "healthy" if health_score > 50 else "degraded",
+                    "health_score": min(100, health_score),
+                    "status": (
+                        "healthy"
+                        if health_score > 70
+                        else "degraded" if health_score > 30 else "poor"
+                    ),
+                },
+                "agent_breakdown": {
+                    "prebuilt": stats["prebuilt_agents"],
+                    "generated": stats["generated_agents"],
+                    "active": stats["total_agents"],
+                },
+                "performance": {
+                    "total_executions": stats["execution_count"],
+                    "avg_execution_time": self._calculate_avg_execution_time(
+                        active_agents
+                    ),
                 },
             }
         except Exception as e:
-            print(f"Error getting registry stats: {e}")
+            print(f"ERROR: Failed to get registry stats: {e}")
+            import traceback
+
+            traceback.print_exc()
             return {
                 "available": True,
                 "statistics": {"total_agents": 0, "total_tools": 0},
                 "summary": {"health_score": 0, "status": "error"},
+                "error": str(e),
             }
+
+    def _calculate_avg_execution_time(self, agents: List[Dict]) -> float:
+        """Calculate average execution time from agents."""
+        if not agents:
+            return 0.0
+
+        total_time = 0
+        count = 0
+
+        for agent in agents:
+            if agent.get("avg_execution_time", 0) > 0:
+                total_time += agent["avg_execution_time"]
+                count += 1
+
+        return total_time / count if count > 0 else 0.0
 
     def get_dependency_graph(self) -> Dict[str, Any]:
         """Get dependency graph for visualization."""
         if not self.is_available():
-            return {"nodes": [], "edges": []}
+            return {
+                "nodes": [],
+                "edges": [],
+                "stats": {
+                    "total_agents": 0,
+                    "total_tools": 0,
+                    "missing_dependencies": 0,
+                    "unused_tools": 0,
+                },
+            }
 
         try:
             deps = self.registry.get_dependency_graph()
@@ -6777,8 +6973,10 @@ class RegistryService:
                     {
                         "id": agent_name,
                         "type": "agent",
+                        "name": agent_name,  # Add name field
                         "label": agent_name,
                         "description": self._get_agent_description(agent_name),
+                        "uses_tools": tools,  # Add for UI
                     }
                 )
 
@@ -6789,30 +6987,49 @@ class RegistryService:
                     )
 
             # Add tool nodes
-            for tool_name, agents in deps.get("tools_to_agents", {}).items():
+            for tool_name, agents_using in deps.get("tools_to_agents", {}).items():
                 nodes.append(
                     {
                         "id": tool_name,
                         "type": "tool",
+                        "name": tool_name,  # Add name field
                         "label": tool_name,
                         "description": self._get_tool_description(tool_name),
+                        "used_by": agents_using,  # Add for UI
                     }
                 )
+
+            # Calculate statistics
+            agent_nodes = [n for n in nodes if n["type"] == "agent"]
+            tool_nodes = [n for n in nodes if n["type"] == "tool"]
+            unused_tools = [t for t in tool_nodes if not t.get("used_by")]
 
             return {
                 "nodes": nodes,
                 "edges": edges,
                 "stats": {
+                    "total_agents": len(agent_nodes),
+                    "total_tools": len(tool_nodes),
                     "total_nodes": len(nodes),
                     "total_edges": len(edges),
                     "missing_dependencies": len(deps.get("missing_dependencies", [])),
-                    "unused_tools": len(deps.get("unused_tools", [])),
+                    "unused_tools": len(unused_tools),
                 },
             }
 
         except Exception as e:
             print(f"Error building dependency graph: {e}")
-            return {"nodes": [], "edges": [], "error": str(e)}
+            return {
+                "nodes": [],
+                "edges": [],
+                "error": str(e),
+                "stats": {
+                    "total_agents": 0,
+                    "total_tools": 0,
+                    "missing_dependencies": 0,
+                    "unused_tools": 0,
+                },
+            }
 
     def search_components(self, query: str) -> Dict[str, List[Dict]]:
         """Search agents and tools by query."""
@@ -6913,8 +7130,8 @@ registry_service = RegistryService()
 
 ### File: flask_app/services/workflow_service.py
 **Path:** `flask_app/services/workflow_service.py`
-**Size:** 13,491 bytes
-**Modified:** 2025-09-07 13:18:27
+**Size:** 15,266 bytes
+**Modified:** 2025-09-08 21:07:45
 
 ```python
 # flask_app/services/workflow_service.py
@@ -7205,8 +7422,6 @@ class WorkflowService:
 
         return sorted(timeline, key=lambda x: x["timestamp"])
 
-    # Add these methods to flask_app/services/workflow_service.py
-
     def get_workflow_statistics(self) -> Dict[str, Any]:
         """Get comprehensive workflow statistics."""
         try:
@@ -7272,6 +7487,52 @@ class WorkflowService:
 
         return diagram
 
+    def get_current_workflow_status(self) -> Dict[str, Any]:
+        """Get current workflow execution status for sidebar display."""
+        try:
+            # Get active workflows from orchestrator service
+            from flask_app.services.orchestrator_service import orchestrator_service
+
+            active_workflows = orchestrator_service.get_active_workflows()
+
+            if not active_workflows:
+                return {
+                    "status": "idle",
+                    "message": "No active workflows",
+                    "current_workflow": None,
+                }
+
+            # Get the most recent active workflow
+            current = active_workflows[0]
+
+            return {
+                "status": "active",
+                "message": f"Processing: {current.get('request', 'Unknown task')[:50]}...",
+                "current_workflow": {
+                    "id": current.get("workflow_id"),
+                    "request": current.get("request"),
+                    "status": current.get("status"),
+                    "started_at": current.get("started_at"),
+                    "progress": self._calculate_workflow_progress(current),
+                },
+            }
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"Error getting workflow status: {str(e)}",
+                "current_workflow": None,
+            }
+
+    def _calculate_workflow_progress(self, workflow_data: Dict) -> int:
+        """Calculate workflow progress percentage."""
+        # This is a simple calculation - you can make it more sophisticated
+        if workflow_data.get("status") == "completed":
+            return 100
+        elif workflow_data.get("status") == "processing":
+            return 50  # Assume 50% when processing
+        else:
+            return 0
+
 
 # Global service instance
 workflow_service = WorkflowService()
@@ -7282,8 +7543,8 @@ workflow_service = WorkflowService()
 
 ### File: flask_app/static/css/custom.css
 **Path:** `flask_app/static/css/custom.css`
-**Size:** 8,304 bytes
-**Modified:** 2025-09-07 15:20:16
+**Size:** 6,513 bytes
+**Modified:** 2025-09-07 23:18:47
 
 *[Binary file or content not included]*
 
@@ -7300,8 +7561,8 @@ workflow_service = WorkflowService()
 
 ### File: flask_app/static/js/app.js
 **Path:** `flask_app/static/js/app.js`
-**Size:** 23,840 bytes
-**Modified:** 2025-09-07 15:21:43
+**Size:** 17,617 bytes
+**Modified:** 2025-09-08 22:08:52
 
 *[Binary file or content not included]*
 
@@ -7309,8 +7570,8 @@ workflow_service = WorkflowService()
 
 ### File: flask_app/templates/base.html
 **Path:** `flask_app/templates/base.html`
-**Size:** 12,256 bytes
-**Modified:** 2025-09-07 12:49:34
+**Size:** 14,252 bytes
+**Modified:** 2025-09-08 21:06:25
 
 *[Binary file or content not included]*
 
@@ -7318,8 +7579,8 @@ workflow_service = WorkflowService()
 
 ### File: flask_app/templates/components/chat-container.html
 **Path:** `flask_app/templates/components/chat-container.html`
-**Size:** 21,313 bytes
-**Modified:** 2025-09-07 13:10:54
+**Size:** 15,249 bytes
+**Modified:** 2025-09-08 22:06:07
 
 *[Binary file or content not included]*
 
@@ -7327,8 +7588,8 @@ workflow_service = WorkflowService()
 
 ### File: flask_app/templates/components/workflow-panel.html
 **Path:** `flask_app/templates/components/workflow-panel.html`
-**Size:** 16,163 bytes
-**Modified:** 2025-09-07 13:11:41
+**Size:** 16,202 bytes
+**Modified:** 2025-09-08 00:27:11
 
 *[Binary file or content not included]*
 
@@ -7336,8 +7597,8 @@ workflow_service = WorkflowService()
 
 ### File: flask_app/templates/components/workflow-visualization.html
 **Path:** `flask_app/templates/components/workflow-visualization.html`
-**Size:** 12,539 bytes
-**Modified:** 2025-09-07 13:15:36
+**Size:** 18,106 bytes
+**Modified:** 2025-09-08 09:56:38
 
 *[Binary file or content not included]*
 
@@ -7345,8 +7606,8 @@ workflow_service = WorkflowService()
 
 ### File: flask_app/templates/dependencies.html
 **Path:** `flask_app/templates/dependencies.html`
-**Size:** 18,099 bytes
-**Modified:** 2025-09-07 13:17:31
+**Size:** 20,910 bytes
+**Modified:** 2025-09-07 22:52:12
 
 *[Binary file or content not included]*
 
@@ -7372,8 +7633,8 @@ workflow_service = WorkflowService()
 
 ### File: flask_app/templates/index.jinja2
 **Path:** `flask_app/templates/index.jinja2`
-**Size:** 8,482 bytes
-**Modified:** 2025-09-07 18:19:47
+**Size:** 7,740 bytes
+**Modified:** 2025-09-08 10:16:34
 
 *[Binary file or content not included]*
 
@@ -7399,8 +7660,8 @@ workflow_service = WorkflowService()
 
 ### File: flask_app/templates/registry.html
 **Path:** `flask_app/templates/registry.html`
-**Size:** 11,230 bytes
-**Modified:** 2025-09-07 12:52:43
+**Size:** 7,127 bytes
+**Modified:** 2025-09-08 21:01:07
 
 *[Binary file or content not included]*
 
@@ -7426,8 +7687,8 @@ workflow_service = WorkflowService()
 
 ### File: flask_app/templates/workflows.html
 **Path:** `flask_app/templates/workflows.html`
-**Size:** 14,244 bytes
-**Modified:** 2025-09-07 13:16:21
+**Size:** 15,881 bytes
+**Modified:** 2025-09-07 22:57:12
 
 *[Binary file or content not included]*
 
@@ -9560,7 +9821,7 @@ if __name__ == "__main__":
 ### File: tools.json
 **Path:** `tools.json`
 **Size:** 5,956 bytes
-**Modified:** 2025-09-07 00:35:16
+**Modified:** 2025-09-08 09:05:40
 
 ```json
 {
@@ -9769,7 +10030,7 @@ if __name__ == "__main__":
 ### File: tools.json.lock
 **Path:** `tools.json.lock`
 **Size:** 0 bytes
-**Modified:** 2025-09-07 00:32:10
+**Modified:** 2025-09-08 00:54:34
 
 *[Binary file or content not included]*
 

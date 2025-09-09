@@ -391,30 +391,31 @@ class WorkflowEngine:
                 agent_state = dict(state)
 
                 # Execute with timeout
-                import signal
+                # Execute with timeout using threading instead of signal
+                import threading
+                import time
 
-                def timeout_handler(signum, frame):
-                    raise TimeoutError(
-                        f"Agent {agent_name} timeout after {AGENT_TIMEOUT_SECONDS}s"
-                    )
+                def run_agent_with_timeout():
+                    nonlocal agent_state, execution_error
+                    try:
+                        agent_state = agent_func(agent_state)
+                    except Exception as e:
+                        execution_error = e
 
-                signal.signal(signal.SIGALRM, timeout_handler)
-                signal.alarm(AGENT_TIMEOUT_SECONDS)
+                execution_error = None
+                agent_thread = threading.Thread(target=run_agent_with_timeout)
+                agent_thread.start()
+                agent_thread.join(timeout=AGENT_TIMEOUT_SECONDS)
 
-                try:
-                    # Execute agent with error recovery
-                    agent_state = agent_func(agent_state)
-
-                    # Merge state changes back
-                    for key, value in agent_state.items():
-                        state[key] = value
-
-                except TimeoutError as e:
-                    # Handle timeout specifically
+                if agent_thread.is_alive():
+                    # Timeout occurred
                     state["errors"].append(
-                        {"agent": agent_name, "error": str(e), "type": "timeout"}
+                        {
+                            "agent": agent_name,
+                            "error": f"Agent {agent_name} timeout after {AGENT_TIMEOUT_SECONDS}s",
+                            "type": "timeout",
+                        }
                     )
-                    # Create error result but don't stop workflow
                     state["results"][agent_name] = {
                         "status": "error",
                         "data": None,
@@ -424,8 +425,9 @@ class WorkflowEngine:
                             "execution_time": AGENT_TIMEOUT_SECONDS,
                         },
                     }
-                finally:
-                    signal.alarm(0)
+                elif execution_error:
+                    # Agent had an error
+                    raise execution_error
 
                 # Record execution time
                 execution_time = (datetime.now() - start_time).total_seconds()
@@ -654,23 +656,35 @@ class WorkflowEngine:
 
         print(f"DEBUG: Loading agent '{agent_name}'")
 
-        # Check cache first
-        if agent_name in self.loaded_agents:
-            return self.loaded_agents[agent_name]
-
         # Get agent info from registry
         agent_info = self.registry.get_agent(agent_name)
         if not agent_info:
             print(f"DEBUG: Agent '{agent_name}' not found in registry")
             raise ValueError(f"Agent '{agent_name}' not found in registry")
+
         print(f"DEBUG: Agent info found: {agent_info.get('location')}")
 
         # Load the agent module
         agent_path = agent_info["location"]
+
+        # FIX: Handle relative paths correctly
+        if not os.path.isabs(agent_path):
+            # Get project root (parent of current directory when running from flask_app)
+            current_dir = os.getcwd()
+            if current_dir.endswith("flask_app"):
+                project_root = os.path.dirname(current_dir)
+            else:
+                project_root = current_dir
+            agent_path = os.path.join(project_root, agent_path)
+
+        print(f"DEBUG: Full agent path: {agent_path}")
+
         if not os.path.exists(agent_path):
             raise FileNotFoundError(f"Agent file not found: {agent_path}")
 
         # Import the module
+        import importlib.util
+
         spec = importlib.util.spec_from_file_location(
             f"{agent_name}_module", agent_path
         )

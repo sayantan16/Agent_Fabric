@@ -117,6 +117,8 @@ class RegistryService:
             print(f"Error fetching tool details: {e}")
             return None
 
+    # flask_app/services/registry_service.py - Replace the get_registry_stats method
+
     def get_registry_stats(self) -> Dict[str, Any]:
         """Get comprehensive registry statistics - FIXED."""
         if not self.is_available():
@@ -127,34 +129,104 @@ class RegistryService:
             }
 
         try:
-            # Get actual counts from registry
-            agents = self.registry.list_agents(active_only=True)
-            tools = self.registry.list_tools()
+            # Get actual registry data directly
+            registry = self.registry
+
+            # Get agents and tools lists
+            agents_data = registry.agents.get("agents", {})
+            tools_data = registry.tools.get("tools", {})
+
+            # Filter active components
+            active_agents = [
+                a for a in agents_data.values() if a.get("status") == "active"
+            ]
+            active_tools = [
+                t for t in tools_data.values() if t.get("status") == "active"
+            ]
+
+            print(f"DEBUG: Registry stats calculation:")
+            print(f"  Total agents in registry: {len(agents_data)}")
+            print(f"  Active agents: {len(active_agents)}")
+            print(f"  Total tools in registry: {len(tools_data)}")
+            print(f"  Active tools: {len(active_tools)}")
 
             stats = {
-                "total_agents": len(agents),
-                "total_tools": len(tools),
-                "total_components": len(agents) + len(tools),
+                "total_agents": len(active_agents),
+                "total_tools": len(active_tools),
+                "total_components": len(active_agents) + len(active_tools),
+                "prebuilt_agents": len(
+                    [a for a in active_agents if a.get("is_prebuilt", False)]
+                ),
+                "generated_agents": len(
+                    [a for a in active_agents if not a.get("is_prebuilt", False)]
+                ),
+                "execution_count": sum(
+                    a.get("execution_count", 0) for a in active_agents
+                ),
             }
 
             # Calculate health score
             health_score = 100 if stats["total_components"] > 0 else 0
+            if stats["total_agents"] > 0:
+                # Better health calculation
+                base_score = 50
+                agent_bonus = min(
+                    30, stats["total_agents"] * 5
+                )  # Up to 30 points for agents
+                tool_bonus = min(
+                    20, stats["total_tools"] * 2
+                )  # Up to 20 points for tools
+                health_score = base_score + agent_bonus + tool_bonus
 
             return {
                 "available": True,
                 "statistics": stats,
                 "summary": {
-                    "health_score": health_score,
-                    "status": "healthy" if health_score > 50 else "degraded",
+                    "health_score": min(100, health_score),
+                    "status": (
+                        "healthy"
+                        if health_score > 70
+                        else "degraded" if health_score > 30 else "poor"
+                    ),
+                },
+                "agent_breakdown": {
+                    "prebuilt": stats["prebuilt_agents"],
+                    "generated": stats["generated_agents"],
+                    "active": stats["total_agents"],
+                },
+                "performance": {
+                    "total_executions": stats["execution_count"],
+                    "avg_execution_time": self._calculate_avg_execution_time(
+                        active_agents
+                    ),
                 },
             }
         except Exception as e:
-            print(f"Error getting registry stats: {e}")
+            print(f"ERROR: Failed to get registry stats: {e}")
+            import traceback
+
+            traceback.print_exc()
             return {
                 "available": True,
                 "statistics": {"total_agents": 0, "total_tools": 0},
                 "summary": {"health_score": 0, "status": "error"},
+                "error": str(e),
             }
+
+    def _calculate_avg_execution_time(self, agents: List[Dict]) -> float:
+        """Calculate average execution time from agents."""
+        if not agents:
+            return 0.0
+
+        total_time = 0
+        count = 0
+
+        for agent in agents:
+            if agent.get("avg_execution_time", 0) > 0:
+                total_time += agent["avg_execution_time"]
+                count += 1
+
+        return total_time / count if count > 0 else 0.0
 
     def get_dependency_graph(self) -> Dict[str, Any]:
         """Get dependency graph for visualization."""

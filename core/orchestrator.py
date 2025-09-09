@@ -261,7 +261,10 @@ class Orchestrator:
                 )
             else:
                 final_response = await self._synthesize_results(
-                    user_request, plan, execution_result
+                    user_request,
+                    plan,
+                    execution_result["results"],
+                    execution_result.get("errors", []),
                 )
 
             # Record execution history
@@ -1027,81 +1030,98 @@ Output as JSON."""
         return await self._execute_workflow(plan, initial_data, workflow_id)
 
     async def _synthesize_results(
-        self, request: str, plan: Dict, results: Dict, errors: List
+        self, request: str, plan: Dict, results: Dict, errors: List = None
     ) -> str:
         """Synthesize results from multiple agents into coherent response."""
+        if errors is None:
+            errors = []
 
         # Check if we have any successful results
         successful_results = {
             agent: result
             for agent, result in results.items()
-            if result.get("status") == "success"
+            if isinstance(result, dict) and result.get("status") == "success"
         }
 
-        # If no successful results but we have errors, use error handler
-        if not successful_results and errors:
-            return await self._handle_execution_errors(
-                {"results": results, "errors": errors}, plan
+        # If no successful results, provide a helpful response
+        if not successful_results:
+            if errors:
+                error_msg = "Unknown error"
+                if isinstance(errors[0], dict):
+                    error_msg = errors[0].get("error", "Unknown error")
+                elif isinstance(errors[0], str):
+                    error_msg = errors[0]
+                return f"I apologize, but I encountered an error while processing your request: {error_msg}"
+            else:
+                return "I was unable to process your request. Please try again or provide more details."
+
+        # Create a natural response from successful results
+        response_parts = []
+        response_parts.append(
+            "I've successfully processed your request and found the following:"
+        )
+
+        # Extract and format results
+        all_emails = []
+        all_urls = []
+
+        for agent_name, result in successful_results.items():
+            if result.get("data"):
+                agent_data = result["data"]
+
+                # Handle email extraction results
+                if "emails" in agent_data and agent_data["emails"]:
+                    emails = agent_data["emails"]
+                    all_emails.extend(emails)
+
+                # Handle URL extraction results
+                if "urls" in agent_data and agent_data["urls"]:
+                    urls = agent_data["urls"]
+                    all_urls.extend(urls)
+
+        # Format the findings
+        if all_emails:
+            response_parts.append(
+                f"\n**📧 Email Addresses Found ({len(all_emails)}):**"
+            )
+            for email in all_emails:
+                response_parts.append(f"• {email}")
+
+        if all_urls:
+            response_parts.append(f"\n**🔗 URLs Found ({len(all_urls)}):**")
+            for url in all_urls:
+                response_parts.append(f"• {url}")
+
+        if not all_emails and not all_urls:
+            response_parts.append(
+                "\nNo email addresses or URLs were found in the provided text."
             )
 
-        # If we have some successful results, synthesize them
-        try:
-            # Prepare data for GPT-4 synthesis
-            synthesis_data = {
-                "original_request": request,
-                "execution_plan": plan,
-                "successful_results": successful_results,
-                "errors": errors,
-            }
+        # Add workflow summary
+        agent_names = list(successful_results.keys())
+        response_parts.append(
+            f"\n*Processed using {len(agent_names)} agents: {', '.join(agent_names)}*"
+        )
 
-            synthesis_prompt = f"""
-            Synthesize the following execution results into a clear, helpful response:
-            
-            Original Request: {request}
-            
-            Execution Results:
-            {json.dumps(successful_results, indent=2, default=str)}
-            
-            {f"Errors encountered: {json.dumps(errors, indent=2, default=str)}" if errors else ""}
-            
-            Create a natural language response that:
-            1. Directly answers the user's request
-            2. Highlights key findings
-            3. Mentions any issues encountered (if any)
-            4. Provides actionable insights
-            
-            Be concise and professional.
-            """
-
-            response = self.client.chat.completions.create(
-                model=ORCHESTRATOR_MODEL,
-                messages=[
-                    {"role": "system", "content": ORCHESTRATOR_SYNTHESIS_PROMPT},
-                    {"role": "user", "content": synthesis_prompt},
-                ],
-                temperature=ORCHESTRATOR_TEMPERATURE,
-                max_tokens=1000,
-            )
-
-            return response.choices[0].message.content
-
-        except Exception as e:
-            # Fallback to error handler if synthesis fails
-            print(f"DEBUG: Synthesis failed, using error handler: {e}")
-            return await self._handle_execution_errors(
-                {"results": results, "errors": errors}, plan
-            )
+        return "\n".join(response_parts)
 
     async def _call_gpt4(
         self, system_prompt: str, user_prompt: str, temperature: float = 1.0
     ) -> str:
         """Call O3-mini model with correct parameters."""
-        response = self.client.chat.completions.create(
-            model=ORCHESTRATOR_MODEL,
-            max_completion_tokens=ORCHESTRATOR_MAX_TOKENS,  # Changed from max_tokens
-            messages=[{"role": "user", "content": f"{system_prompt}\n\n{user_prompt}"}],
-        )
-        return response.choices[0].message.content
+        try:
+
+            response = self.client.chat.completions.create(
+                model=ORCHESTRATOR_MODEL,
+                max_completion_tokens=ORCHESTRATOR_MAX_TOKENS,  # Changed from max_tokens
+                messages=[
+                    {"role": "user", "content": f"{system_prompt}\n\n{user_prompt}"}
+                ],
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            print(f"DEBUG: GPT-4 call failed: {str(e)}")
+            raise e
 
     async def _call_gpt4_json(
         self, system_prompt: str, user_prompt: str, temperature: float = 1.0
@@ -1130,35 +1150,6 @@ Output as JSON."""
                 return content[start:end].strip()
 
         return content.strip()
-
-    # def _prepare_initial_data(
-    #     self,
-    #     user_request: str,
-    #     files: Optional[List[Dict]],
-    #     context: Optional[Dict],
-    #     plan: Dict,
-    # ) -> Dict[str, Any]:
-    #     """Prepare initial data for workflow execution."""
-    #     initial_data = {
-    #         "request": user_request,
-    #         "files": files or [],
-    #         "context": context or {},
-    #         "plan": plan,
-    #         "workflow_type": plan.get("workflow_type", "sequential"),
-    #     }
-
-    #     # Add file paths if present
-    #     if files:
-    #         initial_data["file_paths"] = [f.get("path", "") for f in files]
-    #         initial_data["file_types"] = [f.get("type", "unknown") for f in files]
-
-    #     # Extract any embedded data from request
-    #     if ":" in user_request or "\n" in user_request:
-    #         parts = user_request.split(":", 1)
-    #         if len(parts) > 1:
-    #             initial_data["embedded_data"] = parts[1].strip()
-
-    #     return initial_data
 
     def _format_components_list(
         self, components: List[Dict], component_type: str

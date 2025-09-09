@@ -16,6 +16,8 @@ main_bp = Blueprint("main", __name__)
 def index():
     """Main chat interface page with enhanced system status."""
     try:
+        # Get chat history from session
+        chat_history = session.get("chat_history", [])
         # Get comprehensive system status with safe defaults
         system_status = {
             "backend_available": registry_service.is_available(),
@@ -136,28 +138,22 @@ def registry():
 def workflows():
     """Workflow history and management page."""
     try:
+        # Get real workflow history from orchestrator service
+        all_workflows = []
+        active_workflows = []
+
+        try:
+            all_workflows = orchestrator_service.get_workflow_history() or []
+            active_workflows = orchestrator_service.get_active_workflows() or []
+        except Exception as e:
+            print(f"Error getting workflow data: {e}")
+            # Fallback to empty lists
+
         # Get pagination parameters
         page = int(request.args.get("page", 1))
         per_page = int(request.args.get("per_page", 20))
 
-        # Get workflow history with safe defaults
-        all_workflows = orchestrator_service.get_workflow_history() or []
-        active_workflows = orchestrator_service.get_active_workflows() or []
-
-        # Apply filters if specified
-        status_filter = request.args.get("status", "").strip()
-        time_filter = request.args.get("time", "").strip()
-
-        if status_filter:
-            all_workflows = [
-                w for w in all_workflows if w.get("status") == status_filter
-            ]
-
-        if time_filter and time_filter != "all":
-            # Apply time filtering logic here
-            pass
-
-        # Simple pagination
+        # Apply pagination
         start_idx = (page - 1) * per_page
         end_idx = start_idx + per_page
         workflows = all_workflows[start_idx:end_idx]
@@ -171,12 +167,18 @@ def workflows():
             "has_next": end_idx < len(all_workflows),
         }
 
-        # Get system stats with safe defaults
-        system_stats = orchestrator_service.get_system_stats() or {
-            "avg_processing_time": 0,
-            "success_rate": 0,
-            "total_processed": 0,
-            "active_workflows": 0,
+        # Get system stats
+        system_stats = {
+            "avg_processing_time": sum(
+                w.get("execution_time", 0) for w in all_workflows
+            )
+            / max(len(all_workflows), 1),
+            "success_rate": len(
+                [w for w in all_workflows if w.get("status") == "success"]
+            )
+            / max(len(all_workflows), 1),
+            "total_processed": len(all_workflows),
+            "active_workflows": len(active_workflows),
         }
 
         return render_template(
@@ -189,9 +191,6 @@ def workflows():
 
     except Exception as e:
         print(f"Workflows error: {str(e)}")
-        import traceback
-
-        traceback.print_exc()
         flash(f"Error loading workflows: {str(e)}", "error")
         return render_template(
             "error.html", error_code=500, error_message="Failed to load workflows"
