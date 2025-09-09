@@ -153,7 +153,7 @@
       updateSystemStatus();
 
       // Periodic status updates
-      setInterval(updateSystemStatus, 30000);
+      setInterval(updateSystemStatus, 500000);
 
       // Workflow status updates
       let currentWorkflowId = null;
@@ -238,12 +238,12 @@
               }
             })
             .catch((err) => console.error('Live update failed:', err));
-        }, 1000); // Update every second
+        }, 500000); // Update every second
       }
 
       // Start workflow status monitoring
       updateWorkflowStatus();
-      setInterval(updateWorkflowStatus, 5000); // Check for new workflows every 5 seconds
+      setInterval(updateWorkflowStatus, 500000); // Check for new workflows every 10 seconds
     </script>
   </body>
 </html>

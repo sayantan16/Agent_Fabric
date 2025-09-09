@@ -54,6 +54,9 @@ def create_app(config_name=None):
     # Ensure upload directory exists
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
+    # ADD THIS LINE:
+    os.makedirs(app.config["OUTPUT_FOLDER"], exist_ok=True)
+
     # Initialize extensions and register blueprints
     register_blueprints(app)
     register_error_handlers(app)

@@ -406,7 +406,7 @@ function updateSystemStatusUI(healthData) {
 
 function startHealthMonitoring() {
   // Check every 30 seconds
-  setInterval(checkSystemHealth, 30000);
+  setInterval(checkSystemHealth, 500000);
 }
 
 // Auto-resize functionality

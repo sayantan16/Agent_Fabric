@@ -64,21 +64,37 @@ class Orchestrator:
         self.active_workflows = {}
 
     def _prepare_initial_data(
-        self, user_request: str, files: Optional[List[Dict]] = None
+        self,
+        user_request: str,
+        files: Optional[List[Dict]] = None,
+        analysis: Dict = None,
     ) -> Dict[str, Any]:
-        """Prepare initial data for workflow execution with all necessary fields."""
-        return {
+        """Prepare initial data with intelligent extraction."""
+
+        # Import the data processor
+        from core.data_processor import DataProcessor
+
+        processor = DataProcessor()
+
+        # Get intelligently processed data
+        processed = processor.process_request_data(user_request, analysis)
+
+        # Create comprehensive initial state
+        base_data = {
             "request": user_request,
-            "text": user_request,  # Many agents look for 'text'
-            "data": user_request,  # Some agents look for 'data'
-            "current_data": user_request,  # Workflow engine uses this
-            "input": user_request,  # Fallback field
             "files": files or [],
             "context": {},
-            "results": {},  # Initialize results dict
-            "errors": [],  # Initialize errors list
-            "execution_path": [],  # Initialize execution path
+            "results": {},
+            "errors": [],
+            "execution_path": [],
+            # Multiple data formats available to agents
+            **processed,  # This includes raw_request, extracted_data, current_data, etc.
         }
+
+        print(f"DEBUG: Prepared data with extracted: {processed.get('extracted_data')}")
+        print(f"DEBUG: Data type identified: {processed.get('data_type')}")
+
+        return base_data
 
     async def process_request(
         self,
@@ -253,17 +269,17 @@ class Orchestrator:
                     workflow_id, "Execution failed", execution_result.get("error")
                 )
 
-            # Phase 6: Synthesize results
-            has_errors = bool(execution_result.get("errors"))
-            if has_errors:
+            # Phase 6: Synthesize results (FIXED)
+            if execution_result.get("errors"):
                 final_response = await self._handle_execution_errors(
                     execution_result, plan
                 )
             else:
+                # USE THE FIXED SYNTHESIS FUNCTION
                 final_response = await self._synthesize_results(
                     user_request,
                     plan,
-                    execution_result["results"],
+                    execution_result.get("results", {}),
                     execution_result.get("errors", []),
                 )
 
@@ -276,11 +292,11 @@ class Orchestrator:
             return {
                 "status": "success",
                 "workflow_id": workflow_id,
-                "response": final_response,
+                "response": final_response,  # THIS IS CRITICAL
                 "execution_time": execution_time,
                 "workflow": {
                     "type": plan.get("workflow_type", "sequential"),
-                    "steps": agents_needed,  # Use the updated agents_needed
+                    "steps": agents_needed,
                     "execution_path": execution_result.get("execution_path", []),
                 },
                 "results": execution_result.get("results", {}),
@@ -396,132 +412,41 @@ class Orchestrator:
     async def _plan_workflow(
         self, user_request: str, analysis: str, auto_create: bool
     ) -> Dict[str, Any]:
-        """Enhanced workflow planning with better capability detection."""
+        """Use the actual ORCHESTRATOR_PLANNING_PROMPT from config."""
 
         # Get available components
         agents = self.registry.list_agents(active_only=True)
         tools = self.registry.list_tools(pure_only=False)
 
-        # Build detailed capability map
-        capability_map = self._build_capability_map(agents, tools)
+        # Format components for prompt
+        agents_desc = self._format_components_list(agents, "agents")
+        tools_desc = self._format_components_list(tools, "tools")
 
-        # Enhanced planning prompt that understands capabilities better
-        prompt = f"""You are planning a workflow for this request.
-
-    USER REQUEST: {user_request}
-
-    ANALYSIS: {analysis}
-
-    AVAILABLE CAPABILITIES:
-    {json.dumps(capability_map, indent=2)}
-
-    Create a workflow plan that:
-    1. Identifies the specific tasks needed
-    2. Maps tasks to existing agents when possible
-    3. Identifies truly missing capabilities
-    4. Suggests agent creation only when necessary
-
-    IMPORTANT: 
-    - Only suggest creating agents that don't already exist
-    - Check agent descriptions carefully - don't create duplicates
-    - If an agent can partially handle a task, use it
-    - Prefer using existing agents over creating new ones
-
-    Respond with valid JSON:
-    {{
-        "workflow_id": "wf_<timestamp>",
-        "workflow_type": "sequential|parallel|conditional",
-        "reasoning": "step-by-step explanation",
-        "agents_needed": ["exact_agent_names_from_available_list"],
-        "missing_capabilities": {{
-            "agents": [
-                {{
-                    "name": "new_agent_name",
-                    "purpose": "specific purpose",
-                    "required_tools": ["tool1"],
-                    "can_create": true
-                }}
-            ],
-            "tools": [
-                {{
-                    "name": "new_tool_name",
-                    "purpose": "specific purpose", 
-                    "type": "pure_function",
-                    "can_create": true
-                }}
-            ]
-        }},
-        "execution_strategy": "how to execute the workflow",
-        "fallback_plan": "what to do if some agents fail"
-    }}"""
+        # Use the ACTUAL prompt from config
+        prompt = ORCHESTRATOR_PLANNING_PROMPT.format(
+            request=user_request,
+            analysis=analysis,
+            available_agents=agents_desc,
+            available_tools=tools_desc,
+            timestamp=datetime.now().strftime("%Y%m%d%H%M%S"),
+        )
 
         try:
             response = await self._call_gpt4_json(
-                system_prompt="""You are a workflow planner. 
-                CRITICAL: Check existing agent capabilities carefully before suggesting new ones.
-                Many agents have flexible input handling and can process various data types.
-                Only create new agents when existing ones truly cannot handle the task.""",
+                system_prompt="You are a workflow planner. Output valid JSON only.",
                 user_prompt=prompt,
                 temperature=0.1,
             )
 
             plan = json.loads(response)
-
-            # CRITICAL: Check if no agents can handle the request
-            if not plan.get("agents_needed") and not auto_create:
-                # Check if this is because nothing matches
-                if (
-                    "non_existent" in user_request.lower()
-                    or not self._can_handle_request(user_request)
-                ):
-                    return {
-                        "status": "missing_capabilities",
-                        "message": "No agents available to handle this request",
-                        "missing": plan.get("missing_capabilities", {}),
-                        "suggestion": "Enable auto_create to build missing components",
-                    }
-
-            # Validate and filter the plan
-            plan = self._validate_and_filter_plan(plan)
-
-            # If no agents needed, create a minimal plan
-            if not plan.get("agents_needed") and not auto_create:
-                return {
-                    "status": "error",
-                    "error": "No agents available to handle this request",
-                }
-
             plan["status"] = "success"
             return plan
 
         except json.JSONDecodeError as e:
             print(f"DEBUG: JSON parsing failed: {str(e)}")
-            print(f"DEBUG: Raw response: {response[:500]}...")
-
-            # Check if this is about a non-existent agent
-            if "non_existent" in user_request.lower():
-                return {
-                    "status": "missing_capabilities",
-                    "message": "No agents available to handle this request",
-                    "missing": {"agents": [], "tools": []},
-                    "suggestion": "Enable auto_create to build missing components",
-                }
-
-            # Otherwise return error
-            return {"status": "error", "error": f"Planning failed: {str(e)}"}
+            return self._create_fallback_plan(user_request, agents)
         except Exception as e:
             print(f"DEBUG: Planning failed: {str(e)}")
-
-            # Check for non-existent agent request
-            if "non_existent" in user_request.lower():
-                return {
-                    "status": "missing_capabilities",
-                    "message": "No agents available to handle this request",
-                    "missing": {"agents": [], "tools": []},
-                    "suggestion": "Enable auto_create to build missing components",
-                }
-
-            # Fallback to simple planning
             return self._create_fallback_plan(user_request, agents)
 
     def _build_capability_map(self, agents: List[Dict], tools: List[Dict]) -> Dict:
@@ -1032,78 +957,129 @@ Output as JSON."""
     async def _synthesize_results(
         self, request: str, plan: Dict, results: Dict, errors: List = None
     ) -> str:
-        """Synthesize results from multiple agents into coherent response."""
+        """Use the actual ORCHESTRATOR_SYNTHESIS_PROMPT from config."""
+
         if errors is None:
             errors = []
 
-        # Check if we have any successful results
-        successful_results = {
-            agent: result
-            for agent, result in results.items()
-            if isinstance(result, dict) and result.get("status") == "success"
-        }
+        # Format results for GPT-4
+        results_summary = self._format_results_for_synthesis(results)
 
-        # If no successful results, provide a helpful response
-        if not successful_results:
-            if errors:
-                error_msg = "Unknown error"
-                if isinstance(errors[0], dict):
-                    error_msg = errors[0].get("error", "Unknown error")
-                elif isinstance(errors[0], str):
-                    error_msg = errors[0]
-                return f"I apologize, but I encountered an error while processing your request: {error_msg}"
+        # Use the ACTUAL synthesis prompt from config
+        synthesis_prompt = ORCHESTRATOR_SYNTHESIS_PROMPT.format(
+            request=request,
+            results=results_summary,
+            errors=json.dumps(errors, indent=2) if errors else "None",
+        )
+
+        try:
+            # Call GPT-4 for dynamic synthesis
+            synthesized_response = await self._call_gpt4(
+                system_prompt="You are an AI assistant creating natural responses from agent results.",
+                user_prompt=synthesis_prompt,
+                temperature=0.7,
+            )
+
+            return synthesized_response.strip()
+
+        except Exception as e:
+            print(f"DEBUG: Synthesis failed: {e}")
+            # Fallback to basic summary
+            return self._create_basic_summary_from_results(results, errors)
+
+    def _format_results_for_synthesis(self, results: Dict) -> str:
+        """Format agent results clearly for synthesis - no interpretation."""
+        if not results:
+            return "No agent results available."
+
+        formatted_parts = ["AGENT EXECUTION RESULTS:"]
+        agent_names = []
+        total_time = 0
+        generated_files = []
+
+        for agent_name, result in results.items():
+            agent_names.append(agent_name)
+            formatted_parts.append(f"\nAgent: {agent_name}")
+
+            if isinstance(result, dict):
+                # Status
+                status = result.get("status", "unknown")
+                formatted_parts.append(f"Status: {status}")
+
+                # Actual data returned
+                data = result.get("data")
+                if data is not None:
+                    formatted_parts.append("Returned data:")
+                    if isinstance(data, dict):
+                        for key, value in data.items():
+                            formatted_parts.append(f"  {key}: {value}")
+                    elif isinstance(data, list):
+                        formatted_parts.append(f"  List with {len(data)} items: {data}")
+                    else:
+                        formatted_parts.append(f"  {data}")
+                else:
+                    formatted_parts.append("Returned data: None")
+
+                # Generated files
+                if result.get("generated_files"):
+                    formatted_parts.append("Generated files:")
+                    for file_info in result["generated_files"]:
+                        formatted_parts.append(
+                            f"  - {file_info['filename']}: {file_info['description']}"
+                        )
+                        generated_files.extend(result["generated_files"])
+
+                # Execution metadata
+                metadata = result.get("metadata", {})
+                exec_time = metadata.get("execution_time", 0)
+                total_time += exec_time
+
+                tools_used = metadata.get("tools_used", [])
+                if tools_used:
+                    formatted_parts.append(f"Tools used: {', '.join(tools_used)}")
             else:
-                return "I was unable to process your request. Please try again or provide more details."
+                formatted_parts.append(f"Raw result: {result}")
 
-        # Create a natural response from successful results
-        response_parts = []
-        response_parts.append(
-            "I've successfully processed your request and found the following:"
-        )
+        # Summary for GPT-4 to use
+        formatted_parts.append(f"\nSUMMARY FOR RESPONSE:")
+        formatted_parts.append(f"Agents executed: {', '.join(agent_names)}")
+        formatted_parts.append(f"Total execution time: {total_time:.1f}s")
 
-        # Extract and format results
-        all_emails = []
-        all_urls = []
+        # ADD FILE DOWNLOAD INSTRUCTIONS
+        if generated_files:
+            formatted_parts.append(f"Generated files available for download:")
+            for file_info in generated_files:
+                formatted_parts.append(
+                    f"  - {file_info['filename']}: Use download link /api/download/{file_info['filename']}"
+                )
 
-        for agent_name, result in successful_results.items():
-            if result.get("data"):
-                agent_data = result["data"]
+        return "\n".join(formatted_parts)
 
-                # Handle email extraction results
-                if "emails" in agent_data and agent_data["emails"]:
-                    emails = agent_data["emails"]
-                    all_emails.extend(emails)
+    def _create_basic_summary_from_results(self, results: Dict, errors: List) -> str:
+        """Create basic summary when synthesis fails."""
+        if not results:
+            return "I was unable to process your request successfully."
 
-                # Handle URL extraction results
-                if "urls" in agent_data and agent_data["urls"]:
-                    urls = agent_data["urls"]
-                    all_urls.extend(urls)
+        summary_parts = ["I processed your request with the following results:"]
 
-        # Format the findings
-        if all_emails:
-            response_parts.append(
-                f"\n**📧 Email Addresses Found ({len(all_emails)}):**"
-            )
-            for email in all_emails:
-                response_parts.append(f"• {email}")
+        for agent_name, result in results.items():
+            if isinstance(result, dict) and result.get("status") == "success":
+                data = result.get("data", {})
+                if isinstance(data, dict):
+                    for key, value in data.items():
+                        if isinstance(value, list):
+                            summary_parts.append(f"- {key}: {len(value)} items")
+                        elif isinstance(value, (int, float)):
+                            summary_parts.append(f"- {key}: {value}")
+                        else:
+                            summary_parts.append(f"- {key}: {str(value)[:100]}")
 
-        if all_urls:
-            response_parts.append(f"\n**🔗 URLs Found ({len(all_urls)}):**")
-            for url in all_urls:
-                response_parts.append(f"• {url}")
-
-        if not all_emails and not all_urls:
-            response_parts.append(
-                "\nNo email addresses or URLs were found in the provided text."
+        if errors:
+            summary_parts.append(
+                f"\nNote: {len(errors)} errors occurred during processing."
             )
 
-        # Add workflow summary
-        agent_names = list(successful_results.keys())
-        response_parts.append(
-            f"\n*Processed using {len(agent_names)} agents: {', '.join(agent_names)}*"
-        )
-
-        return "\n".join(response_parts)
+        return "\n".join(summary_parts)
 
     async def _call_gpt4(
         self, system_prompt: str, user_prompt: str, temperature: float = 1.0
@@ -1620,3 +1596,16 @@ Output as JSON."""
             return f"{len(data)} characters"
         else:
             return str(type(data).__name__)
+
+    def _extract_generated_files(self, results: Dict) -> List[Dict]:
+        """Extract all generated files from agent results."""
+        generated_files = []
+
+        for agent_name, result in results.items():
+            if isinstance(result, dict) and result.get("generated_files"):
+                for file_info in result["generated_files"]:
+                    # Add download URL
+                    file_info["download_url"] = f"/api/download/{file_info['filename']}"
+                    generated_files.append(file_info)
+
+        return generated_files

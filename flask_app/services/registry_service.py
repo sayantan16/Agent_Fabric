@@ -144,12 +144,6 @@ class RegistryService:
                 t for t in tools_data.values() if t.get("status") == "active"
             ]
 
-            print(f"DEBUG: Registry stats calculation:")
-            print(f"  Total agents in registry: {len(agents_data)}")
-            print(f"  Active agents: {len(active_agents)}")
-            print(f"  Total tools in registry: {len(tools_data)}")
-            print(f"  Active tools: {len(active_tools)}")
-
             stats = {
                 "total_agents": len(active_agents),
                 "total_tools": len(active_tools),

@@ -178,11 +178,11 @@
       setupPeriodicRefresh() {
         setInterval(() => {
           this.loadWorkflowStatus();
-        }, 5000); // Every 5 seconds
+        }, 500000); // Every 30 seconds
 
         setInterval(() => {
           this.loadSystemStats();
-        }, 30000); // Every 30 seconds
+        }, 500000); // Every 30 seconds
       },
     };
   }

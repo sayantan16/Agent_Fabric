@@ -16,6 +16,7 @@ from flask import (
     current_app,
     session,
     make_response,
+    send_file,
 )
 from werkzeug.utils import secure_filename
 from flask_app.services.orchestrator_service import orchestrator_service
@@ -260,104 +261,95 @@ def send_chat_message():
 
 
 def create_natural_response(result, original_request):
-    """Create a natural language response from orchestrator results."""
+    """Create response using orchestrator output or intelligent fallbacks."""
 
-    # Check if we have a synthesized response from orchestrator
+    # ALWAYS use the orchestrator's synthesized response first
     if result.get("response"):
-        # Use the orchestrator's synthesized response
-        return result["response"]
+        response = result["response"]
+        print(f"DEBUG: Using orchestrator response: {response[:100]}...")
 
-    # Fallback: Create response from components
+        # Enhanced: Format attribution nicely if present
+        if "*Processed using" in response:
+            # Split main response from attribution
+            parts = response.split("*Processed using", 1)
+            main_text = parts[0].strip()
+
+            if len(parts) > 1:
+                # Clean and format attribution
+                attribution = "Processed using" + parts[1].replace("*", "").strip()
+                # Add subtle styling with HTML
+                formatted_response = f"{main_text}\n\n<small class='text-muted'><i class='fas fa-cogs'></i> {attribution}</small>"
+                return formatted_response
+
+        return response
+
+    # IMPROVED: Use original_request for context-aware fallbacks
     if result.get("status") == "error":
         error_msg = result.get("error", "An unknown error occurred")
-        return f"I encountered an error while processing your request: {error_msg}\n\nPlease try again or provide more specific information."
+        return f"I encountered an error while processing your request '{original_request[:50]}...': {error_msg}"
 
-    # Build response from results
-    response_parts = []
-
-    # Add opening based on request type
-    if "extract" in original_request.lower():
-        response_parts.append(
-            "I've extracted the requested information from your content:"
+    # IMPROVED: Context-aware partial response using original_request
+    agent_count = len(result.get("workflow", {}).get("steps", []))
+    if agent_count > 0:
+        # Try to extract some meaning from results even without orchestrator synthesis
+        basic_summary = extract_basic_results(
+            result.get("results", {}), original_request
         )
-    elif "analyze" in original_request.lower():
-        response_parts.append("I've completed the analysis of your content:")
+        if basic_summary:
+            # Enhanced: Add styled attribution to fallback responses
+            agent_names = ", ".join(result.get("workflow", {}).get("steps", []))
+            styled_attribution = f"<small class='text-muted'><i class='fas fa-cogs'></i> Processed using {agent_count} agent{'s' if agent_count != 1 else ''}: {agent_names}</small>"
+            return f"{basic_summary}\n\n{styled_attribution}\n\n<em>(Detailed response generation failed)</em>"
+        else:
+            return f"I attempted to process '{original_request[:50]}...' using {agent_count} agent{'s' if agent_count != 1 else ''}, but couldn't generate a detailed response."
     else:
-        response_parts.append("I've processed your request successfully:")
+        return f"I couldn't determine how to handle your request: '{original_request[:50]}...'. Please provide more specific instructions."
 
-    # Process agent results
-    agent_results = result.get("results", {})
-    workflow_steps = result.get("workflow", {}).get("steps", [])
 
-    # Extract meaningful content from each agent
-    all_emails = []
-    all_urls = []
-    all_phones = []
-    other_data = {}
+def extract_basic_results(results, original_request):
+    """Extract basic results when orchestrator synthesis fails."""
+    if not results:
+        return None
 
-    for agent_name, agent_result in agent_results.items():
-        if (
-            not isinstance(agent_result, dict)
-            or agent_result.get("status") != "success"
-        ):
-            continue
+    request_lower = original_request.lower()
+    basic_findings = []
 
-        agent_data = agent_result.get("data", {})
+    for agent_name, result in results.items():
+        if isinstance(result, dict) and result.get("status") == "success":
+            data = result.get("data", {})
 
-        # Collect specific data types
-        if isinstance(agent_data, dict):
-            if "emails" in agent_data:
-                all_emails.extend(agent_data["emails"])
-            if "urls" in agent_data:
-                all_urls.extend(agent_data["urls"])
-            if "phones" in agent_data:
-                all_phones.extend(agent_data["phones"])
+            # Context-aware result extraction based on original request
+            if "count" in request_lower and "word" in request_lower:
+                if "word_count" in data:
+                    return f"I counted {data['word_count']} words in your text."
 
-            # Collect other data
-            for key, value in agent_data.items():
-                if key not in ["emails", "urls", "phones"]:
-                    other_data[key] = value
+            elif "extract" in request_lower and "email" in request_lower:
+                if "emails" in data and data["emails"]:
+                    count = len(data["emails"])
+                    return f"I found {count} email address{'es' if count != 1 else ''}: {', '.join(data['emails'])}"
+                else:
+                    return "No email addresses were found in the provided text."
 
-    # Format findings
-    if all_emails:
-        response_parts.append(f"\n📧 **Email Addresses Found ({len(all_emails)}):**")
-        for email in all_emails[:10]:  # Limit display
-            response_parts.append(f"  • {email}")
-        if len(all_emails) > 10:
-            response_parts.append(f"  • ... and {len(all_emails) - 10} more")
+            elif "extract" in request_lower and "url" in request_lower:
+                if "urls" in data and data["urls"]:
+                    count = len(data["urls"])
+                    return f"I found {count} URL{'s' if count != 1 else ''}: {', '.join(data['urls'])}"
+                else:
+                    return "No URLs were found in the provided text."
 
-    if all_urls:
-        response_parts.append(f"\n🔗 **URLs Found ({len(all_urls)}):**")
-        for url in all_urls[:10]:
-            response_parts.append(f"  • {url}")
-        if len(all_urls) > 10:
-            response_parts.append(f"  • ... and {len(all_urls) - 10} more")
+            # Generic fallback
+            elif isinstance(data, dict) and data:
+                key_results = []
+                for key, value in list(data.items())[:3]:
+                    if isinstance(value, list):
+                        key_results.append(f"{key}: {len(value)} items")
+                    elif isinstance(value, (int, float)):
+                        key_results.append(f"{key}: {value}")
 
-    if all_phones:
-        response_parts.append(f"\n📞 **Phone Numbers Found ({len(all_phones)}):**")
-        for phone in all_phones[:10]:
-            response_parts.append(f"  • {phone}")
+                if key_results:
+                    return f"Results: {', '.join(key_results)}"
 
-    # Add other data if present
-    if other_data:
-        response_parts.append("\n📊 **Additional Information:**")
-        for key, value in list(other_data.items())[:5]:
-            response_parts.append(f"  • {key.replace('_', ' ').title()}: {value}")
-
-    # If no specific data found
-    if not (all_emails or all_urls or all_phones or other_data):
-        response_parts.append(
-            "\nNo specific data items were extracted from your content."
-        )
-
-    # Add execution summary
-    if workflow_steps:
-        response_parts.append(f"\n---")
-        response_parts.append(
-            f"*Processed using {len(workflow_steps)} agents in {result.get('execution_time', 0):.1f} seconds*"
-        )
-
-    return "\n".join(response_parts)
+    return None
 
 
 def extract_content_summary(agent_results):
@@ -580,107 +572,137 @@ def get_current_workflow_status(self) -> Dict[str, Any]:
         }
 
 
-def _calculate_workflow_progress(self, workflow_data: Dict) -> int:
-    """Calculate workflow progress percentage."""
-    # This is a simple calculation - you can make it more sophisticated
-    if workflow_data.get("status") == "completed":
-        return 100
-    elif workflow_data.get("status") == "processing":
-        return 50  # Assume 50% when processing
-    else:
-        return 0
+@api_bp.route("/workflow/status/current")
+def get_current_workflow_status():
+    """Get current workflow status for sidebar display."""
+    try:
+        # Get active workflows from orchestrator service
+        active_workflows = orchestrator_service.get_active_workflows()
+        recent_workflows = orchestrator_service.get_workflow_history(limit=1)
+
+        # If there's an active workflow, show it
+        if active_workflows:
+            current = active_workflows[0]
+            return jsonify(
+                {
+                    "status": "active",
+                    "message": f"Processing: {current.get('request', 'Unknown task')[:50]}...",
+                    "current_workflow": {
+                        "id": current.get("workflow_id"),
+                        "request": current.get("request"),
+                        "status": current.get("status"),
+                        "started_at": current.get("started_at"),
+                        "timeline": [],
+                        "progress": (
+                            50 if current.get("status") == "processing" else 100
+                        ),
+                    },
+                    "workflow_results": {
+                        "agentsUsed": len(current.get("agents", [])),
+                        "executionTime": current.get("execution_time", 0),
+                        "status": current.get("status", "Processing"),
+                        "componentsCreated": 0,
+                    },
+                }
+            )
+
+        # If no active workflow, show the most recent completed one
+        elif recent_workflows:
+            recent = recent_workflows[0]
+            return jsonify(
+                {
+                    "status": "completed",
+                    "message": f"Last execution: {recent.get('request', 'Unknown task')[:50]}...",
+                    "current_workflow": {
+                        "id": recent.get("workflow_id"),
+                        "request": recent.get("request"),
+                        "status": "completed",
+                        "started_at": recent.get("started_at"),
+                        "timeline": [],
+                        "progress": 100,
+                    },
+                    "workflow_results": {
+                        "agentsUsed": recent.get(
+                            "files", 0
+                        ),  # This might need adjustment based on your data
+                        "executionTime": recent.get("execution_time", 0),
+                        "status": "Success",
+                        "componentsCreated": 0,
+                    },
+                }
+            )
+
+        # No workflows at all
+        else:
+            return jsonify(
+                {
+                    "status": "idle",
+                    "message": "No recent workflows",
+                    "current_workflow": None,
+                    "workflow_results": {
+                        "agentsUsed": 0,
+                        "executionTime": 0,
+                        "status": "Idle",
+                        "componentsCreated": 0,
+                    },
+                }
+            )
+
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "status": "error",
+                    "message": f"Error getting workflow status: {str(e)}",
+                    "current_workflow": None,
+                    "workflow_results": {
+                        "agentsUsed": 0,
+                        "executionTime": 0,
+                        "status": "Error",
+                        "componentsCreated": 0,
+                    },
+                }
+            ),
+            500,
+        )
 
 
-# @api_bp.route("/workflow/status/current")
-# def get_current_workflow_status():
-#     """Get current workflow status for sidebar display."""
-#     try:
-#         # Get active workflows from orchestrator service
-#         active_workflows = orchestrator_service.get_active_workflows()
-#         recent_workflows = orchestrator_service.get_workflow_history(limit=1)
+@api_bp.route("/download/<filename>")
+def download_file(filename):
+    """Serve generated files for download."""
+    try:
+        # Security: Only allow downloading from outputs folder
+        safe_filename = secure_filename(filename)
+        file_path = os.path.join(current_app.config["OUTPUT_FOLDER"], safe_filename)
 
-#         # If there's an active workflow, show it
-#         if active_workflows:
-#             current = active_workflows[0]
-#             return jsonify(
-#                 {
-#                     "status": "active",
-#                     "message": f"Processing: {current.get('request', 'Unknown task')[:50]}...",
-#                     "current_workflow": {
-#                         "id": current.get("workflow_id"),
-#                         "request": current.get("request"),
-#                         "status": current.get("status"),
-#                         "started_at": current.get("started_at"),
-#                         "timeline": [],
-#                         "progress": (
-#                             50 if current.get("status") == "processing" else 100
-#                         ),
-#                     },
-#                     "workflow_results": {
-#                         "agentsUsed": len(current.get("agents", [])),
-#                         "executionTime": current.get("execution_time", 0),
-#                         "status": current.get("status", "Processing"),
-#                         "componentsCreated": 0,
-#                     },
-#                 }
-#             )
+        if os.path.exists(file_path):
+            return send_file(file_path, as_attachment=True, download_name=safe_filename)
+        else:
+            return jsonify({"error": "File not found"}), 404
 
-#         # If no active workflow, show the most recent completed one
-#         elif recent_workflows:
-#             recent = recent_workflows[0]
-#             return jsonify(
-#                 {
-#                     "status": "completed",
-#                     "message": f"Last execution: {recent.get('request', 'Unknown task')[:50]}...",
-#                     "current_workflow": {
-#                         "id": recent.get("workflow_id"),
-#                         "request": recent.get("request"),
-#                         "status": "completed",
-#                         "started_at": recent.get("started_at"),
-#                         "timeline": [],
-#                         "progress": 100,
-#                     },
-#                     "workflow_results": {
-#                         "agentsUsed": recent.get(
-#                             "files", 0
-#                         ),  # This might need adjustment based on your data
-#                         "executionTime": recent.get("execution_time", 0),
-#                         "status": "Success",
-#                         "componentsCreated": 0,
-#                     },
-#                 }
-#             )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-#         # No workflows at all
-#         else:
-#             return jsonify(
-#                 {
-#                     "status": "idle",
-#                     "message": "No recent workflows",
-#                     "current_workflow": None,
-#                     "workflow_results": {
-#                         "agentsUsed": 0,
-#                         "executionTime": 0,
-#                         "status": "Idle",
-#                         "componentsCreated": 0,
-#                     },
-#                 }
-#             )
 
-#     except Exception as e:
-#         return (
-#             jsonify(
-#                 {
-#                     "status": "error",
-#                     "message": f"Error getting workflow status: {str(e)}",
-#                     "current_workflow": None,
-#                     "workflow_results": {
-#                         "agentsUsed": 0,
-#                         "executionTime": 0,
-#                         "status": "Error",
-#                         "componentsCreated": 0,
-#                     },
-#                 }
-#             ),
-#             500,
-#         )
+@api_bp.route("/list-outputs")
+def list_output_files():
+    """List available output files for debugging."""
+    try:
+        output_dir = current_app.config["OUTPUT_FOLDER"]
+        if os.path.exists(output_dir):
+            files = [
+                f
+                for f in os.listdir(output_dir)
+                if os.path.isfile(os.path.join(output_dir, f))
+            ]
+            return jsonify({"files": files, "output_dir": output_dir})
+        else:
+            return jsonify(
+                {
+                    "files": [],
+                    "output_dir": output_dir,
+                    "note": "Directory doesn't exist",
+                }
+            )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

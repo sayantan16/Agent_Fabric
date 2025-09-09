@@ -1,6 +1,6 @@
 # AGENTIC FABRIC POC - COMPLETE PROJECT KNOWLEDGE BASE
 ================================================================================
-Generated: 2025-09-08 23:51:41
+Generated: 2025-09-09 08:57:03
 Project Root: /Users/sayantankundu/Documents/Agent Fabric
 
 ## PROJECT OVERVIEW
@@ -63,13 +63,16 @@ Agent Fabric/
 ├── generated/
 │   ├── agents/
 │   │   ├── email_extractor_agent.py
+│   │   ├── prime_checker_agent.py
 │   │   ├── read_csv_agent.py
-│   │   └── read_text_agent.py
+│   │   ├── read_text_agent.py
+│   │   └── word_counter_agent.py
 │   ├── tools/
 │   │   ├── analyze_sentiment.py
 │   │   ├── calculate_mean.py
 │   │   ├── calculate_median.py
 │   │   ├── calculate_std.py
+│   │   ├── count_words.py
 │   │   ├── extract_emails.py
 │   │   ├── extract_phones.py
 │   │   └── extract_urls.py
@@ -932,7 +935,7 @@ Each step builds incrementally on the previous ones, ensuring you have a working
 ### File: KNOWLEDGE_BASE.md
 **Path:** `KNOWLEDGE_BASE.md`
 **Size:** 0 bytes
-**Modified:** 2025-09-08 23:51:33
+**Modified:** 2025-09-09 08:56:56
 
 ```markdown
 
@@ -972,8 +975,8 @@ POC in active development - implementing dynamic agent creation system.
 
 ### File: agents.json
 **Path:** `agents.json`
-**Size:** 5,813 bytes
-**Modified:** 2025-09-08 23:29:00
+**Size:** 10,884 bytes
+**Modified:** 2025-09-09 08:49:20
 
 ```json
 {
@@ -1001,7 +1004,7 @@ POC in active development - implementing dynamic agent creation system.
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-01-01T00:00:00",
       "version": "1.0.0",
-      "execution_count": 3,
+      "execution_count": 5,
       "avg_execution_time": 0.001,
       "tags": [
         "extraction",
@@ -1009,7 +1012,17 @@ POC in active development - implementing dynamic agent creation system.
       ],
       "line_count": 98,
       "status": "active",
-      "last_executed": "2025-09-08T23:29:00.135005"
+      "last_executed": "2025-09-09T00:09:24.037048",
+      "dependencies": {
+        "tools": [
+          "extract_emails"
+        ],
+        "missing_tools": [],
+        "available_tools": [
+          "extract_emails"
+        ]
+      },
+      "formatted_created_at": "2025-01-01 00:00:00"
     },
     "url_extractor": {
       "name": "url_extractor",
@@ -1034,7 +1047,7 @@ POC in active development - implementing dynamic agent creation system.
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-09-04T12:30:00",
       "version": "1.0.0",
-      "execution_count": 3,
+      "execution_count": 5,
       "avg_execution_time": 0.0,
       "tags": [
         "extraction",
@@ -1042,7 +1055,17 @@ POC in active development - implementing dynamic agent creation system.
       ],
       "line_count": 80,
       "status": "active",
-      "last_executed": "2025-09-08T23:29:00.137209"
+      "last_executed": "2025-09-09T00:09:24.042153",
+      "dependencies": {
+        "tools": [
+          "extract_urls"
+        ],
+        "missing_tools": [],
+        "available_tools": [
+          "extract_urls"
+        ]
+      },
+      "formatted_created_at": "2025-09-04 12:30:00"
     },
     "read_text": {
       "name": "read_text",
@@ -1121,7 +1144,13 @@ POC in active development - implementing dynamic agent creation system.
       "last_executed": null,
       "tags": [],
       "line_count": 105,
-      "status": "active"
+      "status": "active",
+      "dependencies": {
+        "tools": [],
+        "missing_tools": [],
+        "available_tools": []
+      },
+      "formatted_created_at": "2025-09-04 12:21:19"
     },
     "read_csv": {
       "name": "read_csv",
@@ -1200,6 +1229,172 @@ POC in active development - implementing dynamic agent creation system.
       "last_executed": null,
       "tags": [],
       "line_count": 108,
+      "status": "active",
+      "dependencies": {
+        "tools": [],
+        "missing_tools": [],
+        "available_tools": []
+      },
+      "formatted_created_at": "2025-09-04 17:23:07"
+    },
+    "word_counter": {
+      "name": "word_counter",
+      "description": "Use the count_words tool to count the number of words in a provided text",
+      "uses_tools": [
+        "count_words"
+      ],
+      "input_schema": {
+        "type": "any",
+        "description": "Flexible input - can be string, dict, or list"
+      },
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "status",
+          "data",
+          "metadata"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "success",
+              "error",
+              "partial"
+            ]
+          },
+          "data": {
+            "type": [
+              "object",
+              "array",
+              "null"
+            ],
+            "description": "Agent-specific output data"
+          },
+          "metadata": {
+            "type": "object",
+            "required": [
+              "agent",
+              "execution_time"
+            ],
+            "properties": {
+              "agent": {
+                "type": "string"
+              },
+              "execution_time": {
+                "type": "number"
+              },
+              "tools_used": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "errors": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "warnings": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/agents/word_counter_agent.py",
+      "is_prebuilt": false,
+      "created_by": "claude-3-haiku-20240307",
+      "created_at": "2025-09-09T00:04:01.541911",
+      "version": "1.0.3fd0ca0d",
+      "execution_count": 4,
+      "avg_execution_time": 0.0,
+      "last_executed": "2025-09-09T08:46:36.105717",
+      "tags": [],
+      "line_count": 82,
+      "status": "active"
+    },
+    "prime_checker": {
+      "name": "prime_checker",
+      "description": "Check whether a number is prime",
+      "uses_tools": [],
+      "input_schema": {
+        "type": "any",
+        "description": "Flexible input - can be string, dict, or list"
+      },
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "status",
+          "data",
+          "metadata"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "success",
+              "error",
+              "partial"
+            ]
+          },
+          "data": {
+            "type": [
+              "object",
+              "array",
+              "null"
+            ],
+            "description": "Agent-specific output data"
+          },
+          "metadata": {
+            "type": "object",
+            "required": [
+              "agent",
+              "execution_time"
+            ],
+            "properties": {
+              "agent": {
+                "type": "string"
+              },
+              "execution_time": {
+                "type": "number"
+              },
+              "tools_used": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "errors": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "warnings": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/agents/prime_checker_agent.py",
+      "is_prebuilt": false,
+      "created_by": "claude-3-haiku-20240307",
+      "created_at": "2025-09-09T08:49:14.738964",
+      "version": "1.0.49c60674",
+      "execution_count": 1,
+      "avg_execution_time": 0.0,
+      "last_executed": "2025-09-09T08:49:20.351666",
+      "tags": [],
+      "line_count": 75,
       "status": "active"
     }
   }
@@ -1211,7 +1406,7 @@ POC in active development - implementing dynamic agent creation system.
 ### File: agents.json.lock
 **Path:** `agents.json.lock`
 **Size:** 0 bytes
-**Modified:** 2025-09-08 00:54:41
+**Modified:** 2025-09-09 08:49:14
 
 *[Binary file or content not included]*
 
@@ -1219,8 +1414,8 @@ POC in active development - implementing dynamic agent creation system.
 
 ### File: config.py
 **Path:** `config.py`
-**Size:** 18,940 bytes
-**Modified:** 2025-09-06 23:37:10
+**Size:** 19,345 bytes
+**Modified:** 2025-09-09 08:37:16
 
 ```python
 """
@@ -1466,60 +1661,53 @@ Your process:
 
 Available agents and their capabilities will be provided. Use exact agent names from the registry."""
 
-ORCHESTRATOR_PLANNING_PROMPT = """Analyze this request and create a workflow plan.
+ORCHESTRATOR_PLANNING_PROMPT = """You are planning a workflow for this user request.
 
 REQUEST: {request}
 ANALYSIS: {analysis}
 
-AVAILABLE AGENTS (Use EXACT names from this list):
+AVAILABLE AGENTS:
 {available_agents}
 
 AVAILABLE TOOLS:
 {available_tools}
 
-CRITICAL INSTRUCTIONS:
-1. First check if existing agents can handle the task
-2. If no suitable agents exist for a capability, mark them for creation
-3. For statistical/numerical tasks, consider these patterns:
-   - "statistics" or "stats" → needs stats_calculator agent
-   - "mean/median/average" → needs statistical calculation tools
-   - "report" → needs report generation capabilities
-   - "chart/graph" → needs visualization capabilities
+PLANNING INSTRUCTIONS:
+1. Identify what the user wants to accomplish
+2. Find existing agents that can handle the task
+3. Plan execution order (sequential/parallel/conditional)
+4. Only suggest creating new agents if existing ones truly cannot handle the task
+5. Be flexible - agents often have broader capabilities than their names suggest
 
-PLANNING RULES:
-- If the request mentions statistics/calculations and no stats agents exist, plan to create them
-- Break complex requests into atomic capabilities
-- Each capability needs an agent (existing or to be created)
-
-Respond with this EXACT JSON structure:
+OUTPUT FORMAT - Respond with valid JSON:
 {{
     "workflow_id": "wf_{timestamp}",
-    "workflow_type": "sequential",
-    "reasoning": "Step-by-step explanation of your plan",
-    "agents_needed": ["list_of_existing_agents_that_match"],
+    "workflow_type": "sequential|parallel|conditional", 
+    "reasoning": "Brief explanation of your plan",
+    "agents_needed": ["exact_agent_names_from_available_list"],
     "missing_capabilities": {{
         "agents": [
             {{
-                "name": "agent_name_to_create",
-                "purpose": "specific purpose",
-                "required_tools": ["tool1", "tool2"],
-                "justification": "why this is needed"
+                "name": "agent_name",
+                "purpose": "what it should do",
+                "required_tools": ["tool1", "tool2"]
             }}
         ],
         "tools": [
             {{
-                "name": "tool_name_to_create",
-                "purpose": "specific purpose"
+                "name": "tool_name", 
+                "purpose": "what it should do"
             }}
         ]
     }},
-    "confidence": 0.95
+    "confidence": 0.0-1.0
 }}
 
 IMPORTANT: 
-- If no agents match the request, agents_needed should be empty [] not cause an error
-- Always identify what needs to be created in missing_capabilities
-- For ambiguous requests, suggest a reasonable default workflow"""
+- Use exact agent names from the available list
+- Don't assume rigid naming patterns 
+- Prefer existing agents over creating new ones
+- If no existing agents match, describe what needs to be created"""
 
 
 ORCHESTRATOR_ANALYSIS_PROMPT = """Analyze this user request to understand intent and requirements:
@@ -1545,21 +1733,36 @@ Analyze systematically:
 
 Be specific about agent names and realistic about what each can do."""
 
-ORCHESTRATOR_SYNTHESIS_PROMPT = """Synthesize the workflow execution results into a coherent response.
+ORCHESTRATOR_SYNTHESIS_PROMPT = """You are creating a final response based on ACTUAL agent execution results.
 
-Original Request: {request}
-Workflow Plan: {plan}
-Execution Results: {results}
-Errors Encountered: {errors}
+USER'S ORIGINAL REQUEST: {request}
+ACTUAL AGENT EXECUTION RESULTS: {results}
+WORKFLOW ERRORS: {errors}
 
-Create a natural language response that:
-1. Directly answers the user's question
-2. Highlights key findings and insights
-3. Explains any issues encountered
-4. Suggests next steps if applicable
-5. Maintains professional tone
+CRITICAL INSTRUCTIONS:
+1. **ONLY use the data that agents actually returned** - Do not make assumptions
+2. **Read the agent results carefully** - Look at the actual data structures and values
+3. **Address what the user specifically asked for** - Don't default to generic patterns
+4. **If agents returned empty/null/zero results, say so** - Don't make up data
+5. **Include processing attribution** - Show which agents contributed to the answer
 
-Focus on value and clarity, not technical details."""
+RESPONSE STRUCTURE:
+[Direct answer based on actual agent data]
+
+*Processed using [actual_agent_names] | Execution time: [actual_time]*
+
+ANALYSIS FRAMEWORK:
+- What did the user want to know?
+- What data did the agents actually return?
+- How do I translate that data into a natural answer?
+- Were there any errors or empty results to acknowledge?
+
+IMPORTANT RULES:
+- Never invent data that wasn't returned by agents
+- Never assume what results mean without looking at actual values
+- If results are missing or empty, explain this honestly
+- Always base your response on the actual execution results provided
+- Be conversational but factually accurate to the agent outputs"""
 
 # =============================================================================
 # AGENT GENERATION PROMPTS
@@ -5465,8 +5668,8 @@ __all__ = ["main_bp", "api_bp"]
 
 ### File: flask_app/routes/api.py
 **Path:** `flask_app/routes/api.py`
-**Size:** 23,718 bytes
-**Modified:** 2025-09-08 23:42:06
+**Size:** 23,822 bytes
+**Modified:** 2025-09-09 08:40:08
 
 ```python
 # flask_app/routes/api.py - STREAMLINED VERSION
@@ -5731,104 +5934,95 @@ def send_chat_message():
 
 
 def create_natural_response(result, original_request):
-    """Create a natural language response from orchestrator results."""
+    """Create response using orchestrator output or intelligent fallbacks."""
 
-    # Check if we have a synthesized response from orchestrator
+    # ALWAYS use the orchestrator's synthesized response first
     if result.get("response"):
-        # Use the orchestrator's synthesized response
-        return result["response"]
+        response = result["response"]
+        print(f"DEBUG: Using orchestrator response: {response[:100]}...")
 
-    # Fallback: Create response from components
+        # Enhanced: Format attribution nicely if present
+        if "*Processed using" in response:
+            # Split main response from attribution
+            parts = response.split("*Processed using", 1)
+            main_text = parts[0].strip()
+
+            if len(parts) > 1:
+                # Clean and format attribution
+                attribution = "Processed using" + parts[1].replace("*", "").strip()
+                # Add subtle styling with HTML
+                formatted_response = f"{main_text}\n\n<small class='text-muted'><i class='fas fa-cogs'></i> {attribution}</small>"
+                return formatted_response
+
+        return response
+
+    # IMPROVED: Use original_request for context-aware fallbacks
     if result.get("status") == "error":
         error_msg = result.get("error", "An unknown error occurred")
-        return f"I encountered an error while processing your request: {error_msg}\n\nPlease try again or provide more specific information."
+        return f"I encountered an error while processing your request '{original_request[:50]}...': {error_msg}"
 
-    # Build response from results
-    response_parts = []
-
-    # Add opening based on request type
-    if "extract" in original_request.lower():
-        response_parts.append(
-            "I've extracted the requested information from your content:"
+    # IMPROVED: Context-aware partial response using original_request
+    agent_count = len(result.get("workflow", {}).get("steps", []))
+    if agent_count > 0:
+        # Try to extract some meaning from results even without orchestrator synthesis
+        basic_summary = extract_basic_results(
+            result.get("results", {}), original_request
         )
-    elif "analyze" in original_request.lower():
-        response_parts.append("I've completed the analysis of your content:")
+        if basic_summary:
+            # Enhanced: Add styled attribution to fallback responses
+            agent_names = ", ".join(result.get("workflow", {}).get("steps", []))
+            styled_attribution = f"<small class='text-muted'><i class='fas fa-cogs'></i> Processed using {agent_count} agent{'s' if agent_count != 1 else ''}: {agent_names}</small>"
+            return f"{basic_summary}\n\n{styled_attribution}\n\n<em>(Detailed response generation failed)</em>"
+        else:
+            return f"I attempted to process '{original_request[:50]}...' using {agent_count} agent{'s' if agent_count != 1 else ''}, but couldn't generate a detailed response."
     else:
-        response_parts.append("I've processed your request successfully:")
+        return f"I couldn't determine how to handle your request: '{original_request[:50]}...'. Please provide more specific instructions."
 
-    # Process agent results
-    agent_results = result.get("results", {})
-    workflow_steps = result.get("workflow", {}).get("steps", [])
 
-    # Extract meaningful content from each agent
-    all_emails = []
-    all_urls = []
-    all_phones = []
-    other_data = {}
+def extract_basic_results(results, original_request):
+    """Extract basic results when orchestrator synthesis fails."""
+    if not results:
+        return None
 
-    for agent_name, agent_result in agent_results.items():
-        if (
-            not isinstance(agent_result, dict)
-            or agent_result.get("status") != "success"
-        ):
-            continue
+    request_lower = original_request.lower()
+    basic_findings = []
 
-        agent_data = agent_result.get("data", {})
+    for agent_name, result in results.items():
+        if isinstance(result, dict) and result.get("status") == "success":
+            data = result.get("data", {})
 
-        # Collect specific data types
-        if isinstance(agent_data, dict):
-            if "emails" in agent_data:
-                all_emails.extend(agent_data["emails"])
-            if "urls" in agent_data:
-                all_urls.extend(agent_data["urls"])
-            if "phones" in agent_data:
-                all_phones.extend(agent_data["phones"])
+            # Context-aware result extraction based on original request
+            if "count" in request_lower and "word" in request_lower:
+                if "word_count" in data:
+                    return f"I counted {data['word_count']} words in your text."
 
-            # Collect other data
-            for key, value in agent_data.items():
-                if key not in ["emails", "urls", "phones"]:
-                    other_data[key] = value
+            elif "extract" in request_lower and "email" in request_lower:
+                if "emails" in data and data["emails"]:
+                    count = len(data["emails"])
+                    return f"I found {count} email address{'es' if count != 1 else ''}: {', '.join(data['emails'])}"
+                else:
+                    return "No email addresses were found in the provided text."
 
-    # Format findings
-    if all_emails:
-        response_parts.append(f"\n📧 **Email Addresses Found ({len(all_emails)}):**")
-        for email in all_emails[:10]:  # Limit display
-            response_parts.append(f"  • {email}")
-        if len(all_emails) > 10:
-            response_parts.append(f"  • ... and {len(all_emails) - 10} more")
+            elif "extract" in request_lower and "url" in request_lower:
+                if "urls" in data and data["urls"]:
+                    count = len(data["urls"])
+                    return f"I found {count} URL{'s' if count != 1 else ''}: {', '.join(data['urls'])}"
+                else:
+                    return "No URLs were found in the provided text."
 
-    if all_urls:
-        response_parts.append(f"\n🔗 **URLs Found ({len(all_urls)}):**")
-        for url in all_urls[:10]:
-            response_parts.append(f"  • {url}")
-        if len(all_urls) > 10:
-            response_parts.append(f"  • ... and {len(all_urls) - 10} more")
+            # Generic fallback
+            elif isinstance(data, dict) and data:
+                key_results = []
+                for key, value in list(data.items())[:3]:
+                    if isinstance(value, list):
+                        key_results.append(f"{key}: {len(value)} items")
+                    elif isinstance(value, (int, float)):
+                        key_results.append(f"{key}: {value}")
 
-    if all_phones:
-        response_parts.append(f"\n📞 **Phone Numbers Found ({len(all_phones)}):**")
-        for phone in all_phones[:10]:
-            response_parts.append(f"  • {phone}")
+                if key_results:
+                    return f"Results: {', '.join(key_results)}"
 
-    # Add other data if present
-    if other_data:
-        response_parts.append("\n📊 **Additional Information:**")
-        for key, value in list(other_data.items())[:5]:
-            response_parts.append(f"  • {key.replace('_', ' ').title()}: {value}")
-
-    # If no specific data found
-    if not (all_emails or all_urls or all_phones or other_data):
-        response_parts.append(
-            "\nNo specific data items were extracted from your content."
-        )
-
-    # Add execution summary
-    if workflow_steps:
-        response_parts.append(f"\n---")
-        response_parts.append(
-            f"*Processed using {len(workflow_steps)} agents in {result.get('execution_time', 0):.1f} seconds*"
-        )
-
-    return "\n".join(response_parts)
+    return None
 
 
 def extract_content_summary(agent_results):
@@ -6051,110 +6245,99 @@ def get_current_workflow_status(self) -> Dict[str, Any]:
         }
 
 
-def _calculate_workflow_progress(self, workflow_data: Dict) -> int:
-    """Calculate workflow progress percentage."""
-    # This is a simple calculation - you can make it more sophisticated
-    if workflow_data.get("status") == "completed":
-        return 100
-    elif workflow_data.get("status") == "processing":
-        return 50  # Assume 50% when processing
-    else:
-        return 0
+@api_bp.route("/workflow/status/current")
+def get_current_workflow_status():
+    """Get current workflow status for sidebar display."""
+    try:
+        # Get active workflows from orchestrator service
+        active_workflows = orchestrator_service.get_active_workflows()
+        recent_workflows = orchestrator_service.get_workflow_history(limit=1)
 
+        # If there's an active workflow, show it
+        if active_workflows:
+            current = active_workflows[0]
+            return jsonify(
+                {
+                    "status": "active",
+                    "message": f"Processing: {current.get('request', 'Unknown task')[:50]}...",
+                    "current_workflow": {
+                        "id": current.get("workflow_id"),
+                        "request": current.get("request"),
+                        "status": current.get("status"),
+                        "started_at": current.get("started_at"),
+                        "timeline": [],
+                        "progress": (
+                            50 if current.get("status") == "processing" else 100
+                        ),
+                    },
+                    "workflow_results": {
+                        "agentsUsed": len(current.get("agents", [])),
+                        "executionTime": current.get("execution_time", 0),
+                        "status": current.get("status", "Processing"),
+                        "componentsCreated": 0,
+                    },
+                }
+            )
 
-# @api_bp.route("/workflow/status/current")
-# def get_current_workflow_status():
-#     """Get current workflow status for sidebar display."""
-#     try:
-#         # Get active workflows from orchestrator service
-#         active_workflows = orchestrator_service.get_active_workflows()
-#         recent_workflows = orchestrator_service.get_workflow_history(limit=1)
+        # If no active workflow, show the most recent completed one
+        elif recent_workflows:
+            recent = recent_workflows[0]
+            return jsonify(
+                {
+                    "status": "completed",
+                    "message": f"Last execution: {recent.get('request', 'Unknown task')[:50]}...",
+                    "current_workflow": {
+                        "id": recent.get("workflow_id"),
+                        "request": recent.get("request"),
+                        "status": "completed",
+                        "started_at": recent.get("started_at"),
+                        "timeline": [],
+                        "progress": 100,
+                    },
+                    "workflow_results": {
+                        "agentsUsed": recent.get(
+                            "files", 0
+                        ),  # This might need adjustment based on your data
+                        "executionTime": recent.get("execution_time", 0),
+                        "status": "Success",
+                        "componentsCreated": 0,
+                    },
+                }
+            )
 
-#         # If there's an active workflow, show it
-#         if active_workflows:
-#             current = active_workflows[0]
-#             return jsonify(
-#                 {
-#                     "status": "active",
-#                     "message": f"Processing: {current.get('request', 'Unknown task')[:50]}...",
-#                     "current_workflow": {
-#                         "id": current.get("workflow_id"),
-#                         "request": current.get("request"),
-#                         "status": current.get("status"),
-#                         "started_at": current.get("started_at"),
-#                         "timeline": [],
-#                         "progress": (
-#                             50 if current.get("status") == "processing" else 100
-#                         ),
-#                     },
-#                     "workflow_results": {
-#                         "agentsUsed": len(current.get("agents", [])),
-#                         "executionTime": current.get("execution_time", 0),
-#                         "status": current.get("status", "Processing"),
-#                         "componentsCreated": 0,
-#                     },
-#                 }
-#             )
+        # No workflows at all
+        else:
+            return jsonify(
+                {
+                    "status": "idle",
+                    "message": "No recent workflows",
+                    "current_workflow": None,
+                    "workflow_results": {
+                        "agentsUsed": 0,
+                        "executionTime": 0,
+                        "status": "Idle",
+                        "componentsCreated": 0,
+                    },
+                }
+            )
 
-#         # If no active workflow, show the most recent completed one
-#         elif recent_workflows:
-#             recent = recent_workflows[0]
-#             return jsonify(
-#                 {
-#                     "status": "completed",
-#                     "message": f"Last execution: {recent.get('request', 'Unknown task')[:50]}...",
-#                     "current_workflow": {
-#                         "id": recent.get("workflow_id"),
-#                         "request": recent.get("request"),
-#                         "status": "completed",
-#                         "started_at": recent.get("started_at"),
-#                         "timeline": [],
-#                         "progress": 100,
-#                     },
-#                     "workflow_results": {
-#                         "agentsUsed": recent.get(
-#                             "files", 0
-#                         ),  # This might need adjustment based on your data
-#                         "executionTime": recent.get("execution_time", 0),
-#                         "status": "Success",
-#                         "componentsCreated": 0,
-#                     },
-#                 }
-#             )
-
-#         # No workflows at all
-#         else:
-#             return jsonify(
-#                 {
-#                     "status": "idle",
-#                     "message": "No recent workflows",
-#                     "current_workflow": None,
-#                     "workflow_results": {
-#                         "agentsUsed": 0,
-#                         "executionTime": 0,
-#                         "status": "Idle",
-#                         "componentsCreated": 0,
-#                     },
-#                 }
-#             )
-
-#     except Exception as e:
-#         return (
-#             jsonify(
-#                 {
-#                     "status": "error",
-#                     "message": f"Error getting workflow status: {str(e)}",
-#                     "current_workflow": None,
-#                     "workflow_results": {
-#                         "agentsUsed": 0,
-#                         "executionTime": 0,
-#                         "status": "Error",
-#                         "componentsCreated": 0,
-#                     },
-#                 }
-#             ),
-#             500,
-#         )
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "status": "error",
+                    "message": f"Error getting workflow status: {str(e)}",
+                    "current_workflow": None,
+                    "workflow_results": {
+                        "agentsUsed": 0,
+                        "executionTime": 0,
+                        "status": "Error",
+                        "componentsCreated": 0,
+                    },
+                }
+            ),
+            500,
+        )
 
 ```
 
@@ -6863,8 +7046,8 @@ orchestrator_service = OrchestratorService()
 
 ### File: flask_app/services/registry_service.py
 **Path:** `flask_app/services/registry_service.py`
-**Size:** 14,398 bytes
-**Modified:** 2025-09-08 09:36:39
+**Size:** 14,086 bytes
+**Modified:** 2025-09-09 08:02:56
 
 ```python
 # flask_app/services/registry_service.py
@@ -7012,12 +7195,6 @@ class RegistryService:
             active_tools = [
                 t for t in tools_data.values() if t.get("status") == "active"
             ]
-
-            print(f"DEBUG: Registry stats calculation:")
-            print(f"  Total agents in registry: {len(agents_data)}")
-            print(f"  Active agents: {len(active_agents)}")
-            print(f"  Total tools in registry: {len(tools_data)}")
-            print(f"  Active tools: {len(active_tools)}")
 
             stats = {
                 "total_agents": len(active_agents),
@@ -7712,8 +7889,8 @@ workflow_service = WorkflowService()
 
 ### File: flask_app/static/js/app.js
 **Path:** `flask_app/static/js/app.js`
-**Size:** 18,226 bytes
-**Modified:** 2025-09-08 23:42:21
+**Size:** 18,227 bytes
+**Modified:** 2025-09-09 08:05:15
 
 *[Binary file or content not included]*
 
@@ -7721,8 +7898,8 @@ workflow_service = WorkflowService()
 
 ### File: flask_app/templates/base.html
 **Path:** `flask_app/templates/base.html`
-**Size:** 13,865 bytes
-**Modified:** 2025-09-08 22:23:37
+**Size:** 9,269 bytes
+**Modified:** 2025-09-09 08:05:31
 
 *[Binary file or content not included]*
 
@@ -7748,8 +7925,8 @@ workflow_service = WorkflowService()
 
 ### File: flask_app/templates/components/workflow-panel.html
 **Path:** `flask_app/templates/components/workflow-panel.html`
-**Size:** 5,963 bytes
-**Modified:** 2025-09-08 23:28:14
+**Size:** 5,967 bytes
+**Modified:** 2025-09-09 08:05:37
 
 *[Binary file or content not included]*
 
@@ -7757,8 +7934,8 @@ workflow_service = WorkflowService()
 
 ### File: flask_app/templates/components/workflow-visualization.html
 **Path:** `flask_app/templates/components/workflow-visualization.html`
-**Size:** 18,108 bytes
-**Modified:** 2025-09-08 23:14:19
+**Size:** 18,111 bytes
+**Modified:** 2025-09-09 08:05:44
 
 *[Binary file or content not included]*
 
@@ -7979,6 +8156,91 @@ def email_extractor_agent(state):
 
     return state
 
+```
+
+--------------------------------------------------------------------------------
+
+### File: generated/agents/prime_checker_agent.py
+**Path:** `generated/agents/prime_checker_agent.py`
+**Size:** 2,490 bytes
+**Modified:** 2025-09-09 08:49:14
+
+```python
+def prime_checker_agent(state):
+    """
+    Check whether a number is prime
+    """
+    import sys
+    import os
+    from datetime import datetime
+
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+    # Initialize state
+    if 'results' not in state:
+        state['results'] = {}
+    if 'errors' not in state:
+        state['errors'] = []
+    if 'execution_path' not in state:
+        state['execution_path'] = []
+
+    try:
+        start_time = datetime.now()
+
+        # Get input data using standard pattern
+        input_data = state.get('current_data')
+        if input_data is None:
+            # Check previous agent results
+            if 'results' in state and state['execution_path']:
+                last_agent = state['execution_path'][-1]
+                if last_agent in state['results']:
+                    last_result = state['results'][last_agent]
+                    if isinstance(last_result, dict) and 'data' in last_result:
+                        input_data = last_result['data']
+
+        if input_data is None:
+            # Check root state
+            input_data = state.get('text', state.get('data', state.get('request')))
+
+        # ACTUAL PROCESSING - Check if the input is prime
+        if isinstance(input_data, (int, float)):
+            num = int(input_data)
+            if num <= 1:
+                is_prime = False
+            else:
+                is_prime = all(num % i != 0 for i in range(2, int(num ** 0.5) + 1))
+            processed_data = {'is_prime': is_prime, 'number': num}
+        else:
+            processed_data = {'error': 'Input must be a number'}
+
+        result = {
+            "status": "success",
+            "data": processed_data,
+            "metadata": {
+                "agent": "prime_checker",
+                "execution_time": (datetime.now() - start_time).total_seconds(),
+                "tools_used": []
+            }
+        }
+
+        state['results']['prime_checker'] = result
+        state['current_data'] = processed_data
+        state['execution_path'].append('prime_checker')
+
+    except Exception as e:
+        import traceback
+        state['errors'].append({
+            "agent": "prime_checker",
+            "error": str(e),
+            "traceback": traceback.format_exc()
+        })
+        state['results']['prime_checker'] = {
+            "status": "error",
+            "data": None,
+            "metadata": {"agent": "prime_checker", "error": str(e)}
+        }
+
+    return state
 ```
 
 --------------------------------------------------------------------------------
@@ -8216,6 +8478,122 @@ def read_text_agent(state):
 
 --------------------------------------------------------------------------------
 
+### File: generated/agents/word_counter_agent.py
+**Path:** `generated/agents/word_counter_agent.py`
+**Size:** 3,513 bytes
+**Modified:** 2025-09-09 00:27:30
+
+```python
+def word_counter_agent(state):
+    """
+    Use the count_words tool to count the number of words in a provided text
+    """
+    import sys
+    import os
+    from datetime import datetime
+
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+    # Import tools
+    try:
+        from generated.tools.count_words import count_words
+    except ImportError:
+        try:
+            from prebuilt.tools.count_words import count_words
+        except ImportError:
+            # Define fallback if tool not found
+            def count_words(input_data=None):
+                return {"error": "Tool count_words not found", "data": None}
+
+    # Initialize state
+    if "results" not in state:
+        state["results"] = {}
+    if "errors" not in state:
+        state["errors"] = []
+    if "execution_path" not in state:
+        state["execution_path"] = []
+
+    try:
+        start_time = datetime.now()
+
+        # Get input data using standard pattern
+        input_data = state.get("current_data")
+        if input_data is None:
+            if "results" in state and state["execution_path"]:
+                last_agent = state["execution_path"][-1]
+                if last_agent in state["results"]:
+                    last_result = state["results"][last_agent]
+                    if isinstance(last_result, dict) and "data" in last_result:
+                        input_data = last_result["data"]
+
+        if input_data is None:
+            input_data = state.get("text", state.get("data", state.get("request")))
+
+        import re
+
+        target_text = input_data
+        if isinstance(input_data, str):
+            # Look for text in quotes (the actual text to count)
+            quote_patterns = [
+                r'"([^"]+)"',  # Double quotes
+                r"'([^']+)'",  # Single quotes
+            ]
+
+            for pattern in quote_patterns:
+                matches = re.findall(pattern, input_data)
+                if matches:
+                    # Use the last quoted text found (likely the target)
+                    target_text = matches[-1]
+                    break
+
+        # Then use target_text instead of input_data:
+        tool_result = count_words(target_text)
+        if isinstance(tool_result, dict):
+            word_count = tool_result.get("word_count", tool_result.get("data", 0))
+        else:
+            word_count = tool_result if isinstance(tool_result, int) else 0
+
+        # Create meaningful output
+        result = {
+            "status": "success",
+            "data": {
+                "word_count": word_count,
+                "input_length": len(input_data.split()),
+                "input_text": input_data,
+            },
+            "metadata": {
+                "agent": "word_counter",
+                "execution_time": (datetime.now() - start_time).total_seconds(),
+                "tools_used": ["count_words"],
+            },
+        }
+
+        state["results"]["word_counter"] = result
+        state["current_data"] = result["data"]
+        state["execution_path"].append("word_counter")
+
+    except Exception as e:
+        import traceback
+
+        state["errors"].append(
+            {
+                "agent": "word_counter",
+                "error": str(e),
+                "traceback": traceback.format_exc(),
+            }
+        )
+        state["results"]["word_counter"] = {
+            "status": "error",
+            "data": None,
+            "metadata": {"agent": "word_counter", "error": str(e)},
+        }
+
+    return state
+
+```
+
+--------------------------------------------------------------------------------
+
 ### File: generated/tools/analyze_sentiment.py
 **Path:** `generated/tools/analyze_sentiment.py`
 **Size:** 2,001 bytes
@@ -8379,6 +8757,48 @@ def calculate_median(input_data=None):
 def calculate_std(input_data=None):
         """
         Calculate standard deviation
+        """
+        
+        if input_data is None:
+            return {"status": "no_input", "result": None}
+        
+        try:
+            result = {"status": "success"}
+            
+            # Process based on input type
+            if isinstance(input_data, str):
+                result["text_length"] = len(input_data)
+                result["word_count"] = len(input_data.split())
+                result["processed"] = input_data.strip()
+            elif isinstance(input_data, dict):
+                result["keys"] = list(input_data.keys())
+                result["size"] = len(input_data)
+                result["processed"] = input_data
+            elif isinstance(input_data, list):
+                result["count"] = len(input_data)
+                result["processed"] = input_data
+            else:
+                result["type"] = type(input_data).__name__
+                result["value"] = str(input_data)
+            
+            return result
+            
+        except Exception as e:
+            return {"status": "error", "message": str(e)}
+    
+```
+
+--------------------------------------------------------------------------------
+
+### File: generated/tools/count_words.py
+**Path:** `generated/tools/count_words.py`
+**Size:** 1,166 bytes
+**Modified:** 2025-09-09 00:03:54
+
+```python
+def count_words(input_data=None):
+        """
+        Count the number of words in a given text
         """
         
         if input_data is None:
@@ -9980,8 +10400,8 @@ if __name__ == "__main__":
 
 ### File: tools.json
 **Path:** `tools.json`
-**Size:** 5,956 bytes
-**Modified:** 2025-09-08 23:29:00
+**Size:** 7,440 bytes
+**Modified:** 2025-09-09 08:49:20
 
 ```json
 {
@@ -10001,7 +10421,9 @@ if __name__ == "__main__":
         "reader"
       ],
       "line_count": 35,
-      "status": "active"
+      "status": "active",
+      "used_by": [],
+      "formatted_created_at": "2025-01-01 00:00:00"
     },
     "read_json": {
       "name": "read_json",
@@ -10019,7 +10441,9 @@ if __name__ == "__main__":
         "json"
       ],
       "line_count": 38,
-      "status": "active"
+      "status": "active",
+      "used_by": [],
+      "formatted_created_at": "2025-01-01 00:00:00"
     },
     "read_csv": {
       "name": "read_csv",
@@ -10037,7 +10461,9 @@ if __name__ == "__main__":
         "csv"
       ],
       "line_count": 37,
-      "status": "active"
+      "status": "active",
+      "used_by": [],
+      "formatted_created_at": "2025-01-01 00:00:00"
     },
     "read_pdf": {
       "name": "read_pdf",
@@ -10055,7 +10481,9 @@ if __name__ == "__main__":
         "pdf"
       ],
       "line_count": 42,
-      "status": "active"
+      "status": "active",
+      "used_by": [],
+      "formatted_created_at": "2025-01-01 00:00:00"
     },
     "extract_urls": {
       "name": "extract_urls",
@@ -10076,7 +10504,12 @@ if __name__ == "__main__":
         "url"
       ],
       "line_count": 28,
-      "status": "active"
+      "status": "active",
+      "used_by": [
+        "url_extractor",
+        "text_analyzer"
+      ],
+      "formatted_created_at": "2025-01-01 00:00:00"
     },
     "extract_emails": {
       "name": "extract_emails",
@@ -10097,7 +10530,12 @@ if __name__ == "__main__":
         "email"
       ],
       "line_count": 28,
-      "status": "active"
+      "status": "active",
+      "used_by": [
+        "email_extractor",
+        "text_analyzer"
+      ],
+      "formatted_created_at": "2025-01-01 00:00:00"
     },
     "calculate_mean": {
       "name": "calculate_mean",
@@ -10115,7 +10553,9 @@ if __name__ == "__main__":
         "statistics"
       ],
       "line_count": 39,
-      "status": "active"
+      "status": "active",
+      "used_by": [],
+      "formatted_created_at": "2025-01-01 00:00:00"
     },
     "extract_phones": {
       "name": "extract_phones",
@@ -10131,7 +10571,9 @@ if __name__ == "__main__":
         "extraction"
       ],
       "line_count": 37,
-      "status": "active"
+      "status": "active",
+      "used_by": [],
+      "formatted_created_at": "2025-09-04 23:14:54"
     },
     "calculate_median": {
       "name": "calculate_median",
@@ -10147,7 +10589,9 @@ if __name__ == "__main__":
         "calculation"
       ],
       "line_count": 32,
-      "status": "active"
+      "status": "active",
+      "used_by": [],
+      "formatted_created_at": "2025-09-04 23:14:54"
     },
     "calculate_std": {
       "name": "calculate_std",
@@ -10163,7 +10607,9 @@ if __name__ == "__main__":
         "calculation"
       ],
       "line_count": 32,
-      "status": "active"
+      "status": "active",
+      "used_by": [],
+      "formatted_created_at": "2025-09-04 23:14:54"
     },
     "analyze_sentiment": {
       "name": "analyze_sentiment",
@@ -10179,6 +10625,24 @@ if __name__ == "__main__":
         "analysis"
       ],
       "line_count": 47,
+      "status": "active",
+      "used_by": [],
+      "formatted_created_at": "2025-09-04 23:26:14"
+    },
+    "count_words": {
+      "name": "count_words",
+      "description": "Count the number of words in a given text",
+      "signature": "def count_words(input_data=None)",
+      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/tools/count_words.py",
+      "is_prebuilt": false,
+      "is_pure_function": true,
+      "used_by_agents": [
+        "word_counter"
+      ],
+      "created_by": "claude-3-haiku-20240307",
+      "created_at": "2025-09-09T00:03:54.897491",
+      "tags": [],
+      "line_count": 32,
       "status": "active"
     }
   }
@@ -10190,7 +10654,7 @@ if __name__ == "__main__":
 ### File: tools.json.lock
 **Path:** `tools.json.lock`
 **Size:** 0 bytes
-**Modified:** 2025-09-08 00:54:34
+**Modified:** 2025-09-09 00:03:54
 
 *[Binary file or content not included]*
 

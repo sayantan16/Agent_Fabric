@@ -66,6 +66,12 @@ TOOLS_REGISTRY_PATH = os.path.join(PROJECT_ROOT, "tools.json")
 # Backup Directory
 BACKUP_DIR = os.path.join(PROJECT_ROOT, "registry_backups")
 
+# Output Directory for Generated Files
+OUTPUT_FOLDER = os.path.join(PROJECT_ROOT, "flask_app", "outputs")
+
+# Ensure output directory exists
+os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+
 # =============================================================================
 # ALLOWED IMPORTS (Security)
 # =============================================================================
@@ -136,6 +142,20 @@ AGENT_OUTPUT_SCHEMA = {
                 "tools_used": {"type": "array", "items": {"type": "string"}},
                 "errors": {"type": "array", "items": {"type": "string"}},
                 "warnings": {"type": "array", "items": {"type": "string"}},
+            },
+        },
+        # ADD THIS NEW FIELD:
+        "generated_files": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "filename": {"type": "string"},
+                    "path": {"type": "string"},
+                    "type": {"type": "string"},
+                    "description": {"type": "string"},
+                    "size": {"type": "number"},
+                },
             },
         },
     },
@@ -241,63 +261,56 @@ Your process:
 
 Available agents and their capabilities will be provided. Use exact agent names from the registry."""
 
-ORCHESTRATOR_PLANNING_PROMPT = """Analyze this request and create a workflow plan.
+ORCHESTRATOR_PLANNING_PROMPT = """You are planning a workflow for this user request.
 
 REQUEST: {request}
 ANALYSIS: {analysis}
 
-AVAILABLE AGENTS (Use EXACT names from this list):
+AVAILABLE AGENTS:
 {available_agents}
 
 AVAILABLE TOOLS:
 {available_tools}
 
-CRITICAL INSTRUCTIONS:
-1. First check if existing agents can handle the task
-2. If no suitable agents exist for a capability, mark them for creation
-3. For statistical/numerical tasks, consider these patterns:
-   - "statistics" or "stats" → needs stats_calculator agent
-   - "mean/median/average" → needs statistical calculation tools
-   - "report" → needs report generation capabilities
-   - "chart/graph" → needs visualization capabilities
+PLANNING INSTRUCTIONS:
+1. Identify what the user wants to accomplish
+2. Find existing agents that can handle the task
+3. Plan execution order (sequential/parallel/conditional)
+4. Only suggest creating new agents if existing ones truly cannot handle the task
+5. Be flexible - agents often have broader capabilities than their names suggest
 
-PLANNING RULES:
-- If the request mentions statistics/calculations and no stats agents exist, plan to create them
-- Break complex requests into atomic capabilities
-- Each capability needs an agent (existing or to be created)
-
-Respond with this EXACT JSON structure:
+OUTPUT FORMAT - Respond with valid JSON:
 {{
     "workflow_id": "wf_{timestamp}",
-    "workflow_type": "sequential",
-    "reasoning": "Step-by-step explanation of your plan",
-    "agents_needed": ["list_of_existing_agents_that_match"],
+    "workflow_type": "sequential|parallel|conditional", 
+    "reasoning": "Brief explanation of your plan",
+    "agents_needed": ["exact_agent_names_from_available_list"],
     "missing_capabilities": {{
         "agents": [
             {{
-                "name": "agent_name_to_create",
-                "purpose": "specific purpose",
-                "required_tools": ["tool1", "tool2"],
-                "justification": "why this is needed"
+                "name": "agent_name",
+                "purpose": "what it should do",
+                "required_tools": ["tool1", "tool2"]
             }}
         ],
         "tools": [
             {{
-                "name": "tool_name_to_create",
-                "purpose": "specific purpose"
+                "name": "tool_name", 
+                "purpose": "what it should do"
             }}
         ]
     }},
-    "confidence": 0.95
+    "confidence": 0.0-1.0
 }}
 
 IMPORTANT: 
-- If no agents match the request, agents_needed should be empty [] not cause an error
-- Always identify what needs to be created in missing_capabilities
-- For ambiguous requests, suggest a reasonable default workflow"""
+- Use exact agent names from the available list
+- Don't assume rigid naming patterns 
+- Prefer existing agents over creating new ones
+- If no existing agents match, describe what needs to be created"""
 
 
-ORCHESTRATOR_ANALYSIS_PROMPT = """Analyze this user request to understand intent and requirements:
+ORCHESTRATOR_ANALYSIS_PROMPT = """Analyze this user request to understand intent, requirements, and execution strategy:
 
 REQUEST: {request}
 FILES: {files}
@@ -309,51 +322,95 @@ AVAILABLE AGENTS (use exact names):
 AVAILABLE TOOLS:
 {available_tools}
 
-Analyze systematically:
+Perform systematic analysis:
 
 1. CORE INTENT: What does the user want to accomplish?
-2. INPUT DATA: What data/content needs processing?
-3. REQUIRED OUTPUTS: What should the final result contain?
-4. PROCESSING STEPS: What transformations are needed?
-5. CAPABILITY MATCH: Which available agents can handle parts of this?
-6. MISSING PIECES: What capabilities don't exist yet?
+2. TASK CLASSIFICATION: What type of operation is this? (analysis, extraction, calculation, processing, etc.)
+3. DATA REQUIREMENTS: What kind of data does this task need? (numbers, text, files, structured data, etc.)
+4. PROCESSING COMPLEXITY: Is this a single-step or multi-step operation?
+5. CAPABILITY MATCHING: Which available agents can handle this type of task?
+6. CAPABILITY GAPS: What specific capabilities are missing and need to be created?
+7. EXECUTION STRATEGY: Should this be sequential, parallel, or conditional execution?
 
-Be specific about agent names and realistic about what each can do."""
+IMPORTANT GUIDELINES:
+- Focus on WHAT needs to be done, not HOW to extract data (DataProcessor handles extraction)
+- Be specific about agent names and their actual capabilities
+- Consider the user's expertise level and adjust complexity accordingly
+- Think about error scenarios and edge cases
+- Identify if the request is ambiguous and needs clarification
 
-ORCHESTRATOR_SYNTHESIS_PROMPT = """Synthesize the workflow execution results into a coherent response.
+ANALYSIS EXAMPLES:
 
-Original Request: {request}
-Workflow Plan: {plan}
-Execution Results: {results}
-Errors Encountered: {errors}
+Request: "Find prime numbers in: 43, 17, 89, 56"
+→ Intent: Mathematical analysis - prime number identification
+→ Task Type: Numerical computation
+→ Data Requirements: Array of integers
+→ Complexity: Single-step operation
+→ Available Capability: None (need prime_checker)
+→ Strategy: Sequential execution with new agent
 
-Create a natural language response that:
-1. Directly answers the user's question
-2. Highlights key findings and insights
-3. Explains any issues encountered
-4. Suggests next steps if applicable
-5. Maintains professional tone
+Request: "Extract emails and count words in this document"
+→ Intent: Multi-step text analysis
+→ Task Type: Text extraction + counting
+→ Data Requirements: Text document content
+→ Complexity: Multi-step operation  
+→ Available Capability: email_extractor + word_counter
+→ Strategy: Parallel execution of existing agents
 
-Focus on value and clarity, not technical details."""
+Request: "Analyze this CSV and create a report"
+→ Intent: Data analysis with visualization
+→ Task Type: Data processing + report generation
+→ Data Requirements: Structured tabular data
+→ Complexity: Multi-step pipeline
+→ Available Capability: Partial (may need data analyzer + report generator)
+→ Strategy: Sequential pipeline with possible new agent creation
+
+Be thorough but concise. Focus on strategic understanding rather than data parsing."""
+
+ORCHESTRATOR_SYNTHESIS_PROMPT = """Create a natural, helpful response based on the workflow execution results.
+
+USER'S ORIGINAL REQUEST: {request}
+ACTUAL AGENT EXECUTION RESULTS: {results}
+WORKFLOW ERRORS: {errors}
+
+CRITICAL INSTRUCTIONS:
+1. **ONLY use the data that agents actually returned** - Do not make assumptions
+2. **Read the agent results carefully** - Look at the actual data structures and values
+3. **Address what the user specifically asked for** - Don't default to generic patterns
+4. **If agents returned empty/null/zero results, say so** - Don't make up data
+5. **Include processing attribution** - Show which agents contributed to the answer
+6. **If files were generated, provide download links** - Use the exact format: [Download Filename](/api/download/filename)
+
+RESPONSE STRUCTURE:
+[Direct answer based on actual agent data]
+
+[If files were generated, add download section:]
+**Generated Files:**
+- [Download Report](/api/download/filename.pdf) - Description
+
+*Processed using [actual_agent_names] | Execution time: [actual_time]*
+
+IMPORTANT RULES:
+- Never invent data that wasn't returned by agents
+- Never assume what results mean without looking at actual values
+- If results are missing or empty, explain this honestly
+- Always base your response on the actual execution results provided
+- For generated files, use the exact filename and path provided by agents
+- Be conversational but factually accurate to the agent outputs"""
 
 # =============================================================================
 # AGENT GENERATION PROMPTS
 # =============================================================================
 
-CLAUDE_AGENT_GENERATION_PROMPT = """Create a Python agent that is MINIMAL but FUNCTIONAL.
+CLAUDE_AGENT_GENERATION_PROMPT = """Create a SMART Python agent that handles input intelligently.
 
 Agent Name: {agent_name}
 Purpose: {description}
 Required Tools: {tools}
 
-CRITICAL REQUIREMENTS:
-1. The agent MUST actually do something useful, not just pass data through
-2. Use the tools intelligently to process the input
-3. Add value beyond what the tools alone provide
-4. Handle edge cases gracefully
-5. Keep it between {min_lines}-{max_lines} lines
+CRITICAL: The agent must be smart about input data extraction and formatting.
 
-TEMPLATE TO FOLLOW EXACTLY:
+SMART INPUT HANDLING PATTERN:
 ```python
 def {agent_name}_agent(state):
     \"\"\"
@@ -364,9 +421,6 @@ def {agent_name}_agent(state):
     from datetime import datetime
     
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    
-    # Import tools
-    {tool_imports}
     
     # Initialize state
     if 'results' not in state:
@@ -379,31 +433,27 @@ def {agent_name}_agent(state):
     try:
         start_time = datetime.now()
         
-        # Get input data using standard pattern
-        input_data = state.get('current_data')
-        if input_data is None:
-            # Check previous agent results
-            if 'results' in state and state['execution_path']:
-                last_agent = state['execution_path'][-1]
-                if last_agent in state['results']:
-                    last_result = state['results'][last_agent]
-                    if isinstance(last_result, dict) and 'data' in last_result:
-                        input_data = last_result['data']
+        # SMART DATA EXTRACTION - Try multiple sources in priority order
+        target_data = None
         
-        if input_data is None:
-            # Check root state
-            input_data = state.get('text', state.get('data', state.get('request')))
+        # Priority 1: Use extracted data if available (from intelligent processing)
+        if 'extracted_data' in state and state['extracted_data'] is not None:
+            target_data = state['extracted_data']
+            print(f"DEBUG: Using extracted data: {{target_data}}")
         
-        # ACTUAL PROCESSING - This is where the agent adds value
-        # Use the tools to process the data
-        # Don't just return the tool output - enhance it
+        # Priority 2: Use current_data
+        elif 'current_data' in state and state['current_data'] is not None:
+            target_data = state['current_data']
         
+        # Priority 3: Parse from raw request if needed
+        else:
+            raw_request = state.get('request', state.get('text', ''))
+            target_data = raw_request
+        
+        # SMART PROCESSING - Agent reasons about the input and processes accordingly
+        
+        # For {agent_name}, implement intelligent processing here
         {agent_logic}
-        
-        # Create meaningful output
-        processed_data = {{
-            # Include actual processed results here
-        }}
         
         result = {{
             "status": "success",
@@ -411,7 +461,8 @@ def {agent_name}_agent(state):
             "metadata": {{
                 "agent": "{agent_name}",
                 "execution_time": (datetime.now() - start_time).total_seconds(),
-                "tools_used": {tools}
+                "tools_used": {tools},
+                "input_data_type": str(type(target_data).__name__)
             }}
         }}
         
@@ -433,12 +484,13 @@ def {agent_name}_agent(state):
         }}
     
     return state
-Make the agent ACTUALLY USEFUL. For example:
+Make the agent SMART about handling different input types. For prime checking:
 
-If it's a calculator, actually calculate things
-If it's an extractor, actually extract and organize data
-If it's a formatter, actually format the data nicely
-"""
+If input is a list of numbers → check each number
+If input is a string with numbers → extract numbers then check
+If input is a single number → check that number
+
+Don't hardcode expectations - make agents adaptive!"""
 
 # =============================================================================
 # TOOL GENERATION PROMPTS

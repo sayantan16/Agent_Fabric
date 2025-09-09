@@ -20,6 +20,10 @@ class Config:
     # Upload Settings
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
     UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads")
+
+    # ADD THIS LINE:
+    OUTPUT_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "outputs")
+
     ALLOWED_EXTENSIONS = {
         "txt",
         "pdf",
