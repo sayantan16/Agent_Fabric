@@ -6,7 +6,7 @@ Handles AJAX requests, file uploads, and data endpoints
 
 import os
 import json
-from typing import Any, Dict
+from typing import Any, Dict, List
 import uuid
 from datetime import datetime
 from flask import (
@@ -37,66 +37,153 @@ def allowed_file(filename):
 
 @api_bp.route("/health")
 def health_check():
-    """System health check endpoint."""
+    """System health check endpoint - FIXED VERSION."""
     try:
-        registry_stats = registry_service.get_registry_stats()
-
-        # Ensure proper structure
-        if not registry_stats or not registry_stats.get("available", False):
-            registry_stats = {
-                "available": False,
-                "statistics": {"total_agents": 0, "total_tools": 0},
-                "summary": {"health_score": 0, "status": "unavailable"},
-            }
-
-        health_data = {
+        # FIXED: Use proper error handling for service availability checks
+        health_status = {
             "status": "healthy",
             "timestamp": datetime.now().isoformat(),
             "services": {
-                "orchestrator": orchestrator_service.is_backend_available(),
-                "registry": {
-                    "available": registry_stats.get("available", False),
-                    "stats": registry_stats.get(
-                        "statistics", {"total_agents": 0, "total_tools": 0}
-                    ),
-                    "health_score": registry_stats.get("summary", {}).get(
-                        "health_score", 0
-                    ),
-                    "status": registry_stats.get("summary", {}).get(
-                        "status", "unknown"
-                    ),
+                "orchestrator": {
+                    "available": False,
+                    "status": "unknown",
+                    "message": "",
                 },
+                "registry": {"available": False, "status": "unknown", "message": ""},
+                "workflow": {"available": False, "status": "unknown", "message": ""},
             },
-            "system_stats": orchestrator_service.get_system_stats(),
-            "version": "1.0.0",
+            "system": {
+                "uptime": "unknown",
+                "memory_usage": "unknown",
+                "active_workflows": 0,
+            },
         }
 
-        # Determine overall health
-        orchestrator_ok = health_data["services"]["orchestrator"]
-        registry_ok = health_data["services"]["registry"]["available"]
+        # Check orchestrator service
+        try:
+            orchestrator_available = orchestrator_service.is_backend_available()
+            health_status["services"]["orchestrator"] = {
+                "available": orchestrator_available,
+                "status": "operational" if orchestrator_available else "degraded",
+                "message": (
+                    "Backend orchestrator ready"
+                    if orchestrator_available
+                    else "Backend orchestrator not available"
+                ),
+            }
 
-        if orchestrator_ok and registry_ok:
-            health_data["status"] = "healthy"
-            status_code = 200
-        elif orchestrator_ok or registry_ok:
-            health_data["status"] = "degraded"
-            status_code = 200
+            if orchestrator_available:
+                health_status["system"]["active_workflows"] = len(
+                    orchestrator_service.active_workflows
+                )
+
+        except Exception as e:
+            health_status["services"]["orchestrator"] = {
+                "available": False,
+                "status": "error",
+                "message": f"Orchestrator check failed: {str(e)}",
+            }
+
+        # Check registry service
+        try:
+            registry_available = registry_service.is_available()
+            health_status["services"]["registry"] = {
+                "available": registry_available,
+                "status": "operational" if registry_available else "degraded",
+                "message": (
+                    "Registry service ready"
+                    if registry_available
+                    else "Registry service not available"
+                ),
+            }
+
+            if registry_available:
+                health_status["registry_stats"] = registry_service.get_registry_stats()
+
+        except Exception as e:
+            health_status["services"]["registry"] = {
+                "available": False,
+                "status": "error",
+                "message": f"Registry check failed: {str(e)}",
+            }
+
+        # Check workflow service
+        try:
+            workflow_available = workflow_service.is_available()
+            health_status["services"]["workflow"] = {
+                "available": workflow_available,
+                "status": "operational" if workflow_available else "degraded",
+                "message": (
+                    "Workflow engine ready"
+                    if workflow_available
+                    else "Workflow engine not available"
+                ),
+            }
+        except Exception as e:
+            health_status["services"]["workflow"] = {
+                "available": False,
+                "status": "error",
+                "message": f"Workflow check failed: {str(e)}",
+            }
+
+        # Determine overall system status
+        services_available = sum(
+            1 for s in health_status["services"].values() if s["available"]
+        )
+        total_services = len(health_status["services"])
+
+        if services_available == total_services:
+            health_status["status"] = "healthy"
+        elif services_available > 0:
+            health_status["status"] = "degraded"
         else:
-            health_data["status"] = "unhealthy"
-            status_code = 503
+            health_status["status"] = "unhealthy"
 
-        return jsonify(health_data), status_code
+        # Add system information
+        try:
+            import psutil
+            import time
+
+            health_status["system"][
+                "uptime"
+            ] = f"{time.time() - psutil.boot_time():.1f}s"
+            health_status["system"][
+                "memory_usage"
+            ] = f"{psutil.virtual_memory().percent}%"
+        except ImportError:
+            # psutil not available, use defaults
+            pass
+
+        return jsonify(health_status)
 
     except Exception as e:
+        # FIXED: Always return a valid response even on complete failure
         return (
             jsonify(
                 {
-                    "status": "unhealthy",
-                    "error": str(e),
+                    "status": "error",
                     "timestamp": datetime.now().isoformat(),
+                    "error": f"Health check failed: {str(e)}",
+                    "services": {
+                        "orchestrator": {
+                            "available": False,
+                            "status": "error",
+                            "message": "Health check failed",
+                        },
+                        "registry": {
+                            "available": False,
+                            "status": "error",
+                            "message": "Health check failed",
+                        },
+                        "workflow": {
+                            "available": False,
+                            "status": "error",
+                            "message": "Health check failed",
+                        },
+                    },
                 }
             ),
-            500,
+            500000,
         )
 
 
@@ -190,18 +277,48 @@ def send_chat_message():
         }
         session["chat_history"].append(user_message)
 
-        # Process through orchestrator
+        # NEW: Add pipeline detection and routing
         import asyncio
 
         try:
-            result = asyncio.run(
-                orchestrator_service.process_user_request(
-                    request_text=message,
-                    files=files,
-                    auto_create=auto_create,
-                    workflow_type=workflow_type,
-                )
+            # Simple complexity detection
+            request_lower = message.lower()
+            pipeline_keywords = [
+                "then",
+                "after",
+                "and",
+                "extract and",
+                "analyze and",
+                "step",
+                "first",
+                "next",
+            ]
+            is_complex = (
+                any(keyword in request_lower for keyword in pipeline_keywords)
+                or len(files) > 1
             )
+
+            if is_complex:
+                # Use pipeline processing (if you implement process_pipeline_request)
+                # For now, use regular processing but mark as pipeline
+                result = asyncio.run(
+                    orchestrator_service.process_user_request(
+                        request_text=message,
+                        files=files,
+                        auto_create=auto_create,
+                    )
+                )
+                # Mark as pipeline result
+                result.setdefault("metadata", {})["is_pipeline"] = True
+            else:
+                # Use regular processing
+                result = asyncio.run(
+                    orchestrator_service.process_user_request(
+                        request_text=message,
+                        files=files,
+                        auto_create=auto_create,
+                    )
+                )
         except Exception as e:
             result = {
                 "status": "error",
@@ -212,7 +329,7 @@ def send_chat_message():
         # Create natural language response
         response_text = create_natural_response(result, message)
 
-        # Add system response to session
+        # Add system response to session with pipeline info
         system_response = {
             "id": f"sys_{uuid.uuid4().hex[:8]}",
             "message": response_text,
@@ -227,6 +344,26 @@ def send_chat_message():
                     "components_created", 0
                 ),
                 "workflow_type": workflow_type,
+                # NEW: Add pipeline info
+                "pipeline_info": {
+                    "type": (
+                        "pipeline"
+                        if len(result.get("workflow", {}).get("steps", [])) > 1
+                        else "simple"
+                    ),
+                    "steps": result.get("workflow", {}).get("steps", []),
+                    "steps_completed": len(result.get("workflow", {}).get("steps", [])),
+                    "total_steps": len(result.get("workflow", {}).get("steps", [])),
+                    "execution_time": result.get("execution_time", 0),
+                    "performance_grade": (
+                        "excellent"
+                        if result.get("status") == "success"
+                        else "acceptable"
+                    ),
+                    "components_created": result.get("metadata", {}).get(
+                        "components_created", 0
+                    ),
+                },
             },
         }
 
@@ -244,6 +381,8 @@ def send_chat_message():
                 "results": result.get("results", {}),
                 "metadata": system_response["metadata"],
                 "chat_updated": True,
+                # NEW: Add pipeline-specific data for frontend
+                "pipeline_info": system_response["metadata"]["pipeline_info"],
             }
         )
 
@@ -574,96 +713,47 @@ def get_current_workflow_status(self) -> Dict[str, Any]:
 
 @api_bp.route("/workflow/status/current")
 def get_current_workflow_status():
-    """Get current workflow status for sidebar display."""
+    """Get current workflow status - FIXED VERSION."""
     try:
-        # Get active workflows from orchestrator service
-        active_workflows = orchestrator_service.get_active_workflows()
-        recent_workflows = orchestrator_service.get_workflow_history(limit=1)
-
-        # If there's an active workflow, show it
-        if active_workflows:
-            current = active_workflows[0]
+        # FIXED: Handle case where orchestrator_service might not be fully initialized
+        if not hasattr(orchestrator_service, "active_workflows"):
             return jsonify(
                 {
-                    "status": "active",
-                    "message": f"Processing: {current.get('request', 'Unknown task')[:50]}...",
-                    "current_workflow": {
-                        "id": current.get("workflow_id"),
-                        "request": current.get("request"),
-                        "status": current.get("status"),
-                        "started_at": current.get("started_at"),
-                        "timeline": [],
-                        "progress": (
-                            50 if current.get("status") == "processing" else 100
-                        ),
-                    },
-                    "workflow_results": {
-                        "agentsUsed": len(current.get("agents", [])),
-                        "executionTime": current.get("execution_time", 0),
-                        "status": current.get("status", "Processing"),
-                        "componentsCreated": 0,
-                    },
+                    "status": "no_active_workflows",
+                    "active_workflows": {},
+                    "message": "Orchestrator service not fully initialized",
                 }
             )
 
-        # If no active workflow, show the most recent completed one
-        elif recent_workflows:
-            recent = recent_workflows[0]
+        active_workflows = orchestrator_service.active_workflows
+
+        if not active_workflows:
             return jsonify(
                 {
-                    "status": "completed",
-                    "message": f"Last execution: {recent.get('request', 'Unknown task')[:50]}...",
-                    "current_workflow": {
-                        "id": recent.get("workflow_id"),
-                        "request": recent.get("request"),
-                        "status": "completed",
-                        "started_at": recent.get("started_at"),
-                        "timeline": [],
-                        "progress": 100,
-                    },
-                    "workflow_results": {
-                        "agentsUsed": recent.get(
-                            "files", 0
-                        ),  # This might need adjustment based on your data
-                        "executionTime": recent.get("execution_time", 0),
-                        "status": "Success",
-                        "componentsCreated": 0,
-                    },
+                    "status": "no_active_workflows",
+                    "active_workflows": {},
+                    "message": "No workflows currently running",
                 }
             )
 
-        # No workflows at all
-        else:
-            return jsonify(
-                {
-                    "status": "idle",
-                    "message": "No recent workflows",
-                    "current_workflow": None,
-                    "workflow_results": {
-                        "agentsUsed": 0,
-                        "executionTime": 0,
-                        "status": "Idle",
-                        "componentsCreated": 0,
-                    },
-                }
-            )
+        return jsonify(
+            {
+                "status": "success",
+                "active_workflows": active_workflows,
+                "count": len(active_workflows),
+            }
+        )
 
     except Exception as e:
         return (
             jsonify(
                 {
                     "status": "error",
-                    "message": f"Error getting workflow status: {str(e)}",
-                    "current_workflow": None,
-                    "workflow_results": {
-                        "agentsUsed": 0,
-                        "executionTime": 0,
-                        "status": "Error",
-                        "componentsCreated": 0,
-                    },
+                    "error": f"Failed to get workflow status: {str(e)}",
+                    "active_workflows": {},
                 }
             ),
-            500,
+            500000,
         )
 
 
@@ -704,5 +794,322 @@ def list_output_files():
                     "note": "Directory doesn't exist",
                 }
             )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ADD THESE NEW ENDPOINTS to flask_app/routes/api.py:
+
+
+@api_bp.route("/chat/pipeline", methods=["POST"])
+async def process_pipeline_chat():
+    """Enhanced chat endpoint with pipeline support."""
+    try:
+        data = request.get_json()
+
+        if not data or "message" not in data:
+            return jsonify({"error": "Message is required"}), 400
+
+        user_message = data["message"].strip()
+        if not user_message:
+            return jsonify({"error": "Message cannot be empty"}), 400
+
+        auto_create = data.get("auto_create", True)
+        session_id = session.get("session_id", str(uuid.uuid4()))
+        session["session_id"] = session_id
+
+        # Get uploaded files from session
+        uploaded_files = session.get("uploaded_files", [])
+
+        print(f"DEBUG: Processing pipeline chat - Message: {user_message[:100]}...")
+
+        # Process through enhanced pipeline orchestrator
+        result = await orchestrator_service.process_pipeline_request(
+            request_text=user_message, files=uploaded_files, auto_create=auto_create
+        )
+
+        # Create chat message entry
+        chat_entry = {
+            "id": str(uuid.uuid4()),
+            "type": "user",
+            "content": user_message,
+            "timestamp": datetime.now().isoformat(),
+            "files": len(uploaded_files),
+            "workflow_id": result.get("workflow_id"),
+        }
+
+        # Create response entry
+        response_entry = {
+            "id": str(uuid.uuid4()),
+            "type": "assistant",
+            "content": result.get(
+                "response", "I encountered an issue processing your request."
+            ),
+            "timestamp": datetime.now().isoformat(),
+            "workflow": result.get("workflow", {}),
+            "status": result.get("status", "unknown"),
+            "metadata": result.get("metadata", {}),
+            "pipeline_info": {
+                "type": result.get("workflow", {}).get("type", "unknown"),
+                "steps_completed": result.get("workflow", {}).get("steps_completed", 0),
+                "total_steps": result.get("workflow", {}).get("total_steps", 0),
+                "execution_time": result.get("metadata", {}).get("execution_time", 0),
+                "performance_grade": result.get("metadata", {}).get(
+                    "performance_grade", "unknown"
+                ),
+            },
+        }
+
+        # Add to chat history
+        if "chat_history" not in session:
+            session["chat_history"] = []
+
+        session["chat_history"].extend([chat_entry, response_entry])
+        session.modified = True
+
+        # Clear uploaded files after processing
+        session["uploaded_files"] = []
+
+        return jsonify(
+            {
+                "response": response_entry,
+                "workflow": result.get("workflow", {}),
+                "status": result.get("status"),
+                "pipeline_info": response_entry["pipeline_info"],
+                "generated_files": result.get("generated_files", []),
+                "errors": result.get("errors", []),
+            }
+        )
+
+    except Exception as e:
+        current_app.logger.error(f"Pipeline chat error: {str(e)}")
+        return (
+            jsonify(
+                {
+                    "error": "An error occurred processing your request",
+                    "details": str(e) if current_app.debug else None,
+                }
+            ),
+            500,
+        )
+
+
+@api_bp.route("/pipeline/analytics")
+def get_pipeline_analytics():
+    """Get pipeline processing analytics."""
+    try:
+        analytics = orchestrator_service.get_pipeline_analytics()
+        return jsonify(analytics)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/pipeline/status/<workflow_id>")
+def get_pipeline_status(workflow_id):
+    """Get status of a specific pipeline workflow."""
+    try:
+        # Get workflow from active workflows or history
+        active_workflow = orchestrator_service.active_workflows.get(workflow_id)
+
+        if active_workflow:
+            return jsonify(
+                {
+                    "workflow_id": workflow_id,
+                    "status": active_workflow.get("status", "unknown"),
+                    "started_at": active_workflow.get("started_at"),
+                    "completed_at": active_workflow.get("completed_at"),
+                    "type": active_workflow.get("type", "unknown"),
+                }
+            )
+
+        # Check history
+        historical_workflow = None
+        for workflow in orchestrator_service.workflow_history:
+            if workflow.get("workflow_id") == workflow_id:
+                historical_workflow = workflow
+                break
+
+        if historical_workflow:
+            return jsonify(historical_workflow)
+
+        return jsonify({"error": "Workflow not found"}), 404
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/pipeline/complexity/analyze", methods=["POST"])
+async def analyze_request_complexity():
+    """Analyze complexity of a request without processing it."""
+    try:
+        data = request.get_json()
+
+        if not data or "request" not in data:
+            return jsonify({"error": "Request text is required"}), 400
+
+        request_text = data["request"]
+        files = data.get("files", [])
+
+        # Use orchestrator service complexity detection
+        complexity = await orchestrator_service._detect_request_complexity(
+            request_text, files
+        )
+
+        # Get additional analysis
+        analysis = {
+            "complexity_level": complexity,
+            "estimated_steps": (
+                1 if complexity == "simple" else (3 if complexity == "pipeline" else 5)
+            ),
+            "processing_time_estimate": (
+                "5-10s"
+                if complexity == "simple"
+                else ("15-30s" if complexity == "pipeline" else "30-60s")
+            ),
+            "requires_pipeline": complexity in ["pipeline", "complex"],
+            "indicators": _get_complexity_indicators(request_text, files),
+        }
+
+        return jsonify(analysis)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+def _get_complexity_indicators(request_text: str, files: List[Dict]) -> Dict[str, Any]:
+    """Get indicators that contributed to complexity assessment."""
+
+    request_lower = request_text.lower()
+
+    indicators = {
+        "pipeline_keywords": [],
+        "complex_keywords": [],
+        "step_indicators": [],
+        "file_complexity": {},
+        "length_factor": len(request_text.split()),
+    }
+
+    # Check for pipeline keywords
+    pipeline_keywords = [
+        "then",
+        "after",
+        "next",
+        "followed by",
+        "and then",
+        "first",
+        "second",
+        "third",
+        "finally",
+        "last",
+        "extract and",
+        "analyze and",
+        "process and",
+        "create and",
+    ]
+
+    for keyword in pipeline_keywords:
+        if keyword in request_lower:
+            indicators["pipeline_keywords"].append(keyword)
+
+    # Check for complex keywords
+    complex_keywords = [
+        "multiple files",
+        "compare",
+        "merge",
+        "combine",
+        "different formats",
+        "various sources",
+        "cross-reference",
+        "comprehensive",
+        "detailed analysis",
+        "full report",
+    ]
+
+    for keyword in complex_keywords:
+        if keyword in request_lower:
+            indicators["complex_keywords"].append(keyword)
+
+    # Check for step indicators
+    step_indicators = ["1.", "2.", "3.", "step 1", "step 2", "step 3"]
+    for indicator in step_indicators:
+        if indicator in request_lower:
+            indicators["step_indicators"].append(indicator)
+
+    # File complexity
+    indicators["file_complexity"] = {
+        "file_count": len(files) if files else 0,
+        "multiple_files": files and len(files) > 1,
+        "file_types": (
+            list(set(f.get("type", "unknown") for f in files)) if files else []
+        ),
+    }
+
+    return indicators
+
+
+@api_bp.route("/components/pipeline")
+def get_pipeline_components():
+    """Get information about pipeline-capable components."""
+    try:
+        # Get all agents and filter for pipeline-capable ones
+        all_agents = registry_service.get_agents_list()
+        pipeline_agents = [
+            agent
+            for agent in all_agents
+            if "pipeline" in agent.get("tags", [])
+            or agent.get("metadata", {}).get("created_for_pipeline", False)
+        ]
+
+        # Get tools that support pipeline operations
+        all_tools = registry_service.get_tools_list()
+        pipeline_tools = [
+            tool
+            for tool in all_tools
+            if any(
+                keyword in tool.get("description", "").lower()
+                for keyword in ["format", "convert", "adapt", "process"]
+            )
+        ]
+
+        return jsonify(
+            {
+                "pipeline_agents": {
+                    "count": len(pipeline_agents),
+                    "agents": pipeline_agents,
+                },
+                "pipeline_tools": {
+                    "count": len(pipeline_tools),
+                    "tools": pipeline_tools,
+                },
+                "total_components": len(pipeline_agents) + len(pipeline_tools),
+            }
+        )
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/workflows/pipeline")
+def list_pipeline_workflows():
+    """Get list of pipeline workflows."""
+    try:
+        # Get pipeline workflows from history
+        pipeline_workflows = [
+            w
+            for w in orchestrator_service.workflow_history
+            if w.get("type") == "pipeline"
+        ]
+
+        # Sort by most recent first
+        pipeline_workflows.sort(key=lambda x: x.get("started_at", ""), reverse=True)
+
+        return jsonify(
+            {
+                "workflows": pipeline_workflows,
+                "count": len(pipeline_workflows),
+                "analytics": orchestrator_service.get_pipeline_analytics(),
+            }
+        )
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500

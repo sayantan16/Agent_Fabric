@@ -186,6 +186,14 @@
                 :class="message.type === 'user' ? 'prose-invert' : ''"
               >
                 <div x-html="formatMessage(message.message)"></div>
+                <!-- NEW: Add pipeline info for system messages -->
+                <template
+                  x-if="message.type === 'system' && message.metadata && message.metadata.pipeline_info"
+                >
+                  <div
+                    x-html="renderPipelineInfo(message.metadata.pipeline_info)"
+                  ></div>
+                </template>
               </div>
 
               <!-- Workflow Info for System Messages -->
@@ -511,13 +519,77 @@
       },
 
       formatMessage(message) {
-        return message
+        let html = message
           .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
           .replace(/\*(.*?)\*/g, '<em>$1</em>')
           .replace(/\n/g, '<br>')
           .replace(/•/g, '&bull;')
           .replace(/📧/g, '📧')
           .replace(/🔗/g, '🔗');
+
+        return html;
+      },
+
+      // ADD this new method after formatMessage:
+      renderPipelineInfo(pipelineInfo) {
+        if (!pipelineInfo || pipelineInfo.type === 'simple') return '';
+
+        let html = `
+          <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div class="flex justify-between items-center mb-2">
+              <h6 class="text-sm font-semibold text-blue-800 mb-0">
+                <svg class="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                </svg>
+                ${pipelineInfo.type === 'pipeline' ? 'Multi-Step Pipeline' : 'Complex Pipeline'}
+              </h6>
+              <span class="text-xs px-2 py-1 rounded-full ${this.getStatusBadgeClass(pipelineInfo.performance_grade)}">
+                ${pipelineInfo.performance_grade || 'unknown'}
+              </span>
+            </div>
+        `;
+
+        if (pipelineInfo.steps && pipelineInfo.steps.length > 0) {
+          html += '<div class="space-y-1">';
+          html += '<div class="text-xs text-blue-700 font-medium">Execution Steps:</div>';
+
+          pipelineInfo.steps.forEach((step, index) => {
+            const isCompleted = index < (pipelineInfo.steps_completed || 0);
+            const icon = isCompleted ?
+              '<svg class="w-3 h-3 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>' :
+              '<svg class="w-3 h-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8"/></svg>';
+
+            html += `
+              <div class="flex items-center space-x-2">
+                ${icon}
+                <span class="text-xs ${isCompleted ? 'text-gray-800' : 'text-gray-500'}">${step}</span>
+              </div>
+            `;
+          });
+
+          html += `
+            <div class="mt-2 pt-2 border-t border-blue-200 text-xs text-blue-600 space-x-3">
+              <span>Progress: ${pipelineInfo.steps_completed || 0}/${pipelineInfo.total_steps || 0}</span>
+              <span>Time: ${(pipelineInfo.execution_time || 0).toFixed(1)}s</span>
+              ${pipelineInfo.components_created > 0 ? `<span class="text-green-600">Created: ${pipelineInfo.components_created} components</span>` : ''}
+            </div>
+          `;
+          html += '</div>';
+        }
+
+        html += '</div>';
+        return html;
+      },
+
+      // ADD this helper method:
+      getStatusBadgeClass(grade) {
+        switch(grade) {
+          case 'excellent': return 'bg-green-100 text-green-800';
+          case 'good': return 'bg-blue-100 text-blue-800';
+          case 'acceptable': return 'bg-yellow-100 text-yellow-800';
+          case 'needs_improvement': return 'bg-red-100 text-red-800';
+          default: return 'bg-gray-100 text-gray-800';
+        }
       },
 
       formatTimestamp(timestamp) {

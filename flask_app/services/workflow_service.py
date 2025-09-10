@@ -27,9 +27,38 @@ class WorkflowService:
     """Service layer for workflow operations."""
 
     def __init__(self):
-        """Initialize workflow service."""
-        self.workflow_engine = WorkflowEngine() if WorkflowEngine else None
-        self.workflow_cache = {}
+        """Initialize workflow service - FIXED VERSION."""
+        # FIXED: Properly handle WorkflowEngine initialization
+        try:
+            if WorkflowEngine:
+                # Try to initialize with registry first (if it requires one)
+                try:
+                    from core.registry_singleton import get_shared_registry
+
+                    registry = get_shared_registry()
+                    if registry:
+                        self.workflow_engine = WorkflowEngine(registry)
+                    else:
+                        self.workflow_engine = WorkflowEngine()
+                except TypeError:
+                    # If WorkflowEngine doesn't accept registry, use default constructor
+                    self.workflow_engine = WorkflowEngine()
+                except Exception as e:
+                    print(
+                        f"DEBUG: Failed to initialize WorkflowEngine with registry: {e}"
+                    )
+                    # Fallback to no-argument constructor
+                    self.workflow_engine = WorkflowEngine()
+            else:
+                self.workflow_engine = None
+
+            self.workflow_cache = {}
+            print("DEBUG: WorkflowService initialized successfully")
+
+        except Exception as e:
+            print(f"WARNING: Failed to initialize WorkflowService: {e}")
+            self.workflow_engine = None
+            self.workflow_cache = {}
 
     def is_available(self) -> bool:
         """Check if workflow engine is available."""
@@ -44,11 +73,13 @@ class WorkflowService:
         if workflow_id in self.workflow_cache:
             workflow_data = self.workflow_cache[workflow_id]
         else:
-            # Get from workflow engine
-            workflow_status = self.workflow_engine.get_workflow_status(workflow_id)
-            if not workflow_status:
-                return {"error": "Workflow not found"}
-            workflow_data = workflow_status
+            try:
+                workflow_status = self.workflow_engine.get_workflow_status(workflow_id)
+                if not workflow_status:
+                    return {"error": "Workflow not found"}
+                workflow_data = workflow_status
+            except Exception as e:
+                return {"error": f"Failed to get workflow status: {str(e)}"}
 
         return self._create_visualization_data(workflow_data)
 
@@ -62,33 +93,36 @@ class WorkflowService:
         # For now, simulate updates
         import time
 
-        for i in range(10):  # Simulate 10 updates
-            time.sleep(1)
+        try:
+            for i in range(10):  # Simulate 10 updates
+                time.sleep(1)
 
-            update = {
+                update = {
+                    "workflow_id": workflow_id,
+                    "timestamp": datetime.now().isoformat(),
+                    "type": "status_update",
+                    "data": {
+                        "step": i + 1,
+                        "status": "processing" if i < 9 else "completed",
+                        "message": f"Processing step {i + 1}/10",
+                    },
+                }
+
+                yield f"data: {json.dumps(update)}\n\n"
+
+            # Final completion message
+            completion = {
                 "workflow_id": workflow_id,
                 "timestamp": datetime.now().isoformat(),
-                "type": "status_update",
+                "type": "completion",
                 "data": {
-                    "step": i + 1,
-                    "status": "processing" if i < 9 else "completed",
-                    "message": f"Processing step {i + 1}/10",
+                    "status": "completed",
+                    "message": "Workflow completed successfully",
                 },
             }
-
-            yield f"data: {json.dumps(update)}\n\n"
-
-        # Final completion message
-        completion = {
-            "workflow_id": workflow_id,
-            "timestamp": datetime.now().isoformat(),
-            "type": "completion",
-            "data": {
-                "status": "completed",
-                "message": "Workflow completed successfully",
-            },
-        }
-        yield f"data: {json.dumps(completion)}\n\n"
+            yield f"data: {json.dumps(completion)}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'error': str(e)})}\n\n"
 
     def create_workflow_diagram(
         self, agents: List[str], workflow_type: str = "sequential"
@@ -396,6 +430,50 @@ class WorkflowService:
             return 50  # Assume 50% when processing
         else:
             return 0
+
+    def get_workflow_status(self, workflow_id: str) -> Dict[str, Any]:
+        """Get current workflow status."""
+        if not self.is_available():
+            return {
+                "workflow_id": workflow_id,
+                "status": "unavailable",
+                "message": "Workflow engine not available",
+            }
+
+        try:
+            if hasattr(self.workflow_engine, "get_workflow_status"):
+                status = self.workflow_engine.get_workflow_status(workflow_id)
+                if status:
+                    return status
+
+            # Return default status if workflow not found
+            return {
+                "workflow_id": workflow_id,
+                "status": "not_found",
+                "message": "Workflow not found",
+            }
+
+        except Exception as e:
+            return {
+                "workflow_id": workflow_id,
+                "status": "error",
+                "message": f"Error getting workflow status: {str(e)}",
+            }
+
+    def list_workflows(self) -> List[Dict[str, Any]]:
+        """List all workflows."""
+        if not self.is_available():
+            return []
+
+        try:
+            if hasattr(self.workflow_engine, "list_workflows"):
+                return self.workflow_engine.list_workflows()
+            else:
+                # Return empty list if method not available
+                return []
+        except Exception as e:
+            print(f"Error listing workflows: {e}")
+            return []
 
 
 # Global service instance

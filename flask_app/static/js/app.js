@@ -611,3 +611,337 @@ function formatResponse(text) {
     .replace(/\n/g, '<br>')
     .replace(/• /g, '&bull; ');
 }
+
+// ADD these functions to handle pipeline responses in app.js:
+
+function displayPipelineInfo(pipelineInfo, messageContainer) {
+  if (!pipelineInfo || pipelineInfo.type === 'simple') {
+    return; // No pipeline info to display for simple requests
+  }
+
+  const pipelineDiv = document.createElement('div');
+  pipelineDiv.className = 'pipeline-info mt-2 p-3 bg-light rounded';
+
+  let pipelineHtml = `
+        <div class="pipeline-header d-flex justify-content-between align-items-center mb-2">
+            <h6 class="mb-0">
+                <i class="fas fa-sitemap me-2"></i>
+                ${
+                  pipelineInfo.type === 'pipeline'
+                    ? 'Multi-Step Pipeline'
+                    : 'Complex Pipeline'
+                }
+            </h6>
+            <span class="badge bg-${getStatusBadgeColor(
+              pipelineInfo.performance_grade || 'unknown'
+            )}">
+                ${pipelineInfo.performance_grade || 'unknown'}
+            </span>
+        </div>
+    `;
+
+  // Pipeline steps
+  if (pipelineInfo.steps && pipelineInfo.steps.length > 0) {
+    pipelineHtml += `
+            <div class="pipeline-steps mb-2">
+                <div class="row">
+                    <div class="col-md-6">
+                        <small class="text-muted">Steps Executed:</small>
+                        <div class="steps-list">
+        `;
+
+    pipelineInfo.steps.forEach((step, index) => {
+      const isCompleted = index < pipelineInfo.steps_completed;
+      const icon = isCompleted
+        ? 'fas fa-check-circle text-success'
+        : 'fas fa-circle text-muted';
+      pipelineHtml += `
+                <div class="step-item d-flex align-items-center mb-1">
+                    <i class="${icon} me-2"></i>
+                    <span class="${
+                      isCompleted ? 'text-dark' : 'text-muted'
+                    }">${step}</span>
+                </div>
+            `;
+    });
+
+    pipelineHtml += `
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted">Execution Details:</small>
+                        <div class="execution-stats">
+                            <div><strong>Progress:</strong> ${
+                              pipelineInfo.steps_completed
+                            }/${pipelineInfo.total_steps} steps</div>
+                            <div><strong>Strategy:</strong> ${
+                              pipelineInfo.execution_strategy
+                            }</div>
+                            <div><strong>Time:</strong> ${pipelineInfo.execution_time.toFixed(
+                              1
+                            )}s</div>
+        `;
+
+    if (pipelineInfo.components_created > 0) {
+      pipelineHtml += `<div><strong>Created:</strong> ${pipelineInfo.components_created} new components</div>`;
+    }
+
+    if (pipelineInfo.adaptations > 0) {
+      pipelineHtml += `<div><strong>Adaptations:</strong> ${pipelineInfo.adaptations} intelligent adjustments</div>`;
+    }
+
+    pipelineHtml += `
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+  }
+
+  pipelineDiv.innerHTML = pipelineHtml;
+  messageContainer.appendChild(pipelineDiv);
+}
+
+function getStatusBadgeColor(grade) {
+  switch (grade) {
+    case 'excellent':
+      return 'success';
+    case 'good':
+      return 'primary';
+    case 'acceptable':
+      return 'warning';
+    case 'needs_improvement':
+      return 'danger';
+    default:
+      return 'secondary';
+  }
+}
+
+function displayStepResults(stepResults, messageContainer) {
+  if (!stepResults || Object.keys(stepResults).length === 0) {
+    return;
+  }
+
+  const stepsDiv = document.createElement('div');
+  stepsDiv.className = 'step-results mt-2';
+
+  let stepsHtml = `
+        <div class="accordion" id="stepResultsAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="stepResultsHeader">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                            data-bs-target="#stepResultsCollapse" aria-expanded="false">
+                        <i class="fas fa-list me-2"></i>
+                        Step Details (${Object.keys(stepResults).length} steps)
+                    </button>
+                </h2>
+                <div id="stepResultsCollapse" class="accordion-collapse collapse" 
+                     data-bs-parent="#stepResultsAccordion">
+                    <div class="accordion-body">
+    `;
+
+  Object.entries(stepResults).forEach(([stepName, result], index) => {
+    const status = result.status || 'unknown';
+    const statusIcon =
+      status === 'success'
+        ? 'fas fa-check-circle text-success'
+        : 'fas fa-exclamation-circle text-danger';
+
+    stepsHtml += `
+            <div class="step-result mb-3 p-2 border rounded">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="mb-1">
+                        <i class="${statusIcon} me-2"></i>
+                        ${stepName}
+                    </h6>
+                    <span class="badge bg-${
+                      status === 'success' ? 'success' : 'danger'
+                    }">${status}</span>
+                </div>
+        `;
+
+    if (result.data) {
+      const dataPreview = getDataPreview(result.data);
+      if (dataPreview) {
+        stepsHtml += `<div class="step-data mt-2"><small class="text-muted">${dataPreview}</small></div>`;
+      }
+    }
+
+    if (result.error) {
+      stepsHtml += `<div class="step-error mt-2"><small class="text-danger">Error: ${result.error}</small></div>`;
+    }
+
+    stepsHtml += `</div>`;
+  });
+
+  stepsHtml += `
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+  stepsDiv.innerHTML = stepsHtml;
+  messageContainer.appendChild(stepsDiv);
+}
+
+function getDataPreview(data) {
+  if (Array.isArray(data)) {
+    return `Generated ${data.length} items`;
+  } else if (typeof data === 'object' && data !== null) {
+    const keys = Object.keys(data);
+    if (keys.length > 0) {
+      return `Generated data: ${keys.slice(0, 3).join(', ')}${
+        keys.length > 3 ? '...' : ''
+      }`;
+    }
+  } else if (typeof data === 'string') {
+    return `Generated text (${data.length} characters)`;
+  }
+  return 'Data generated successfully';
+}
+
+// MODIFY the existing displayAssistantMessage function to include pipeline info:
+function displayAssistantMessage(message) {
+  const messageDiv = document.createElement('div');
+  messageDiv.className = 'message assistant-message';
+  messageDiv.setAttribute('data-message-id', message.id);
+
+  const messageContainer = document.createElement('div');
+  messageContainer.className = 'message-content';
+
+  // Main response content
+  const contentDiv = document.createElement('div');
+  contentDiv.className = 'response-content';
+  contentDiv.innerHTML = formatMessageContent(message.content);
+  messageContainer.appendChild(contentDiv);
+
+  // NEW: Add pipeline information if present
+  if (message.pipeline_info) {
+    displayPipelineInfo(message.pipeline_info, messageContainer);
+  }
+
+  // NEW: Add step results if present
+  if (message.step_results) {
+    displayStepResults(message.step_results, messageContainer);
+  }
+
+  // Status and workflow info
+  if (message.status && message.status !== 'success') {
+    const statusDiv = document.createElement('div');
+    statusDiv.className = `alert alert-${
+      message.status === 'error' ? 'danger' : 'warning'
+    } mt-2`;
+    statusDiv.innerHTML = `<small>Status: ${message.status}</small>`;
+    messageContainer.appendChild(statusDiv);
+  }
+
+  // Timestamp
+  const timestampDiv = document.createElement('div');
+  timestampDiv.className = 'message-timestamp';
+  timestampDiv.textContent = new Date(message.timestamp).toLocaleTimeString();
+  messageContainer.appendChild(timestampDiv);
+
+  messageDiv.appendChild(messageContainer);
+  return messageDiv;
+}
+
+// MODIFY the sendMessage function to handle pipeline responses:
+async function sendMessage() {
+  const messageInput = document.getElementById('messageInput');
+  const message = messageInput.value.trim();
+
+  if (!message) return;
+
+  // Display user message
+  displayUserMessage({
+    id: Date.now().toString(),
+    content: message,
+    timestamp: new Date().toISOString(),
+    files: uploadedFiles.length,
+  });
+
+  messageInput.value = '';
+
+  // Show typing indicator
+  showTypingIndicator();
+
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: message,
+        auto_create: true,
+      }),
+    });
+
+    const result = await response.json();
+
+    // Hide typing indicator
+    hideTypingIndicator();
+
+    if (response.ok) {
+      // Display assistant response with pipeline info
+      displayAssistantMessage({
+        ...result.response,
+        pipeline_info: result.pipeline_info,
+        step_results: result.step_results,
+        workflow_id: result.workflow_id,
+      });
+
+      // Display generated files if any
+      if (result.generated_files && result.generated_files.length > 0) {
+        displayGeneratedFiles(result.generated_files);
+      }
+
+      // Update workflow visualization if available
+      if (result.workflow) {
+        updateWorkflowVisualization(result.workflow);
+      }
+    } else {
+      displayErrorMessage(result.error || 'An error occurred');
+    }
+  } catch (error) {
+    hideTypingIndicator();
+    displayErrorMessage('Network error occurred');
+    console.error('Error:', error);
+  }
+
+  // Clear uploaded files
+  uploadedFiles = [];
+  updateFilesList();
+}
+
+// ADD new function for workflow visualization:
+function updateWorkflowVisualization(workflow) {
+  const workflowPanel = document.getElementById('workflow-panel');
+  if (!workflowPanel) return;
+
+  if (workflow.type === 'pipeline' && workflow.steps) {
+    const stepsHtml = workflow.steps
+      .map((step, index) => {
+        const isCompleted = index < (workflow.steps_completed || 0);
+        const stepClass = isCompleted ? 'completed' : 'pending';
+        return `
+                <div class="workflow-step ${stepClass}">
+                    <div class="step-number">${index + 1}</div>
+                    <div class="step-name">${step}</div>
+                </div>
+            `;
+      })
+      .join('');
+
+    workflowPanel.innerHTML = `
+            <div class="workflow-header">
+                <h6>Workflow Execution</h6>
+                <span class="workflow-type">${workflow.execution_strategy}</span>
+            </div>
+            <div class="workflow-steps">
+                ${stepsHtml}
+            </div>
+        `;
+  }
+}

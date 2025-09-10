@@ -10,10 +10,7 @@
       "used_by_agents": [],
       "created_by": "system",
       "created_at": "2025-01-01T00:00:00",
-      "tags": [
-        "file",
-        "reader"
-      ],
+      "tags": ["file", "reader"],
       "line_count": 35,
       "status": "active",
       "used_by": [],
@@ -29,11 +26,7 @@
       "used_by_agents": [],
       "created_by": "system",
       "created_at": "2025-01-01T00:00:00",
-      "tags": [
-        "file",
-        "reader",
-        "json"
-      ],
+      "tags": ["file", "reader", "json"],
       "line_count": 38,
       "status": "active",
       "used_by": [],
@@ -49,11 +42,7 @@
       "used_by_agents": [],
       "created_by": "system",
       "created_at": "2025-01-01T00:00:00",
-      "tags": [
-        "file",
-        "reader",
-        "csv"
-      ],
+      "tags": ["file", "reader", "csv"],
       "line_count": 37,
       "status": "active",
       "used_by": [],
@@ -69,40 +58,10 @@
       "used_by_agents": [],
       "created_by": "system",
       "created_at": "2025-01-01T00:00:00",
-      "tags": [
-        "file",
-        "reader",
-        "pdf"
-      ],
+      "tags": ["file", "reader", "pdf"],
       "line_count": 42,
       "status": "active",
       "used_by": [],
-      "formatted_created_at": "2025-01-01 00:00:00"
-    },
-    "extract_urls": {
-      "name": "extract_urls",
-      "description": "Extract all URLs from input text",
-      "signature": "def extract_urls(input_data=None)",
-      "location": "generated/tools/extract_urls.py",
-      "is_prebuilt": false,
-      "is_pure_function": true,
-      "used_by_agents": [
-        "url_extractor",
-        "text_analyzer"
-      ],
-      "created_by": "claude-3-haiku-20240307",
-      "created_at": "2025-01-01T00:00:00",
-      "tags": [
-        "extraction",
-        "regex",
-        "url"
-      ],
-      "line_count": 28,
-      "status": "active",
-      "used_by": [
-        "url_extractor",
-        "text_analyzer"
-      ],
       "formatted_created_at": "2025-01-01 00:00:00"
     },
     "extract_emails": {
@@ -112,23 +71,13 @@
       "location": "generated/tools/extract_emails.py",
       "is_prebuilt": false,
       "is_pure_function": true,
-      "used_by_agents": [
-        "email_extractor",
-        "text_analyzer"
-      ],
+      "used_by_agents": ["email_extractor", "text_analyzer"],
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-01-01T00:00:00",
-      "tags": [
-        "extraction",
-        "regex",
-        "email"
-      ],
+      "tags": ["extraction", "regex", "email"],
       "line_count": 28,
       "status": "active",
-      "used_by": [
-        "email_extractor",
-        "text_analyzer"
-      ],
+      "used_by": ["email_extractor", "text_analyzer"],
       "formatted_created_at": "2025-01-01 00:00:00"
     },
     "calculate_mean": {
@@ -141,11 +90,7 @@
       "used_by_agents": [],
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-01-01T00:00:00",
-      "tags": [
-        "calculation",
-        "math",
-        "statistics"
-      ],
+      "tags": ["calculation", "math", "statistics"],
       "line_count": 39,
       "status": "active",
       "used_by": [],
@@ -161,9 +106,7 @@
       "used_by_agents": [],
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-09-04T23:14:54.570979",
-      "tags": [
-        "extraction"
-      ],
+      "tags": ["extraction"],
       "line_count": 37,
       "status": "active",
       "used_by": [],
@@ -179,9 +122,7 @@
       "used_by_agents": [],
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-09-04T23:14:54.610601",
-      "tags": [
-        "calculation"
-      ],
+      "tags": ["calculation"],
       "line_count": 32,
       "status": "active",
       "used_by": [],
@@ -197,9 +138,7 @@
       "used_by_agents": [],
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-09-04T23:14:54.644859",
-      "tags": [
-        "calculation"
-      ],
+      "tags": ["calculation"],
       "line_count": 32,
       "status": "active",
       "used_by": [],
@@ -215,9 +154,7 @@
       "used_by_agents": [],
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-09-04T23:26:14.815178",
-      "tags": [
-        "analysis"
-      ],
+      "tags": ["analysis"],
       "line_count": 47,
       "status": "active",
       "used_by": [],
@@ -230,9 +167,7 @@
       "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/tools/count_words.py",
       "is_prebuilt": false,
       "is_pure_function": true,
-      "used_by_agents": [
-        "word_counter"
-      ],
+      "used_by_agents": ["word_counter"],
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-09-09T00:03:54.897491",
       "tags": [],

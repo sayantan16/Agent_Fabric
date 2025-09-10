@@ -99,14 +99,8 @@ xlrd==2.0.2
 Flask==3.0.0
 Flask-CORS==4.0.0
 
-# Template Engine (included with Flask)
-Jinja2==3.1.2
-
 # WSGI Server for production
 gunicorn==21.2.0
-
-# Development tools
-python-dotenv==1.0.0
 
 # File handling
 Werkzeug==3.0.1
@@ -114,5 +108,12 @@ Werkzeug==3.0.1
 # Date/time utilities (already in main requirements)
 python-dateutil==2.9.0.post0
 
-# JSON handling (built-in)
-# Async support (built-in)
+# Pipeline processing dependencies
+networkx>=3.0  # For dependency graph management
+# asyncio-extensions  # Enhanced async support
+
+# # Threading and concurrency
+# concurrent-futures>=3.1.1  # For async Flask integration
+
+# Optional: Enhanced JSON processing
+ujson>=5.0.0  # Faster JSON processing for large pipeline data

@@ -3,9 +3,7 @@
     "email_extractor": {
       "name": "email_extractor",
       "description": "Extracts email addresses from text input",
-      "uses_tools": [
-        "extract_emails"
-      ],
+      "uses_tools": ["extract_emails"],
       "input_schema": {
         "data": "any"
       },
@@ -25,66 +23,16 @@
       "version": "1.0.0",
       "execution_count": 4,
       "avg_execution_time": 0.001,
-      "tags": [
-        "extraction",
-        "emails"
-      ],
+      "tags": ["extraction", "emails"],
       "line_count": 98,
       "status": "active",
       "last_executed": "2025-09-08T23:58:52.927352",
       "dependencies": {
-        "tools": [
-          "extract_emails"
-        ],
+        "tools": ["extract_emails"],
         "missing_tools": [],
-        "available_tools": [
-          "extract_emails"
-        ]
+        "available_tools": ["extract_emails"]
       },
       "formatted_created_at": "2025-01-01 00:00:00"
-    },
-    "url_extractor": {
-      "name": "url_extractor",
-      "description": "Extracts URLs from text input",
-      "uses_tools": [
-        "extract_urls"
-      ],
-      "input_schema": {
-        "data": "any"
-      },
-      "output_schema": {
-        "status": "string",
-        "data": {
-          "urls": "array",
-          "count": "integer",
-          "domains": "object"
-        },
-        "metadata": "object"
-      },
-      "location": "prebuilt/agents/url_extractor_agent.py",
-      "is_prebuilt": true,
-      "created_by": "claude-3-haiku-20240307",
-      "created_at": "2025-09-04T12:30:00",
-      "version": "1.0.0",
-      "execution_count": 4,
-      "avg_execution_time": 0.0,
-      "tags": [
-        "extraction",
-        "urls"
-      ],
-      "line_count": 80,
-      "status": "active",
-      "last_executed": "2025-09-08T23:58:52.929909",
-      "dependencies": {
-        "tools": [
-          "extract_urls"
-        ],
-        "missing_tools": [],
-        "available_tools": [
-          "extract_urls"
-        ]
-      },
-      "formatted_created_at": "2025-09-04 12:30:00"
     },
     "read_text": {
       "name": "read_text",
@@ -96,34 +44,19 @@
       },
       "output_schema": {
         "type": "object",
-        "required": [
-          "status",
-          "data",
-          "metadata"
-        ],
+        "required": ["status", "data", "metadata"],
         "properties": {
           "status": {
             "type": "string",
-            "enum": [
-              "success",
-              "error",
-              "partial"
-            ]
+            "enum": ["success", "error", "partial"]
           },
           "data": {
-            "type": [
-              "object",
-              "array",
-              "null"
-            ],
+            "type": ["object", "array", "null"],
             "description": "Agent-specific output data"
           },
           "metadata": {
             "type": "object",
-            "required": [
-              "agent",
-              "execution_time"
-            ],
+            "required": ["agent", "execution_time"],
             "properties": {
               "agent": {
                 "type": "string"
@@ -181,34 +114,19 @@
       },
       "output_schema": {
         "type": "object",
-        "required": [
-          "status",
-          "data",
-          "metadata"
-        ],
+        "required": ["status", "data", "metadata"],
         "properties": {
           "status": {
             "type": "string",
-            "enum": [
-              "success",
-              "error",
-              "partial"
-            ]
+            "enum": ["success", "error", "partial"]
           },
           "data": {
-            "type": [
-              "object",
-              "array",
-              "null"
-            ],
+            "type": ["object", "array", "null"],
             "description": "Agent-specific output data"
           },
           "metadata": {
             "type": "object",
-            "required": [
-              "agent",
-              "execution_time"
-            ],
+            "required": ["agent", "execution_time"],
             "properties": {
               "agent": {
                 "type": "string"
@@ -259,43 +177,26 @@
     "word_counter": {
       "name": "word_counter",
       "description": "Use the count_words tool to count the number of words in a provided text",
-      "uses_tools": [
-        "count_words"
-      ],
+      "uses_tools": ["count_words"],
       "input_schema": {
         "type": "any",
         "description": "Flexible input - can be string, dict, or list"
       },
       "output_schema": {
         "type": "object",
-        "required": [
-          "status",
-          "data",
-          "metadata"
-        ],
+        "required": ["status", "data", "metadata"],
         "properties": {
           "status": {
             "type": "string",
-            "enum": [
-              "success",
-              "error",
-              "partial"
-            ]
+            "enum": ["success", "error", "partial"]
           },
           "data": {
-            "type": [
-              "object",
-              "array",
-              "null"
-            ],
+            "type": ["object", "array", "null"],
             "description": "Agent-specific output data"
           },
           "metadata": {
             "type": "object",
-            "required": [
-              "agent",
-              "execution_time"
-            ],
+            "required": ["agent", "execution_time"],
             "properties": {
               "agent": {
                 "type": "string"
@@ -335,6 +236,93 @@
       "last_executed": "2025-09-09T00:04:07.978439",
       "tags": [],
       "line_count": 82,
+      "status": "active"
+    },
+    "calculate_mean": {
+      "name": "calculate_mean",
+      "description": "Process calculate_mean tasks",
+      "uses_tools": [],
+      "input_schema": {
+        "type": "any",
+        "description": "Flexible input - can be string, dict, or list"
+      },
+      "output_schema": {
+        "type": "object",
+        "required": ["status", "data", "metadata"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["success", "error", "partial"]
+          },
+          "data": {
+            "type": ["object", "array", "null"],
+            "description": "Agent-specific output data"
+          },
+          "metadata": {
+            "type": "object",
+            "required": ["agent", "execution_time"],
+            "properties": {
+              "agent": {
+                "type": "string"
+              },
+              "execution_time": {
+                "type": "number"
+              },
+              "tools_used": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "errors": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "warnings": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "generated_files": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "filename": {
+                  "type": "string"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "size": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      },
+      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/agents/calculate_mean_agent.py",
+      "is_prebuilt": false,
+      "created_by": "claude-3-haiku-20240307",
+      "created_at": "2025-09-09T21:06:37.376541",
+      "version": "1.0.197417b6",
+      "execution_count": 2,
+      "avg_execution_time": 0.001,
+      "last_executed": "2025-09-09T21:12:20.211909",
+      "tags": [],
+      "line_count": 88,
       "status": "active"
     }
   }

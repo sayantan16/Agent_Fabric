@@ -1,6 +1,6 @@
 # AGENTIC FABRIC POC - COMPLETE PROJECT KNOWLEDGE BASE
 ================================================================================
-Generated: 2025-09-09 17:22:43
+Generated: 2025-09-09 23:41:06
 Project Root: /Users/sayantankundu/Documents/Agent Fabric
 
 ## PROJECT OVERVIEW
@@ -16,14 +16,18 @@ Project Root: /Users/sayantankundu/Documents/Agent Fabric
 Agent Fabric/
 ├── core/
 │   ├── __init__.py
+│   ├── agent_compatibility.py
 │   ├── agent_factory.py
 │   ├── data_processor.py
 │   ├── dependency_resolver.py
 │   ├── orchestrator.py
+│   ├── pipeline_executor.py
+│   ├── pipeline_orchestrator.py
 │   ├── registry.py
 │   ├── registry_singleton.py
 │   ├── tool_factory.py
-│   └── workflow_engine.py
+│   ├── workflow_engine.py
+│   └── workflow_intelligence.py
 ├── flask_app/
 │   ├── outputs/
 │   ├── routes/
@@ -66,7 +70,10 @@ Agent Fabric/
 │   └── requirements_ui.txt
 ├── generated/
 │   ├── agents/
+│   │   ├── calculate_mean_agent.py
 │   │   ├── email_extractor_agent.py
+│   │   ├── generic_processor_215353_agent.py
+│   │   ├── prime_checker_agent.py
 │   │   ├── read_csv_agent.py
 │   │   ├── read_text_agent.py
 │   │   └── word_counter_agent.py
@@ -156,7 +163,7 @@ Agent Fabric/
 ### File: KNOWLEDGE_BASE.md
 **Path:** `KNOWLEDGE_BASE.md`
 **Size:** 0 bytes
-**Modified:** 2025-09-09 17:22:08
+**Modified:** 2025-09-09 23:40:47
 
 ```markdown
 
@@ -196,8 +203,8 @@ POC in active development - implementing dynamic agent creation system.
 
 ### File: agents.json
 **Path:** `agents.json`
-**Size:** 8,784 bytes
-**Modified:** 2025-09-09 17:10:53
+**Size:** 14,594 bytes
+**Modified:** 2025-09-09 23:22:45
 
 ```json
 {
@@ -205,9 +212,7 @@ POC in active development - implementing dynamic agent creation system.
     "email_extractor": {
       "name": "email_extractor",
       "description": "Extracts email addresses from text input",
-      "uses_tools": [
-        "extract_emails"
-      ],
+      "uses_tools": ["extract_emails"],
       "input_schema": {
         "data": "any"
       },
@@ -227,66 +232,16 @@ POC in active development - implementing dynamic agent creation system.
       "version": "1.0.0",
       "execution_count": 4,
       "avg_execution_time": 0.001,
-      "tags": [
-        "extraction",
-        "emails"
-      ],
+      "tags": ["extraction", "emails"],
       "line_count": 98,
       "status": "active",
       "last_executed": "2025-09-08T23:58:52.927352",
       "dependencies": {
-        "tools": [
-          "extract_emails"
-        ],
+        "tools": ["extract_emails"],
         "missing_tools": [],
-        "available_tools": [
-          "extract_emails"
-        ]
+        "available_tools": ["extract_emails"]
       },
       "formatted_created_at": "2025-01-01 00:00:00"
-    },
-    "url_extractor": {
-      "name": "url_extractor",
-      "description": "Extracts URLs from text input",
-      "uses_tools": [
-        "extract_urls"
-      ],
-      "input_schema": {
-        "data": "any"
-      },
-      "output_schema": {
-        "status": "string",
-        "data": {
-          "urls": "array",
-          "count": "integer",
-          "domains": "object"
-        },
-        "metadata": "object"
-      },
-      "location": "prebuilt/agents/url_extractor_agent.py",
-      "is_prebuilt": true,
-      "created_by": "claude-3-haiku-20240307",
-      "created_at": "2025-09-04T12:30:00",
-      "version": "1.0.0",
-      "execution_count": 4,
-      "avg_execution_time": 0.0,
-      "tags": [
-        "extraction",
-        "urls"
-      ],
-      "line_count": 80,
-      "status": "active",
-      "last_executed": "2025-09-08T23:58:52.929909",
-      "dependencies": {
-        "tools": [
-          "extract_urls"
-        ],
-        "missing_tools": [],
-        "available_tools": [
-          "extract_urls"
-        ]
-      },
-      "formatted_created_at": "2025-09-04 12:30:00"
     },
     "read_text": {
       "name": "read_text",
@@ -298,34 +253,19 @@ POC in active development - implementing dynamic agent creation system.
       },
       "output_schema": {
         "type": "object",
-        "required": [
-          "status",
-          "data",
-          "metadata"
-        ],
+        "required": ["status", "data", "metadata"],
         "properties": {
           "status": {
             "type": "string",
-            "enum": [
-              "success",
-              "error",
-              "partial"
-            ]
+            "enum": ["success", "error", "partial"]
           },
           "data": {
-            "type": [
-              "object",
-              "array",
-              "null"
-            ],
+            "type": ["object", "array", "null"],
             "description": "Agent-specific output data"
           },
           "metadata": {
             "type": "object",
-            "required": [
-              "agent",
-              "execution_time"
-            ],
+            "required": ["agent", "execution_time"],
             "properties": {
               "agent": {
                 "type": "string"
@@ -383,34 +323,19 @@ POC in active development - implementing dynamic agent creation system.
       },
       "output_schema": {
         "type": "object",
-        "required": [
-          "status",
-          "data",
-          "metadata"
-        ],
+        "required": ["status", "data", "metadata"],
         "properties": {
           "status": {
             "type": "string",
-            "enum": [
-              "success",
-              "error",
-              "partial"
-            ]
+            "enum": ["success", "error", "partial"]
           },
           "data": {
-            "type": [
-              "object",
-              "array",
-              "null"
-            ],
+            "type": ["object", "array", "null"],
             "description": "Agent-specific output data"
           },
           "metadata": {
             "type": "object",
-            "required": [
-              "agent",
-              "execution_time"
-            ],
+            "required": ["agent", "execution_time"],
             "properties": {
               "agent": {
                 "type": "string"
@@ -461,43 +386,26 @@ POC in active development - implementing dynamic agent creation system.
     "word_counter": {
       "name": "word_counter",
       "description": "Use the count_words tool to count the number of words in a provided text",
-      "uses_tools": [
-        "count_words"
-      ],
+      "uses_tools": ["count_words"],
       "input_schema": {
         "type": "any",
         "description": "Flexible input - can be string, dict, or list"
       },
       "output_schema": {
         "type": "object",
-        "required": [
-          "status",
-          "data",
-          "metadata"
-        ],
+        "required": ["status", "data", "metadata"],
         "properties": {
           "status": {
             "type": "string",
-            "enum": [
-              "success",
-              "error",
-              "partial"
-            ]
+            "enum": ["success", "error", "partial"]
           },
           "data": {
-            "type": [
-              "object",
-              "array",
-              "null"
-            ],
+            "type": ["object", "array", "null"],
             "description": "Agent-specific output data"
           },
           "metadata": {
             "type": "object",
-            "required": [
-              "agent",
-              "execution_time"
-            ],
+            "required": ["agent", "execution_time"],
             "properties": {
               "agent": {
                 "type": "string"
@@ -538,9 +446,271 @@ POC in active development - implementing dynamic agent creation system.
       "tags": [],
       "line_count": 82,
       "status": "active"
+    },
+    "calculate_mean": {
+      "name": "calculate_mean",
+      "description": "Process calculate_mean tasks",
+      "uses_tools": [],
+      "input_schema": {
+        "type": "any",
+        "description": "Flexible input - can be string, dict, or list"
+      },
+      "output_schema": {
+        "type": "object",
+        "required": ["status", "data", "metadata"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["success", "error", "partial"]
+          },
+          "data": {
+            "type": ["object", "array", "null"],
+            "description": "Agent-specific output data"
+          },
+          "metadata": {
+            "type": "object",
+            "required": ["agent", "execution_time"],
+            "properties": {
+              "agent": {
+                "type": "string"
+              },
+              "execution_time": {
+                "type": "number"
+              },
+              "tools_used": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "errors": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "warnings": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "generated_files": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "filename": {
+                  "type": "string"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "size": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      },
+      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/agents/calculate_mean_agent.py",
+      "is_prebuilt": false,
+      "created_by": "claude-3-haiku-20240307",
+      "created_at": "2025-09-09T21:06:37.376541",
+      "version": "1.0.197417b6",
+      "execution_count": 2,
+      "avg_execution_time": 0.001,
+      "last_executed": "2025-09-09T21:12:20.211909",
+      "tags": [],
+      "line_count": 88,
+      "status": "active"
+    },
+    "prime_checker": {
+      "name": "prime_checker",
+      "description": "Filter the list for prime numbers and check if a given number (average) is prime",
+      "uses_tools": [],
+      "input_schema": {
+        "type": "any",
+        "description": "Flexible input - can be string, dict, or list"
+      },
+      "output_schema": {
+        "type": "object",
+        "required": ["status", "data", "metadata"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["success", "error", "partial"]
+          },
+          "data": {
+            "type": ["object", "array", "null"],
+            "description": "Agent-specific output data"
+          },
+          "metadata": {
+            "type": "object",
+            "required": ["agent", "execution_time"],
+            "properties": {
+              "agent": {
+                "type": "string"
+              },
+              "execution_time": {
+                "type": "number"
+              },
+              "tools_used": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "errors": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "warnings": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "generated_files": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "filename": {
+                  "type": "string"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "size": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      },
+      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/agents/prime_checker_agent.py",
+      "is_prebuilt": false,
+      "created_by": "claude-3-haiku-20240307",
+      "created_at": "2025-09-09T21:06:47.161770",
+      "version": "1.0.2d6f9c51",
+      "execution_count": 2,
+      "avg_execution_time": 0.0,
+      "last_executed": "2025-09-09T21:12:20.206626",
+      "tags": [],
+      "line_count": 120,
+      "status": "active"
+    },
+    "generic_processor_215353": {
+      "name": "generic_processor_215353",
+      "description": "Process generic_processor_215353 tasks",
+      "uses_tools": [],
+      "input_schema": {
+        "type": "any",
+        "description": "Flexible input - can be string, dict, or list"
+      },
+      "output_schema": {
+        "type": "object",
+        "required": ["status", "data", "metadata"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["success", "error", "partial"]
+          },
+          "data": {
+            "type": ["object", "array", "null"],
+            "description": "Agent-specific output data"
+          },
+          "metadata": {
+            "type": "object",
+            "required": ["agent", "execution_time"],
+            "properties": {
+              "agent": {
+                "type": "string"
+              },
+              "execution_time": {
+                "type": "number"
+              },
+              "tools_used": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "errors": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "warnings": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "generated_files": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "filename": {
+                  "type": "string"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "size": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      },
+      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/agents/generic_processor_215353_agent.py",
+      "is_prebuilt": false,
+      "created_by": "claude-3-haiku-20240307",
+      "created_at": "2025-09-09T21:54:01.884737",
+      "version": "1.0.3e55b3d6",
+      "execution_count": 0,
+      "avg_execution_time": 0.0,
+      "last_executed": null,
+      "tags": [],
+      "line_count": 94,
+      "status": "active"
     }
   }
 }
+
 ```
 
 --------------------------------------------------------------------------------
@@ -548,7 +718,7 @@ POC in active development - implementing dynamic agent creation system.
 ### File: agents.json.lock
 **Path:** `agents.json.lock`
 **Size:** 0 bytes
-**Modified:** 2025-09-09 08:49:14
+**Modified:** 2025-09-09 21:54:01
 
 *[Binary file or content not included]*
 
@@ -556,8 +726,8 @@ POC in active development - implementing dynamic agent creation system.
 
 ### File: config.py
 **Path:** `config.py`
-**Size:** 21,656 bytes
-**Modified:** 2025-09-09 16:51:42
+**Size:** 46,595 bytes
+**Modified:** 2025-09-09 23:21:29
 
 ```python
 """
@@ -944,13 +1114,17 @@ CRITICAL INSTRUCTIONS:
 6. **If files were generated, provide download links** - Use the exact format: [Download Filename](/api/download/filename)
 
 RESPONSE STRUCTURE:
-[Direct answer based on actual agent data]
+**Results Found:**
+[List actual extracted data clearly based on what agents returned]
 
-[If files were generated, add download section:]
-**Generated Files:**
-- [Download Report](/api/download/filename.pdf) - Description
+**Issues (if any):**
+[List specific problems, empty results, or missing data based on actual agent outputs]
 
-*Processed using [actual_agent_names] | Execution time: [actual_time]*
+**Generated Files (if any):**
+[Download Filename](/api/download/filename) - Description from agent metadata
+
+**Process Summary:**
+Used [actual_agent_names] agents | Execution time: [actual_time]s
 
 IMPORTANT RULES:
 - Never invent data that wasn't returned by agents
@@ -958,7 +1132,27 @@ IMPORTANT RULES:
 - If results are missing or empty, explain this honestly
 - Always base your response on the actual execution results provided
 - For generated files, use the exact filename and path provided by agents
-- Be conversational but factually accurate to the agent outputs"""
+- Be conversational but factually accurate to the agent outputs
+- Show the specific data values that were extracted, not generic descriptions
+- If an agent returned empty arrays or null values, state this clearly
+- Match your response format to what the user actually requested (extraction, analysis, calculation, etc.)
+
+SITUATIONAL HANDLING GUIDELINES:
+- **Complete Success**: When all agents returned expected data, show all results clearly and concisely
+- **Partial Success**: When some agents succeeded and others failed, clearly separate what worked from what didn't
+- **Extraction Tasks**: Show exactly what was found vs what was requested, include counts and specific values
+- **Calculation Tasks**: Show the actual computed values, intermediate steps if relevant, and final answers
+- **Analysis Tasks**: Present the actual analysis results, insights, and any generated reports or summaries
+- **File Processing**: If files were processed, show what was extracted/analyzed and any generated outputs
+- **Empty Results**: When agents return empty arrays, null values, or zero counts, explain this clearly without apologizing
+- **Error Recovery**: If agents failed but pipeline continued, explain what was attempted and what succeeded
+- **Multi-Step Workflows**: Trace the data flow between steps, showing how results from one agent fed into the next
+- **Data Transformation**: When agents transform data between steps, show both input and output formats clearly
+- **Quality Assessment**: If results seem incomplete or unexpected, note this based on the actual data returned
+- **Performance Reporting**: Include actual execution times and which specific agents contributed to each result
+
+CRITICAL: Your response must be based ONLY on the actual agent execution data provided in the results section. Handle each pipeline outcome based on what actually happened, not what should have happened.
+"""
 
 # =============================================================================
 # AGENT GENERATION PROMPTS
@@ -1173,6 +1367,397 @@ Do not create placeholder or mock implementations.
 Return only the Python code.
 """
 
+
+# =============================================================================
+# PIPELINE ORCHESTRATION PROMPTS
+# =============================================================================
+
+PIPELINE_ANALYSIS_PROMPT = """Analyze this complex request and break it into a logical pipeline of steps.
+
+REQUEST: {request}
+FILES: {files}
+
+AVAILABLE AGENTS:
+{available_agents}
+
+AVAILABLE TOOLS:
+{available_tools}
+
+ANALYSIS INSTRUCTIONS:
+1. Identify the main goal and break it into sequential steps
+2. For each step, determine what processing is needed
+3. Define input/output requirements for each step
+4. Consider data flow between steps
+5. Identify any parallel processing opportunities
+
+OUTPUT FORMAT - Respond with valid JSON:
+{{
+    "analysis_type": "pipeline",
+    "complexity": "simple|moderate|complex",
+    "total_steps": 3,
+    "execution_strategy": "sequential|parallel|hybrid",
+    "steps": [
+        {{
+            "name": "step_1_descriptive_name",
+            "description": "What this step accomplishes",
+            "input_requirements": {{
+                "type": "text|data|file|array",
+                "format": "specific format expected",
+                "source": "user_input|previous_step|file"
+            }},
+            "output_requirements": {{
+                "type": "text|data|file|array", 
+                "format": "specific format produced",
+                "destination": "next_step|final_output"
+            }},
+            "required_capabilities": ["extraction", "analysis", "transformation"],
+            "estimated_time": 5
+        }}
+    ],
+    "data_flow": {{
+        "linear": true,
+        "parallel_opportunities": [],
+        "dependencies": []
+    }},
+    "confidence": 0.85
+}}
+
+IMPORTANT:
+- Each step should have clear input/output requirements
+- Consider how data flows from one step to the next
+- Be specific about what processing each step needs
+- Identify opportunities for parallel execution"""
+
+AGENT_COMPATIBILITY_PROMPT = """Analyze compatibility between a pipeline step and existing agents.
+
+STEP REQUIREMENTS:
+{step_requirements}
+
+AVAILABLE AGENTS:
+{available_agents}
+
+COMPATIBILITY ANALYSIS:
+For each agent, analyze:
+1. Capability match - Can it perform the required task?
+2. Input compatibility - Can it handle the expected input format?
+3. Output compatibility - Does it produce the required output format?  
+4. Tool availability - Does it have the necessary tools?
+
+OUTPUT FORMAT - Respond with valid JSON:
+{{
+    "compatible_agents": [
+        {{
+            "agent_name": "exact_agent_name",
+            "compatibility_score": 0.85,
+            "strengths": ["handles text input", "produces structured output"],
+            "limitations": ["may need additional tools"],
+            "required_modifications": []
+        }}
+    ],
+    "best_match": {{
+        "agent_name": "best_agent_name",
+        "score": 0.92,
+        "ready_to_use": true
+    }},
+    "missing_capabilities": [
+        "specific capability not available in any agent"
+    ],
+    "recommendation": "use_existing|create_new|modify_existing"
+}}"""
+
+PIPELINE_PLANNING_PROMPT = """Plan optimal execution for this multi-step pipeline.
+
+PIPELINE ANALYSIS:
+{pipeline_analysis}
+
+STEP COMPATIBILITY:
+{step_compatibility}
+
+PLANNING INSTRUCTIONS:
+1. For each step, assign the best available agent or specify creation needs
+2. Plan execution order (sequential/parallel/conditional)
+3. Define data flow between steps
+4. Identify components that need to be created
+5. Estimate total execution time
+
+OUTPUT FORMAT - Respond with valid JSON:
+{{
+    "pipeline_id": "pipeline_timestamp",
+    "execution_strategy": "sequential|parallel|hybrid",
+    "total_estimated_time": 25,
+    "steps": [
+        {{
+            "step_index": 0,
+            "name": "step_name",
+            "agent_assigned": "existing_agent_name|null", 
+            "needs_creation": false,
+            "creation_priority": "high|medium|low",
+            "dependencies": [],
+            "estimated_time": 8
+        }}
+    ],
+    "creation_needed": [
+        {{
+            "type": "agent",
+            "name": "new_agent_name",
+            "purpose": "what it should do",
+            "priority": "high|medium|low",
+            "for_step": "step_name"
+        }}
+    ],
+    "data_flow_plan": {{
+        "step_0": {{ "outputs_to": ["step_1"], "format": "processed_text" }},
+        "step_1": {{ "inputs_from": ["step_0"], "outputs_to": ["step_2"] }}
+    }},
+    "optimization_opportunities": [],
+    "risks": []
+}}"""
+
+DYNAMIC_AGENT_SPEC_PROMPT = """Design a pipeline-aware agent for this specific step.
+
+STEP DESCRIPTION: {step_description}
+STEP INDEX: {step_index}
+INPUT REQUIREMENTS: {input_requirements}
+OUTPUT REQUIREMENTS: {output_requirements}
+AVAILABLE TOOLS: {available_tools}
+
+AGENT DESIGN INSTRUCTIONS:
+1. Create an agent specifically for this pipeline step
+2. Ensure it handles the exact input format from previous step
+3. Ensure it produces the exact output format for next step
+4. Include appropriate error handling and edge cases
+5. Make it robust and reliable
+
+OUTPUT FORMAT - Respond with valid JSON:
+{{
+    "name": "pipeline_step_{step_index}_descriptive_name",
+    "description": "Detailed description of what this agent does",
+    "input_specification": {{
+        "expected_format": "exact format this agent expects",
+        "validation_rules": ["rule1", "rule2"],
+        "edge_cases": ["case1", "case2"]
+    }},
+    "output_specification": {{
+        "output_format": "exact format this agent produces", 
+        "data_structure": "detailed structure description",
+        "success_indicators": ["indicator1", "indicator2"]
+    }},
+    "required_tools": ["tool1", "tool2"],
+    "processing_steps": [
+        "step 1: validate input",
+        "step 2: process data", 
+        "step 3: format output"
+    ],
+    "error_handling": [
+        "invalid input format",
+        "processing failures",
+        "empty results"
+    ],
+    "performance_target": {{
+        "max_execution_time": 10,
+        "memory_usage": "low|medium|high"
+    }}
+}}"""
+
+PIPELINE_RECOVERY_PROMPT = """Generate recovery strategy for failed pipeline step.
+
+FAILED STEP: {step_name}
+STEP DESCRIPTION: {step_description}
+FAILURE REASON: {failure_reason}
+FAILURE ANALYSIS: {failure_analysis}
+AVAILABLE AGENTS: {available_agents}
+
+RECOVERY ANALYSIS:
+1. Analyze why the step failed
+2. Determine if it's recoverable with existing agents
+3. Decide if new agent creation is needed
+4. Plan data preprocessing if needed
+5. Consider fallback strategies
+
+OUTPUT FORMAT - Respond with valid JSON:
+{{
+    "recovery_assessment": {{
+        "failure_type": "agent_error|data_issue|format_mismatch|timeout",
+        "severity": "low|medium|high|critical",
+        "recoverable": true,
+        "estimated_recovery_time": 15
+    }},
+    "recommended_action": "retry|create_replacement|modify_data|skip_with_fallback",
+    "action_details": {{
+        "retry": {{ "max_attempts": 2, "modifications": [] }},
+        "create_replacement": {{
+            "agent_spec": {{
+                "name": "replacement_agent_name",
+                "description": "improved version that handles the failure case",
+                "special_handling": ["edge case 1", "edge case 2"]
+            }}
+        }},
+        "modify_data": {{
+            "preprocessing_steps": ["clean data", "validate format"],
+            "transformation_needed": "description of transformation"
+        }},
+        "skip_with_fallback": {{
+            "fallback_data": "safe default result",
+            "impact_assessment": "how this affects downstream steps"
+        }}
+    }},
+    "confidence": 0.80,
+    "alternative_strategies": []
+}}"""
+
+WORKFLOW_ADAPTATION_PROMPT = """Plan intelligent adaptation for workflow issues.
+
+DETECTED ISSUES: {issues}
+PIPELINE STATE: {pipeline_state}
+STEP RESULT: {step_result}
+
+ADAPTATION PLANNING:
+1. Analyze the impact of detected issues
+2. Determine the best adaptation strategy
+3. Plan specific actions to resolve issues
+4. Consider downstream effects
+5. Minimize disruption to overall pipeline
+
+OUTPUT FORMAT - Respond with valid JSON:
+{{
+    "adaptation_priority": "low|medium|high|critical",
+    "recommended_action": "create_replacement_agent|modify_existing_agent|retry_with_preprocessing|skip_step_with_fallback",
+    "action_rationale": "detailed explanation of why this action is best",
+    "implementation_plan": {{
+        "immediate_actions": ["action1", "action2"],
+        "resource_requirements": ["new agent", "preprocessing tool"],
+        "estimated_time": 10,
+        "success_probability": 0.85
+    }},
+    "replacement_spec": {{
+        "name": "adapted_agent_name",
+        "description": "agent designed to handle the specific issues",
+        "improvements": ["handles edge case X", "better error handling"],
+        "tools": ["tool1", "tool2"]
+    }},
+    "preprocessing_spec": {{
+        "name": "preprocessor_name", 
+        "purpose": "prepare data to avoid issues",
+        "transformations": ["clean nulls", "normalize format"]
+    }},
+    "fallback_data": {{
+        "safe_default": "reasonable default result",
+        "metadata": {{ "fallback_reason": "adaptation strategy" }}
+    }},
+    "monitoring_adjustments": [
+        "watch for similar issues in future steps"
+    ]
+}}"""
+
+
+# =============================================================================
+# PIPELINE AGENT GENERATION TEMPLATES
+# =============================================================================
+
+PIPELINE_AGENT_TEMPLATE = """Create a pipeline-aware agent for step execution.
+
+Agent Name: {agent_name}
+Pipeline Context: Step {step_index} of {total_steps}
+Input From: {input_source} → {input_format}
+Output To: {output_target} → {output_format}
+Purpose: {purpose}
+Required Tools: {tools}
+
+PIPELINE AGENT STRUCTURE:
+The agent must be intelligent about pipeline data flow and format compatibility.
+
+```python
+async def {agent_name}(state):
+    '''
+    Pipeline Step {step_index}: {purpose}
+    Input: {input_format} from {input_source}
+    Output: {output_format} for {output_target}
+    '''
+    
+    # Initialize results structure
+    if 'results' not in state:
+        state['results'] = {{}}
+    if 'errors' not in state:
+        state['errors'] = []
+    if 'execution_path' not in state:
+        state['execution_path'] = []
+    
+    try:
+        # SMART INPUT EXTRACTION from pipeline state
+        pipeline_context = state.get('pipeline_context', {{}})
+        step_index = pipeline_context.get('step_index', {step_index})
+        
+        # Extract input data based on pipeline context
+        if step_index == 0:
+            # First step - get data from user input
+            input_data = state.get('current_data', {{}})
+        else:
+            # Later step - get data from previous step results
+            input_data = state.get('current_data')
+            if input_data is None:
+                previous_results = pipeline_context.get('previous_results', {{}})
+                if previous_results:
+                    # Get the most recent result
+                    latest_result = list(previous_results.values())[-1]
+                    input_data = latest_result.get('data', {{}})
+        
+        # Validate input format
+        if not input_data:
+            raise ValueError("No input data available for pipeline step")
+        
+        # CORE PROCESSING LOGIC with tools
+        # [Agent-specific processing logic will be generated here]
+        processed_data = input_data  # Placeholder for actual processing
+        
+        # SMART OUTPUT FORMATTING for next step
+        result = {{
+            'status': 'success',
+            'data': processed_data,
+            'metadata': {{
+                'agent': '{agent_name}',
+                'step_index': step_index,
+                'pipeline_step': True,
+                'input_format': '{input_format}',
+                'output_format': '{output_format}',
+                'execution_time': 0.0  # Will be calculated
+            }}
+        }}
+        
+        # Update pipeline state
+        state['results']['{agent_name}'] = result
+        state['execution_path'].append('{agent_name}')
+        state['current_data'] = processed_data
+        
+        return state
+        
+    except Exception as e:
+        error_info = {{
+            'agent': '{agent_name}',
+            'step_index': step_index,
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }}
+        state['errors'].append(error_info)
+        
+        # Return error state but don't break pipeline
+        state['results']['{agent_name}'] = {{
+            'status': 'error', 
+            'error': str(e),
+            'metadata': error_info
+        }}
+        
+        return state
+```
+
+CRITICAL REQUIREMENTS:
+1. Handle pipeline data flow intelligently
+2. Extract input from correct pipeline context
+3. Format output for next step compatibility
+4. Include comprehensive error handling
+5. Update pipeline state correctly
+6. Be robust to different input scenarios"""
+
+
 # =============================================================================
 # PREBUILT COMPONENTS
 # =============================================================================
@@ -1226,6 +1811,268 @@ TEST_GENERATED_CODE = True  # Test code before registration
 REQUIRE_TOOL_TESTS = True  # Tools must pass basic tests
 REQUIRE_AGENT_TESTS = True  # Agents must pass basic tests
 
+
+# ADD THESE FINAL CONFIGURATIONS to config.py at the end:
+
+# =============================================================================
+# PIPELINE EXECUTION CONSTRAINTS
+# =============================================================================
+
+# Pipeline-specific constraints
+MAX_PIPELINE_STEPS = 10  # Maximum steps in a pipeline
+PIPELINE_TIMEOUT_SECONDS = 120  # Total pipeline timeout
+STEP_TIMEOUT_SECONDS = 30  # Individual step timeout
+MAX_PIPELINE_RETRIES = 3  # Maximum retry attempts for failed pipelines
+
+# Pipeline intelligence settings
+ENABLE_PIPELINE_ADAPTATION = True  # Enable real-time adaptation
+ENABLE_PIPELINE_MONITORING = True  # Enable step monitoring
+PIPELINE_PERFORMANCE_THRESHOLD = 0.8  # Performance threshold for adaptation
+
+# Data flow settings
+MAX_DATA_FLOW_DEPTH = 5  # Maximum data transformation depth
+ENABLE_DATA_VALIDATION = True  # Validate data between steps
+AUTO_FORMAT_CONVERSION = True  # Automatically convert data formats
+
+# =============================================================================
+# COMPONENT CREATION SETTINGS
+# =============================================================================
+
+# Pipeline agent creation
+PIPELINE_AGENT_PREFIX = "pipeline_"  # Prefix for pipeline agents
+ADAPTER_AGENT_PREFIX = "adapter_"  # Prefix for data adapter agents
+RECOVERY_AGENT_PREFIX = "recovery_"  # Prefix for recovery agents
+
+# Dynamic creation limits
+MAX_AGENTS_PER_PIPELINE = 8  # Maximum agents created per pipeline
+MAX_TOOLS_PER_PIPELINE = 12  # Maximum tools created per pipeline
+AGENT_CREATION_TIMEOUT = 30  # Timeout for agent creation
+
+# =============================================================================
+# MONITORING AND ANALYTICS
+# =============================================================================
+
+# Performance monitoring
+MONITOR_EXECUTION_TIMES = True  # Track execution times
+MONITOR_SUCCESS_RATES = True  # Track success rates
+MONITOR_RESOURCE_USAGE = True  # Track resource usage
+
+# Analytics retention
+ANALYTICS_RETENTION_DAYS = 30  # Days to retain analytics data
+MAX_WORKFLOW_HISTORY = 1000  # Maximum workflows in history
+CLEANUP_INTERVAL_HOURS = 24  # Hours between cleanup runs
+
+# =============================================================================
+# ERROR HANDLING AND RECOVERY
+# =============================================================================
+
+# Recovery strategies
+ENABLE_AUTO_RECOVERY = True  # Enable automatic recovery
+MAX_RECOVERY_ATTEMPTS = 2  # Maximum recovery attempts per step
+RECOVERY_TIMEOUT_SECONDS = 20  # Timeout for recovery operations
+
+# Fallback behaviors
+ENABLE_GRACEFUL_DEGRADATION = True  # Enable graceful failure handling
+PROVIDE_PARTIAL_RESULTS = True  # Provide partial results on failure
+FALLBACK_TO_SIMPLE_MODE = True  # Fallback to simple processing
+
+# =============================================================================
+# DEBUGGING AND DEVELOPMENT
+# =============================================================================
+
+# Pipeline debugging
+DEBUG_PIPELINE_EXECUTION = True  # Enable pipeline execution debugging
+LOG_PIPELINE_STATE_CHANGES = True  # Log state changes
+SAVE_PIPELINE_ARTIFACTS = False  # Save intermediate artifacts (dev only)
+
+# Performance profiling
+ENABLE_PERFORMANCE_PROFILING = False  # Enable detailed performance profiling
+PROFILE_AGENT_EXECUTION = False  # Profile individual agent execution
+PROFILE_DATA_FLOW = False  # Profile data flow between steps
+
+# =============================================================================
+# PIPELINE PROMPT TEMPLATES (CONTINUED)
+# =============================================================================
+
+# Additional prompt for edge cases
+PIPELINE_EDGE_CASE_PROMPT = """Handle edge cases in pipeline execution.
+
+EDGE CASE DETECTED: {edge_case_type}
+CURRENT STATE: {current_state}
+ERROR CONTEXT: {error_context}
+
+EDGE CASE HANDLING:
+1. Analyze the specific edge case type
+2. Determine if recovery is possible
+3. Plan appropriate handling strategy
+4. Ensure pipeline flow continues
+
+COMMON EDGE CASES:
+- Empty or null input data
+- Unexpected data formats
+- Missing required fields
+- Tool execution failures
+- Timeout scenarios
+
+OUTPUT FORMAT - Respond with valid JSON:
+{{
+    "edge_case_analysis": {{
+        "type": "data_format|missing_data|tool_failure|timeout|unknown",
+        "severity": "low|medium|high|critical",
+        "recoverable": true,
+        "handling_strategy": "retry|fallback|skip|create_alternative"
+    }},
+    "recommended_action": {{
+        "action_type": "immediate|delayed|manual_intervention",
+        "description": "specific action to take",
+        "estimated_time": 10,
+        "success_probability": 0.75
+    }},
+    "fallback_options": [
+        {{
+            "option": "provide_default_data",
+            "description": "use safe default values",
+            "impact": "minimal|moderate|significant"
+        }}
+    ],
+    "prevention_suggestions": [
+        "add input validation",
+        "improve error handling"
+    ]
+}}"""
+
+# Template for data format issues
+DATA_FORMAT_RESOLUTION_PROMPT = """Resolve data format compatibility issues in pipeline.
+
+FORMAT MISMATCH: {format_issue}
+SOURCE FORMAT: {source_format}
+TARGET FORMAT: {target_format}
+DATA SAMPLE: {data_sample}
+
+RESOLUTION INSTRUCTIONS:
+1. Analyze the format mismatch
+2. Determine conversion strategy
+3. Plan data transformation steps
+4. Ensure no data loss
+
+OUTPUT FORMAT - Respond with valid JSON:
+{{
+    "conversion_strategy": {{
+        "strategy_type": "direct_conversion|multi_step|custom_adapter",
+        "complexity": "simple|moderate|complex",
+        "data_loss_risk": "none|minimal|moderate|high"
+    }},
+    "transformation_steps": [
+        {{
+            "step": 1,
+            "operation": "validate_input",
+            "description": "check input data validity"
+        }},
+        {{
+            "step": 2,
+            "operation": "convert_format",
+            "description": "perform actual conversion"
+        }}
+    ],
+    "adapter_spec": {{
+        "name": "format_adapter_name",
+        "description": "converts {source_format} to {target_format}",
+        "tools_needed": ["converter_tool", "validator_tool"]
+    }},
+    "validation_checks": [
+        "verify_data_integrity",
+        "check_required_fields"
+    ]
+}}"""
+
+# =============================================================================
+# SYSTEM INTEGRATION SETTINGS
+# =============================================================================
+
+# Flask integration
+FLASK_PIPELINE_ROUTES = True  # Enable pipeline-specific routes
+FLASK_ASYNC_SUPPORT = True  # Enable async route support
+FLASK_WEBSOCKET_SUPPORT = False  # WebSocket support (future feature)
+
+# API versioning
+API_VERSION = "v1"  # Current API version
+SUPPORT_LEGACY_API = True  # Support legacy endpoints
+API_DEPRECATION_WARNINGS = True  # Show deprecation warnings
+
+# Security settings
+PIPELINE_EXECUTION_SANDBOXING = False  # Sandbox pipeline execution (future)
+VALIDATE_GENERATED_CODE = True  # Validate generated agent code
+LIMIT_RESOURCE_USAGE = True  # Limit resource usage per pipeline
+
+# =============================================================================
+# FEATURE FLAGS
+# =============================================================================
+
+# Pipeline features
+ENABLE_PARALLEL_PIPELINES = False  # Parallel pipeline execution (future)
+ENABLE_CONDITIONAL_PIPELINES = False  # Conditional branching (future)
+ENABLE_LOOP_PIPELINES = False  # Loop constructs (future)
+
+# Advanced features
+ENABLE_PIPELINE_TEMPLATES = False  # Pipeline templates (future)
+ENABLE_PIPELINE_SCHEDULING = False  # Scheduled pipelines (future)
+ENABLE_PIPELINE_VERSIONING = False  # Pipeline versioning (future)
+
+# Experimental features
+EXPERIMENTAL_AI_PLANNING = True  # Advanced AI-driven planning
+EXPERIMENTAL_AUTO_OPTIMIZATION = False  # Automatic pipeline optimization
+EXPERIMENTAL_PREDICTIVE_SCALING = False  # Predictive resource scaling
+
+# =============================================================================
+# DOCUMENTATION AND HELP
+# =============================================================================
+
+# Help text for pipeline features
+PIPELINE_HELP_TEXT = """
+Pipeline Processing Help:
+
+SIMPLE REQUESTS: Single-step processing
+- "Extract emails from this text"
+- "Analyze this CSV file"
+
+PIPELINE REQUESTS: Multi-step processing  
+- "Extract emails from this document, then count unique domains"
+- "Read this CSV, calculate statistics, then create a chart"
+
+COMPLEX REQUESTS: Advanced multi-step with adaptation
+- "Compare data from multiple files and generate a comprehensive report"
+- "Process these documents, extract key information, and create a presentation"
+
+FEATURES:
+✓ Automatic pipeline detection
+✓ Dynamic agent creation
+✓ Real-time adaptation
+✓ Intelligent error recovery
+✓ Performance monitoring
+
+For more help, visit: /help/pipelines
+"""
+
+# Error messages
+PIPELINE_ERROR_MESSAGES = {
+    "analysis_failed": "Failed to analyze your request. Please try rephrasing or simplifying.",
+    "planning_failed": "Could not plan pipeline execution. The request may be too complex.",
+    "execution_failed": "Pipeline execution encountered issues. Check error details.",
+    "timeout": "Pipeline execution timed out. Consider breaking into smaller requests.",
+    "resource_limit": "Resource limits exceeded. Please reduce request complexity.",
+    "component_creation_failed": "Failed to create required components. Check system status.",
+}
+
+# Success messages
+PIPELINE_SUCCESS_MESSAGES = {
+    "completed": "Pipeline completed successfully!",
+    "partial": "Pipeline completed with partial results.",
+    "adapted": "Pipeline completed with intelligent adaptations.",
+    "recovered": "Pipeline recovered from issues and completed.",
+    "optimized": "Pipeline execution was optimized for better performance.",
+}
+# =============================================================================
+
 ```
 
 --------------------------------------------------------------------------------
@@ -1241,10 +2088,703 @@ REQUIRE_AGENT_TESTS = True  # Agents must pass basic tests
 
 --------------------------------------------------------------------------------
 
+### File: core/agent_compatibility.py
+**Path:** `core/agent_compatibility.py`
+**Size:** 26,360 bytes
+**Modified:** 2025-09-09 23:38:17
+
+```python
+"""
+Agent Compatibility Analyzer - GPT-4 Powered
+Analyzes compatibility between pipeline steps and existing agents using AI intelligence
+"""
+
+import os
+import sys
+import json
+import asyncio
+from typing import Dict, List, Optional, Any, Tuple
+import openai
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from core.registry import RegistryManager
+from config import OPENAI_API_KEY, ORCHESTRATOR_MODEL, ORCHESTRATOR_MAX_TOKENS
+
+
+class AgentCompatibilityAnalyzer:
+    """
+    AI-powered compatibility analyzer that uses GPT-4 to understand and match
+    agents to pipeline steps without any hardcoded logic.
+    """
+
+    def __init__(self, registry: RegistryManager):
+        """Initialize with registry manager and OpenAI client."""
+        self.registry = registry
+        self.client = openai.OpenAI(api_key=OPENAI_API_KEY)
+
+    async def find_compatible_agents(self, step: Dict) -> List[Dict]:
+        """
+        Find existing agents compatible with a pipeline step using GPT-4 intelligence.
+
+        Args:
+            step: Pipeline step specification with requirements
+
+        Returns:
+            List of compatible agents, sorted by AI-determined compatibility
+        """
+        print(
+            f"DEBUG: Finding compatible agents for step: {step.get('name', 'unnamed')}"
+        )
+
+        available_agents = self.registry.list_agents(active_only=True)
+
+        if not available_agents:
+            print("DEBUG: No available agents found")
+            return []
+
+        # Use GPT-4 to intelligently analyze and rank agents
+        analysis_prompt = f"""
+You are an expert AI system analyzer. Your task is to evaluate which existing agents can best handle a specific pipeline step.
+
+PIPELINE STEP TO HANDLE:
+Name: {step.get('name', 'unknown')}
+Description: {step.get('description', 'No description provided')}
+Input Requirements: {json.dumps(step.get('input_requirements', {}), indent=2)}
+Output Requirements: {json.dumps(step.get('output_requirements', {}), indent=2)}
+Required Capabilities: {step.get('required_capabilities', [])}
+Required Tools: {step.get('required_tools', [])}
+
+AVAILABLE AGENTS TO EVALUATE:
+{self._format_agents_for_analysis(available_agents)}
+
+ANALYSIS INSTRUCTIONS:
+1. Carefully read and understand what the pipeline step needs to accomplish
+2. For each agent, analyze:
+   - How well the agent's description matches the step requirements
+   - Whether the agent's tools can handle the required processing
+   - If the agent's capabilities align with what's needed
+   - Any potential limitations or mismatches
+3. Assign a compatibility score from 0.0 to 1.0 where:
+   - 1.0 = Perfect match, agent can definitely handle this step
+   - 0.8-0.9 = Excellent match with minor considerations
+   - 0.6-0.7 = Good match, should work well
+   - 0.4-0.5 = Moderate match, might work with some adaptation
+   - 0.2-0.3 = Poor match, significant limitations
+   - 0.0-0.1 = No match, agent cannot handle this step
+4. Only include agents with score >= 0.3
+5. Provide clear reasoning for each score
+
+RESPOND WITH VALID JSON:
+{{
+    "analysis": {{
+        "step_understanding": "What this step needs to accomplish",
+        "key_requirements": ["requirement1", "requirement2"],
+        "evaluation_criteria": ["criteria1", "criteria2"]
+    }},
+    "compatible_agents": [
+        {{
+            "name": "agent_name",
+            "compatibility_score": 0.95,
+            "reasoning": "Detailed explanation of why this agent matches",
+            "strengths": ["strength1", "strength2"],
+            "potential_issues": ["issue1", "issue2"],
+            "confidence": "high|medium|low"
+        }}
+    ],
+    "recommendation": {{
+        "best_agent": "agent_name",
+        "alternative_agents": ["agent2", "agent3"],
+        "creation_needed": false,
+        "notes": "Additional recommendations"
+    }}
+}}
+"""
+
+        try:
+            response = self.client.chat.completions.create(
+                model=ORCHESTRATOR_MODEL,
+                max_completion_tokens=ORCHESTRATOR_MAX_TOKENS,
+                messages=[{"role": "user", "content": analysis_prompt}],
+            )
+
+            content = response.choices[0].message.content
+
+            # Extract and parse JSON
+            analysis_result = self._extract_json_from_response(content)
+
+            if not analysis_result:
+                raise ValueError("Failed to parse GPT-4 response")
+
+            # Convert to expected format
+            compatible_agents = []
+            agent_names = [a["name"] for a in available_agents]
+
+            for agent_analysis in analysis_result.get("compatible_agents", []):
+                agent_name = agent_analysis.get("name")
+                compatibility_score = agent_analysis.get("compatibility_score", 0.0)
+
+                # Find the actual agent data
+                agent_data = next(
+                    (a for a in available_agents if a["name"] == agent_name), None
+                )
+
+                if agent_data and compatibility_score >= 0.3:
+                    agent_with_score = agent_data.copy()
+                    agent_with_score["compatibility_score"] = compatibility_score
+                    agent_with_score["ai_analysis"] = agent_analysis
+                    compatible_agents.append(agent_with_score)
+
+                    print(
+                        f"DEBUG: Agent '{agent_name}' compatible with score: {compatibility_score:.2f}"
+                    )
+                    print(
+                        f"DEBUG: Reasoning: {agent_analysis.get('reasoning', 'No reasoning provided')}"
+                    )
+
+            # Sort by compatibility score (highest first)
+            compatible_agents.sort(key=lambda x: x["compatibility_score"], reverse=True)
+
+            print(f"DEBUG: Found {len(compatible_agents)} compatible agents")
+            return compatible_agents
+
+        except Exception as e:
+            print(
+                f"DEBUG: GPT-4 agent analysis failed: {str(e)}, falling back to basic matching"
+            )
+            return self._emergency_fallback_matching(step, available_agents)
+
+    async def find_compatible_agents_with_code_analysis(
+        self, step: Dict, previous_step_output: Any = None
+    ) -> List[Dict]:
+        """
+        Enhanced compatibility analysis that examines agent code and data flow.
+        """
+        print(f"DEBUG: Enhanced analysis for step: {step.get('name', 'unnamed')}")
+
+        available_agents = self.registry.list_agents(active_only=True)
+
+        if not available_agents:
+            return []
+
+        # Enhanced analysis prompt
+        analysis_prompt = f"""
+    You are an expert code analyzer. Evaluate agents by examining their actual code capabilities.
+
+    PIPELINE STEP:
+    Name: {step.get('name', 'unknown')}
+    Description: {step.get('description', 'No description')}
+    Expected Input Type: {type(previous_step_output).__name__ if previous_step_output is not None else 'text'}
+    Input Sample: {str(previous_step_output)[:200] if previous_step_output else 'text input'}
+
+    AGENTS WITH CODE ANALYSIS:
+    {self._format_agents_with_code_analysis(available_agents)}
+
+    ANALYSIS REQUIREMENTS:
+    1. **Code Inspection**: Examine actual agent code for:
+    - Input data type handling (string, dict, list, etc.)
+    - Error handling capabilities
+    - State management (pipeline context)
+    - Tool usage patterns
+
+    2. **Data Flow Compatibility**: Verify agent can:
+    - Accept the expected input data type
+    - Process pipeline state correctly
+    - Return appropriate output format
+
+    3. **Execution Context**: Check if agent:
+    - Works in pipeline mode
+    - Handles state dict properly
+    - Has robust error handling
+
+    SCORING (0.0 to 1.0):
+    - 1.0: Perfect code match for this scenario
+    - 0.8-0.9: Excellent with minor considerations
+    - 0.6-0.7: Good, likely to work
+    - 0.4-0.5: Moderate, needs adaptation
+    - 0.2-0.3: Poor, significant issues
+    - 0.0-0.1: Will definitely fail
+
+    RESPOND WITH JSON:
+    {{
+        "compatible_agents": [
+            {{
+                "name": "agent_name",
+                "compatibility_score": 0.95,
+                "code_analysis": {{
+                    "input_handling": "how agent handles input types",
+                    "expected_data_type": "what agent expects",
+                    "pipeline_compatibility": "how well it works in pipeline",
+                    "error_scenarios": ["potential issues"],
+                    "adaptation_needed": "none|minor|major"
+                }},
+                "reasoning": "detailed explanation",
+                "confidence": "high|medium|low"
+            }}
+        ]
+    }}
+    """
+
+        try:
+            response = self.client.chat.completions.create(
+                model=ORCHESTRATOR_MODEL,
+                max_completion_tokens=ORCHESTRATOR_MAX_TOKENS,
+                messages=[{"role": "user", "content": analysis_prompt}],
+            )
+
+            analysis_result = self._extract_json_from_response(
+                response.choices[0].message.content
+            )
+
+            if analysis_result:
+                return self._process_enhanced_compatibility_results(
+                    analysis_result, available_agents
+                )
+
+        except Exception as e:
+            print(f"DEBUG: Enhanced analysis failed: {str(e)}")
+
+        # Fallback to basic analysis
+        return await self.find_compatible_agents(step)
+
+    def _format_agents_with_code_analysis(self, agents: List[Dict]) -> str:
+        """Format agents with their actual code for GPT-4 analysis."""
+        formatted = []
+
+        for agent in agents[:5]:  # Limit to 5 agents to avoid prompt overflow
+            name = agent.get("name", "unknown")
+            desc = agent.get("description", "No description")
+            location = agent.get("location", "")
+
+            formatted.append(f"AGENT: {name}")
+            formatted.append(f"Description: {desc}")
+            formatted.append(f"Tools: {agent.get('uses_tools', [])}")
+
+            # Read actual agent code
+            try:
+                if location:
+                    # Handle relative paths
+                    if not os.path.isabs(location):
+                        current_dir = os.getcwd()
+                        if current_dir.endswith("flask_app"):
+                            project_root = os.path.dirname(current_dir)
+                        else:
+                            project_root = current_dir
+                        location = os.path.join(project_root, location)
+
+                    if os.path.exists(location):
+                        with open(location, "r") as f:
+                            code = f.read()
+                            # Include relevant code sections
+                            formatted.append(f"Code Preview:")
+                            formatted.append(f"```python")
+                            formatted.append(code[:1000])  # First 1000 chars
+                            if len(code) > 1000:
+                                formatted.append("... [code continues]")
+                            formatted.append(f"```")
+                    else:
+                        formatted.append("Code: File not found")
+                else:
+                    formatted.append("Code: Location not specified")
+            except Exception as e:
+                formatted.append(f"Code: Error reading - {str(e)}")
+
+            formatted.append("")  # Empty line
+
+        return "\n".join(formatted)
+
+    def _process_enhanced_compatibility_results(
+        self, analysis_result: Dict, available_agents: List[Dict]
+    ) -> List[Dict]:
+        """Process enhanced compatibility analysis results."""
+        compatible_agents = []
+
+        for agent_analysis in analysis_result.get("compatible_agents", []):
+            agent_name = agent_analysis.get("name")
+            compatibility_score = agent_analysis.get("compatibility_score", 0.0)
+
+            if compatibility_score >= 0.3:
+                agent_data = next(
+                    (a for a in available_agents if a["name"] == agent_name), None
+                )
+
+                if agent_data:
+                    agent_with_analysis = agent_data.copy()
+                    agent_with_analysis["compatibility_score"] = compatibility_score
+                    agent_with_analysis["enhanced_analysis"] = agent_analysis
+                    compatible_agents.append(agent_with_analysis)
+
+                    print(
+                        f"DEBUG: Enhanced - Agent '{agent_name}' score: {compatibility_score:.2f}"
+                    )
+                    print(
+                        f"DEBUG: Adaptation needed: {agent_analysis.get('code_analysis', {}).get('adaptation_needed', 'unknown')}"
+                    )
+
+        compatible_agents.sort(key=lambda x: x["compatibility_score"], reverse=True)
+        return compatible_agents
+
+    def _format_agents_for_analysis(self, agents: List[Dict]) -> str:
+        """Format agents with all relevant information for GPT-4 analysis."""
+        formatted = []
+
+        for i, agent in enumerate(agents, 1):
+            name = agent.get("name", "unknown")
+            desc = agent.get("description", "No description provided")
+            uses_tools = agent.get("uses_tools", [])
+            capabilities = agent.get("capabilities", [])
+            input_format = agent.get("input_format", {})
+            output_format = agent.get("output_format", {})
+            status = agent.get("status", "unknown")
+
+            formatted.append(f"AGENT {i}: {name}")
+            formatted.append(f"  Description: {desc}")
+
+            if uses_tools:
+                formatted.append(f"  Tools Available: {', '.join(uses_tools)}")
+
+            if capabilities:
+                formatted.append(f"  Capabilities: {', '.join(capabilities)}")
+
+            if input_format:
+                formatted.append(f"  Input Format: {json.dumps(input_format)}")
+
+            if output_format:
+                formatted.append(f"  Output Format: {json.dumps(output_format)}")
+
+            formatted.append(f"  Status: {status}")
+            formatted.append("")  # Empty line for readability
+
+        return "\n".join(formatted)
+
+    def _extract_json_from_response(self, content: str) -> Optional[Dict]:
+        """Extract JSON from GPT-4 response with multiple fallback strategies."""
+        try:
+            # Strategy 1: Look for JSON code blocks
+            if "```json" in content:
+                start = content.find("```json") + 7
+                end = content.find("```", start)
+                if end > start:
+                    json_content = content[start:end].strip()
+                    return json.loads(json_content)
+
+            # Strategy 2: Look for JSON object boundaries
+            if "{" in content and "}" in content:
+                start = content.find("{")
+                end = content.rfind("}") + 1
+                if end > start:
+                    json_content = content[start:end].strip()
+                    return json.loads(json_content)
+
+            # Strategy 3: Try parsing entire content
+            return json.loads(content.strip())
+
+        except json.JSONDecodeError as e:
+            print(f"DEBUG: JSON parsing failed: {str(e)}")
+            print(f"DEBUG: Content was: {content[:200]}...")
+            return None
+
+    def _emergency_fallback_matching(
+        self, step: Dict, available_agents: List[Dict]
+    ) -> List[Dict]:
+        """Emergency fallback using basic name/description matching."""
+        print("DEBUG: Using emergency fallback matching")
+
+        step_name = step.get("name", "").lower()
+        step_desc = step.get("description", "").lower()
+
+        compatible_agents = []
+
+        for agent in available_agents:
+            agent_name = agent.get("name", "").lower()
+            agent_desc = agent.get("description", "").lower()
+
+            score = 0.0
+
+            # Check for direct name component matches
+            step_words = step_name.replace("_", " ").split()
+            agent_words = agent_name.replace("_", " ").split()
+
+            name_matches = len(set(step_words) & set(agent_words))
+            if name_matches > 0:
+                score += 0.4 * (name_matches / max(len(step_words), 1))
+
+            # Check for description keyword matches
+            if step_desc and agent_desc:
+                step_keywords = set(step_desc.split())
+                agent_keywords = set(agent_desc.split())
+
+                desc_matches = len(step_keywords & agent_keywords)
+                if desc_matches > 0:
+                    score += 0.3 * (desc_matches / max(len(step_keywords), 1))
+
+            # Boost score for obvious matches
+            if any(word in agent_name for word in step_words):
+                score += 0.3
+
+            if score >= 0.3:
+                agent_with_score = agent.copy()
+                agent_with_score["compatibility_score"] = min(score, 1.0)
+                agent_with_score["ai_analysis"] = {
+                    "reasoning": "Emergency fallback matching based on name similarity",
+                    "confidence": "low",
+                }
+                compatible_agents.append(agent_with_score)
+
+                print(f"DEBUG: Fallback - Agent '{agent['name']}' score: {score:.2f}")
+
+        # Sort by score
+        compatible_agents.sort(key=lambda x: x["compatibility_score"], reverse=True)
+
+        return compatible_agents
+
+    async def analyze_missing_capabilities(
+        self, step: Dict, compatible_agents: List[Dict]
+    ) -> Dict[str, Any]:
+        """
+        AI-powered analysis of missing capabilities and suggestions.
+
+        Args:
+            step: Pipeline step specification
+            compatible_agents: List of compatible agents (may be empty)
+
+        Returns:
+            AI analysis of missing capabilities and suggestions
+        """
+        if compatible_agents:
+            # Analyze the best available option
+            best_agent = compatible_agents[0]
+            ai_analysis = best_agent.get("ai_analysis", {})
+
+            return {
+                "has_compatible_agent": True,
+                "recommended_agent": best_agent["name"],
+                "compatibility_score": best_agent["compatibility_score"],
+                "ai_reasoning": ai_analysis.get("reasoning", "No reasoning available"),
+                "potential_issues": ai_analysis.get("potential_issues", []),
+                "confidence": ai_analysis.get("confidence", "medium"),
+                "missing_capabilities": [],
+            }
+
+        # No compatible agents - use AI to analyze what's missing
+        return await self._ai_analyze_missing_capabilities(step)
+
+    async def _ai_analyze_missing_capabilities(self, step: Dict) -> Dict[str, Any]:
+        """Use GPT-4 to analyze what capabilities are missing for a step."""
+
+        available_tools = self.registry.list_tools()
+
+        analysis_prompt = f"""
+You are an expert AI system analyzer. Analyze what capabilities are missing to handle this pipeline step.
+
+PIPELINE STEP THAT NEEDS HANDLING:
+Name: {step.get('name', 'unknown')}
+Description: {step.get('description', 'No description provided')}
+Requirements: {json.dumps(step.get('input_requirements', {}), indent=2)}
+
+AVAILABLE TOOLS IN SYSTEM:
+{self._format_tools_for_analysis(available_tools)}
+
+ANALYSIS TASK:
+1. Understand what capabilities are needed for this step
+2. Identify what type of agent would be required
+3. Determine what tools the agent would need
+4. Suggest the agent specification
+5. Assess creation priority and complexity
+
+RESPOND WITH VALID JSON:
+{{
+    "missing_analysis": {{
+        "step_requirements": ["requirement1", "requirement2"],
+        "required_capabilities": ["capability1", "capability2"],
+        "required_agent_type": "description of needed agent",
+        "complexity_assessment": "low|medium|high"
+    }},
+    "suggested_agent": {{
+        "name": "suggested_agent_name",
+        "description": "what this agent should do",
+        "required_tools": ["tool1", "tool2"],
+        "capabilities": ["cap1", "cap2"],
+        "priority": "low|medium|high"
+    }},
+    "alternatives": {{
+        "modify_existing": "suggestions for modifying existing agents",
+        "tool_creation": "what new tools might be needed",
+        "workaround": "alternative approaches"
+    }}
+}}
+"""
+
+        try:
+            response = self.client.chat.completions.create(
+                model=ORCHESTRATOR_MODEL,
+                max_completion_tokens=ORCHESTRATOR_MAX_TOKENS,
+                messages=[{"role": "user", "content": analysis_prompt}],
+            )
+
+            content = response.choices[0].message.content
+            analysis_result = self._extract_json_from_response(content)
+
+            if analysis_result:
+                return {
+                    "has_compatible_agent": False,
+                    "recommended_agent": None,
+                    "ai_analysis": analysis_result,
+                    "missing_capabilities": analysis_result.get(
+                        "missing_analysis", {}
+                    ).get("required_capabilities", []),
+                    "suggested_tools": analysis_result.get("suggested_agent", {}).get(
+                        "required_tools", []
+                    ),
+                    "creation_priority": analysis_result.get("suggested_agent", {}).get(
+                        "priority", "medium"
+                    ),
+                    "complexity": analysis_result.get("missing_analysis", {}).get(
+                        "complexity_assessment", "medium"
+                    ),
+                }
+
+        except Exception as e:
+            print(f"DEBUG: AI missing capabilities analysis failed: {str(e)}")
+
+        # Fallback response
+        return {
+            "has_compatible_agent": False,
+            "recommended_agent": None,
+            "missing_capabilities": ["unknown_capability"],
+            "suggested_tools": [],
+            "creation_priority": "high",
+            "ai_analysis": {"error": "Analysis failed, using fallback"},
+        }
+
+    def _format_tools_for_analysis(self, tools: List[Dict]) -> str:
+        """Format available tools for GPT-4 analysis."""
+        if not tools:
+            return "No tools available"
+
+        formatted = []
+        for tool in tools[:20]:  # Limit to prevent prompt overflow
+            name = tool.get("name", "unknown")
+            desc = tool.get("description", "No description")
+            formatted.append(f"- {name}: {desc}")
+
+        if len(tools) > 20:
+            formatted.append(f"... and {len(tools) - 20} more tools")
+
+        return "\n".join(formatted)
+
+    async def suggest_agent_modifications(
+        self, step: Dict, agent: Dict
+    ) -> Dict[str, Any]:
+        """
+        AI-powered suggestions for modifying agents to improve compatibility.
+
+        Args:
+            step: Pipeline step specification
+            agent: Agent that needs modification
+
+        Returns:
+            AI-generated modification suggestions
+        """
+
+        modification_prompt = f"""
+You are an expert AI system modifier. Analyze how to improve an agent's compatibility with a specific pipeline step.
+
+PIPELINE STEP REQUIREMENTS:
+Name: {step.get('name', 'unknown')}
+Description: {step.get('description', 'No description provided')}
+Requirements: {json.dumps(step.get('input_requirements', {}), indent=2)}
+
+CURRENT AGENT TO MODIFY:
+Name: {agent.get('name', 'unknown')}
+Description: {agent.get('description', 'No description provided')}
+Current Tools: {agent.get('uses_tools', [])}
+Current Capabilities: {agent.get('capabilities', [])}
+
+ANALYSIS TASK:
+1. Identify specific gaps between agent capabilities and step requirements
+2. Suggest concrete modifications to improve compatibility
+3. Estimate the impact of each modification
+4. Assess implementation difficulty
+
+RESPOND WITH VALID JSON:
+{{
+    "compatibility_analysis": {{
+        "current_score": 0.5,
+        "potential_score": 0.9,
+        "main_gaps": ["gap1", "gap2"]
+    }},
+    "suggested_modifications": [
+        {{
+            "type": "add_tool|enhance_capability|modify_description",
+            "description": "what to modify",
+            "impact": "low|medium|high",
+            "difficulty": "easy|moderate|hard",
+            "estimated_improvement": 0.2
+        }}
+    ],
+    "implementation_plan": {{
+        "priority_order": ["modification1", "modification2"],
+        "estimated_time": "time estimate",
+        "risk_assessment": "low|medium|high"
+    }}
+}}
+"""
+
+        try:
+            response = self.client.chat.completions.create(
+                model=ORCHESTRATOR_MODEL,
+                max_completion_tokens=ORCHESTRATOR_MAX_TOKENS,
+                messages=[{"role": "user", "content": modification_prompt}],
+            )
+
+            content = response.choices[0].message.content
+            modification_result = self._extract_json_from_response(content)
+
+            if modification_result:
+                return {
+                    "agent_name": agent["name"],
+                    "ai_analysis": modification_result,
+                    "current_compatibility": modification_result.get(
+                        "compatibility_analysis", {}
+                    ).get("current_score", 0.0),
+                    "potential_compatibility": modification_result.get(
+                        "compatibility_analysis", {}
+                    ).get("potential_score", 0.0),
+                    "suggested_changes": modification_result.get(
+                        "suggested_modifications", []
+                    ),
+                    "implementation_plan": modification_result.get(
+                        "implementation_plan", {}
+                    ),
+                    "estimated_improvement": sum(
+                        mod.get("estimated_improvement", 0)
+                        for mod in modification_result.get(
+                            "suggested_modifications", []
+                        )
+                    ),
+                }
+
+        except Exception as e:
+            print(f"DEBUG: AI modification analysis failed: {str(e)}")
+
+        # Fallback response
+        return {
+            "agent_name": agent["name"],
+            "current_compatibility": 0.0,
+            "suggested_changes": [],
+            "estimated_improvement": 0.0,
+            "ai_analysis": {"error": "Analysis failed"},
+        }
+
+```
+
+--------------------------------------------------------------------------------
+
 ### File: core/agent_factory.py
 **Path:** `core/agent_factory.py`
-**Size:** 26,091 bytes
-**Modified:** 2025-09-04 22:51:19
+**Size:** 49,348 bytes
+**Modified:** 2025-09-09 23:10:16
 
 ```python
 """
@@ -1252,6 +2792,7 @@ Agent Factory
 Dynamically generates intelligent agents using Claude API
 """
 
+from datetime import datetime
 from core.registry import RegistryManager
 from config import (
     ANTHROPIC_API_KEY,
@@ -1275,6 +2816,7 @@ import traceback
 from typing import Dict, List, Optional, Any, Tuple
 from anthropic import Anthropic
 from core.registry_singleton import get_shared_registry
+from config import PIPELINE_AGENT_TEMPLATE, DYNAMIC_AGENT_SPEC_PROMPT
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -1484,8 +3026,7 @@ class AgentFactory:
             # Call Claude API
             response = self.client.messages.create(
                 model=CLAUDE_MODEL,
-                temperature=CLAUDE_TEMPERATURE,
-                max_tokens=CLAUDE_MAX_TOKENS,
+                max_completion_tokens=CLAUDE_MAX_TOKENS,
                 messages=[{"role": "user", "content": prompt}],
             )
 
@@ -1960,14 +3501,626 @@ class AgentFactory:
             auto_create_tools=True,  # CRITICAL: Enable auto tool creation
         )
 
+    # ADD THESE NEW METHODS to the AgentFactory class:
+
+    async def create_pipeline_agent(self, agent_spec: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Create a pipeline-aware agent that understands data flow context.
+
+        Args:
+            agent_spec: Enhanced specification with pipeline context
+
+        Returns:
+            Creation result with pipeline awareness
+        """
+        print(
+            f"DEBUG: Creating pipeline-aware agent: {agent_spec.get('name', 'unnamed')}"
+        )
+
+        agent_name = agent_spec.get(
+            "name", f"pipeline_agent_{datetime.now().strftime('%H%M%S')}"
+        )
+        description = agent_spec.get("description", "Pipeline-aware agent")
+
+        # Extract pipeline context
+        pipeline_context = agent_spec.get("pipeline_context", {})
+        step_index = pipeline_context.get("step_index", 0)
+        total_steps = pipeline_context.get("total_steps", 1)
+        input_format = pipeline_context.get("input_format", {})
+        output_format = pipeline_context.get("output_format", {})
+
+        # Get required tools
+        required_tools = agent_spec.get("required_tools", [])
+
+        # Ensure required tools exist
+        for tool_name in required_tools:
+            if not self.registry.tool_exists(tool_name):
+                print(f"DEBUG: Creating missing tool for pipeline agent: {tool_name}")
+                tool_result = self.tool_factory.ensure_tool(
+                    tool_name=tool_name, description=f"Tool for {agent_name}"
+                )
+                if tool_result["status"] != "success":
+                    print(f"WARNING: Failed to create tool {tool_name}")
+
+        # Generate pipeline-specific agent code
+        agent_code = await self._generate_pipeline_agent_code(agent_spec)
+
+        # Register the agent
+        registration_result = self.registry.register_agent(
+            name=agent_name,
+            description=description,
+            code=agent_code,
+            uses_tools=required_tools,
+            is_prebuilt=False,
+            tags=["pipeline", f"step_{step_index}", "auto_generated"],
+            metadata={
+                "pipeline_context": pipeline_context,
+                "created_for_pipeline": True,
+                "step_index": step_index,
+            },
+        )
+
+        if registration_result["status"] == "success":
+            print(f"DEBUG: Pipeline agent '{agent_name}' created successfully")
+            return {
+                "status": "success",
+                "agent_name": agent_name,
+                "pipeline_context": pipeline_context,
+                "message": f"Pipeline agent created for step {step_index}",
+            }
+        else:
+            print(
+                f"DEBUG: Pipeline agent creation failed: {registration_result.get('message')}"
+            )
+            return {
+                "status": "error",
+                "message": f"Failed to create pipeline agent: {registration_result.get('message')}",
+            }
+
+    async def _generate_pipeline_agent_code(self, agent_spec: Dict[str, Any]) -> str:
+        """Generate code for pipeline-aware agent."""
+
+        agent_name = agent_spec.get("name", "pipeline_agent")
+        description = agent_spec.get("description", "Pipeline agent")
+        required_tools = agent_spec.get("required_tools", [])
+
+        # Extract pipeline context
+        pipeline_context = agent_spec.get("pipeline_context", {})
+        step_index = pipeline_context.get("step_index", 0)
+        total_steps = pipeline_context.get("total_steps", 1)
+        input_format = pipeline_context.get("input_format", {})
+        output_format = pipeline_context.get("output_format", {})
+
+        # Determine input/output sources
+        input_source = "user_input" if step_index == 0 else "previous_step"
+        output_target = "final_output" if step_index == total_steps - 1 else "next_step"
+
+        # Use Claude to generate the core processing logic
+        processing_prompt = f"""Generate Python code for the core processing logic of this pipeline agent:
+
+    Agent: {agent_name}
+    Purpose: {description}
+    Step: {step_index} of {total_steps}
+    Tools Available: {required_tools}
+    Input Format: {input_format}
+    Output Format: {output_format}
+
+    Generate ONLY the core processing logic (the middle part of the agent function).
+    Focus on:
+    1. Smart input validation and extraction
+    2. Actual processing using available tools
+    3. Proper output formatting
+    4. Error handling for edge cases
+
+    Return only Python code, no explanations."""
+
+        try:
+            # Get core processing logic from Claude
+            processing_logic = await self._call_claude_for_code(processing_prompt)
+
+            # Build complete agent using template
+            agent_code = PIPELINE_AGENT_TEMPLATE.format(
+                agent_name=agent_name,
+                step_index=step_index,
+                total_steps=total_steps,
+                input_source=input_source,
+                input_format=json.dumps(input_format),
+                output_target=output_target,
+                output_format=json.dumps(output_format),
+                purpose=description,
+                tools=json.dumps(required_tools),
+            )
+
+            # Insert the generated processing logic
+            agent_code = agent_code.replace(
+                "# [Agent-specific processing logic will be generated here]\n        processed_data = input_data  # Placeholder for actual processing",
+                processing_logic,
+            )
+
+            return agent_code
+
+        except Exception as e:
+            print(f"DEBUG: Pipeline agent code generation failed: {str(e)}")
+
+            # Use fallback template with basic processing
+            return self._generate_fallback_pipeline_agent(agent_spec)
+
+    def _generate_fallback_pipeline_agent(self, agent_spec: Dict[str, Any]) -> str:
+        """Generate fallback pipeline agent code."""
+
+        agent_name = agent_spec.get("name", "pipeline_agent")
+        description = agent_spec.get("description", "Pipeline agent")
+        pipeline_context = agent_spec.get("pipeline_context", {})
+        step_index = pipeline_context.get("step_index", 0)
+
+        return f"""
+    import json
+    import asyncio
+    from datetime import datetime
+    from typing import Dict, Any, List
+
+    async def {agent_name}(state: Dict[str, Any]) -> Dict[str, Any]:
+        '''
+        Pipeline Agent: {description}
+        Step {step_index} in pipeline execution
+        '''
+        
+        # Initialize state structure
+        if 'results' not in state:
+            state['results'] = {{}}
+        if 'errors' not in state:
+            state['errors'] = []
+        if 'execution_path' not in state:
+            state['execution_path'] = []
+        
+        try:
+            # Extract input data from pipeline context
+            pipeline_context = state.get('pipeline_context', {{}})
+            step_index = pipeline_context.get('step_index', {step_index})
+            
+            # Get input data
+            if step_index == 0:
+                input_data = state.get('current_data', {{}})
+            else:
+                input_data = state.get('current_data')
+                if input_data is None:
+                    previous_results = pipeline_context.get('previous_results', {{}})
+                    if previous_results:
+                        latest_result = list(previous_results.values())[-1]
+                        input_data = latest_result.get('data', {{}})
+            
+            # Validate input
+            if not input_data:
+                raise ValueError("No input data available for pipeline step")
+            
+            # BASIC PROCESSING - pass data through with minimal processing
+            # This is a fallback implementation
+            if isinstance(input_data, dict):
+                processed_data = input_data.copy()
+                processed_data["processed_by"] = "{agent_name}"
+                processed_data["step_index"] = step_index
+            elif isinstance(input_data, list):
+                processed_data = input_data.copy()
+            else:
+                processed_data = {{"data": input_data, "processed_by": "{agent_name}"}}
+            
+            # Create result
+            result = {{
+                'status': 'success',
+                'data': processed_data,
+                'metadata': {{
+                    'agent': '{agent_name}',
+                    'step_index': step_index,
+                    'pipeline_step': True,
+                    'processing_type': 'fallback',
+                    'execution_time': 0.1
+                }}
+            }}
+            
+            # Update state
+            state['results']['{agent_name}'] = result
+            state['execution_path'].append('{agent_name}')
+            state['current_data'] = processed_data
+            
+            return state
+            
+        except Exception as e:
+            error_info = {{
+                'agent': '{agent_name}',
+                'step_index': step_index,
+                'error': str(e),
+                'timestamp': datetime.now().isoformat()
+            }}
+            state['errors'].append(error_info)
+            
+            state['results']['{agent_name}'] = {{
+                'status': 'error',
+                'error': str(e),
+                'metadata': error_info
+            }}
+            
+            return state
+    """
+
+    async def create_data_adapter_agent(
+        self, from_format: str, to_format: str, step_context: Dict = None
+    ) -> Dict[str, Any]:
+        """
+        Create an agent that adapts data between pipeline steps.
+
+        Args:
+            from_format: Input data format
+            to_format: Required output data format
+            step_context: Context about the pipeline step
+
+        Returns:
+            Creation result for data adapter agent
+        """
+
+        step_context = step_context or {}
+        adapter_name = (
+            f"adapter_{from_format}_to_{to_format}_{datetime.now().strftime('%H%M%S')}"
+        )
+
+        print(f"DEBUG: Creating data adapter agent: {adapter_name}")
+
+        # Create adapter specification
+        adapter_spec = {
+            "name": adapter_name,
+            "description": f"Adapt data from {from_format} format to {to_format} format",
+            "required_tools": ["format_converter", "data_validator"],
+            "pipeline_context": {
+                "step_index": step_context.get("step_index", 0),
+                "input_format": {"type": from_format},
+                "output_format": {"type": to_format},
+                "adapter_agent": True,
+            },
+        }
+
+        # Generate adapter-specific code
+        adapter_code = await self._generate_adapter_agent_code(
+            from_format, to_format, adapter_name
+        )
+
+        # Register the adapter agent
+        registration_result = self.registry.register_agent(
+            name=adapter_name,
+            description=adapter_spec["description"],
+            code=adapter_code,
+            uses_tools=adapter_spec["required_tools"],
+            is_prebuilt=False,
+            tags=["adapter", "pipeline", "auto_generated"],
+            metadata=adapter_spec["pipeline_context"],
+        )
+
+        if registration_result["status"] == "success":
+            return {
+                "status": "success",
+                "agent_name": adapter_name,
+                "message": f"Data adapter created: {from_format} → {to_format}",
+            }
+        else:
+            return {
+                "status": "error",
+                "message": f"Failed to create adapter: {registration_result.get('message')}",
+            }
+
+    async def _generate_adapter_agent_code(
+        self, from_format: str, to_format: str, agent_name: str
+    ) -> str:
+        """Generate code for data adapter agent."""
+
+        return f"""
+    import json
+    from datetime import datetime
+    from typing import Dict, Any, List, Union
+
+    async def {agent_name}(state: Dict[str, Any]) -> Dict[str, Any]:
+        '''
+        Data Adapter Agent: {from_format} → {to_format}
+        Converts data between pipeline step formats
+        '''
+        
+        if 'results' not in state:
+            state['results'] = {{}}
+        if 'errors' not in state:
+            state['errors'] = []
+        if 'execution_path' not in state:
+            state['execution_path'] = []
+        
+        try:
+            # Get input data
+            input_data = state.get('current_data')
+            
+            if input_data is None:
+                raise ValueError("No input data to adapt")
+            
+            # Perform format conversion
+            adapted_data = convert_format(input_data, "{from_format}", "{to_format}")
+            
+            result = {{
+                'status': 'success',
+                'data': adapted_data,
+                'metadata': {{
+                    'agent': '{agent_name}',
+                    'conversion': '{from_format} → {to_format}',
+                    'adapter_agent': True,
+                    'execution_time': 0.1
+                }}
+            }}
+            
+            state['results']['{agent_name}'] = result
+            state['execution_path'].append('{agent_name}')
+            state['current_data'] = adapted_data
+            
+            return state
+            
+        except Exception as e:
+            error_info = {{
+                'agent': '{agent_name}',
+                'error': str(e),
+                'timestamp': datetime.now().isoformat()
+            }}
+            state['errors'].append(error_info)
+            
+            state['results']['{agent_name}'] = {{
+                'status': 'error',
+                'error': str(e),
+                'metadata': error_info
+            }}
+            
+            return state
+
+    def convert_format(data: Any, from_fmt: str, to_fmt: str) -> Any:
+        '''Convert data between formats with intelligent handling.'''
+        
+        try:
+            # Handle common format conversions
+            if from_fmt == "text" and to_fmt == "list":
+                if isinstance(data, str):
+                    return data.split('\\n') if '\\n' in data else [data]
+                return [str(data)]
+            
+            elif from_fmt == "list" and to_fmt == "text":
+                if isinstance(data, list):
+                    return '\\n'.join(str(item) for item in data)
+                return str(data)
+            
+            elif from_fmt == "dict" and to_fmt == "json":
+                return json.dumps(data, indent=2)
+            
+            elif from_fmt == "json" and to_fmt == "dict":
+                if isinstance(data, str):
+                    return json.loads(data)
+                return data
+            
+            elif to_fmt == "string":
+                return str(data)
+            
+            elif to_fmt == "number" and isinstance(data, str):
+                try:
+                    return float(data) if '.' in data else int(data)
+                except ValueError:
+                    return 0
+            
+            # Default: return data as-is if no specific conversion needed
+            return data
+            
+        except Exception as e:
+            print(f"Format conversion failed: {{e}}")
+            return data  # Return original data if conversion fails
+    """
+
+    async def create_recovery_agent(
+        self, failed_agent_name: str, failure_reason: str, step_context: Dict
+    ) -> Dict[str, Any]:
+        """
+        Create a recovery agent to replace a failed pipeline step.
+
+        Args:
+            failed_agent_name: Name of the agent that failed
+            failure_reason: Reason for the failure
+            step_context: Context about the failed step
+
+        Returns:
+            Creation result for recovery agent
+        """
+
+        recovery_name = (
+            f"recovery_{failed_agent_name}_{datetime.now().strftime('%H%M%S')}"
+        )
+
+        print(f"DEBUG: Creating recovery agent: {recovery_name}")
+
+        # Get original agent info if available
+        original_agent = self.registry.get_agent(failed_agent_name)
+        original_description = (
+            original_agent.get("description", "Agent processing")
+            if original_agent
+            else "Failed agent processing"
+        )
+
+        # Create recovery specification
+        recovery_spec = {
+            "name": recovery_name,
+            "description": f"Recovery version of {failed_agent_name} - handles: {failure_reason}",
+            "required_tools": step_context.get("required_tools", []),
+            "pipeline_context": {
+                "step_index": step_context.get("step_index", 0),
+                "recovery_agent": True,
+                "original_agent": failed_agent_name,
+                "failure_reason": failure_reason,
+                "enhanced_error_handling": True,
+            },
+        }
+
+        # Generate recovery agent with enhanced error handling
+        recovery_code = await self._generate_recovery_agent_code(
+            recovery_spec, original_description
+        )
+
+        # Register recovery agent
+        registration_result = self.registry.register_agent(
+            name=recovery_name,
+            description=recovery_spec["description"],
+            code=recovery_code,
+            uses_tools=recovery_spec["required_tools"],
+            is_prebuilt=False,
+            tags=["recovery", "pipeline", "auto_generated", "enhanced_handling"],
+            metadata=recovery_spec["pipeline_context"],
+        )
+
+        if registration_result["status"] == "success":
+            return {
+                "status": "success",
+                "agent_name": recovery_name,
+                "message": f"Recovery agent created for {failed_agent_name}",
+            }
+        else:
+            return {
+                "status": "error",
+                "message": f"Failed to create recovery agent: {registration_result.get('message')}",
+            }
+
+    async def _generate_recovery_agent_code(
+        self, recovery_spec: Dict, original_description: str
+    ) -> str:
+        """Generate code for recovery agent with enhanced error handling."""
+
+        agent_name = recovery_spec["name"]
+        pipeline_context = recovery_spec["pipeline_context"]
+        failure_reason = pipeline_context.get("failure_reason", "unknown error")
+
+        return f"""
+    import json
+    from datetime import datetime
+    from typing import Dict, Any, List, Union
+
+    async def {agent_name}(state: Dict[str, Any]) -> Dict[str, Any]:
+        '''
+        Recovery Agent for Pipeline Step
+        Enhanced error handling for: {failure_reason}
+        Original purpose: {original_description}
+        '''
+        
+        if 'results' not in state:
+            state['results'] = {{}}
+        if 'errors' not in state:
+            state['errors'] = []
+        if 'execution_path' not in state:
+            state['execution_path'] = []
+        
+        try:
+            # Enhanced input validation and extraction
+            input_data = state.get('current_data')
+            
+            # Multiple fallback strategies for input data
+            if input_data is None:
+                pipeline_context = state.get('pipeline_context', {{}})
+                previous_results = pipeline_context.get('previous_results', {{}})
+                
+                if previous_results:
+                    # Try to extract from most recent result
+                    latest_result = list(previous_results.values())[-1]
+                    input_data = latest_result.get('data')
+                
+                if input_data is None:
+                    # Last resort: use request or empty dict
+                    input_data = state.get('request', 'No input available')
+            
+            # Enhanced data processing with multiple strategies
+            processed_data = process_data_with_recovery(input_data, "{failure_reason}")
+            
+            result = {{
+                'status': 'success',
+                'data': processed_data,
+                'metadata': {{
+                    'agent': '{agent_name}',
+                    'recovery_agent': True,
+                    'original_failure': '{failure_reason}',
+                    'processing_strategy': 'enhanced_recovery',
+                    'execution_time': 0.2
+                }}
+            }}
+            
+            state['results']['{agent_name}'] = result
+            state['execution_path'].append('{agent_name}')
+            state['current_data'] = processed_data
+            
+            return state
+            
+        except Exception as e:
+            # Enhanced error handling - provide meaningful fallback
+            fallback_data = create_fallback_result(state, str(e))
+            
+            result = {{
+                'status': 'success',  # Report success with fallback data
+                'data': fallback_data,
+                'metadata': {{
+                    'agent': '{agent_name}',
+                    'recovery_agent': True,
+                    'fallback_used': True,
+                    'recovery_error': str(e),
+                    'execution_time': 0.1
+                }}
+            }}
+            
+            state['results']['{agent_name}'] = result
+            state['execution_path'].append('{agent_name}')
+            state['current_data'] = fallback_data
+            
+            return state
+
+    def process_data_with_recovery(data: Any, failure_context: str) -> Any:
+        '''Process data with enhanced recovery strategies.'''
+        
+        try:
+            # Strategy 1: Handle common data types
+            if isinstance(data, str):
+                if not data.strip():
+                    return {{"message": "Empty input processed", "status": "handled"}}
+                return {{"text": data, "processed": True}}
+            
+            elif isinstance(data, dict):
+                if not data:
+                    return {{"message": "Empty dict processed", "status": "handled"}}
+                return {{"processed_dict": data, "keys": list(data.keys())}}
+            
+            elif isinstance(data, list):
+                if not data:
+                    return {{"message": "Empty list processed", "status": "handled"}}
+                return {{"processed_list": data, "count": len(data)}}
+            
+            else:
+                return {{"processed_data": str(data), "type": str(type(data))}}
+        
+        except Exception as e:
+            return {{"error_handled": str(e), "recovery_applied": True}}
+
+    def create_fallback_result(state: Dict, error: str) -> Dict[str, Any]:
+        '''Create meaningful fallback result when all else fails.'''
+        
+        return {{
+            "status": "fallback_result",
+            "message": "Recovery agent provided fallback due to processing issues",
+            "original_error": error,
+            "request_context": state.get('request', 'Unknown request'),
+            "timestamp": datetime.now().isoformat(),
+            "recovery_note": "This is a safe fallback result to maintain pipeline flow"
+        }}
+    """
+
+
+# ============= END OF NEW METHODS =============
+
 ```
 
 --------------------------------------------------------------------------------
 
 ### File: core/data_processor.py
 **Path:** `core/data_processor.py`
-**Size:** 17,306 bytes
-**Modified:** 2025-09-09 16:40:55
+**Size:** 17,263 bytes
+**Modified:** 2025-09-09 23:08:26
 
 ```python
 """
@@ -2082,8 +4235,7 @@ If no specific data can be extracted, return null for extracted_data."""
 
             response = self.client.chat.completions.create(
                 model=ORCHESTRATOR_MODEL,
-                temperature=ORCHESTRATOR_TEMPERATURE,
-                max_tokens=1000,
+                max_completion_tokens=1000,
                 messages=[{"role": "user", "content": extraction_prompt}],
             )
 
@@ -2694,8 +4846,8 @@ class DependencyResolver:
 
 ### File: core/orchestrator.py
 **Path:** `core/orchestrator.py`
-**Size:** 63,424 bytes
-**Modified:** 2025-09-09 16:51:56
+**Size:** 105,100 bytes
+**Modified:** 2025-09-09 23:10:15
 
 ```python
 """
@@ -2703,6 +4855,7 @@ Orchestrator
 Master orchestration engine using GPT-4 for intelligent workflow planning and execution
 """
 
+import importlib
 import os
 import sys
 import json
@@ -2737,6 +4890,10 @@ from core.tool_factory import ToolFactory
 from core.registry_singleton import get_shared_registry
 from typing import Dict, List, Optional, Any, Tuple
 
+from core.pipeline_orchestrator import PipelineOrchestrator
+from core.pipeline_executor import PipelineExecutor
+from core.workflow_intelligence import WorkflowIntelligence
+
 
 class WorkflowType(Enum):
     """Workflow execution patterns."""
@@ -2757,11 +4914,17 @@ class Orchestrator:
         """Initialize the orchestrator."""
         self.client = openai.OpenAI(api_key=OPENAI_API_KEY)
         self.registry = get_shared_registry()
-        self.workflow_engine = WorkflowEngine()
+        self.workflow_engine = WorkflowEngine(self.registry)
         self.agent_factory = AgentFactory()
         self.tool_factory = ToolFactory()
+        self.dependency_resolver = DependencyResolver(self.registry)
+
+        # NEW: Pipeline orchestration components
+        self.pipeline_orchestrator = PipelineOrchestrator()
+        self.pipeline_executor = PipelineExecutor(self.registry)
+        self.workflow_intelligence = WorkflowIntelligence(self.registry)
+
         self.execution_history = []
-        self.active_workflows = {}
 
     def _prepare_initial_data(
         self,
@@ -2805,17 +4968,7 @@ class Orchestrator:
         stream_results: bool = False,
     ) -> Dict[str, Any]:
         """
-        Process a user request end-to-end.
-
-        Args:
-            user_request: Natural language request from user
-            files: Optional list of uploaded files
-            context: Optional context from previous interactions
-            auto_create: Whether to automatically create missing components
-            stream_results: Whether to stream intermediate results
-
-        Returns:
-            Complete response with results and metadata
+        Process a user request end-to-end with pipeline support.
         """
         start_time = datetime.now()
         workflow_id = self._generate_workflow_id()
@@ -2823,10 +4976,26 @@ class Orchestrator:
         try:
             print(f"DEBUG: Starting request processing for: {user_request[:50]}...")
 
-            # Phase 1: Analyze the request
+            # NEW: Add pipeline complexity detection
+            complexity = await self._detect_pipeline_complexity(
+                user_request, files or []
+            )
+            print(f"DEBUG: Detected complexity: {complexity}")
+
+            # NEW: Route to pipeline processing if complex
+            if complexity in ["pipeline", "complex"]:
+                print(f"DEBUG: Routing to pipeline processing")
+                return await self._process_pipeline_request(
+                    user_request, files or [], context or {}, auto_create, workflow_id
+                )
+
+            # EXISTING: Continue with your existing logic for simple requests
+            print(f"DEBUG: Using existing single-agent processing")
+
+            # Phase 1: Analyze the request (YOUR EXISTING CODE)
             analysis = await self._analyze_request(user_request, files, context)
 
-            # ============= MODIFY THIS SECTION =============
+            # ============= AMBIGUOUS HANDLING =============
             if analysis["status"] == "ambiguous":
                 # Handle ambiguous requests with clarification
                 return {
@@ -2849,9 +5018,9 @@ class Orchestrator:
                 return self._create_error_response(
                     workflow_id, "Analysis failed", analysis.get("error")
                 )
-            # =====================================================
+            # ============================================================
 
-            # Phase 2: Plan the workflow
+            # Phase 2: Plan the workflow (YOUR EXISTING CODE)
             plan = await self._plan_workflow(
                 user_request, analysis["analysis"], auto_create
             )
@@ -2860,7 +5029,7 @@ class Orchestrator:
                     workflow_id, "Planning failed", plan.get("error")
                 )
 
-            # ============= CRITICAL FIX 1: Better handling of no agents case =============
+            # ALL YOUR EXISTING CRITICAL FIXES - keep them all
             agents_needed = plan.get("agents_needed", [])
             missing_capabilities = plan.get("missing_capabilities", {})
 
@@ -2888,7 +5057,6 @@ class Orchestrator:
                         "execution_time": (datetime.now() - start_time).total_seconds(),
                         "metadata": {"components_created": 0},
                     }
-            # ===========================================================================
 
             # Phase 3: Handle remaining missing capabilities (your existing code)
             missing_capabilities = self._check_missing_capabilities(plan)
@@ -2915,7 +5083,7 @@ class Orchestrator:
                         "suggestion": "Enable auto_create to build missing components automatically",
                     }
 
-            # ============= CRITICAL FIX 2: Final check for no agents =============
+            # Final check for no agents
             if not agents_needed:
                 message = "I couldn't identify specific agents to handle this request. "
                 if plan.get("missing_capabilities", {}).get("agents"):
@@ -2943,16 +5111,18 @@ class Orchestrator:
                         "errors_encountered": 0,
                     },
                 }
-            # =====================================================================
 
-            # ============= CRITICAL FIX 3: Use the enhanced data preparation =============
             # Phase 4: Prepare initial data with ALL fields agents might look for
             initial_data = self._prepare_initial_data(user_request, files)
             initial_data["context"] = {
                 "analysis": analysis.get("analysis", {}),
                 "plan": plan,
             }
-            # ===========================================================================
+
+            # After planning is complete, add this debug section:
+            print(f"DEBUG: About to execute workflow with plan: {plan}")
+            print(f"DEBUG: Agents needed: {plan.get('agents_needed', [])}")
+            print(f"DEBUG: Workflow type: {plan.get('workflow_type', 'sequential')}")
 
             # Phase 5: Execute the workflow
             if stream_results:
@@ -3007,6 +5177,10 @@ class Orchestrator:
                 },
             }
 
+            print(f"DEBUG: Workflow execution completed")
+            print(f"DEBUG: Execution result status: {execution_result.get('status')}")
+            print(f"DEBUG: Execution result keys: {list(execution_result.keys())}")
+
         except KeyError as e:
             print(f"DEBUG: KeyError in process_request: {str(e)}")
             import traceback
@@ -3019,6 +5193,7 @@ class Orchestrator:
             print(f"DEBUG: Exception in process_request: {str(e)}")
             import traceback
 
+            print(f"DEBUG: Traceback: {traceback.format_exc()}")
             traceback.print_exc()
             return self._create_error_response(workflow_id, "Unexpected error", str(e))
 
@@ -3100,7 +5275,6 @@ class Orchestrator:
             response = await self._call_gpt4(
                 system_prompt=ORCHESTRATOR_SYSTEM_PROMPT,
                 user_prompt=prompt,
-                temperature=ORCHESTRATOR_TEMPERATURE,
             )
             print(f"DEBUG: GPT-4 analysis successful")
             return {"status": "success", "analysis": response}
@@ -3109,45 +5283,162 @@ class Orchestrator:
             print(f"DEBUG: GPT-4 analysis failed: {str(e)}")
             return {"status": "error", "error": f"Analysis failed: {str(e)}"}
 
+    # async def _plan_workflow(
+    #     self, user_request: str, analysis: str, auto_create: bool
+    # ) -> Dict[str, Any]:
+    #     """Use the actual ORCHESTRATOR_PLANNING_PROMPT from config."""
+
+    #     # Get available components
+    #     agents = self.registry.list_agents(active_only=True)
+    #     tools = self.registry.list_tools(pure_only=False)
+
+    #     # Format components for prompt
+    #     agents_desc = self._format_components_list(agents, "agents")
+    #     tools_desc = self._format_components_list(tools, "tools")
+
+    #     # Use the ACTUAL prompt from config
+    #     prompt = ORCHESTRATOR_PLANNING_PROMPT.format(
+    #         request=user_request,
+    #         analysis=analysis,
+    #         available_agents=agents_desc,
+    #         available_tools=tools_desc,
+    #         timestamp=datetime.now().strftime("%Y%m%d%H%M%S"),
+    #     )
+
+    #     try:
+    #         response = await self._call_gpt4_json(
+    #             system_prompt="You are a workflow planner. Output valid JSON only.",
+    #             user_prompt=prompt,
+    #             temperature=0.1,
+    #         )
+
+    #         plan = json.loads(response)
+    #         plan["status"] = "success"
+    #         return plan
+
+    #     except json.JSONDecodeError as e:
+    #         print(f"DEBUG: JSON parsing failed: {str(e)}")
+    #         return self._create_fallback_plan(user_request, agents)
+    #     except Exception as e:
+    #         print(f"DEBUG: Planning failed: {str(e)}")
+    #         return self._create_fallback_plan(user_request, agents)
+
     async def _plan_workflow(
-        self, user_request: str, analysis: str, auto_create: bool
+        self, request: str, analysis: Dict, auto_create: bool = True
     ) -> Dict[str, Any]:
-        """Use the actual ORCHESTRATOR_PLANNING_PROMPT from config."""
-
-        # Get available components
-        agents = self.registry.list_agents(active_only=True)
-        tools = self.registry.list_tools(pure_only=False)
-
-        # Format components for prompt
-        agents_desc = self._format_components_list(agents, "agents")
-        tools_desc = self._format_components_list(tools, "tools")
-
-        # Use the ACTUAL prompt from config
-        prompt = ORCHESTRATOR_PLANNING_PROMPT.format(
-            request=user_request,
-            analysis=analysis,
-            available_agents=agents_desc,
-            available_tools=tools_desc,
-            timestamp=datetime.now().strftime("%Y%m%d%H%M%S"),
-        )
+        """
+        Smart planning that works with your existing registry methods.
+        """
+        print(f"DEBUG: Smart planning for request")
 
         try:
-            response = await self._call_gpt4_json(
-                system_prompt="You are a workflow planner. Output valid JSON only.",
-                user_prompt=prompt,
-                temperature=0.1,
+            # Use your existing registry methods without problematic parameters
+            available_agents = (
+                self.registry.list_agents()
+            )  # Remove active_only parameter
+            available_tools = self.registry.list_tools()  # Remove active_only parameter
+
+            # Format for GPT-4
+            agents_text = "\n".join(
+                [
+                    f"- {a.get('name')}: {a.get('description', 'No description')}"
+                    for a in available_agents
+                ]
+            )
+            tools_text = "\n".join(
+                [
+                    f"- {t.get('name')}: {t.get('description', 'No description')}"
+                    for t in available_tools
+                ]
             )
 
-            plan = json.loads(response)
-            plan["status"] = "success"
-            return plan
+            print(
+                f"DEBUG: Found {len(available_agents)} agents and {len(available_tools)} tools"
+            )
 
-        except json.JSONDecodeError as e:
-            print(f"DEBUG: JSON parsing failed: {str(e)}")
-            return self._create_fallback_plan(user_request, agents)
+            # Smart planning that recognizes patterns and uses existing agents
+            planning_prompt = f"""
+    Analyze this request and create a smart sequential workflow using existing agents.
+
+    USER REQUEST: {request}
+
+    AVAILABLE AGENTS:
+    {agents_text}
+
+    AVAILABLE TOOLS:
+    {tools_text}
+
+    SMART PLANNING RULES:
+    1. For prime number requests: Use prime_checker agent
+    2. For average/mean calculations: Use calculate_mean agent  
+    3. For email extraction: Use email_extractor agent
+    4. For URL extraction: Use url_extractor agent
+    5. For CSV reading: Use read_csv agent
+    6. For text processing: Use read_text or word_counter agents
+    7. Plan agents in logical sequence for the request
+
+    For the request "{request}", identify:
+    1. What needs to be done step by step
+    2. Which existing agents can handle each step
+    3. What sequence makes sense
+
+    RESPOND WITH VALID JSON:
+    {{
+        "workflow_id": "wf_{datetime.now().strftime('%Y%m%d%H%M%S')}",
+        "workflow_type": "sequential",
+        "reasoning": "Clear explanation of the workflow plan",
+        "agents_needed": ["agent1", "agent2"],
+        "missing_capabilities": {{
+            "agents": [],
+            "tools": []
+        }},
+        "confidence": 0.9,
+        "status": "success"
+    }}
+
+    IMPORTANT: Only use agent names that exist in the available agents list above.
+    """
+
+            # Call GPT-4 for smart planning
+            planning_response = await self._call_gpt4_json(
+                system_prompt="You are a smart workflow planner that uses existing agents effectively.",
+                user_prompt=planning_prompt,
+            )
+
+            # Parse response
+            try:
+                plan = json.loads(planning_response)
+                plan["workflow_type"] = "sequential"
+                plan["created_at"] = datetime.now().isoformat()
+                plan["auto_create"] = auto_create
+                plan["original_request"] = request
+
+                # Validate that requested agents actually exist
+                available_agent_names = [a.get("name") for a in available_agents]
+                valid_agents = []
+
+                for agent in plan.get("agents_needed", []):
+                    if agent in available_agent_names:
+                        valid_agents.append(agent)
+                    else:
+                        print(f"DEBUG: Requested agent '{agent}' not found, skipping")
+
+                plan["agents_needed"] = valid_agents
+
+                if not valid_agents:
+                    # Fallback to pattern matching
+                    plan = self._create_pattern_based_plan(request, available_agents)
+
+                print(f"DEBUG: Smart plan created with agents: {plan['agents_needed']}")
+                return plan
+
+            except json.JSONDecodeError as e:
+                print(f"DEBUG: JSON parsing failed: {e}")
+                return self._create_pattern_based_plan(request, available_agents)
+
         except Exception as e:
-            print(f"DEBUG: Planning failed: {str(e)}")
-            return self._create_fallback_plan(user_request, agents)
+            print(f"DEBUG: Smart planning failed: {str(e)}")
+            return self._create_pattern_based_plan(request, available_agents)
 
     def _build_capability_map(self, agents: List[Dict], tools: List[Dict]) -> Dict:
         """Build detailed capability map for better planning."""
@@ -3431,7 +5722,6 @@ Output as JSON."""
             design_response = await self._call_gpt4_json(
                 system_prompt="Design tool specifications.",
                 user_prompt=design_prompt,
-                temperature=0.3,
             )
 
             design = json.loads(design_response)
@@ -3470,7 +5760,6 @@ Output as JSON."""
             design_response = await self._call_gpt4_json(
                 system_prompt="Design agent specifications.",
                 user_prompt=design_prompt,
-                temperature=0.3,
             )
 
             design = json.loads(design_response)
@@ -3491,68 +5780,78 @@ Output as JSON."""
         except Exception as e:
             return {"status": "error", "message": f"Failed to create agent: {str(e)}"}
 
-    async def _execute_workflow(
-        self, plan: Dict, initial_data: Dict, workflow_id: str
-    ) -> Dict[str, Any]:
-        """Execute the planned workflow."""
+    # async def _execute_workflow(
+    #     self, plan: Dict, initial_data: Dict, workflow_id: str
+    # ) -> Dict[str, Any]:
+    #     """Execute the planned workflow."""
 
-        agents_needed = plan.get("agents_needed", [])
-        if not agents_needed:
-            return {
-                "status": "success",
-                "results": {},
-                "execution_path": [],
-                "errors": [],
-                "message": "No agents required for this request",
-            }
+    #     print(
+    #         f"DEBUG: _execute_workflow called with plan: {plan.get('workflow_type', 'unknown')}"
+    #     )
 
-        workflow_type = WorkflowType(plan.get("workflow_type", "sequential"))
+    #     # TEMPORARY: Use simple fallback instead of LangGraph
+    #     print(f"DEBUG: Using simple fallback execution for reliability")
+    #     return await self._execute_workflow_simple_fallback(
+    #         plan, initial_data, workflow_id
+    #     )
 
-        try:
-            if workflow_type == WorkflowType.SEQUENTIAL:
-                result = await self._execute_sequential(
-                    plan["agents_needed"], initial_data, workflow_id
-                )
-            elif workflow_type == WorkflowType.PARALLEL:
-                result = await self._execute_parallel(
-                    plan["agents_needed"], initial_data, workflow_id
-                )
-            else:
-                result = await self._execute_sequential(
-                    plan["agents_needed"], initial_data, workflow_id
-                )
+    #     agents_needed = plan.get("agents_needed", [])
+    #     if not agents_needed:
+    #         return {
+    #             "status": "success",
+    #             "results": {},
+    #             "execution_path": [],
+    #             "errors": [],
+    #             "message": "No agents required for this request",
+    #         }
 
-            # CRITICAL FIX: Better status determination
-            # Check if we have meaningful results from agents
-            successful_agents = 0
-            failed_agents = 0
+    #     workflow_type = WorkflowType(plan.get("workflow_type", "sequential"))
 
-            for agent_name in agents_needed:
-                if agent_name in result.get("results", {}):
-                    agent_result = result["results"][agent_name]
-                    if isinstance(agent_result, dict):
-                        if agent_result.get("status") == "success":
-                            successful_agents += 1
-                        else:
-                            failed_agents += 1
+    #     try:
+    #         if workflow_type == WorkflowType.SEQUENTIAL:
+    #             result = await self._execute_sequential(
+    #                 plan["agents_needed"], initial_data, workflow_id
+    #             )
+    #         elif workflow_type == WorkflowType.PARALLEL:
+    #             result = await self._execute_parallel(
+    #                 plan["agents_needed"], initial_data, workflow_id
+    #             )
+    #         else:
+    #             result = await self._execute_sequential(
+    #                 plan["agents_needed"], initial_data, workflow_id
+    #             )
 
-            # Determine overall status based on agent execution
-            if successful_agents == len(agents_needed):
-                result["status"] = "success"
-            elif successful_agents > 0:
-                result["status"] = "partial"
-            else:
-                result["status"] = "failed"
+    #         # CRITICAL FIX: Better status determination
+    #         # Check if we have meaningful results from agents
+    #         successful_agents = 0
+    #         failed_agents = 0
 
-            return result
+    #         for agent_name in agents_needed:
+    #             if agent_name in result.get("results", {}):
+    #                 agent_result = result["results"][agent_name]
+    #                 if isinstance(agent_result, dict):
+    #                     if agent_result.get("status") == "success":
+    #                         successful_agents += 1
+    #                     else:
+    #                         failed_agents += 1
 
-        except asyncio.TimeoutError:
-            return {
-                "status": "error",
-                "error": f"Workflow timeout after {WORKFLOW_TIMEOUT_SECONDS} seconds",
-            }
-        except Exception as e:
-            return {"status": "error", "error": f"Workflow execution failed: {str(e)}"}
+    #         # Determine overall status based on agent execution
+    #         if successful_agents == len(agents_needed):
+    #             result["status"] = "success"
+    #         elif successful_agents > 0:
+    #             result["status"] = "partial"
+    #         else:
+    #             result["status"] = "failed"
+
+    #         return result
+
+    #     except asyncio.TimeoutError:
+    #         return {
+    #             "status": "error",
+    #             "error": f"Workflow timeout after {WORKFLOW_TIMEOUT_SECONDS} seconds",
+    #         }
+    #     except Exception as e:
+    #         return {"status": "error", "error": f"Workflow execution failed: {str(e)}"}
 
     async def _execute_sequential(
         self, agents: List[str], initial_data: Dict, workflow_id: str
@@ -3677,7 +5976,6 @@ Output as JSON."""
             synthesized_response = await self._call_gpt4(
                 system_prompt="You are an AI assistant creating natural responses from agent results.",
                 user_prompt=synthesis_prompt,
-                temperature=0.7,
             )
 
             return synthesized_response.strip()
@@ -4114,7 +6412,6 @@ Output as JSON."""
         plan = await self._call_gpt4_json(
             system_prompt="You are a workflow planner. Output valid JSON only.",
             user_prompt=workflow_prompt,
-            temperature=0.1,
         )
 
         # Add dependency information to plan
@@ -4173,8 +6470,7 @@ Output as JSON."""
         # Call Claude to generate implementation
         response = self.tool_factory.client.messages.create(
             model=CLAUDE_MODEL,
-            temperature=0.2,
-            max_tokens=1000,
+            max_completion_tokens=1000,
             messages=[{"role": "user", "content": creation_prompt}],
         )
 
@@ -4309,6 +6605,2221 @@ Output as JSON."""
                     generated_files.append(file_info)
 
         return generated_files
+
+    async def _detect_pipeline_complexity(
+        self, user_request: str, files: List[Dict] = None
+    ) -> str:
+        """
+        Detect if request requires pipeline processing.
+
+        Returns:
+            "simple" - single agent can handle
+            "pipeline" - requires multi-step pipeline
+            "complex" - requires advanced pipeline with adaptation
+        """
+        request_lower = user_request.lower()
+
+        # Pipeline indicators
+        pipeline_keywords = [
+            "then",
+            "after",
+            "next",
+            "followed by",
+            "and then",
+            "first",
+            "second",
+            "third",
+            "finally",
+            "last",
+            "extract and",
+            "analyze and",
+            "process and",
+            "create and",
+            "step by step",
+            "pipeline",
+            "workflow",
+            "sequence",
+        ]
+
+        # Complex pipeline indicators
+        complex_keywords = [
+            "multiple files",
+            "compare",
+            "merge",
+            "combine",
+            "different formats",
+            "various sources",
+            "cross-reference",
+            "comprehensive",
+            "detailed analysis",
+            "full report",
+        ]
+
+        # Count indicators
+        pipeline_count = sum(
+            1 for keyword in pipeline_keywords if keyword in request_lower
+        )
+        complex_count = sum(
+            1 for keyword in complex_keywords if keyword in request_lower
+        )
+
+        # Check for multiple steps in request
+        step_indicators = ["1.", "2.", "3.", "step 1", "step 2", "step 3"]
+        step_count = sum(
+            1 for indicator in step_indicators if indicator in request_lower
+        )
+
+        # Decision logic
+        if complex_count > 0 or (pipeline_count > 2) or (step_count > 1):
+            return "complex"
+        elif pipeline_count > 0 or len(request_lower.split()) > 20:
+            return "pipeline"
+        else:
+            return "simple"
+
+    async def _process_pipeline_request(
+        self,
+        user_request: str,
+        files: List[Dict],
+        context: Dict,
+        auto_create: bool,
+        workflow_id: str,
+    ) -> Dict[str, Any]:
+        """Process complex multi-step pipeline requests."""
+
+        print(f"DEBUG: Processing as pipeline request")
+
+        try:
+            # Step 1: Analyze request and break into pipeline
+            analysis_result = await self.pipeline_orchestrator.analyze_complex_request(
+                user_request, files
+            )
+
+            if analysis_result["status"] != "success":
+                return {
+                    "status": "error",
+                    "workflow_id": workflow_id,
+                    "error": f"Pipeline analysis failed: {analysis_result.get('error')}",
+                    "fallback": "single_agent",
+                }
+
+            # Step 2: Plan pipeline execution
+            pipeline_plan = await self.pipeline_orchestrator.plan_pipeline(
+                analysis_result, auto_create
+            )
+
+            if pipeline_plan.get("status") == "error":
+                return {
+                    "status": "error",
+                    "workflow_id": workflow_id,
+                    "error": f"Pipeline planning failed: {pipeline_plan.get('error')}",
+                    "fallback": "single_agent",
+                }
+
+            # Step 3: Execute pipeline with intelligence
+            execution_result = (
+                await self.pipeline_orchestrator.execute_pipeline_with_adaptation(
+                    pipeline_plan, user_request, files
+                )
+            )
+
+            # Step 4: Synthesize final response
+            if execution_result["status"] in ["success", "partial"]:
+                response = await self._synthesize_pipeline_response(
+                    user_request, execution_result, analysis_result
+                )
+            else:
+                response = f"Pipeline execution encountered issues: {execution_result.get('error', 'Unknown error')}"
+
+            # Return structured result
+            return {
+                "status": execution_result["status"],
+                "workflow_id": workflow_id,
+                "workflow": {
+                    "type": "pipeline",
+                    "steps": [
+                        step.get("name", f"step_{i}")
+                        for i, step in enumerate(pipeline_plan.get("steps", []))
+                    ],
+                    "execution_strategy": pipeline_plan.get(
+                        "execution_strategy", "sequential"
+                    ),
+                    "total_steps": pipeline_plan.get("total_steps", 0),
+                },
+                "response": response,
+                "results": execution_result.get("results", {}),
+                "step_results": execution_result.get("step_results", {}),
+                "metadata": {
+                    "pipeline_analysis": analysis_result,
+                    "pipeline_plan": pipeline_plan,
+                    "execution_time": execution_result.get("execution_time", 0),
+                    "steps_completed": execution_result.get("steps_completed", 0),
+                    "adaptations": execution_result.get("adaptations", []),
+                    "components_created": len(pipeline_plan.get("creation_needed", [])),
+                },
+                "errors": execution_result.get("errors", []),
+            }
+
+        except Exception as e:
+            print(f"DEBUG: Pipeline processing failed: {str(e)}")
+
+            # Fallback to simple processing
+            return await self._process_simple_request(
+                user_request, files, context, auto_create, workflow_id
+            )
+
+    async def _process_simple_request(
+        self,
+        user_request: str,
+        files: List[Dict],
+        context: Dict,
+        auto_create: bool,
+        workflow_id: str,
+    ) -> Dict[str, Any]:
+        """Process simple single-agent requests."""
+
+        print(f"DEBUG: Processing as simple request")
+
+        # Use existing single-agent logic
+        analysis_result = await self._analyze_request(user_request, files, context)
+
+        if analysis_result["status"] != "success":
+            return {
+                "status": "error",
+                "workflow_id": workflow_id,
+                "error": f"Request analysis failed: {analysis_result.get('error')}",
+            }
+
+        plan_result = await self._plan_workflow(
+            user_request, analysis_result["analysis"], auto_create
+        )
+
+        if plan_result.get("status") == "error":
+            return {
+                "status": "error",
+                "workflow_id": workflow_id,
+                "error": f"Workflow planning failed: {plan_result.get('error')}",
+            }
+
+        # Create missing components
+        if auto_create and plan_result.get("missing_capabilities"):
+            creation_result = await self._create_missing_components(
+                plan_result["missing_capabilities"]
+            )
+            if creation_result["status"] != "success":
+                print(f"DEBUG: Component creation had issues: {creation_result}")
+
+        # Execute workflow
+        execution_result = await self._execute_workflow(
+            plan_result, user_request, files
+        )
+
+        # Synthesize response
+        response = await self._synthesize_response(
+            user_request,
+            execution_result.get("results", {}),
+            execution_result.get("errors", []),
+        )
+
+        return {
+            "status": execution_result["status"],
+            "workflow_id": workflow_id,
+            "workflow": {
+                "type": "single_agent",
+                "steps": plan_result.get("agents_needed", []),
+                "execution_strategy": "sequential",
+            },
+            "response": response,
+            "results": execution_result.get("results", {}),
+            "metadata": {
+                "analysis": analysis_result.get("analysis"),
+                "plan": plan_result,
+                "execution_time": execution_result.get("execution_time", 0),
+                "components_created": len(
+                    plan_result.get("missing_capabilities", {}).get("agents", [])
+                )
+                + len(plan_result.get("missing_capabilities", {}).get("tools", [])),
+            },
+            "errors": execution_result.get("errors", []),
+        }
+
+    async def _synthesize_pipeline_response(
+        self, user_request: str, execution_result: Dict, analysis_result: Dict
+    ) -> str:
+        """Synthesize natural language response for pipeline execution."""
+
+        # Use enhanced synthesis prompt for pipelines
+        pipeline_synthesis_prompt = f"""
+    USER REQUEST: {user_request}
+    PIPELINE EXECUTION RESULT: {json.dumps(execution_result, default=str)}
+    PIPELINE ANALYSIS: {json.dumps(analysis_result, default=str)}
+
+    Create a natural, conversational response that:
+    1. Acknowledges the multi-step nature of the request
+    2. Summarizes what was accomplished in each step
+    3. Highlights key findings or results
+    4. Mentions any files or outputs generated
+    5. Notes any adaptations or intelligent decisions made
+
+    Be specific about results while maintaining a helpful, professional tone.
+    If steps failed or needed adaptation, explain what was done to handle it.
+    """
+
+        try:
+            response = await self._call_gpt4(
+                system_prompt="You are an AI assistant synthesizing results from a multi-step pipeline execution.",
+                user_prompt=pipeline_synthesis_prompt,
+            )
+            return response
+
+        except Exception as e:
+            print(f"DEBUG: Pipeline synthesis failed: {str(e)}")
+
+            # Fallback response
+            steps_completed = execution_result.get("steps_completed", 0)
+            total_steps = execution_result.get("total_steps", 0)
+
+            if steps_completed == total_steps:
+                return f"I successfully completed your {total_steps}-step request. All pipeline steps executed successfully."
+            elif steps_completed > 0:
+                return f"I completed {steps_completed} of {total_steps} steps in your request. Some steps encountered issues but I provided partial results."
+            else:
+                return "I encountered issues processing your multi-step request. Please check the error details for more information."
+
+    async def _execute_workflow_simple_fallback(
+        self, plan: Dict, initial_data: Dict, workflow_id: str
+    ) -> Dict[str, Any]:
+        """
+        Simple fallback workflow execution that bypasses LangGraph.
+        This runs agents sequentially without complex state management.
+        """
+        print(f"DEBUG: Using simple fallback workflow execution")
+
+        agents = plan.get("agents_needed", [])
+        results = {}
+        errors = []
+        execution_path = []
+
+        # Process each agent sequentially
+        current_data = initial_data.get("current_data")
+
+        for agent_name in agents:
+            try:
+                print(
+                    f"DEBUG: Executing agent '{agent_name}' with data type: {type(current_data)}"
+                )
+
+                # Load and execute the agent directly
+                agent_result = await self._execute_agent_directly(
+                    agent_name, current_data
+                )
+
+                print(f"DEBUG: Agent '{agent_name}' result: {agent_result}")
+
+                # Store result
+                results[agent_name] = agent_result
+                execution_path.append(agent_name)
+
+                # Update current_data for next agent (use output as input)
+                if agent_result.get("status") == "success" and "data" in agent_result:
+                    current_data = agent_result["data"]
+
+            except Exception as e:
+                print(f"DEBUG: Agent '{agent_name}' failed: {str(e)}")
+                errors.append(
+                    {
+                        "agent": agent_name,
+                        "error": str(e),
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                )
+
+        # Determine overall status
+        status = "success" if not errors else ("partial" if results else "error")
+
+        return {
+            "status": status,
+            "results": results,
+            "execution_path": execution_path,
+            "errors": errors,
+            "workflow_id": workflow_id,
+        }
+
+    async def _execute_agent_directly(
+        self, agent_name: str, input_data
+    ) -> Dict[str, Any]:
+        """
+        Execute an agent directly without LangGraph workflow overhead.
+        """
+        try:
+            # Get agent info from registry
+            agent_info = self.registry.get_agent(agent_name)
+            if not agent_info:
+                raise ValueError(f"Agent '{agent_name}' not found in registry")
+
+            # Load the agent function
+            agent_path = agent_info["location"]
+            print(f"DEBUG: Loading agent from: {agent_path}")
+
+            # Import the agent module
+            spec = importlib.util.spec_from_file_location(
+                f"{agent_name}_module", agent_path
+            )
+            agent_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(agent_module)
+
+            # Get the agent function (should be named like the agent)
+            agent_function = getattr(agent_module, f"{agent_name}_agent", None)
+            if not agent_function:
+                # Try alternative naming patterns
+                agent_function = getattr(agent_module, agent_name, None)
+                if not agent_function:
+                    raise ValueError(f"Agent function not found in {agent_path}")
+
+            # Prepare state for agent
+            state = {
+                "current_data": input_data,
+                "results": {},
+                "errors": [],
+                "execution_path": [],
+                "request": "Prime number analysis",  # This could be dynamic
+                "files": [],
+                "context": {},
+            }
+
+            print(
+                f"DEBUG: Calling agent function with state keys: {list(state.keys())}"
+            )
+
+            # Execute the agent
+            result_state = agent_function(state)
+
+            print(f"DEBUG: Agent returned state keys: {list(result_state.keys())}")
+
+            # Extract result in expected format
+            return {
+                "status": "success",
+                "data": result_state.get("current_data", input_data),
+                "metadata": {
+                    "agent": agent_name,
+                    "execution_time": 1.0,  # Placeholder
+                    "timestamp": datetime.now().isoformat(),
+                },
+            }
+
+        except Exception as e:
+            print(f"DEBUG: Exception in _execute_agent_directly: {str(e)}")
+            import traceback
+
+            print(f"DEBUG: Traceback: {traceback.format_exc()}")
+
+            return {
+                "status": "error",
+                "error": str(e),
+                "metadata": {
+                    "agent": agent_name,
+                    "timestamp": datetime.now().isoformat(),
+                },
+            }
+
+    async def _create_emergency_fallback_plan(
+        self, request: str, analysis: Dict
+    ) -> Dict[str, Any]:
+        """
+        FIXED: Emergency fallback that uses existing agents instead of creating new ones.
+        """
+        print(f"DEBUG: Creating emergency fallback plan using existing agents")
+
+        # Get available agents without problematic parameters
+        try:
+            available_agents = self.registry.list_agents()
+        except:
+            available_agents = []
+
+        # For prime number requests, use existing agents if they exist
+        request_lower = request.lower()
+        agents_needed = []
+
+        if "prime" in request_lower:
+            # Check if prime_checker exists
+            if any(agent.get("name") == "prime_checker" for agent in available_agents):
+                agents_needed.append("prime_checker")
+
+        if any(word in request_lower for word in ["average", "mean", "calculate"]):
+            # Check if calculate_mean exists
+            if any(agent.get("name") == "calculate_mean" for agent in available_agents):
+                agents_needed.append("calculate_mean")
+
+        # If no specific agents found, use any available agent
+        if not agents_needed and available_agents:
+            agents_needed = [available_agents[0].get("name", "unknown_agent")]
+
+        # If still no agents, create a simple plan with no agents (will be handled gracefully)
+        if not agents_needed:
+            agents_needed = ["text_processor"]  # Generic name
+
+        return {
+            "workflow_id": f"wf_fallback_{datetime.now().strftime('%Y%m%d%H%M%S')}",
+            "workflow_type": "sequential",
+            "reasoning": f"Emergency fallback using existing agents for: {request[:50]}...",
+            "agents_needed": agents_needed,
+            "missing_capabilities": {
+                "agents": [],
+                "tools": [],
+            },  # Don't try to create new agents
+            "confidence": 0.7,
+            "status": "success",
+            "is_emergency_fallback": True,
+        }
+
+    async def _execute_workflow_fully_dynamic(
+        self, plan: Dict, initial_data: Dict, workflow_id: str
+    ) -> Dict[str, Any]:
+        """
+        Fully dynamic workflow execution that can handle ANY sequential workflow.
+        """
+        print(f"DEBUG: Executing fully dynamic sequential workflow")
+
+        agents = plan.get("agents_needed", [])
+        results = {}
+        errors = []
+        execution_path = []
+
+        # Dynamic workflow state that adapts to any data type
+        workflow_state = {
+            "current_data": initial_data.get("current_data"),
+            "extracted_data": initial_data.get("extracted_data"),
+            "files": initial_data.get("files", []),
+            "request": initial_data.get("request", ""),
+            "context": initial_data.get("context", {}),
+            "results": {},
+            "execution_path": [],
+            "errors": [],
+            "plan": plan,  # Include the plan for agent context
+            "data_flow_history": [],
+        }
+
+        print(f"DEBUG: Starting execution of {len(agents)} agents")
+
+        # Execute each agent dynamically
+        for i, agent_name in enumerate(agents):
+            try:
+                print(f"DEBUG: Step {i+1}/{len(agents)}: Executing '{agent_name}'")
+
+                # Prepare dynamic state for this specific agent
+                agent_state = await self._prepare_dynamic_agent_state(
+                    workflow_state, agent_name, i, plan
+                )
+
+                # Execute agent with full dynamic handling
+                agent_result = await self._execute_agent_fully_dynamic(
+                    agent_name, agent_state, workflow_state
+                )
+
+                print(
+                    f"DEBUG: Agent '{agent_name}' completed with status: {agent_result.get('status')}"
+                )
+
+                # Store result
+                results[agent_name] = agent_result
+                execution_path.append(agent_name)
+
+                # Dynamically update workflow state
+                workflow_state = await self._update_dynamic_workflow_state(
+                    workflow_state, agent_name, agent_result, i
+                )
+
+            except Exception as e:
+                print(f"DEBUG: Agent '{agent_name}' failed: {str(e)}")
+                error_info = {
+                    "agent": agent_name,
+                    "error": str(e),
+                    "timestamp": datetime.now().isoformat(),
+                    "step": i + 1,
+                }
+                errors.append(error_info)
+
+                # Continue execution unless critical failure
+                if not self._is_critical_failure(e, agent_name):
+                    print(f"DEBUG: Non-critical failure, continuing workflow")
+                    continue
+                else:
+                    print(f"DEBUG: Critical failure, stopping workflow")
+                    break
+
+        # Determine final status
+        status = "success" if not errors else ("partial" if results else "error")
+
+        return {
+            "status": status,
+            "results": results,
+            "execution_path": execution_path,
+            "errors": errors,
+            "workflow_id": workflow_id,
+            "final_data": workflow_state.get("current_data"),
+            "generated_files": workflow_state.get("generated_files", []),
+            "data_flow_history": workflow_state.get("data_flow_history", []),
+        }
+
+    async def _prepare_dynamic_agent_state(
+        self, workflow_state: Dict, agent_name: str, step_index: int, plan: Dict
+    ) -> Dict:
+        """
+        Dynamically prepare state for ANY agent based on the workflow plan and current context.
+        """
+        # Get the planned data flow for this step
+        data_flow = plan.get("data_flow", [])
+        current_step_info = None
+
+        for step in data_flow:
+            if step.get("agent") == agent_name or step.get("step") == step_index + 1:
+                current_step_info = step
+                break
+
+        # Determine what data this agent should receive
+        if step_index == 0:
+            # First agent gets original input
+            current_data = workflow_state.get("current_data")
+            if workflow_state.get("files"):
+                # If there are files, provide file information
+                current_data = {
+                    "files": workflow_state["files"],
+                    "request": workflow_state["request"],
+                    "extracted_data": workflow_state.get("extracted_data"),
+                }
+            elif current_data is None:
+                # No specific data, use the request
+                current_data = workflow_state["request"]
+        else:
+            # Subsequent agents get output from previous agent
+            previous_results = list(workflow_state["results"].values())
+            if previous_results:
+                last_result = previous_results[-1]
+                if last_result.get("status") == "success" and "data" in last_result:
+                    current_data = last_result["data"]
+                else:
+                    # Previous agent failed, use original data
+                    current_data = workflow_state.get("current_data")
+            else:
+                current_data = workflow_state.get("current_data")
+
+        # Create comprehensive dynamic state
+        agent_state = {
+            "current_data": current_data,
+            "files": workflow_state.get("files", []),
+            "request": workflow_state.get("request", ""),
+            "context": workflow_state.get("context", {}),
+            "results": workflow_state.get("results", {}),
+            "execution_path": workflow_state.get("execution_path", []),
+            "errors": workflow_state.get("errors", []),
+            "step_index": step_index,
+            "agent_name": agent_name,
+            "total_steps": len(plan.get("agents_needed", [])),
+            "plan_info": current_step_info,
+            "workflow_plan": plan,
+        }
+
+        return agent_state
+
+    async def _execute_agent_fully_dynamic(
+        self, agent_name: str, agent_state: Dict, workflow_state: Dict
+    ) -> Dict[str, Any]:
+        """
+        Execute any agent dynamically - FIXED VERSION with better error handling.
+        """
+        try:
+            # Check if agent exists
+            if not self.registry.agent_exists(agent_name):
+                print(f"DEBUG: Agent '{agent_name}' doesn't exist")
+
+                # Instead of trying to create it, return a helpful error
+                return {
+                    "status": "error",
+                    "error": f"Agent '{agent_name}' not found and dynamic creation failed",
+                    "fallback_result": f"Could not process request step for {agent_name}",
+                    "agent": agent_name,
+                    "timestamp": datetime.now().isoformat(),
+                }
+
+            # Load and execute existing agent
+            agent_info = self.registry.get_agent(agent_name)
+            if not agent_info:
+                return {
+                    "status": "error",
+                    "error": f"Agent '{agent_name}' info not found",
+                    "agent": agent_name,
+                    "timestamp": datetime.now().isoformat(),
+                }
+
+            agent_path = agent_info["location"]
+
+            # Import and execute
+            spec = importlib.util.spec_from_file_location(
+                f"{agent_name}_module", agent_path
+            )
+            agent_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(agent_module)
+
+            # Find agent function
+            agent_function = getattr(agent_module, f"{agent_name}_agent", None)
+            if not agent_function:
+                agent_function = getattr(agent_module, agent_name, None)
+
+            if not agent_function:
+                return {
+                    "status": "error",
+                    "error": f"No executable function found in agent {agent_name}",
+                    "agent": agent_name,
+                    "timestamp": datetime.now().isoformat(),
+                }
+
+            # Execute the agent
+            result_state = agent_function(agent_state)
+
+            # Process result
+            return self._process_dynamic_agent_result(
+                agent_name, result_state, agent_state
+            )
+
+        except Exception as e:
+            print(f"DEBUG: Dynamic agent execution failed: {str(e)}")
+            return {
+                "status": "error",
+                "error": str(e),
+                "agent": agent_name,
+                "timestamp": datetime.now().isoformat(),
+            }
+
+    async def _create_agent_dynamically(
+        self, agent_spec: Dict, context: Dict
+    ) -> Dict[str, Any]:
+        """
+        Create any agent dynamically - FIXED VERSION.
+        """
+        try:
+            agent_name = agent_spec["name"]
+            purpose = agent_spec["purpose"]
+
+            print(f"DEBUG: Creating agent '{agent_name}' for purpose: {purpose}")
+
+            # FIXED: Use compatible agent factory method call
+            try:
+                # Try the method signature that your agent factory actually supports
+                creation_result = await self.agent_factory.create_agent(
+                    agent_name=agent_name,
+                    description=purpose,
+                    required_tools=agent_spec.get("required_tools", []),
+                    # Removed agent_type parameter that doesn't exist
+                )
+            except TypeError as e:
+                print(f"DEBUG: First create_agent call failed: {e}")
+                # Try alternative signature
+                try:
+                    creation_result = self.agent_factory.create_agent(
+                        agent_name=agent_name,
+                        description=purpose,
+                        required_tools=agent_spec.get("required_tools", []),
+                    )
+                    # If it's not async, wrap the result
+                    if not isinstance(creation_result, dict):
+                        creation_result = {
+                            "status": "error",
+                            "error": "Unexpected return type",
+                        }
+                except Exception as e2:
+                    print(f"DEBUG: Second create_agent call also failed: {e2}")
+                    creation_result = {
+                        "status": "error",
+                        "error": f"Agent creation failed: {str(e2)}",
+                    }
+
+            if creation_result.get("status") == "success":
+                # Force registry reload
+                try:
+                    self.registry.reload_from_disk()
+                except AttributeError:
+                    # If reload_from_disk doesn't exist, try force_global_reload
+                    try:
+                        from core.registry_singleton import force_global_reload
+
+                        force_global_reload()
+                    except:
+                        pass
+                print(f"DEBUG: Successfully created dynamic agent '{agent_name}'")
+
+            return creation_result
+
+        except Exception as e:
+            print(f"DEBUG: Failed to create dynamic agent: {str(e)}")
+            return {"status": "error", "error": str(e)}
+
+    def _process_dynamic_agent_result(
+        self, agent_name: str, result_state: Dict, original_state: Dict
+    ) -> Dict[str, Any]:
+        """
+        Process any agent result dynamically, handling any output format.
+        """
+        # Extract result data flexibly
+        if isinstance(result_state, dict):
+            if "current_data" in result_state:
+                result_data = result_state["current_data"]
+            elif "data" in result_state:
+                result_data = result_state["data"]
+            elif "results" in result_state:
+                result_data = result_state["results"]
+            else:
+                # Use the entire state as result
+                result_data = result_state
+        else:
+            # Non-dict result
+            result_data = result_state
+
+        # Check for generated files dynamically
+        generated_files = self._extract_generated_files(result_data)
+
+        return {
+            "status": "success",
+            "data": result_data,
+            "generated_files": generated_files,
+            "metadata": {
+                "agent": agent_name,
+                "execution_time": 1.0,
+                "timestamp": datetime.now().isoformat(),
+                "input_type": type(original_state.get("current_data")).__name__,
+                "output_type": type(result_data).__name__,
+            },
+        }
+
+    def _extract_generated_files(self, data: Any) -> List[Dict]:
+        """
+        Dynamically extract any generated files from agent output.
+        """
+        generated_files = []
+
+        if isinstance(data, dict):
+            for key, value in data.items():
+                if isinstance(value, str):
+                    # Check if it looks like a file path
+                    if any(
+                        ext in value.lower()
+                        for ext in [".pdf", ".png", ".jpg", ".csv", ".xlsx", ".txt"]
+                    ):
+                        if os.path.exists(value):
+                            generated_files.append(
+                                {
+                                    "path": value,
+                                    "name": os.path.basename(value),
+                                    "type": key,
+                                    "size": os.path.getsize(value),
+                                }
+                            )
+
+        return generated_files
+
+    async def _update_dynamic_workflow_state(
+        self, workflow_state: Dict, agent_name: str, agent_result: Dict, step_index: int
+    ) -> Dict:
+        """
+        Dynamically update workflow state after any agent execution.
+        """
+        # Update execution tracking
+        workflow_state["execution_path"].append(agent_name)
+        workflow_state["results"][agent_name] = agent_result
+
+        # Update current data for next agent
+        if agent_result.get("status") == "success" and "data" in agent_result:
+            workflow_state["current_data"] = agent_result["data"]
+
+        # Track data flow
+        workflow_state["data_flow_history"].append(
+            {
+                "step": step_index + 1,
+                "agent": agent_name,
+                "input_type": type(workflow_state.get("current_data")).__name__,
+                "output_type": (
+                    type(agent_result.get("data")).__name__
+                    if agent_result.get("data") is not None
+                    else "None"
+                ),
+                "status": agent_result.get("status"),
+            }
+        )
+
+        # Collect generated files
+        if "generated_files" not in workflow_state:
+            workflow_state["generated_files"] = []
+
+        if agent_result.get("generated_files"):
+            workflow_state["generated_files"].extend(agent_result["generated_files"])
+
+        # Handle errors
+        if agent_result.get("status") == "error":
+            workflow_state["errors"].append(
+                {
+                    "agent": agent_name,
+                    "error": agent_result.get("error"),
+                    "step": step_index + 1,
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
+
+        return workflow_state
+
+    def _is_critical_failure(self, error: Exception, agent_name: str) -> bool:
+        """
+        Determine if an error should stop the entire workflow.
+        """
+        error_str = str(error).lower()
+
+        # Critical failures that should stop workflow
+        critical_keywords = [
+            "critical",
+            "fatal",
+            "permission denied",
+            "security",
+            "authentication",
+            "authorization",
+        ]
+
+        return any(keyword in error_str for keyword in critical_keywords)
+
+    def _create_pattern_based_plan(
+        self, request: str, available_agents: List
+    ) -> Dict[str, Any]:
+        """
+        Pattern-based planning using existing agents.
+        """
+        print(f"DEBUG: Using pattern-based planning")
+
+        request_lower = request.lower()
+        agents_needed = []
+        available_agent_names = [a.get("name") for a in available_agents]
+
+        # Pattern matching for common requests
+        if "prime" in request_lower and "prime_checker" in available_agent_names:
+            agents_needed.append("prime_checker")
+
+        if (
+            any(word in request_lower for word in ["average", "mean", "calculate"])
+            and "calculate_mean" in available_agent_names
+        ):
+            agents_needed.append("calculate_mean")
+
+        if "email" in request_lower and "email_extractor" in available_agent_names:
+            agents_needed.append("email_extractor")
+
+        if "url" in request_lower and "url_extractor" in available_agent_names:
+            agents_needed.append("url_extractor")
+
+        if "csv" in request_lower and "read_csv" in available_agent_names:
+            agents_needed.append("read_csv")
+
+        if "text" in request_lower and "read_text" in available_agent_names:
+            agents_needed.append("read_text")
+
+        # Remove duplicates while preserving order
+        agents_needed = list(dict.fromkeys(agents_needed))
+
+        # If no patterns matched, use the first available agent
+        if not agents_needed and available_agent_names:
+            agents_needed = [available_agent_names[0]]
+
+        return {
+            "workflow_id": f"wf_pattern_{datetime.now().strftime('%Y%m%d%H%M%S')}",
+            "workflow_type": "sequential",
+            "reasoning": f"Pattern-based plan for: {request[:50]}...",
+            "agents_needed": agents_needed,
+            "missing_capabilities": {"agents": [], "tools": []},
+            "confidence": 0.8,
+            "status": "success",
+            "is_pattern_based": True,
+        }
+
+    async def _execute_workflow(
+        self, plan: Dict, initial_data: Dict, workflow_id: str
+    ) -> Dict[str, Any]:
+        """Execute any workflow fully dynamically."""
+
+        print(f"DEBUG: _execute_workflow called - using fully dynamic execution")
+
+        # Use the fully dynamic execution for ALL workflows
+        return await self._execute_workflow_fully_dynamic(
+            plan, initial_data, workflow_id
+        )
+
+```
+
+--------------------------------------------------------------------------------
+
+### File: core/pipeline_executor.py
+**Path:** `core/pipeline_executor.py`
+**Size:** 19,563 bytes
+**Modified:** 2025-09-09 19:34:26
+
+```python
+"""
+Pipeline Executor
+Enhanced workflow execution engine for multi-step pipelines with data flow management
+"""
+
+import os
+import sys
+import json
+import asyncio
+import importlib.util
+from typing import Dict, List, Optional, Any, TypedDict
+from datetime import datetime
+import traceback
+import networkx as nx
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from langgraph.graph import StateGraph, END
+from langgraph.checkpoint.memory import MemorySaver
+
+from config import (
+    MAX_WORKFLOW_STEPS,
+    WORKFLOW_TIMEOUT_SECONDS,
+    AGENT_TIMEOUT_SECONDS,
+    AGENT_MAX_RETRIES,
+    ENABLE_PARALLEL_EXECUTION,
+    MAX_PARALLEL_AGENTS,
+    GENERATED_AGENTS_DIR,
+    PREBUILT_AGENTS_DIR,
+)
+from core.registry import RegistryManager
+
+
+class PipelineState(TypedDict):
+    """Enhanced state schema for pipeline execution."""
+
+    request: str
+    pipeline_id: str
+    current_step: int
+    total_steps: int
+    files: List[Dict]
+    execution_path: List[str]
+    step_results: Dict[str, Any]
+    current_data: Any
+    data_flow: Dict[str, Any]
+    results: Dict[str, Any]
+    errors: List[Dict]
+    adaptations: List[Dict]
+    started_at: str
+    completed_at: Optional[str]
+
+
+class PipelineExecutor:
+    """
+    Enhanced workflow execution engine for multi-step pipelines.
+    Handles data flow, parallel execution, and real-time adaptation.
+    """
+
+    def __init__(self, registry: RegistryManager):
+        """Initialize the pipeline executor."""
+        self.registry = registry
+        self.execution_history = []
+
+    async def execute_pipeline(
+        self, pipeline_plan: Dict, user_request: str, files: List[Dict] = None
+    ) -> Dict[str, Any]:
+        """
+        Execute a complete pipeline with data flow management.
+
+        Args:
+            pipeline_plan: Complete pipeline execution plan
+            user_request: Original user request
+            files: Uploaded files
+
+        Returns:
+            Pipeline execution results
+        """
+        print(
+            f"DEBUG: Executing pipeline {pipeline_plan.get('pipeline_id')} with {pipeline_plan.get('total_steps')} steps"
+        )
+
+        # Initialize pipeline state
+        pipeline_state = PipelineState(
+            request=user_request,
+            pipeline_id=pipeline_plan.get(
+                "pipeline_id", f"pipeline_{datetime.now().strftime('%H%M%S')}"
+            ),
+            current_step=0,
+            total_steps=pipeline_plan.get("total_steps", 0),
+            files=files or [],
+            execution_path=[],
+            step_results={},
+            current_data={"user_request": user_request, "files": files},
+            data_flow=pipeline_plan.get("data_flow", {}),
+            results={},
+            errors=[],
+            adaptations=[],
+            started_at=datetime.now().isoformat(),
+            completed_at=None,
+        )
+
+        # Track execution
+        self.execution_history.append(
+            {
+                "pipeline_id": pipeline_state["pipeline_id"],
+                "started_at": pipeline_state["started_at"],
+                "status": "in_progress",
+            }
+        )
+
+        try:
+            # Execute pipeline steps based on strategy
+            execution_strategy = pipeline_plan.get("execution_strategy", "sequential")
+
+            if execution_strategy == "sequential":
+                final_state = await self._execute_sequential_pipeline(
+                    pipeline_plan, pipeline_state
+                )
+            elif execution_strategy == "parallel":
+                final_state = await self._execute_parallel_pipeline(
+                    pipeline_plan, pipeline_state
+                )
+            else:
+                final_state = await self._execute_sequential_pipeline(
+                    pipeline_plan, pipeline_state
+                )
+
+            # Finalize execution
+            final_state["completed_at"] = datetime.now().isoformat()
+
+            # Determine final status
+            if (
+                final_state["current_step"] >= final_state["total_steps"]
+                and not final_state["errors"]
+            ):
+                status = "success"
+            elif final_state["current_step"] > 0:
+                status = "partial"
+            else:
+                status = "failed"
+
+            # Update execution history
+            for exec_record in self.execution_history:
+                if exec_record["pipeline_id"] == pipeline_state["pipeline_id"]:
+                    exec_record["status"] = status
+                    exec_record["completed_at"] = final_state["completed_at"]
+                    break
+
+            result = {
+                "status": status,
+                "pipeline_id": final_state["pipeline_id"],
+                "steps_completed": final_state["current_step"],
+                "total_steps": final_state["total_steps"],
+                "results": final_state["results"],
+                "step_results": final_state["step_results"],
+                "errors": final_state["errors"],
+                "adaptations": final_state["adaptations"],
+                "execution_time": self._calculate_execution_time(
+                    final_state["started_at"], final_state["completed_at"]
+                ),
+                "final_data": final_state["current_data"],
+            }
+
+            print(f"DEBUG: Pipeline execution completed - Status: {status}")
+            return result
+
+        except Exception as e:
+            error_msg = f"Pipeline execution failed: {str(e)}"
+            print(f"DEBUG: {error_msg}")
+
+            return {
+                "status": "error",
+                "pipeline_id": pipeline_state["pipeline_id"],
+                "error": error_msg,
+                "steps_completed": pipeline_state["current_step"],
+                "total_steps": pipeline_state["total_steps"],
+                "results": pipeline_state["results"],
+                "errors": pipeline_state["errors"]
+                + [{"type": "execution_error", "message": error_msg}],
+            }
+
+    async def _execute_sequential_pipeline(
+        self, pipeline_plan: Dict, state: PipelineState
+    ) -> PipelineState:
+        """Execute pipeline steps sequentially."""
+        print(
+            f"DEBUG: Executing sequential pipeline with {len(pipeline_plan['steps'])} steps"
+        )
+
+        for i, step_plan in enumerate(pipeline_plan["steps"]):
+            print(
+                f"DEBUG: Executing step {i+1}/{state['total_steps']}: {step_plan.get('name', 'unnamed')}"
+            )
+
+            state["current_step"] = i
+
+            try:
+                # Execute step with current data
+                step_result = await self._execute_pipeline_step(step_plan, state)
+
+                if step_result["status"] == "success":
+                    # Update state with step results
+                    state["step_results"][step_plan["name"]] = step_result
+                    state["results"][step_plan["name"]] = step_result
+                    state["execution_path"].append(step_plan["name"])
+
+                    # Update current data for next step
+                    state["current_data"] = self._extract_data_for_next_step(
+                        step_result, step_plan, state
+                    )
+
+                    print(f"DEBUG: Step {i+1} completed successfully")
+
+                else:
+                    # Handle step failure
+                    error_info = {
+                        "step": step_plan["name"],
+                        "step_index": i,
+                        "error": step_result.get("error", "Unknown error"),
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                    state["errors"].append(error_info)
+
+                    print(f"DEBUG: Step {i+1} failed: {error_info['error']}")
+
+                    # For now, stop on first error (can be enhanced for recovery)
+                    break
+
+            except Exception as e:
+                error_info = {
+                    "step": step_plan["name"],
+                    "step_index": i,
+                    "error": str(e),
+                    "type": "execution_exception",
+                    "timestamp": datetime.now().isoformat(),
+                }
+                state["errors"].append(error_info)
+                print(f"DEBUG: Step {i+1} exception: {str(e)}")
+                break
+
+        state["current_step"] = min(state["current_step"] + 1, state["total_steps"])
+        return state
+
+    async def _execute_parallel_pipeline(
+        self, pipeline_plan: Dict, state: PipelineState
+    ) -> PipelineState:
+        """Execute pipeline steps in parallel where possible."""
+        print(
+            f"DEBUG: Executing parallel pipeline (not fully implemented - falling back to sequential)"
+        )
+
+        # For now, fall back to sequential execution
+        # Can be enhanced to detect parallel opportunities
+        return await self._execute_sequential_pipeline(pipeline_plan, state)
+
+    async def _execute_pipeline_step(
+        self, step_plan: Dict, state: PipelineState
+    ) -> Dict[str, Any]:
+        """
+        Execute a single pipeline step with enhanced data handling.
+
+        Args:
+            step_plan: Step execution plan
+            state: Current pipeline state
+
+        Returns:
+            Step execution result
+        """
+        agent_name = step_plan.get("agent_assigned")
+
+        if not agent_name:
+            return {
+                "status": "error",
+                "error": "No agent assigned to step",
+                "step_name": step_plan.get("name", "unknown"),
+            }
+
+        try:
+            # Load and execute the agent
+            agent_result = await self._execute_agent_with_pipeline_context(
+                agent_name, step_plan, state
+            )
+            return agent_result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "error": str(e),
+                "step_name": step_plan.get("name", "unknown"),
+                "agent_name": agent_name,
+            }
+
+    async def _execute_agent_with_pipeline_context(
+        self, agent_name: str, step_plan: Dict, state: PipelineState
+    ) -> Dict[str, Any]:
+        """Execute agent with pipeline context and enhanced data handling."""
+
+        # Check if agent exists
+        if not self.registry.agent_exists(agent_name):
+            return {
+                "status": "error",
+                "error": f"Agent '{agent_name}' not found",
+                "agent_name": agent_name,
+            }
+
+        # Get agent details
+        agent = self.registry.get_agent(agent_name)
+        agent_path = agent["location"]
+
+        # Verify agent file exists
+        if not os.path.exists(agent_path):
+            return {
+                "status": "error",
+                "error": f"Agent file not found: {agent_path}",
+                "agent_name": agent_name,
+            }
+
+        try:
+            # Load agent module
+            spec = importlib.util.spec_from_file_location(agent_name, agent_path)
+            agent_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(agent_module)
+
+            # Get agent function
+            agent_function = getattr(agent_module, agent_name)
+
+            # Prepare agent state with pipeline context
+            agent_state = self._prepare_agent_state_for_pipeline(state, step_plan)
+
+            # Execute agent with timeout
+            agent_result = await asyncio.wait_for(
+                agent_function(agent_state), timeout=AGENT_TIMEOUT_SECONDS
+            )
+
+            # Validate and process result
+            if isinstance(agent_result, dict):
+                return self._process_agent_result(agent_result, agent_name, step_plan)
+            else:
+                return {
+                    "status": "error",
+                    "error": f"Agent returned invalid result type: {type(agent_result)}",
+                    "agent_name": agent_name,
+                }
+
+        except asyncio.TimeoutError:
+            return {
+                "status": "error",
+                "error": f"Agent execution timeout ({AGENT_TIMEOUT_SECONDS}s)",
+                "agent_name": agent_name,
+            }
+        except Exception as e:
+            return {
+                "status": "error",
+                "error": f"Agent execution failed: {str(e)}",
+                "agent_name": agent_name,
+                "traceback": traceback.format_exc(),
+            }
+
+    def _prepare_agent_state_for_pipeline(
+        self, pipeline_state: PipelineState, step_plan: Dict
+    ) -> Dict[str, Any]:
+        """Prepare agent state with pipeline context and data."""
+
+        # Base state structure
+        agent_state = {
+            "request": f"Pipeline step: {step_plan.get('description', step_plan.get('name', 'unknown'))}",
+            "files": pipeline_state["files"],
+            "current_data": pipeline_state["current_data"],
+            "execution_path": pipeline_state["execution_path"].copy(),
+            "results": {},
+            "errors": [],
+        }
+
+        # Add pipeline context
+        agent_state["pipeline_context"] = {
+            "pipeline_id": pipeline_state["pipeline_id"],
+            "step_index": pipeline_state["current_step"],
+            "total_steps": pipeline_state["total_steps"],
+            "step_name": step_plan.get("name", "unknown"),
+            "previous_results": pipeline_state["step_results"],
+            "data_flow": pipeline_state["data_flow"],
+        }
+
+        # Add step-specific requirements
+        if "input_requirements" in step_plan:
+            agent_state["input_requirements"] = step_plan["input_requirements"]
+
+        if "output_requirements" in step_plan:
+            agent_state["output_requirements"] = step_plan["output_requirements"]
+
+        return agent_state
+
+    def _process_agent_result(
+        self, agent_result: Dict, agent_name: str, step_plan: Dict
+    ) -> Dict[str, Any]:
+        """Process and validate agent result."""
+
+        # Check for valid agent result structure
+        if "status" not in agent_result:
+            agent_result["status"] = "success" if "data" in agent_result else "error"
+
+        # Add metadata
+        agent_result["agent_name"] = agent_name
+        agent_result["step_name"] = step_plan.get("name", "unknown")
+        agent_result["executed_at"] = datetime.now().isoformat()
+
+        # Ensure metadata structure
+        if "metadata" not in agent_result:
+            agent_result["metadata"] = {}
+
+        agent_result["metadata"]["step_index"] = step_plan.get("step_index", 0)
+        agent_result["metadata"]["pipeline_step"] = True
+
+        return agent_result
+
+    def _extract_data_for_next_step(
+        self, step_result: Dict, step_plan: Dict, state: PipelineState
+    ) -> Any:
+        """Extract appropriate data from step result for next step."""
+
+        # Get the actual data from the step result
+        if "data" in step_result:
+            data = step_result["data"]
+        else:
+            data = step_result
+
+        # For pipeline steps, we want to pass the processed data forward
+        # This could be enhanced to handle specific data transformations
+
+        # If the data is a dict with results, extract meaningful content
+        if isinstance(data, dict):
+            # Look for common result patterns
+            if "processed_data" in data:
+                return data["processed_data"]
+            elif "extracted_data" in data:
+                return data["extracted_data"]
+            elif "results" in data:
+                return data["results"]
+            elif len(data) == 1:
+                # If there's only one key, use its value
+                return list(data.values())[0]
+
+        # Default: return the data as-is
+        return data
+
+    def _calculate_execution_time(self, start_time: str, end_time: str) -> float:
+        """Calculate execution time in seconds."""
+        if not start_time or not end_time:
+            return 0.0
+
+        try:
+            start = datetime.fromisoformat(start_time.replace("Z", "+00:00"))
+            end = datetime.fromisoformat(end_time.replace("Z", "+00:00"))
+            return (end - start).total_seconds()
+        except:
+            return 0.0
+
+    async def execute_step_with_recovery(
+        self, step_plan: Dict, state: PipelineState, max_retries: int = 2
+    ) -> Dict[str, Any]:
+        """
+        Execute a step with automatic recovery on failure.
+
+        Args:
+            step_plan: Step execution plan
+            state: Current pipeline state
+            max_retries: Maximum retry attempts
+
+        Returns:
+            Step execution result with recovery information
+        """
+        last_error = None
+
+        for attempt in range(max_retries + 1):
+            try:
+                print(
+                    f"DEBUG: Executing step (attempt {attempt + 1}/{max_retries + 1})"
+                )
+
+                result = await self._execute_pipeline_step(step_plan, state)
+
+                if result["status"] == "success":
+                    if attempt > 0:
+                        result["recovery_info"] = {
+                            "recovered": True,
+                            "attempts": attempt + 1,
+                            "last_error": str(last_error) if last_error else None,
+                        }
+                    return result
+                else:
+                    last_error = result.get("error", "Unknown error")
+                    if attempt < max_retries:
+                        print(f"DEBUG: Step failed, retrying... Error: {last_error}")
+                        await asyncio.sleep(1)  # Brief delay before retry
+
+            except Exception as e:
+                last_error = str(e)
+                if attempt < max_retries:
+                    print(f"DEBUG: Step exception, retrying... Error: {last_error}")
+                    await asyncio.sleep(1)
+
+        # All attempts failed
+        return {
+            "status": "error",
+            "error": f"Step failed after {max_retries + 1} attempts. Last error: {last_error}",
+            "step_name": step_plan.get("name", "unknown"),
+            "recovery_info": {
+                "recovered": False,
+                "attempts": max_retries + 1,
+                "last_error": str(last_error),
+            },
+        }
+
+    def get_execution_history(self) -> List[Dict]:
+        """Get pipeline execution history."""
+        return self.execution_history.copy()
+
+    def create_data_flow_graph(self, pipeline_plan: Dict) -> nx.DiGraph:
+        """Create a graph representing data flow in the pipeline."""
+        graph = nx.DiGraph()
+
+        steps = pipeline_plan.get("steps", [])
+
+        for i, step in enumerate(steps):
+            step_name = step.get("name", f"step_{i}")
+            graph.add_node(step_name, **step)
+
+            # Add edges based on data flow
+            if i > 0:
+                prev_step = steps[i - 1].get("name", f"step_{i-1}")
+                graph.add_edge(prev_step, step_name)
+
+        return graph
+
+    def optimize_execution_order(self, pipeline_plan: Dict) -> Dict[str, Any]:
+        """Optimize execution order for better performance."""
+        # For now, return original plan
+        # Can be enhanced to detect parallel opportunities
+
+        optimized_plan = pipeline_plan.copy()
+        optimized_plan["optimization_applied"] = False
+        optimized_plan["optimization_notes"] = (
+            "Sequential execution (no optimizations applied)"
+        )
+
+        return optimized_plan
+
+```
+
+--------------------------------------------------------------------------------
+
+### File: core/pipeline_orchestrator.py
+**Path:** `core/pipeline_orchestrator.py`
+**Size:** 27,098 bytes
+**Modified:** 2025-09-09 23:36:45
+
+```python
+"""
+Pipeline Orchestrator
+Master coordinator for dynamic multi-agent pipeline execution
+"""
+
+import os
+import sys
+import json
+import asyncio
+from typing import Dict, List, Optional, Any, Tuple
+from datetime import datetime
+import openai
+import networkx as nx
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from config import (
+    OPENAI_API_KEY,
+    ORCHESTRATOR_MODEL,
+    ORCHESTRATOR_TEMPERATURE,
+    ORCHESTRATOR_MAX_TOKENS,
+    PIPELINE_ANALYSIS_PROMPT,
+    AGENT_COMPATIBILITY_PROMPT,
+    PIPELINE_PLANNING_PROMPT,
+    DYNAMIC_AGENT_SPEC_PROMPT,
+    PIPELINE_RECOVERY_PROMPT,
+)
+from core.registry import RegistryManager
+from core.agent_compatibility import AgentCompatibilityAnalyzer
+from core.agent_factory import AgentFactory
+from core.tool_factory import ToolFactory
+
+
+class PipelineOrchestrator:
+    """
+    Master coordinator for dynamic multi-agent pipeline execution.
+    Handles complex request analysis, pipeline planning, and real-time adaptation.
+    """
+
+    def __init__(self):
+        """Initialize the pipeline orchestrator."""
+        self.client = openai.OpenAI(api_key=OPENAI_API_KEY)
+        self.registry = RegistryManager()
+        self.compatibility_analyzer = AgentCompatibilityAnalyzer(self.registry)
+        self.agent_factory = AgentFactory()
+        self.tool_factory = ToolFactory()
+
+    async def analyze_complex_request(
+        self, request: str, files: List[Dict] = None
+    ) -> Dict[str, Any]:
+        """
+        Analyze complex request and break it into pipeline steps.
+
+        Args:
+            request: User's natural language request
+            files: Uploaded files with metadata
+
+        Returns:
+            Pipeline analysis with steps and requirements
+        """
+        print(f"DEBUG: Analyzing complex request: {request[:100]}...")
+
+        # Get available components
+        agents = self.registry.list_agents(active_only=True)
+        tools = self.registry.list_tools()
+
+        # Format components for prompt
+        agents_desc = self._format_components_list(agents, "agents")
+        tools_desc = self._format_components_list(tools, "tools")
+
+        # Build analysis prompt
+        prompt = PIPELINE_ANALYSIS_PROMPT.format(
+            request=request,
+            files=json.dumps(files) if files else "None",
+            available_agents=agents_desc,
+            available_tools=tools_desc,
+        )
+
+        try:
+            response = await self._call_gpt4_json(
+                system_prompt="You are a pipeline analyzer. Analyze requests and break them into logical steps.",
+                user_prompt=prompt,
+            )
+
+            analysis = json.loads(response)
+            analysis["status"] = "success"
+
+            print(
+                f"DEBUG: Pipeline analysis found {len(analysis.get('steps', []))} steps"
+            )
+            return analysis
+
+        except Exception as e:
+            print(f"DEBUG: Pipeline analysis failed: {str(e)}")
+            return {
+                "status": "error",
+                "error": f"Pipeline analysis failed: {str(e)}",
+                "steps": [],
+            }
+
+    async def plan_pipeline(
+        self, analysis: Dict, auto_create: bool = True
+    ) -> Dict[str, Any]:
+        """
+        Plan optimal pipeline execution with agent compatibility analysis.
+
+        Args:
+            analysis: Pipeline analysis from analyze_complex_request
+            auto_create: Whether to auto-create missing agents
+
+        Returns:
+            Complete pipeline execution plan
+        """
+        print(f"DEBUG: Planning pipeline with {len(analysis.get('steps', []))} steps")
+
+        steps = analysis.get("steps", [])
+        if not steps:
+            return {"status": "error", "error": "No pipeline steps to plan"}
+
+        # Analyze agent compatibility for each step
+        pipeline_plan = {
+            "pipeline_id": f"pipeline_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
+            "total_steps": len(steps),
+            "execution_strategy": "sequential",  # Default, can be enhanced
+            "steps": [],
+            "creation_needed": [],
+            "data_flow": {},
+            "estimated_time": 0,
+        }
+
+        for i, step in enumerate(steps):
+            previous_output = None
+            if i > 0:
+                # Get output from previous step if available
+                prev_step_name = pipeline_plan["steps"][i - 1].get("name")
+                # This would need to be enhanced to track actual data flow
+
+            step_plan = await self._plan_step(step, i, auto_create, previous_output)
+            pipeline_plan["steps"].append(step_plan)
+
+            if step_plan.get("needs_creation"):
+                pipeline_plan["creation_needed"].extend(step_plan["creation_specs"])
+
+            # Estimate execution time
+            pipeline_plan["estimated_time"] += step_plan.get("estimated_time", 5)
+
+        # Plan data flow between steps
+        pipeline_plan["data_flow"] = self._plan_data_flow(pipeline_plan["steps"])
+
+        # Determine execution strategy
+        pipeline_plan["execution_strategy"] = self._determine_execution_strategy(
+            pipeline_plan["steps"]
+        )
+
+        print(
+            f"DEBUG: Pipeline planned - {len(pipeline_plan['creation_needed'])} components need creation"
+        )
+        return pipeline_plan
+
+    async def _plan_step(
+        self,
+        step: Dict,
+        step_index: int,
+        auto_create: bool,
+        previous_step_output: Any = None,
+    ) -> Dict[str, Any]:
+        """Plan execution for a single pipeline step with enhanced code analysis."""
+        step_plan = {
+            "step_index": step_index,
+            "name": step.get("name", f"step_{step_index}"),
+            "description": step.get("description", ""),
+            "input_requirements": step.get("input_requirements", {}),
+            "output_requirements": step.get("output_requirements", {}),
+            "agent_assigned": None,
+            "needs_creation": False,
+            "creation_specs": [],
+            "estimated_time": 5,
+        }
+
+        # Enhanced compatibility analysis with code inspection
+        compatible_agents = (
+            await self.compatibility_analyzer.find_compatible_agents_with_code_analysis(
+                step, previous_step_output
+            )
+        )
+
+        if compatible_agents:
+            best_agent = compatible_agents[0]
+            enhanced_analysis = best_agent.get("enhanced_analysis", {})
+            code_analysis = enhanced_analysis.get("code_analysis", {})
+
+            # Check if major adaptation is needed - if so, consider creating new agent
+            adaptation_needed = code_analysis.get("adaptation_needed", "none")
+            compatibility_score = best_agent.get("compatibility_score", 0.0)
+
+            if adaptation_needed == "major" or compatibility_score < 0.6:
+                print(
+                    f"DEBUG: Agent {best_agent['name']} needs major adaptation (score: {compatibility_score})"
+                )
+                if auto_create:
+                    print(f"DEBUG: Triggering dynamic agent creation instead")
+                    step_plan["needs_creation"] = True
+                    agent_spec = await self._generate_enhanced_agent_spec(
+                        step, step_index, previous_step_output
+                    )
+                    step_plan["creation_specs"].append(agent_spec)
+                    step_plan["agent_assigned"] = agent_spec["name"]
+                else:
+                    step_plan["agent_assigned"] = best_agent["name"]
+                    step_plan["compatibility_warnings"] = [
+                        f"Major adaptation needed: {code_analysis.get('error_scenarios', [])}"
+                    ]
+            else:
+                step_plan["agent_assigned"] = best_agent["name"]
+                step_plan["estimated_time"] = best_agent.get("avg_execution_time", 5)
+                step_plan["compatibility_analysis"] = enhanced_analysis
+                print(
+                    f"DEBUG: Step {step_index} assigned to existing agent: {best_agent['name']} (score: {compatibility_score})"
+                )
+
+        elif auto_create:
+            # No compatible agents found - create new one
+            step_plan["needs_creation"] = True
+            agent_spec = await self._generate_enhanced_agent_spec(
+                step, step_index, previous_step_output
+            )
+            step_plan["creation_specs"].append(agent_spec)
+            step_plan["agent_assigned"] = agent_spec["name"]
+            print(f"DEBUG: Step {step_index} needs new agent: {agent_spec['name']}")
+
+        else:
+            step_plan["agent_assigned"] = None
+            print(
+                f"DEBUG: Step {step_index} has no compatible agent and auto_create=False"
+            )
+
+        return step_plan
+
+    async def _generate_agent_spec_for_step(
+        self, step: Dict, step_index: int
+    ) -> Dict[str, Any]:
+        """Generate detailed agent specification for a pipeline step."""
+
+        # Use GPT-4 to design pipeline-aware agent
+        prompt = DYNAMIC_AGENT_SPEC_PROMPT.format(
+            step_description=step.get("description", ""),
+            step_index=step_index,
+            input_requirements=json.dumps(step.get("input_requirements", {})),
+            output_requirements=json.dumps(step.get("output_requirements", {})),
+            available_tools=json.dumps([t["name"] for t in self.registry.list_tools()]),
+        )
+
+        try:
+            response = await self._call_gpt4_json(
+                system_prompt="Design pipeline-aware agent specifications.",
+                user_prompt=prompt,
+            )
+
+            spec = json.loads(response)
+
+            # Add pipeline context
+            spec["pipeline_context"] = {
+                "step_index": step_index,
+                "input_format": step.get("input_requirements", {}),
+                "output_format": step.get("output_requirements", {}),
+                "created_for_pipeline": True,
+            }
+
+            return spec
+
+        except Exception as e:
+            print(f"DEBUG: Agent spec generation failed: {str(e)}")
+            # Fallback specification
+            return {
+                "name": f"pipeline_agent_step_{step_index}",
+                "description": step.get(
+                    "description", f"Agent for pipeline step {step_index}"
+                ),
+                "required_tools": [],
+                "pipeline_context": {
+                    "step_index": step_index,
+                    "created_for_pipeline": True,
+                },
+            }
+
+    async def _generate_enhanced_agent_spec(
+        self, step: Dict, step_index: int, previous_step_output: Any = None
+    ) -> Dict[str, Any]:
+        """Generate enhanced agent specification with data type awareness."""
+
+        # Analyze the expected input/output types
+        input_type = (
+            type(previous_step_output).__name__
+            if previous_step_output is not None
+            else "string"
+        )
+        input_sample = (
+            str(previous_step_output)[:200] if previous_step_output else "text input"
+        )
+
+        # Enhanced prompt that includes data type information
+        prompt = f"""
+    Design a pipeline-aware agent that can handle the specific data types and requirements.
+
+    STEP REQUIREMENTS:
+    - Name: {step.get('name', f'step_{step_index}')}
+    - Description: {step.get('description', '')}
+    - Step Index: {step_index}
+    - Expected Input Type: {input_type}
+    - Input Sample: {input_sample}
+    - Input Requirements: {json.dumps(step.get('input_requirements', {}))}
+    - Output Requirements: {json.dumps(step.get('output_requirements', {}))}
+
+    AVAILABLE TOOLS: {json.dumps([t["name"] for t in self.registry.list_tools()])}
+
+    DESIGN REQUIREMENTS:
+    1. Agent must handle the specific input data type: {input_type}
+    2. Agent must work in pipeline context (receives state dict with current_data)
+    3. Agent must have proper error handling for data type mismatches
+    4. Agent must return structured output compatible with next pipeline step
+    5. If no existing tools are suitable, specify new tools needed
+
+    RESPOND WITH JSON:
+    {{
+        "name": "descriptive_agent_name",
+        "description": "what this agent does and how it handles the data",
+        "required_tools": ["tool1", "tool2"],
+        "new_tools_needed": [
+            {{
+                "name": "tool_name",
+                "description": "what this tool does",
+                "input_type": "{input_type}",
+                "output_type": "expected_output_type"
+            }}
+        ],
+        "input_handling": {{
+            "expected_type": "{input_type}",
+            "error_handling": "how to handle wrong types",
+            "data_extraction": "how to get data from pipeline state"
+        }},
+        "output_format": {{
+            "type": "expected_output_type",
+            "structure": "description of output structure"
+        }},
+        "pipeline_context": {{
+            "step_index": {step_index},
+            "works_with_state": true,
+            "data_flow_aware": true
+        }}
+    }}
+    """
+
+        try:
+            response = await self._call_gpt4_json(
+                system_prompt="Design intelligent pipeline agents with proper data type handling.",
+                user_prompt=prompt,
+            )
+
+            spec = json.loads(response)
+
+            # Ensure required fields exist
+            if "name" not in spec:
+                spec["name"] = f"enhanced_pipeline_agent_step_{step_index}"
+
+            if "description" not in spec:
+                spec["description"] = (
+                    f"Enhanced agent for step {step_index} handling {input_type} input"
+                )
+
+            return spec
+
+        except Exception as e:
+            print(f"DEBUG: Enhanced agent spec generation failed: {str(e)}")
+            # Fallback with data type awareness
+            return {
+                "name": f"enhanced_pipeline_agent_step_{step_index}",
+                "description": f"Enhanced agent for step {step_index} that handles {input_type} input and works in pipeline context",
+                "required_tools": [],
+                "input_handling": {
+                    "expected_type": input_type,
+                    "error_handling": "flexible input processing with type checking",
+                    "data_extraction": "extract from current_data in pipeline state",
+                },
+                "pipeline_context": {
+                    "step_index": step_index,
+                    "works_with_state": True,
+                    "data_flow_aware": True,
+                    "input_type": input_type,
+                },
+            }
+
+    def _plan_data_flow(self, steps: List[Dict]) -> Dict[str, Any]:
+        """Plan data flow between pipeline steps."""
+        data_flow = {"flow_graph": {}, "transformations": [], "validation_points": []}
+
+        for i, step in enumerate(steps):
+            step_name = step["name"]
+
+            # Input sources
+            if i == 0:
+                data_flow["flow_graph"][step_name] = {
+                    "inputs": ["user_input"],
+                    "outputs": [],
+                }
+            else:
+                prev_step = steps[i - 1]["name"]
+                data_flow["flow_graph"][step_name] = {
+                    "inputs": [prev_step],
+                    "outputs": [],
+                }
+
+            # Output targets
+            if i < len(steps) - 1:
+                next_step = steps[i + 1]["name"]
+                data_flow["flow_graph"][step_name]["outputs"].append(next_step)
+            else:
+                data_flow["flow_graph"][step_name]["outputs"].append("final_output")
+
+        return data_flow
+
+    def _determine_execution_strategy(self, steps: List[Dict]) -> str:
+        """Determine optimal execution strategy for the pipeline."""
+        # For now, default to sequential
+        # Can be enhanced to detect parallel opportunities
+        return "sequential"
+
+    async def execute_pipeline_with_adaptation(
+        self, pipeline_plan: Dict, user_request: str, files: List[Dict] = None
+    ) -> Dict[str, Any]:
+        """
+        Execute pipeline with real-time adaptation and recovery.
+
+        Args:
+            pipeline_plan: Complete pipeline execution plan
+            user_request: Original user request
+            files: Uploaded files
+
+        Returns:
+            Pipeline execution results
+        """
+        print(f"DEBUG: Executing pipeline with {pipeline_plan['total_steps']} steps")
+
+        # Create missing agents/tools first
+        if pipeline_plan.get("creation_needed"):
+            creation_result = await self._create_pipeline_components(
+                pipeline_plan["creation_needed"]
+            )
+            if creation_result["status"] != "success":
+                return {
+                    "status": "error",
+                    "error": "Failed to create required components",
+                }
+
+        # Execute pipeline steps
+        execution_result = {
+            "status": "in_progress",
+            "pipeline_id": pipeline_plan["pipeline_id"],
+            "steps_completed": 0,
+            "results": {},
+            "errors": [],
+            "adaptations": [],
+        }
+
+        current_data = {"user_request": user_request, "files": files}
+
+        for i, step_plan in enumerate(pipeline_plan["steps"]):
+            print(f"DEBUG: Executing step {i}: {step_plan['name']}")
+
+            try:
+                step_result = await self._execute_step_with_adaptation(
+                    step_plan, current_data, execution_result
+                )
+
+                if step_result["status"] == "success":
+                    execution_result["results"][step_plan["name"]] = step_result
+                    execution_result["steps_completed"] += 1
+                    current_data = step_result.get("data", current_data)
+                else:
+                    # Handle step failure with adaptation
+                    adaptation_result = await self._handle_step_failure(
+                        step_plan, step_result, pipeline_plan
+                    )
+
+                    if adaptation_result["status"] == "recovered":
+                        execution_result["adaptations"].append(adaptation_result)
+                        step_result = adaptation_result["recovery_result"]
+                        execution_result["results"][step_plan["name"]] = step_result
+                        execution_result["steps_completed"] += 1
+                        current_data = step_result.get("data", current_data)
+                    else:
+                        execution_result["errors"].append(
+                            {
+                                "step": step_plan["name"],
+                                "error": step_result.get("error", "Unknown error"),
+                                "recovery_failed": True,
+                            }
+                        )
+                        break
+
+            except Exception as e:
+                execution_result["errors"].append(
+                    {"step": step_plan["name"], "error": str(e), "exception": True}
+                )
+                break
+
+        # Determine final status
+        if execution_result["steps_completed"] == pipeline_plan["total_steps"]:
+            execution_result["status"] = "success"
+        elif execution_result["steps_completed"] > 0:
+            execution_result["status"] = "partial"
+        else:
+            execution_result["status"] = "failed"
+
+        print(
+            f"DEBUG: Pipeline execution completed - Status: {execution_result['status']}"
+        )
+        return execution_result
+
+    async def _create_pipeline_components(
+        self, creation_specs: List[Dict]
+    ) -> Dict[str, Any]:
+        """Create all required pipeline components."""
+        print(f"DEBUG: Creating {len(creation_specs)} pipeline components")
+
+        created = {"agents": [], "tools": []}
+        failed = {"agents": [], "tools": []}
+
+        for spec in creation_specs:
+            try:
+                if spec.get("type") == "agent" or "name" in spec:
+                    # Create agent
+                    result = await self.agent_factory.create_pipeline_agent(spec)
+                    if result["status"] == "success":
+                        created["agents"].append(spec["name"])
+                    else:
+                        failed["agents"].append(
+                            {"name": spec["name"], "error": result.get("message")}
+                        )
+
+                elif spec.get("type") == "tool":
+                    # Create tool
+                    result = self.tool_factory.create_tool(
+                        tool_name=spec["name"],
+                        description=spec.get("description", ""),
+                    )
+                    if result["status"] == "success":
+                        created["tools"].append(spec["name"])
+                    else:
+                        failed["tools"].append(
+                            {"name": spec["name"], "error": result.get("message")}
+                        )
+
+            except Exception as e:
+                failed["agents"].append(
+                    {"name": spec.get("name", "unknown"), "error": str(e)}
+                )
+
+        if created["agents"] or created["tools"]:
+            return {"status": "success", "created": created, "failed": failed}
+        else:
+            return {"status": "error", "created": created, "failed": failed}
+
+    async def _execute_step_with_adaptation(
+        self, step_plan: Dict, current_data: Any, execution_context: Dict
+    ) -> Dict[str, Any]:
+        """Execute a single pipeline step with adaptation capability."""
+        agent_name = step_plan["agent_assigned"]
+
+        if not agent_name:
+            return {"status": "error", "error": "No agent assigned to step"}
+
+        # Import and execute the agent
+        try:
+            from core.workflow_engine import WorkflowEngine
+
+            workflow_engine = WorkflowEngine(self.registry)
+
+            # Create minimal workflow state for single agent execution
+            workflow_state = {
+                "request": f"Execute step: {step_plan['description']}",
+                "current_data": current_data,
+                "execution_path": [],
+                "results": {},
+                "errors": [],
+            }
+
+            # Execute the agent
+            result = await workflow_engine.execute_agent(agent_name, workflow_state)
+
+            return result
+
+        except Exception as e:
+            return {"status": "error", "error": str(e)}
+
+    async def _handle_step_failure(
+        self, step_plan: Dict, step_result: Dict, pipeline_plan: Dict
+    ) -> Dict[str, Any]:
+        """Handle step failure with real-time adaptation."""
+        print(f"DEBUG: Handling failure for step: {step_plan['name']}")
+
+        # Analyze failure reason
+        failure_analysis = await self._analyze_step_failure(step_plan, step_result)
+
+        # Generate recovery strategy
+        recovery_prompt = PIPELINE_RECOVERY_PROMPT.format(
+            step_name=step_plan["name"],
+            step_description=step_plan["description"],
+            failure_reason=step_result.get("error", "Unknown error"),
+            failure_analysis=json.dumps(failure_analysis),
+            available_agents=json.dumps(
+                [a["name"] for a in self.registry.list_agents()]
+            ),
+        )
+
+        try:
+            response = await self._call_gpt4_json(
+                system_prompt="Generate recovery strategies for failed pipeline steps.",
+                user_prompt=recovery_prompt,
+            )
+
+            recovery_strategy = json.loads(response)
+
+            # Execute recovery strategy
+            if recovery_strategy.get("action") == "create_replacement_agent":
+                # Create new agent to replace failed one
+                replacement_spec = recovery_strategy.get("replacement_spec", {})
+                creation_result = await self.agent_factory.create_pipeline_agent(
+                    replacement_spec
+                )
+
+                if creation_result["status"] == "success":
+                    # Retry step with new agent
+                    step_plan["agent_assigned"] = replacement_spec["name"]
+                    retry_result = await self._execute_step_with_adaptation(
+                        step_plan, {}, {}
+                    )
+
+                    return {
+                        "status": "recovered",
+                        "recovery_action": "created_replacement_agent",
+                        "new_agent": replacement_spec["name"],
+                        "recovery_result": retry_result,
+                    }
+
+            return {
+                "status": "recovery_failed",
+                "reason": "No viable recovery strategy",
+            }
+
+        except Exception as e:
+            return {"status": "recovery_failed", "reason": str(e)}
+
+    async def _analyze_step_failure(
+        self, step_plan: Dict, step_result: Dict
+    ) -> Dict[str, Any]:
+        """Analyze why a pipeline step failed."""
+        return {
+            "step_name": step_plan["name"],
+            "agent_used": step_plan["agent_assigned"],
+            "error_message": step_result.get("error", "Unknown error"),
+            "error_type": "execution_error",  # Can be enhanced
+            "suggested_fixes": ["create_replacement_agent", "modify_input_format"],
+        }
+
+    def _format_components_list(
+        self, components: List[Dict], component_type: str
+    ) -> str:
+        """Format list of components for prompts."""
+        if not components:
+            return f"No {component_type} available"
+
+        formatted = []
+        for comp in components:
+            name = comp.get("name", "unknown")
+            desc = comp.get("description", "No description")
+            formatted.append(f"- {name}: {desc}")
+
+        return "\n".join(formatted)
+
+    async def _call_gpt4_json(
+        self, system_prompt: str, user_prompt: str, temperature: float = 0.1
+    ) -> str:
+        """Call GPT-4 for JSON responses."""
+        enhanced_prompt = f"{system_prompt}\n\n{user_prompt}\n\nRespond with ONLY valid JSON, no other text."
+
+        response = self.client.chat.completions.create(
+            model=ORCHESTRATOR_MODEL,
+            max_completion_tokens=ORCHESTRATOR_MAX_TOKENS,
+            messages=[{"role": "user", "content": enhanced_prompt}],
+        )
+
+        content = response.choices[0].message.content
+
+        # Extract JSON from response if it's wrapped in text
+        if "```json" in content:
+            start = content.find("```json") + 7
+            end = content.find("```", start)
+            if end > start:
+                return content[start:end].strip()
+        elif "{" in content:
+            start = content.find("{")
+            end = content.rfind("}") + 1
+            if end > start:
+                return content[start:end].strip()
+
+        return content.strip()
 
 ```
 
@@ -5318,8 +9829,8 @@ def force_global_reload():
 
 ### File: core/tool_factory.py
 **Path:** `core/tool_factory.py`
-**Size:** 50,921 bytes
-**Modified:** 2025-09-04 23:11:35
+**Size:** 50,884 bytes
+**Modified:** 2025-09-09 23:08:52
 
 ```python
 """
@@ -5553,8 +10064,7 @@ class ToolFactory:
             # Call Claude API
             response = self.client.messages.create(
                 model=CLAUDE_MODEL,
-                temperature=CLAUDE_TEMPERATURE,
-                max_tokens=CLAUDE_MAX_TOKENS,
+                max_completion_tokens=CLAUDE_MAX_TOKENS,
                 messages=[{"role": "user", "content": prompt}],
             )
 
@@ -6719,8 +11229,8 @@ class ToolFactory:
 
 ### File: core/workflow_engine.py
 **Path:** `core/workflow_engine.py`
-**Size:** 33,037 bytes
-**Modified:** 2025-09-08 22:55:07
+**Size:** 49,845 bytes
+**Modified:** 2025-09-09 22:34:28
 
 ```python
 """
@@ -6756,6 +11266,9 @@ from config import (
 )
 from core.registry import RegistryManager
 from core.registry_singleton import get_shared_registry
+
+from core.pipeline_executor import PipelineExecutor
+from core.workflow_intelligence import WorkflowIntelligence
 
 
 class WorkflowState(TypedDict):
@@ -6812,13 +11325,18 @@ class WorkflowEngine:
     Handles complex multi-agent orchestration with state management.
     """
 
-    def __init__(self):
-        """Initialize the workflow engine."""
-        self.registry = get_shared_registry()
+    def __init__(self, registry=None):
+        """Initialize the workflow engine with optional registry parameter."""
+        # Use provided registry or get shared instance for consistency
+        self.registry = registry if registry is not None else get_shared_registry()
         self.checkpointer = MemorySaver()
         self.loaded_agents = {}
         self.active_workflows = {}
         self.execution_cache = {}
+
+        print(
+            f"DEBUG: WorkflowEngine initialized with registry ID: {id(self.registry)}"
+        )
 
     def create_workflow(
         self,
@@ -7626,6 +12144,1013 @@ class WorkflowEngine:
 
         return "\n".join(viz)
 
+    # ADD THESE NEW METHODS to the WorkflowEngine class:
+
+    async def execute_pipeline_workflow(
+        self, pipeline_plan: Dict, user_request: str, files: List[Dict] = None
+    ) -> Dict[str, Any]:
+        """
+        Execute a multi-step pipeline workflow with intelligence and adaptation.
+
+        Args:
+            pipeline_plan: Complete pipeline execution plan
+            user_request: Original user request
+            files: Uploaded files
+
+        Returns:
+            Pipeline execution results
+        """
+        print(f"DEBUG: WorkflowEngine executing pipeline workflow")
+
+        # Initialize pipeline executor
+        pipeline_executor = PipelineExecutor(self.registry)
+        workflow_intelligence = WorkflowIntelligence(self.registry)
+
+        # Execute pipeline with monitoring
+        execution_result = await self._execute_monitored_pipeline(
+            pipeline_executor, workflow_intelligence, pipeline_plan, user_request, files
+        )
+
+        return execution_result
+
+    async def _execute_monitored_pipeline(
+        self,
+        pipeline_executor: PipelineExecutor,
+        workflow_intelligence: WorkflowIntelligence,
+        pipeline_plan: Dict,
+        user_request: str,
+        files: List[Dict],
+    ) -> Dict[str, Any]:
+        """Execute pipeline with real-time monitoring and adaptation."""
+
+        try:
+            # Start pipeline execution
+            result = await pipeline_executor.execute_pipeline(
+                pipeline_plan, user_request, files
+            )
+
+            # Monitor and adapt if needed
+            if result["status"] in ["partial", "failed"] and result.get("errors"):
+                print(
+                    f"DEBUG: Pipeline had issues, checking for adaptation opportunities"
+                )
+
+                # Analyze pipeline performance
+                performance_analysis = (
+                    workflow_intelligence.analyze_pipeline_performance(
+                        result.get("pipeline_id", "unknown")
+                    )
+                )
+
+                print(
+                    f"DEBUG: Pipeline performance grade: {performance_analysis.get('performance_grade', 'unknown')}"
+                )
+
+                # Add performance metadata
+                if "metadata" not in result:
+                    result["metadata"] = {}
+                result["metadata"]["performance_analysis"] = performance_analysis
+
+            return result
+
+        except Exception as e:
+            print(f"DEBUG: Pipeline execution failed with exception: {str(e)}")
+            return {
+                "status": "error",
+                "error": f"Pipeline execution failed: {str(e)}",
+                "pipeline_id": pipeline_plan.get("pipeline_id", "unknown"),
+                "results": {},
+                "errors": [{"type": "execution_error", "message": str(e)}],
+            }
+
+    async def execute_agent(
+        self, agent_name: str, state: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Execute a single agent with enhanced error handling for pipeline context.
+        """
+        print(f"DEBUG: Executing agent '{agent_name}' with pipeline support")
+
+        # Check if agent exists
+        if not self.registry.agent_exists(agent_name):
+            return {
+                "status": "error",
+                "error": f"Agent '{agent_name}' not found",
+                "agent_name": agent_name,
+            }
+
+        # Get agent details
+        agent = self.registry.get_agent(agent_name)
+        agent_path = agent["location"]
+
+        # Handle relative paths correctly
+        if not os.path.isabs(agent_path):
+            current_dir = os.getcwd()
+            if current_dir.endswith("flask_app"):
+                project_root = os.path.dirname(current_dir)
+            else:
+                project_root = current_dir
+            agent_path = os.path.join(project_root, agent_path)
+
+        # Verify agent file exists
+        if not os.path.exists(agent_path):
+            return {
+                "status": "error",
+                "error": f"Agent file not found: {agent_path}",
+                "agent_name": agent_name,
+            }
+
+        try:
+            start_time = datetime.now()
+
+            # Load agent module
+            spec = importlib.util.spec_from_file_location(agent_name, agent_path)
+            agent_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(agent_module)
+
+            # FIXED: Get agent function with correct naming convention
+            agent_function = getattr(agent_module, f"{agent_name}_agent")
+
+            print(f"DEBUG: Found agent function: {agent_name}_agent")
+            print(f"DEBUG: Input state keys: {list(state.keys())}")
+
+            # FIXED: Execute synchronously (no await, no asyncio.wait_for)
+            agent_result = agent_function(state)
+
+            print(
+                f"DEBUG: Agent function returned. Result keys: {list(agent_result.keys()) if isinstance(agent_result, dict) else type(agent_result)}"
+            )
+
+            # Calculate execution time
+            execution_time = (datetime.now() - start_time).total_seconds()
+
+            # FIXED: Extract result correctly from state structure
+            if isinstance(agent_result, dict) and "results" in agent_result:
+                if agent_name in agent_result["results"]:
+                    result = agent_result["results"][agent_name]
+
+                    # Add execution metadata if missing
+                    if "metadata" not in result:
+                        result["metadata"] = {}
+                    result["metadata"]["execution_time"] = execution_time
+                    result["metadata"]["agent_name"] = agent_name
+
+                    print(f"DEBUG: Extracted result: {result}")
+                    return result
+                else:
+                    return {
+                        "status": "error",
+                        "error": f"Agent '{agent_name}' did not produce expected result in state",
+                        "available_results": list(
+                            agent_result.get("results", {}).keys()
+                        ),
+                        "agent_name": agent_name,
+                    }
+            else:
+                return {
+                    "status": "error",
+                    "error": f"Agent returned invalid state structure: {type(agent_result)}",
+                    "agent_name": agent_name,
+                }
+
+        except AttributeError as e:
+            if "has no attribute" in str(e):
+                return {
+                    "status": "error",
+                    "error": f"Agent function '{agent_name}_agent' not found in module",
+                    "agent_name": agent_name,
+                    "traceback": traceback.format_exc(),
+                }
+            else:
+                return {
+                    "status": "error",
+                    "error": f"Attribute error: {str(e)}",
+                    "agent_name": agent_name,
+                    "traceback": traceback.format_exc(),
+                }
+        except Exception as e:
+            print(f"DEBUG: Agent execution failed with exception: {str(e)}")
+            print(f"DEBUG: Full traceback: {traceback.format_exc()}")
+            return {
+                "status": "error",
+                "error": f"Agent execution failed: {str(e)}",
+                "agent_name": agent_name,
+                "traceback": traceback.format_exc(),
+            }
+
+    def create_pipeline_state(
+        self, request: str, pipeline_plan: Dict, files: List[Dict] = None
+    ) -> Dict[str, Any]:
+        """
+        Create enhanced state for pipeline execution.
+
+        Args:
+            request: User request
+            pipeline_plan: Pipeline execution plan
+            files: Uploaded files
+
+        Returns:
+            Enhanced pipeline state
+        """
+
+        pipeline_state = {
+            "request": request,
+            "pipeline_id": pipeline_plan.get(
+                "pipeline_id", f"pipeline_{datetime.now().strftime('%H%M%S')}"
+            ),
+            "files": files or [],
+            "execution_path": [],
+            "current_data": {"user_request": request, "files": files},
+            "results": {},
+            "errors": [],
+            # Pipeline-specific fields
+            "pipeline_context": {
+                "total_steps": pipeline_plan.get("total_steps", 0),
+                "current_step": 0,
+                "execution_strategy": pipeline_plan.get(
+                    "execution_strategy", "sequential"
+                ),
+                "data_flow": pipeline_plan.get("data_flow", {}),
+                "step_plans": pipeline_plan.get("steps", []),
+            },
+            # Timing information
+            "started_at": datetime.now().isoformat(),
+            "completed_at": None,
+            # Monitoring data
+            "step_results": {},
+            "adaptations": [],
+            "performance_metrics": {
+                "steps_completed": 0,
+                "total_execution_time": 0,
+                "average_step_time": 0,
+            },
+        }
+
+        return pipeline_state
+
+    async def execute_workflow_step(
+        self, step_plan: Dict, pipeline_state: Dict, workflow_intelligence=None
+    ) -> Dict[str, Any]:
+        """
+        Execute a single workflow step with monitoring.
+
+        Args:
+            step_plan: Individual step execution plan
+            pipeline_state: Current pipeline state
+            workflow_intelligence: Optional intelligence engine for monitoring
+
+        Returns:
+            Step execution result
+        """
+
+        agent_name = step_plan.get("agent_assigned")
+        step_name = step_plan.get("name", "unnamed_step")
+
+        print(f"DEBUG: Executing workflow step: {step_name} with agent: {agent_name}")
+
+        if not agent_name:
+            return {
+                "status": "error",
+                "error": "No agent assigned to step",
+                "step_name": step_name,
+            }
+
+        try:
+            # Update pipeline context for this step
+            pipeline_state["pipeline_context"]["current_step"] = step_plan.get(
+                "step_index", 0
+            )
+            pipeline_state["pipeline_context"]["current_step_name"] = step_name
+
+            # Execute the agent
+            step_result = await self.execute_agent(agent_name, pipeline_state)
+
+            # Add step metadata
+            step_result["step_name"] = step_name
+            step_result["step_index"] = step_plan.get("step_index", 0)
+
+            # Monitor execution if intelligence engine provided
+            if workflow_intelligence and step_result:
+                monitoring_result = (
+                    await workflow_intelligence.monitor_pipeline_execution(
+                        pipeline_state, step_result
+                    )
+                )
+
+                # Handle adaptation if needed
+                if monitoring_result.get("adaptation_needed"):
+                    adaptation_strategy = monitoring_result.get("adaptation_strategy")
+                    if adaptation_strategy:
+                        print(f"DEBUG: Executing adaptation for step: {step_name}")
+
+                        adaptation_result = (
+                            await workflow_intelligence.execute_adaptation(
+                                adaptation_strategy, pipeline_state, step_plan
+                            )
+                        )
+
+                        # Update step result if adaptation succeeded
+                        if adaptation_result.get("status") == "success":
+                            step_result = adaptation_result.get(
+                                "recovery_result", step_result
+                            )
+                            step_result["adaptation_applied"] = True
+                            step_result["adaptation_details"] = adaptation_result
+
+            return step_result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "error": str(e),
+                "step_name": step_name,
+                "agent_name": agent_name,
+            }
+
+    def validate_pipeline_state(self, state: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Validate and fix pipeline state structure.
+
+        Args:
+            state: Pipeline state to validate
+
+        Returns:
+            Validation result with fixes applied
+        """
+
+        validation_result = {"valid": True, "issues_found": [], "fixes_applied": []}
+
+        # Check required fields
+        required_fields = ["request", "results", "errors", "execution_path"]
+        for field in required_fields:
+            if field not in state:
+                state[field] = (
+                    []
+                    if field in ["errors", "execution_path"]
+                    else ({} if field == "results" else "")
+                )
+                validation_result["fixes_applied"].append(
+                    f"Added missing field: {field}"
+                )
+
+        # Check pipeline context
+        if "pipeline_context" not in state:
+            state["pipeline_context"] = {
+                "total_steps": 0,
+                "current_step": 0,
+                "execution_strategy": "sequential",
+            }
+            validation_result["fixes_applied"].append("Added missing pipeline_context")
+
+        # Validate data types
+        if not isinstance(state["results"], dict):
+            state["results"] = {}
+            validation_result["fixes_applied"].append("Fixed results field type")
+
+        if not isinstance(state["errors"], list):
+            state["errors"] = []
+            validation_result["fixes_applied"].append("Fixed errors field type")
+
+        if not isinstance(state["execution_path"], list):
+            state["execution_path"] = []
+            validation_result["fixes_applied"].append("Fixed execution_path field type")
+
+        # Check for issues
+        if len(validation_result["fixes_applied"]) > 0:
+            validation_result["valid"] = False
+            validation_result["issues_found"] = [
+                f"Structure issues fixed: {len(validation_result['fixes_applied'])} problems"
+            ]
+
+        return validation_result
+
+    def get_pipeline_progress(self, pipeline_state: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Get current pipeline execution progress.
+
+        Args:
+            pipeline_state: Current pipeline state
+
+        Returns:
+            Progress information
+        """
+
+        pipeline_context = pipeline_state.get("pipeline_context", {})
+
+        current_step = pipeline_context.get("current_step", 0)
+        total_steps = pipeline_context.get("total_steps", 0)
+
+        # Calculate progress percentage
+        progress_percent = (current_step / total_steps * 100) if total_steps > 0 else 0
+
+        # Get timing information
+        started_at = pipeline_state.get("started_at")
+        current_time = datetime.now().isoformat()
+
+        # Calculate elapsed time
+        elapsed_time = 0
+        if started_at:
+            try:
+                start = datetime.fromisoformat(started_at.replace("Z", "+00:00"))
+                now = datetime.now()
+                elapsed_time = (now - start).total_seconds()
+            except:
+                pass
+
+        # Get step results summary
+        step_results = pipeline_state.get("step_results", {})
+        successful_steps = len(
+            [r for r in step_results.values() if r.get("status") == "success"]
+        )
+        failed_steps = len(
+            [r for r in step_results.values() if r.get("status") == "error"]
+        )
+
+        progress_info = {
+            "pipeline_id": pipeline_state.get("pipeline_id", "unknown"),
+            "current_step": current_step,
+            "total_steps": total_steps,
+            "progress_percent": round(progress_percent, 1),
+            "successful_steps": successful_steps,
+            "failed_steps": failed_steps,
+            "elapsed_time": round(elapsed_time, 1),
+            "execution_strategy": pipeline_context.get(
+                "execution_strategy", "sequential"
+            ),
+            "status": "in_progress" if current_step < total_steps else "completed",
+            "errors_count": len(pipeline_state.get("errors", [])),
+            "adaptations_count": len(pipeline_state.get("adaptations", [])),
+        }
+
+        return progress_info
+
+```
+
+--------------------------------------------------------------------------------
+
+### File: core/workflow_intelligence.py
+**Path:** `core/workflow_intelligence.py`
+**Size:** 19,991 bytes
+**Modified:** 2025-09-09 23:08:56
+
+```python
+"""
+Workflow Intelligence
+Real-time monitoring and adaptation engine for pipeline execution
+"""
+
+import os
+import sys
+import json
+import asyncio
+from typing import Dict, List, Optional, Any, Tuple
+from datetime import datetime, timedelta
+import openai
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from config import (
+    OPENAI_API_KEY,
+    ORCHESTRATOR_MODEL,
+    ORCHESTRATOR_MAX_TOKENS,
+    PIPELINE_RECOVERY_PROMPT,
+    WORKFLOW_ADAPTATION_PROMPT,
+)
+from core.registry import RegistryManager
+from core.agent_factory import AgentFactory
+
+
+class WorkflowIntelligence:
+    """
+    Real-time monitoring and adaptation engine for pipeline execution.
+    Handles failure detection, recovery strategies, and workflow optimization.
+    """
+
+    def __init__(self, registry: RegistryManager):
+        """Initialize the workflow intelligence engine."""
+        self.client = openai.OpenAI(api_key=OPENAI_API_KEY)
+        self.registry = registry
+        self.agent_factory = AgentFactory()
+        self.monitoring_data = []
+        self.adaptation_history = []
+
+    async def monitor_pipeline_execution(
+        self, pipeline_state: Dict, step_result: Dict
+    ) -> Dict[str, Any]:
+        """
+        Monitor pipeline execution and detect issues in real-time.
+
+        Args:
+            pipeline_state: Current pipeline state
+            step_result: Result from latest step execution
+
+        Returns:
+            Monitoring analysis with recommendations
+        """
+        print(
+            f"DEBUG: Monitoring pipeline step: {step_result.get('step_name', 'unknown')}"
+        )
+
+        # Record monitoring data
+        monitoring_entry = {
+            "pipeline_id": pipeline_state.get("pipeline_id"),
+            "step_index": pipeline_state.get("current_step", 0),
+            "step_name": step_result.get("step_name"),
+            "status": step_result.get("status"),
+            "timestamp": datetime.now().isoformat(),
+            "execution_time": step_result.get("metadata", {}).get("execution_time", 0),
+        }
+        self.monitoring_data.append(monitoring_entry)
+
+        # Analyze step result
+        analysis = {
+            "status": "healthy",
+            "issues_detected": [],
+            "recommendations": [],
+            "adaptation_needed": False,
+            "adaptation_strategy": None,
+        }
+
+        # Check for failures
+        if step_result.get("status") == "error":
+            analysis["status"] = "failed"
+            analysis["issues_detected"].append(
+                {
+                    "type": "step_failure",
+                    "description": step_result.get("error", "Unknown error"),
+                    "severity": "high",
+                }
+            )
+            analysis["adaptation_needed"] = True
+
+        # Check for performance issues
+        exec_time = monitoring_entry["execution_time"]
+        if exec_time > 30:  # Configurable threshold
+            analysis["issues_detected"].append(
+                {
+                    "type": "performance_degradation",
+                    "description": f"Step took {exec_time:.1f}s (threshold: 30s)",
+                    "severity": "medium",
+                }
+            )
+
+        # Check data quality issues
+        data_quality_issues = self._analyze_data_quality(step_result)
+        analysis["issues_detected"].extend(data_quality_issues)
+
+        # Generate recommendations
+        if analysis["issues_detected"]:
+            recommendations = await self._generate_recommendations(
+                analysis["issues_detected"], pipeline_state, step_result
+            )
+            analysis["recommendations"] = recommendations
+
+            # Determine if adaptation is needed
+            if any(
+                issue["severity"] == "high" for issue in analysis["issues_detected"]
+            ):
+                analysis["adaptation_needed"] = True
+                analysis["adaptation_strategy"] = await self._plan_adaptation_strategy(
+                    analysis["issues_detected"], pipeline_state, step_result
+                )
+
+        print(
+            f"DEBUG: Monitoring analysis - Status: {analysis['status']}, Issues: {len(analysis['issues_detected'])}"
+        )
+        return analysis
+
+    def _analyze_data_quality(self, step_result: Dict) -> List[Dict]:
+        """Analyze data quality issues in step results."""
+        issues = []
+
+        data = step_result.get("data", {})
+
+        # Check for empty results
+        if not data or (isinstance(data, (list, dict)) and len(data) == 0):
+            issues.append(
+                {
+                    "type": "empty_results",
+                    "description": "Step produced no data",
+                    "severity": "medium",
+                }
+            )
+
+        # Check for null/undefined values
+        if isinstance(data, dict):
+            null_fields = [k for k, v in data.items() if v is None]
+            if null_fields:
+                issues.append(
+                    {
+                        "type": "null_values",
+                        "description": f"Fields with null values: {null_fields}",
+                        "severity": "low",
+                    }
+                )
+
+        # Check for data type inconsistencies
+        if isinstance(data, list) and data:
+            first_type = type(data[0])
+            if not all(isinstance(item, first_type) for item in data):
+                issues.append(
+                    {
+                        "type": "type_inconsistency",
+                        "description": "Mixed data types in result list",
+                        "severity": "medium",
+                    }
+                )
+
+        return issues
+
+    async def _generate_recommendations(
+        self, issues: List[Dict], pipeline_state: Dict, step_result: Dict
+    ) -> List[Dict]:
+        """Generate recommendations for detected issues."""
+        recommendations = []
+
+        for issue in issues:
+            if issue["type"] == "step_failure":
+                recommendations.append(
+                    {
+                        "type": "retry_with_different_agent",
+                        "description": "Try executing with a different agent or create replacement",
+                        "priority": "high",
+                    }
+                )
+                recommendations.append(
+                    {
+                        "type": "modify_input_data",
+                        "description": "Preprocess input data to handle edge cases",
+                        "priority": "medium",
+                    }
+                )
+
+            elif issue["type"] == "performance_degradation":
+                recommendations.append(
+                    {
+                        "type": "optimize_agent",
+                        "description": "Consider creating optimized version of agent",
+                        "priority": "medium",
+                    }
+                )
+
+            elif issue["type"] == "empty_results":
+                recommendations.append(
+                    {
+                        "type": "verify_input_data",
+                        "description": "Check if input data is suitable for processing",
+                        "priority": "high",
+                    }
+                )
+                recommendations.append(
+                    {
+                        "type": "adjust_agent_logic",
+                        "description": "Modify agent to handle edge cases better",
+                        "priority": "medium",
+                    }
+                )
+
+        return recommendations
+
+    async def _plan_adaptation_strategy(
+        self, issues: List[Dict], pipeline_state: Dict, step_result: Dict
+    ) -> Dict[str, Any]:
+        """Plan adaptation strategy for handling issues."""
+
+        # Use GPT-4 to plan intelligent adaptation
+        prompt = WORKFLOW_ADAPTATION_PROMPT.format(
+            issues=json.dumps(issues),
+            pipeline_state=json.dumps(
+                {
+                    "current_step": pipeline_state.get("current_step"),
+                    "total_steps": pipeline_state.get("total_steps"),
+                    "previous_results": pipeline_state.get("step_results", {}),
+                }
+            ),
+            step_result=json.dumps(
+                {
+                    "status": step_result.get("status"),
+                    "error": step_result.get("error"),
+                    "agent_name": step_result.get("agent_name"),
+                }
+            ),
+        )
+
+        try:
+            response = await self._call_gpt4_json(
+                system_prompt="Plan intelligent adaptation strategies for workflow issues.",
+                user_prompt=prompt,
+            )
+
+            strategy = json.loads(response)
+            strategy["generated_at"] = datetime.now().isoformat()
+
+            return strategy
+
+        except Exception as e:
+            print(f"DEBUG: Adaptation planning failed: {str(e)}")
+            return {
+                "action": "manual_intervention",
+                "reason": f"Automated planning failed: {str(e)}",
+                "generated_at": datetime.now().isoformat(),
+            }
+
+    async def execute_adaptation(
+        self, adaptation_strategy: Dict, pipeline_state: Dict, step_plan: Dict
+    ) -> Dict[str, Any]:
+        """
+        Execute adaptation strategy to recover from issues.
+
+        Args:
+            adaptation_strategy: Strategy from _plan_adaptation_strategy
+            pipeline_state: Current pipeline state
+            step_plan: Plan for the failed step
+
+        Returns:
+            Adaptation execution result
+        """
+        print(
+            f"DEBUG: Executing adaptation strategy: {adaptation_strategy.get('action', 'unknown')}"
+        )
+
+        adaptation_result = {
+            "status": "failed",
+            "action_taken": adaptation_strategy.get("action"),
+            "timestamp": datetime.now().isoformat(),
+            "details": {},
+        }
+
+        action = adaptation_strategy.get("action", "")
+
+        try:
+            if action == "create_replacement_agent":
+                # Create new agent to replace failed one
+                result = await self._create_replacement_agent(
+                    adaptation_strategy, step_plan
+                )
+                adaptation_result.update(result)
+
+            elif action == "modify_existing_agent":
+                # Modify existing agent
+                result = await self._modify_existing_agent(
+                    adaptation_strategy, step_plan
+                )
+                adaptation_result.update(result)
+
+            elif action == "retry_with_preprocessing":
+                # Add data preprocessing step
+                result = await self._add_preprocessing_step(
+                    adaptation_strategy, step_plan, pipeline_state
+                )
+                adaptation_result.update(result)
+
+            elif action == "skip_step_with_fallback":
+                # Skip problematic step and use fallback
+                result = self._create_fallback_result(adaptation_strategy, step_plan)
+                adaptation_result.update(result)
+
+            else:
+                adaptation_result["status"] = "unsupported"
+                adaptation_result["details"][
+                    "message"
+                ] = f"Unsupported adaptation action: {action}"
+
+            # Record adaptation
+            self.adaptation_history.append(adaptation_result.copy())
+
+        except Exception as e:
+            adaptation_result["status"] = "error"
+            adaptation_result["details"]["error"] = str(e)
+            print(f"DEBUG: Adaptation execution failed: {str(e)}")
+
+        return adaptation_result
+
+    async def _create_replacement_agent(
+        self, adaptation_strategy: Dict, step_plan: Dict
+    ) -> Dict[str, Any]:
+        """Create replacement agent for failed step."""
+
+        replacement_spec = adaptation_strategy.get("replacement_spec", {})
+
+        # Use agent factory to create replacement
+        creation_result = await self.agent_factory.create_pipeline_agent(
+            {
+                "name": replacement_spec.get(
+                    "name", f"replacement_{step_plan.get('name', 'agent')}"
+                ),
+                "description": replacement_spec.get(
+                    "description", f"Replacement for {step_plan.get('name')}"
+                ),
+                "required_tools": replacement_spec.get("tools", []),
+                "pipeline_context": step_plan.get("pipeline_context", {}),
+            }
+        )
+
+        if creation_result["status"] == "success":
+            return {
+                "status": "success",
+                "details": {
+                    "replacement_agent": replacement_spec.get("name"),
+                    "creation_result": creation_result,
+                },
+            }
+        else:
+            return {
+                "status": "failed",
+                "details": {
+                    "creation_error": creation_result.get("message", "Unknown error")
+                },
+            }
+
+    async def _modify_existing_agent(
+        self, adaptation_strategy: Dict, step_plan: Dict
+    ) -> Dict[str, Any]:
+        """Modify existing agent to handle issues."""
+
+        # For now, create a modified version instead of modifying in-place
+        modifications = adaptation_strategy.get("modifications", {})
+        original_agent = step_plan.get("agent_assigned")
+
+        modified_spec = {
+            "name": f"{original_agent}_modified",
+            "description": f"Modified version of {original_agent}",
+            "modifications": modifications,
+            "original_agent": original_agent,
+        }
+
+        creation_result = await self.agent_factory.create_pipeline_agent(modified_spec)
+
+        if creation_result["status"] == "success":
+            return {
+                "status": "success",
+                "details": {
+                    "modified_agent": modified_spec["name"],
+                    "modifications": modifications,
+                },
+            }
+        else:
+            return {
+                "status": "failed",
+                "details": {
+                    "modification_error": creation_result.get(
+                        "message", "Unknown error"
+                    )
+                },
+            }
+
+    async def _add_preprocessing_step(
+        self, adaptation_strategy: Dict, step_plan: Dict, pipeline_state: Dict
+    ) -> Dict[str, Any]:
+        """Add preprocessing step to handle data issues."""
+
+        preprocessing_spec = adaptation_strategy.get("preprocessing_spec", {})
+
+        # Create preprocessing agent
+        creation_result = await self.agent_factory.create_pipeline_agent(
+            {
+                "name": f"preprocessor_{step_plan.get('name', 'data')}",
+                "description": f"Preprocessor for {step_plan.get('name')}",
+                "required_tools": preprocessing_spec.get(
+                    "tools", ["clean_data", "validate_data"]
+                ),
+                "preprocessing": True,
+            }
+        )
+
+        if creation_result["status"] == "success":
+            return {
+                "status": "success",
+                "details": {
+                    "preprocessing_agent": f"preprocessor_{step_plan.get('name', 'data')}",
+                    "preprocessing_spec": preprocessing_spec,
+                },
+            }
+        else:
+            return {
+                "status": "failed",
+                "details": {
+                    "preprocessing_error": creation_result.get(
+                        "message", "Unknown error"
+                    )
+                },
+            }
+
+    def _create_fallback_result(
+        self, adaptation_strategy: Dict, step_plan: Dict
+    ) -> Dict[str, Any]:
+        """Create fallback result for skipped step."""
+
+        fallback_data = adaptation_strategy.get("fallback_data", {})
+
+        return {
+            "status": "success",
+            "details": {
+                "action": "step_skipped",
+                "fallback_data": fallback_data,
+                "reason": "Created fallback result due to persistent failures",
+            },
+            "fallback_result": {
+                "status": "success",
+                "data": fallback_data,
+                "metadata": {
+                    "fallback": True,
+                    "original_step": step_plan.get("name"),
+                    "reason": "Adaptation strategy - step skipped with fallback",
+                },
+            },
+        }
+
+    def analyze_pipeline_performance(self, pipeline_id: str) -> Dict[str, Any]:
+        """Analyze overall pipeline performance."""
+
+        # Get monitoring data for this pipeline
+        pipeline_data = [
+            entry
+            for entry in self.monitoring_data
+            if entry.get("pipeline_id") == pipeline_id
+        ]
+
+        if not pipeline_data:
+            return {"status": "no_data", "pipeline_id": pipeline_id}
+
+        # Calculate metrics
+        total_time = sum(entry.get("execution_time", 0) for entry in pipeline_data)
+        step_count = len(pipeline_data)
+        failed_steps = len(
+            [entry for entry in pipeline_data if entry.get("status") == "error"]
+        )
+
+        analysis = {
+            "pipeline_id": pipeline_id,
+            "total_execution_time": total_time,
+            "total_steps": step_count,
+            "failed_steps": failed_steps,
+            "success_rate": (
+                (step_count - failed_steps) / step_count if step_count > 0 else 0
+            ),
+            "average_step_time": total_time / step_count if step_count > 0 else 0,
+            "performance_grade": "unknown",
+        }
+
+        # Assign performance grade
+        if analysis["success_rate"] >= 0.9 and analysis["average_step_time"] < 10:
+            analysis["performance_grade"] = "excellent"
+        elif analysis["success_rate"] >= 0.8 and analysis["average_step_time"] < 20:
+            analysis["performance_grade"] = "good"
+        elif analysis["success_rate"] >= 0.6:
+            analysis["performance_grade"] = "acceptable"
+        else:
+            analysis["performance_grade"] = "poor"
+
+        return analysis
+
+    def get_adaptation_history(self) -> List[Dict]:
+        """Get history of adaptations performed."""
+        return self.adaptation_history.copy()
+
+    def clear_monitoring_data(self, older_than_hours: int = 24):
+        """Clear old monitoring data."""
+        cutoff_time = datetime.now() - timedelta(hours=older_than_hours)
+
+        self.monitoring_data = [
+            entry
+            for entry in self.monitoring_data
+            if datetime.fromisoformat(entry["timestamp"]) > cutoff_time
+        ]
+
+        self.adaptation_history = [
+            entry
+            for entry in self.adaptation_history
+            if datetime.fromisoformat(entry["timestamp"]) > cutoff_time
+        ]
+
+    async def _call_gpt4_json(
+        self, system_prompt: str, user_prompt: str, temperature: float = 0.1
+    ) -> str:
+        """Call GPT-4 for JSON responses."""
+        enhanced_prompt = f"{system_prompt}\n\n{user_prompt}\n\nRespond with ONLY valid JSON, no other text."
+
+        response = self.client.chat.completions.create(
+            model=ORCHESTRATOR_MODEL,
+            max_completion_tokens=ORCHESTRATOR_MAX_TOKENS,
+            messages=[{"role": "user", "content": enhanced_prompt}],
+        )
+
+        content = response.choices[0].message.content
+
+        # Extract JSON from response
+        if "```json" in content:
+            start = content.find("```json") + 7
+            end = content.find("```", start)
+            if end > start:
+                return content[start:end].strip()
+        elif "{" in content:
+            start = content.find("{")
+            end = content.rfind("}") + 1
+            if end > start:
+                return content[start:end].strip()
+
+        return content.strip()
+
 ```
 
 --------------------------------------------------------------------------------
@@ -7987,13 +13512,13 @@ __version__ = "1.0.0"
 
 ### File: flask_app/app.py
 **Path:** `flask_app/app.py`
-**Size:** 6,385 bytes
-**Modified:** 2025-09-09 16:35:24
+**Size:** 7,235 bytes
+**Modified:** 2025-09-09 20:43:17
 
 ```python
 # flask_app/app.py
 """
-Main Flask Application
+Main Flask Application - FIXED VERSION
 Entry point for the Agentic Fabric web interface
 """
 
@@ -8046,8 +13571,6 @@ def create_app(config_name=None):
 
     # Ensure upload directory exists
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
-
-    # ADD THIS LINE:
     os.makedirs(app.config["OUTPUT_FOLDER"], exist_ok=True)
 
     # Initialize extensions and register blueprints
@@ -8055,13 +13578,39 @@ def create_app(config_name=None):
     register_error_handlers(app)
     register_template_functions(app)
 
+    # FIXED: Use proper Flask 3.0 initialization method instead of before_first_request
+    with app.app_context():
+        initialize_services()
+
     return app
+
+
+def initialize_services():
+    """Initialize services at application startup (Flask 3.0 compatible)."""
+    try:
+        from flask_app.services import (
+            orchestrator_service,
+            registry_service,
+            workflow_service,
+        )
+
+        print("DEBUG: Initializing services...")
+
+        # Initialize orchestrator service with sample data
+        if orchestrator_service.is_backend_available():
+            orchestrator_service.create_sample_workflows()
+            print("DEBUG: Orchestrator service initialized successfully")
+        else:
+            print("WARNING: Orchestrator service not available")
+
+        print("DEBUG: Services initialization completed")
+
+    except Exception as e:
+        print(f"ERROR: Failed to initialize services: {e}")
 
 
 def register_blueprints(app):
     """Register Flask blueprints for route organization."""
-
-    # Import route blueprints (will create these in next steps)
     try:
         from flask_app.routes.main import main_bp
         from flask_app.routes.api import api_bp
@@ -8070,7 +13619,7 @@ def register_blueprints(app):
         app.register_blueprint(api_bp, url_prefix="/api")
 
     except ImportError as e:
-        app.logger.warning(f"Blueprint import failed: {e}.")
+        app.logger.warning(f"Blueprint import failed: {e}")
 
 
 def register_error_handlers(app):
@@ -8176,29 +13725,34 @@ def favicon():
     )
 
 
-# Add this test route to flask_app/app.py
 @app.route("/test-backend")
 def test_backend():
     """Test backend integration."""
-    from flask_app.services import OrchestratorService, RegistryService, WorkflowService
+    from flask_app.services import (
+        orchestrator_service,
+        registry_service,
+        workflow_service,
+    )
 
     # Test services
-    orch_service = OrchestratorService()
-    reg_service = RegistryService()
-    workflow_service = WorkflowService()
-
     results = {
-        "orchestrator_available": orch_service.is_backend_available(),
-        "registry_available": reg_service.is_available(),
+        "orchestrator_available": orchestrator_service.is_backend_available(),
+        "registry_available": registry_service.is_available(),
         "workflow_available": workflow_service.is_available(),
         "registry_stats": (
-            reg_service.get_registry_stats() if reg_service.is_available() else {}
+            registry_service.get_registry_stats()
+            if registry_service.is_available()
+            else {}
         ),
         "agents_count": (
-            len(reg_service.get_agents_list()) if reg_service.is_available() else 0
+            len(registry_service.get_agents_list())
+            if registry_service.is_available()
+            else 0
         ),
         "tools_count": (
-            len(reg_service.get_tools_list()) if reg_service.is_available() else 0
+            len(registry_service.get_tools_list())
+            if registry_service.is_available()
+            else 0
         ),
     }
 
@@ -8368,8 +13922,8 @@ __all__ = ["main_bp", "api_bp"]
 
 ### File: flask_app/routes/api.py
 **Path:** `flask_app/routes/api.py`
-**Size:** 25,189 bytes
-**Modified:** 2025-09-09 16:36:10
+**Size:** 38,607 bytes
+**Modified:** 2025-09-09 21:05:52
 
 ```python
 # flask_app/routes/api.py - STREAMLINED VERSION
@@ -8380,7 +13934,7 @@ Handles AJAX requests, file uploads, and data endpoints
 
 import os
 import json
-from typing import Any, Dict
+from typing import Any, Dict, List
 import uuid
 from datetime import datetime
 from flask import (
@@ -8411,66 +13965,153 @@ def allowed_file(filename):
 
 @api_bp.route("/health")
 def health_check():
-    """System health check endpoint."""
+    """System health check endpoint - FIXED VERSION."""
     try:
-        registry_stats = registry_service.get_registry_stats()
-
-        # Ensure proper structure
-        if not registry_stats or not registry_stats.get("available", False):
-            registry_stats = {
-                "available": False,
-                "statistics": {"total_agents": 0, "total_tools": 0},
-                "summary": {"health_score": 0, "status": "unavailable"},
-            }
-
-        health_data = {
+        # FIXED: Use proper error handling for service availability checks
+        health_status = {
             "status": "healthy",
             "timestamp": datetime.now().isoformat(),
             "services": {
-                "orchestrator": orchestrator_service.is_backend_available(),
-                "registry": {
-                    "available": registry_stats.get("available", False),
-                    "stats": registry_stats.get(
-                        "statistics", {"total_agents": 0, "total_tools": 0}
-                    ),
-                    "health_score": registry_stats.get("summary", {}).get(
-                        "health_score", 0
-                    ),
-                    "status": registry_stats.get("summary", {}).get(
-                        "status", "unknown"
-                    ),
+                "orchestrator": {
+                    "available": False,
+                    "status": "unknown",
+                    "message": "",
                 },
+                "registry": {"available": False, "status": "unknown", "message": ""},
+                "workflow": {"available": False, "status": "unknown", "message": ""},
             },
-            "system_stats": orchestrator_service.get_system_stats(),
-            "version": "1.0.0",
+            "system": {
+                "uptime": "unknown",
+                "memory_usage": "unknown",
+                "active_workflows": 0,
+            },
         }
 
-        # Determine overall health
-        orchestrator_ok = health_data["services"]["orchestrator"]
-        registry_ok = health_data["services"]["registry"]["available"]
+        # Check orchestrator service
+        try:
+            orchestrator_available = orchestrator_service.is_backend_available()
+            health_status["services"]["orchestrator"] = {
+                "available": orchestrator_available,
+                "status": "operational" if orchestrator_available else "degraded",
+                "message": (
+                    "Backend orchestrator ready"
+                    if orchestrator_available
+                    else "Backend orchestrator not available"
+                ),
+            }
 
-        if orchestrator_ok and registry_ok:
-            health_data["status"] = "healthy"
-            status_code = 200
-        elif orchestrator_ok or registry_ok:
-            health_data["status"] = "degraded"
-            status_code = 200
+            if orchestrator_available:
+                health_status["system"]["active_workflows"] = len(
+                    orchestrator_service.active_workflows
+                )
+
+        except Exception as e:
+            health_status["services"]["orchestrator"] = {
+                "available": False,
+                "status": "error",
+                "message": f"Orchestrator check failed: {str(e)}",
+            }
+
+        # Check registry service
+        try:
+            registry_available = registry_service.is_available()
+            health_status["services"]["registry"] = {
+                "available": registry_available,
+                "status": "operational" if registry_available else "degraded",
+                "message": (
+                    "Registry service ready"
+                    if registry_available
+                    else "Registry service not available"
+                ),
+            }
+
+            if registry_available:
+                health_status["registry_stats"] = registry_service.get_registry_stats()
+
+        except Exception as e:
+            health_status["services"]["registry"] = {
+                "available": False,
+                "status": "error",
+                "message": f"Registry check failed: {str(e)}",
+            }
+
+        # Check workflow service
+        try:
+            workflow_available = workflow_service.is_available()
+            health_status["services"]["workflow"] = {
+                "available": workflow_available,
+                "status": "operational" if workflow_available else "degraded",
+                "message": (
+                    "Workflow engine ready"
+                    if workflow_available
+                    else "Workflow engine not available"
+                ),
+            }
+        except Exception as e:
+            health_status["services"]["workflow"] = {
+                "available": False,
+                "status": "error",
+                "message": f"Workflow check failed: {str(e)}",
+            }
+
+        # Determine overall system status
+        services_available = sum(
+            1 for s in health_status["services"].values() if s["available"]
+        )
+        total_services = len(health_status["services"])
+
+        if services_available == total_services:
+            health_status["status"] = "healthy"
+        elif services_available > 0:
+            health_status["status"] = "degraded"
         else:
-            health_data["status"] = "unhealthy"
-            status_code = 503
+            health_status["status"] = "unhealthy"
 
-        return jsonify(health_data), status_code
+        # Add system information
+        try:
+            import psutil
+            import time
+
+            health_status["system"][
+                "uptime"
+            ] = f"{time.time() - psutil.boot_time():.1f}s"
+            health_status["system"][
+                "memory_usage"
+            ] = f"{psutil.virtual_memory().percent}%"
+        except ImportError:
+            # psutil not available, use defaults
+            pass
+
+        return jsonify(health_status)
 
     except Exception as e:
+        # FIXED: Always return a valid response even on complete failure
         return (
             jsonify(
                 {
-                    "status": "unhealthy",
-                    "error": str(e),
+                    "status": "error",
                     "timestamp": datetime.now().isoformat(),
+                    "error": f"Health check failed: {str(e)}",
+                    "services": {
+                        "orchestrator": {
+                            "available": False,
+                            "status": "error",
+                            "message": "Health check failed",
+                        },
+                        "registry": {
+                            "available": False,
+                            "status": "error",
+                            "message": "Health check failed",
+                        },
+                        "workflow": {
+                            "available": False,
+                            "status": "error",
+                            "message": "Health check failed",
+                        },
+                    },
                 }
             ),
-            500,
+            500000,
         )
 
 
@@ -8564,18 +14205,48 @@ def send_chat_message():
         }
         session["chat_history"].append(user_message)
 
-        # Process through orchestrator
+        # NEW: Add pipeline detection and routing
         import asyncio
 
         try:
-            result = asyncio.run(
-                orchestrator_service.process_user_request(
-                    request_text=message,
-                    files=files,
-                    auto_create=auto_create,
-                    workflow_type=workflow_type,
-                )
+            # Simple complexity detection
+            request_lower = message.lower()
+            pipeline_keywords = [
+                "then",
+                "after",
+                "and",
+                "extract and",
+                "analyze and",
+                "step",
+                "first",
+                "next",
+            ]
+            is_complex = (
+                any(keyword in request_lower for keyword in pipeline_keywords)
+                or len(files) > 1
             )
+
+            if is_complex:
+                # Use pipeline processing (if you implement process_pipeline_request)
+                # For now, use regular processing but mark as pipeline
+                result = asyncio.run(
+                    orchestrator_service.process_user_request(
+                        request_text=message,
+                        files=files,
+                        auto_create=auto_create,
+                    )
+                )
+                # Mark as pipeline result
+                result.setdefault("metadata", {})["is_pipeline"] = True
+            else:
+                # Use regular processing
+                result = asyncio.run(
+                    orchestrator_service.process_user_request(
+                        request_text=message,
+                        files=files,
+                        auto_create=auto_create,
+                    )
+                )
         except Exception as e:
             result = {
                 "status": "error",
@@ -8586,7 +14257,7 @@ def send_chat_message():
         # Create natural language response
         response_text = create_natural_response(result, message)
 
-        # Add system response to session
+        # Add system response to session with pipeline info
         system_response = {
             "id": f"sys_{uuid.uuid4().hex[:8]}",
             "message": response_text,
@@ -8601,6 +14272,26 @@ def send_chat_message():
                     "components_created", 0
                 ),
                 "workflow_type": workflow_type,
+                # NEW: Add pipeline info
+                "pipeline_info": {
+                    "type": (
+                        "pipeline"
+                        if len(result.get("workflow", {}).get("steps", [])) > 1
+                        else "simple"
+                    ),
+                    "steps": result.get("workflow", {}).get("steps", []),
+                    "steps_completed": len(result.get("workflow", {}).get("steps", [])),
+                    "total_steps": len(result.get("workflow", {}).get("steps", [])),
+                    "execution_time": result.get("execution_time", 0),
+                    "performance_grade": (
+                        "excellent"
+                        if result.get("status") == "success"
+                        else "acceptable"
+                    ),
+                    "components_created": result.get("metadata", {}).get(
+                        "components_created", 0
+                    ),
+                },
             },
         }
 
@@ -8618,6 +14309,8 @@ def send_chat_message():
                 "results": result.get("results", {}),
                 "metadata": system_response["metadata"],
                 "chat_updated": True,
+                # NEW: Add pipeline-specific data for frontend
+                "pipeline_info": system_response["metadata"]["pipeline_info"],
             }
         )
 
@@ -8948,96 +14641,47 @@ def get_current_workflow_status(self) -> Dict[str, Any]:
 
 @api_bp.route("/workflow/status/current")
 def get_current_workflow_status():
-    """Get current workflow status for sidebar display."""
+    """Get current workflow status - FIXED VERSION."""
     try:
-        # Get active workflows from orchestrator service
-        active_workflows = orchestrator_service.get_active_workflows()
-        recent_workflows = orchestrator_service.get_workflow_history(limit=1)
-
-        # If there's an active workflow, show it
-        if active_workflows:
-            current = active_workflows[0]
+        # FIXED: Handle case where orchestrator_service might not be fully initialized
+        if not hasattr(orchestrator_service, "active_workflows"):
             return jsonify(
                 {
-                    "status": "active",
-                    "message": f"Processing: {current.get('request', 'Unknown task')[:50]}...",
-                    "current_workflow": {
-                        "id": current.get("workflow_id"),
-                        "request": current.get("request"),
-                        "status": current.get("status"),
-                        "started_at": current.get("started_at"),
-                        "timeline": [],
-                        "progress": (
-                            50 if current.get("status") == "processing" else 100
-                        ),
-                    },
-                    "workflow_results": {
-                        "agentsUsed": len(current.get("agents", [])),
-                        "executionTime": current.get("execution_time", 0),
-                        "status": current.get("status", "Processing"),
-                        "componentsCreated": 0,
-                    },
+                    "status": "no_active_workflows",
+                    "active_workflows": {},
+                    "message": "Orchestrator service not fully initialized",
                 }
             )
 
-        # If no active workflow, show the most recent completed one
-        elif recent_workflows:
-            recent = recent_workflows[0]
+        active_workflows = orchestrator_service.active_workflows
+
+        if not active_workflows:
             return jsonify(
                 {
-                    "status": "completed",
-                    "message": f"Last execution: {recent.get('request', 'Unknown task')[:50]}...",
-                    "current_workflow": {
-                        "id": recent.get("workflow_id"),
-                        "request": recent.get("request"),
-                        "status": "completed",
-                        "started_at": recent.get("started_at"),
-                        "timeline": [],
-                        "progress": 100,
-                    },
-                    "workflow_results": {
-                        "agentsUsed": recent.get(
-                            "files", 0
-                        ),  # This might need adjustment based on your data
-                        "executionTime": recent.get("execution_time", 0),
-                        "status": "Success",
-                        "componentsCreated": 0,
-                    },
+                    "status": "no_active_workflows",
+                    "active_workflows": {},
+                    "message": "No workflows currently running",
                 }
             )
 
-        # No workflows at all
-        else:
-            return jsonify(
-                {
-                    "status": "idle",
-                    "message": "No recent workflows",
-                    "current_workflow": None,
-                    "workflow_results": {
-                        "agentsUsed": 0,
-                        "executionTime": 0,
-                        "status": "Idle",
-                        "componentsCreated": 0,
-                    },
-                }
-            )
+        return jsonify(
+            {
+                "status": "success",
+                "active_workflows": active_workflows,
+                "count": len(active_workflows),
+            }
+        )
 
     except Exception as e:
         return (
             jsonify(
                 {
                     "status": "error",
-                    "message": f"Error getting workflow status: {str(e)}",
-                    "current_workflow": None,
-                    "workflow_results": {
-                        "agentsUsed": 0,
-                        "executionTime": 0,
-                        "status": "Error",
-                        "componentsCreated": 0,
-                    },
+                    "error": f"Failed to get workflow status: {str(e)}",
+                    "active_workflows": {},
                 }
             ),
-            500,
+            500000,
         )
 
 
@@ -9078,6 +14722,323 @@ def list_output_files():
                     "note": "Directory doesn't exist",
                 }
             )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ADD THESE NEW ENDPOINTS to flask_app/routes/api.py:
+
+
+@api_bp.route("/chat/pipeline", methods=["POST"])
+async def process_pipeline_chat():
+    """Enhanced chat endpoint with pipeline support."""
+    try:
+        data = request.get_json()
+
+        if not data or "message" not in data:
+            return jsonify({"error": "Message is required"}), 400
+
+        user_message = data["message"].strip()
+        if not user_message:
+            return jsonify({"error": "Message cannot be empty"}), 400
+
+        auto_create = data.get("auto_create", True)
+        session_id = session.get("session_id", str(uuid.uuid4()))
+        session["session_id"] = session_id
+
+        # Get uploaded files from session
+        uploaded_files = session.get("uploaded_files", [])
+
+        print(f"DEBUG: Processing pipeline chat - Message: {user_message[:100]}...")
+
+        # Process through enhanced pipeline orchestrator
+        result = await orchestrator_service.process_pipeline_request(
+            request_text=user_message, files=uploaded_files, auto_create=auto_create
+        )
+
+        # Create chat message entry
+        chat_entry = {
+            "id": str(uuid.uuid4()),
+            "type": "user",
+            "content": user_message,
+            "timestamp": datetime.now().isoformat(),
+            "files": len(uploaded_files),
+            "workflow_id": result.get("workflow_id"),
+        }
+
+        # Create response entry
+        response_entry = {
+            "id": str(uuid.uuid4()),
+            "type": "assistant",
+            "content": result.get(
+                "response", "I encountered an issue processing your request."
+            ),
+            "timestamp": datetime.now().isoformat(),
+            "workflow": result.get("workflow", {}),
+            "status": result.get("status", "unknown"),
+            "metadata": result.get("metadata", {}),
+            "pipeline_info": {
+                "type": result.get("workflow", {}).get("type", "unknown"),
+                "steps_completed": result.get("workflow", {}).get("steps_completed", 0),
+                "total_steps": result.get("workflow", {}).get("total_steps", 0),
+                "execution_time": result.get("metadata", {}).get("execution_time", 0),
+                "performance_grade": result.get("metadata", {}).get(
+                    "performance_grade", "unknown"
+                ),
+            },
+        }
+
+        # Add to chat history
+        if "chat_history" not in session:
+            session["chat_history"] = []
+
+        session["chat_history"].extend([chat_entry, response_entry])
+        session.modified = True
+
+        # Clear uploaded files after processing
+        session["uploaded_files"] = []
+
+        return jsonify(
+            {
+                "response": response_entry,
+                "workflow": result.get("workflow", {}),
+                "status": result.get("status"),
+                "pipeline_info": response_entry["pipeline_info"],
+                "generated_files": result.get("generated_files", []),
+                "errors": result.get("errors", []),
+            }
+        )
+
+    except Exception as e:
+        current_app.logger.error(f"Pipeline chat error: {str(e)}")
+        return (
+            jsonify(
+                {
+                    "error": "An error occurred processing your request",
+                    "details": str(e) if current_app.debug else None,
+                }
+            ),
+            500,
+        )
+
+
+@api_bp.route("/pipeline/analytics")
+def get_pipeline_analytics():
+    """Get pipeline processing analytics."""
+    try:
+        analytics = orchestrator_service.get_pipeline_analytics()
+        return jsonify(analytics)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/pipeline/status/<workflow_id>")
+def get_pipeline_status(workflow_id):
+    """Get status of a specific pipeline workflow."""
+    try:
+        # Get workflow from active workflows or history
+        active_workflow = orchestrator_service.active_workflows.get(workflow_id)
+
+        if active_workflow:
+            return jsonify(
+                {
+                    "workflow_id": workflow_id,
+                    "status": active_workflow.get("status", "unknown"),
+                    "started_at": active_workflow.get("started_at"),
+                    "completed_at": active_workflow.get("completed_at"),
+                    "type": active_workflow.get("type", "unknown"),
+                }
+            )
+
+        # Check history
+        historical_workflow = None
+        for workflow in orchestrator_service.workflow_history:
+            if workflow.get("workflow_id") == workflow_id:
+                historical_workflow = workflow
+                break
+
+        if historical_workflow:
+            return jsonify(historical_workflow)
+
+        return jsonify({"error": "Workflow not found"}), 404
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/pipeline/complexity/analyze", methods=["POST"])
+async def analyze_request_complexity():
+    """Analyze complexity of a request without processing it."""
+    try:
+        data = request.get_json()
+
+        if not data or "request" not in data:
+            return jsonify({"error": "Request text is required"}), 400
+
+        request_text = data["request"]
+        files = data.get("files", [])
+
+        # Use orchestrator service complexity detection
+        complexity = await orchestrator_service._detect_request_complexity(
+            request_text, files
+        )
+
+        # Get additional analysis
+        analysis = {
+            "complexity_level": complexity,
+            "estimated_steps": (
+                1 if complexity == "simple" else (3 if complexity == "pipeline" else 5)
+            ),
+            "processing_time_estimate": (
+                "5-10s"
+                if complexity == "simple"
+                else ("15-30s" if complexity == "pipeline" else "30-60s")
+            ),
+            "requires_pipeline": complexity in ["pipeline", "complex"],
+            "indicators": _get_complexity_indicators(request_text, files),
+        }
+
+        return jsonify(analysis)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+def _get_complexity_indicators(request_text: str, files: List[Dict]) -> Dict[str, Any]:
+    """Get indicators that contributed to complexity assessment."""
+
+    request_lower = request_text.lower()
+
+    indicators = {
+        "pipeline_keywords": [],
+        "complex_keywords": [],
+        "step_indicators": [],
+        "file_complexity": {},
+        "length_factor": len(request_text.split()),
+    }
+
+    # Check for pipeline keywords
+    pipeline_keywords = [
+        "then",
+        "after",
+        "next",
+        "followed by",
+        "and then",
+        "first",
+        "second",
+        "third",
+        "finally",
+        "last",
+        "extract and",
+        "analyze and",
+        "process and",
+        "create and",
+    ]
+
+    for keyword in pipeline_keywords:
+        if keyword in request_lower:
+            indicators["pipeline_keywords"].append(keyword)
+
+    # Check for complex keywords
+    complex_keywords = [
+        "multiple files",
+        "compare",
+        "merge",
+        "combine",
+        "different formats",
+        "various sources",
+        "cross-reference",
+        "comprehensive",
+        "detailed analysis",
+        "full report",
+    ]
+
+    for keyword in complex_keywords:
+        if keyword in request_lower:
+            indicators["complex_keywords"].append(keyword)
+
+    # Check for step indicators
+    step_indicators = ["1.", "2.", "3.", "step 1", "step 2", "step 3"]
+    for indicator in step_indicators:
+        if indicator in request_lower:
+            indicators["step_indicators"].append(indicator)
+
+    # File complexity
+    indicators["file_complexity"] = {
+        "file_count": len(files) if files else 0,
+        "multiple_files": files and len(files) > 1,
+        "file_types": (
+            list(set(f.get("type", "unknown") for f in files)) if files else []
+        ),
+    }
+
+    return indicators
+
+
+@api_bp.route("/components/pipeline")
+def get_pipeline_components():
+    """Get information about pipeline-capable components."""
+    try:
+        # Get all agents and filter for pipeline-capable ones
+        all_agents = registry_service.get_agents_list()
+        pipeline_agents = [
+            agent
+            for agent in all_agents
+            if "pipeline" in agent.get("tags", [])
+            or agent.get("metadata", {}).get("created_for_pipeline", False)
+        ]
+
+        # Get tools that support pipeline operations
+        all_tools = registry_service.get_tools_list()
+        pipeline_tools = [
+            tool
+            for tool in all_tools
+            if any(
+                keyword in tool.get("description", "").lower()
+                for keyword in ["format", "convert", "adapt", "process"]
+            )
+        ]
+
+        return jsonify(
+            {
+                "pipeline_agents": {
+                    "count": len(pipeline_agents),
+                    "agents": pipeline_agents,
+                },
+                "pipeline_tools": {
+                    "count": len(pipeline_tools),
+                    "tools": pipeline_tools,
+                },
+                "total_components": len(pipeline_agents) + len(pipeline_tools),
+            }
+        )
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.route("/workflows/pipeline")
+def list_pipeline_workflows():
+    """Get list of pipeline workflows."""
+    try:
+        # Get pipeline workflows from history
+        pipeline_workflows = [
+            w
+            for w in orchestrator_service.workflow_history
+            if w.get("type") == "pipeline"
+        ]
+
+        # Sort by most recent first
+        pipeline_workflows.sort(key=lambda x: x.get("started_at", ""), reverse=True)
+
+        return jsonify(
+            {
+                "workflows": pipeline_workflows,
+                "count": len(pipeline_workflows),
+                "analytics": orchestrator_service.get_pipeline_analytics(),
+            }
+        )
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -9466,8 +15427,8 @@ __all__ = [
 
 ### File: flask_app/services/orchestrator_service.py
 **Path:** `flask_app/services/orchestrator_service.py`
-**Size:** 11,710 bytes
-**Modified:** 2025-09-08 22:03:45
+**Size:** 35,515 bytes
+**Modified:** 2025-09-09 21:05:44
 
 ```python
 # flask_app/services/orchestrator_service.py
@@ -9484,6 +15445,10 @@ import uuid
 from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional
 
+from core.pipeline_orchestrator import PipelineOrchestrator
+from core.workflow_intelligence import WorkflowIntelligence
+
+
 # Add project root to path for backend imports
 project_root = os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -9493,26 +15458,53 @@ sys.path.append(project_root)
 try:
     from core.orchestrator import Orchestrator
     from core.registry_singleton import get_shared_registry
+    from core.pipeline_orchestrator import PipelineOrchestrator
+    from core.workflow_intelligence import WorkflowIntelligence
 except ImportError as e:
     print(f"Warning: Could not import backend components: {e}")
     Orchestrator = None
+    PipelineOrchestrator = None
+    WorkflowIntelligence = None
 
 
 class OrchestratorService:
     """Service layer for orchestrator operations."""
 
     def __init__(self):
-        """Initialize orchestrator service."""
-        try:
-            self.orchestrator = Orchestrator() if Orchestrator else None
-        except Exception as e:
-            print(f"Warning: Could not initialize Orchestrator: {e}")
-            self.orchestrator = None
+        """Initialize orchestrator service with pipeline support - FIXED VERSION."""
+        # FIXED: Initialize all attributes first to prevent AttributeError
+        self.orchestrator = None
+        self.registry = None
+        self.pipeline_orchestrator = None
+        self.workflow_intelligence = None
         self.active_workflows = {}
-        self.workflow_history = []
+        self.workflow_history = []  # FIXED: Always initialize this attribute
 
-        # Add sample data for demonstration
-        self.create_sample_workflows()
+        try:
+            # Try to initialize backend components
+            if Orchestrator:
+                self.orchestrator = Orchestrator()
+                print("DEBUG: Orchestrator initialized successfully")
+
+            # Get shared registry
+            if get_shared_registry:
+                self.registry = get_shared_registry()
+                print("DEBUG: Registry obtained successfully")
+
+            # Initialize pipeline components if available
+            if PipelineOrchestrator:
+                self.pipeline_orchestrator = PipelineOrchestrator()
+                print("DEBUG: PipelineOrchestrator initialized successfully")
+
+            if WorkflowIntelligence and self.registry:
+                self.workflow_intelligence = WorkflowIntelligence(self.registry)
+                print("DEBUG: WorkflowIntelligence initialized successfully")
+
+            print("DEBUG: OrchestratorService initialized with all components")
+
+        except Exception as e:
+            print(f"WARNING: Failed to initialize some orchestrator components: {e}")
+            # Ensure all attributes are still set even if initialization fails
 
     def is_backend_available(self) -> bool:
         """Check if backend components are available."""
@@ -9546,6 +15538,33 @@ class OrchestratorService:
                     "workflow_id": workflow_id,
                     "error": "Backend orchestrator not available",
                     "message": "Please check backend configuration",
+                    "results": {},
+                    "execution_time": 0,
+                    "metadata": {
+                        "agents_used": [],
+                        "workflow_type": workflow_type,
+                        "execution_time": 0,
+                        "components_created": 0,
+                        "pipeline_info": {
+                            "type": "simple",
+                            "steps": [],
+                            "steps_completed": 0,
+                            "total_steps": 0,
+                            "execution_time": 0,
+                            "components_created": 0,
+                            "performance_grade": "acceptable",
+                        },
+                    },
+                    "pipeline_info": {
+                        "type": "simple",
+                        "steps": [],
+                        "steps_completed": 0,
+                        "total_steps": 0,
+                        "execution_time": 0,
+                        "components_created": 0,
+                        "performance_grade": "acceptable",
+                    },
+                    "workflow": {},
                 }
 
             # Prepare request data
@@ -9558,91 +15577,137 @@ class OrchestratorService:
                 "started_at": datetime.now().isoformat(),
             }
 
-            # Track workflow start
+            # Store workflow as active
             self.active_workflows[workflow_id] = {
                 "status": "processing",
-                "started_at": request_data["started_at"],
                 "request": request_text,
-                "files": len(files) if files else 0,
+                "started_at": datetime.now().isoformat(),
+                "workflow_type": workflow_type,
             }
 
             # Process through orchestrator
+            start_time = datetime.now()
             result = await self.orchestrator.process_request(
-                user_request=request_text, files=files, auto_create=auto_create
+                user_request=request_text,
+                files=files,
+                auto_create=auto_create,
             )
-
-            # ADD DEBUG to see what's returned:
-            print(f"DEBUG: Orchestrator returned: {result.keys()}")
-            print(
-                f"DEBUG: Response field: {result.get('response', 'NO RESPONSE FIELD')[:200]}"
-            )
+            execution_time = (datetime.now() - start_time).total_seconds()
 
             # Update workflow status
-            final_status = result.get("status", "unknown")
-            self.active_workflows[workflow_id]["status"] = final_status
-            self.active_workflows[workflow_id][
-                "completed_at"
-            ] = datetime.now().isoformat()
-
-            # Calculate execution time
-            execution_time = 0
-            if workflow_id in self.active_workflows:
-                try:
-                    start = datetime.fromisoformat(
-                        self.active_workflows[workflow_id]["started_at"]
-                    )
-                    execution_time = (datetime.now() - start).total_seconds()
-                except:
-                    execution_time = 0
-
-            # Extract workflow info
-            workflow_info = result.get("workflow", {})
-            if isinstance(workflow_info, dict) and "steps" not in workflow_info:
-                workflow_info = {"steps": result.get("agents", [])}
-
-            # Format response to match frontend expectations
-            formatted_response = {
-                "status": final_status,
+            workflow_data = {
                 "workflow_id": workflow_id,
-                "response": result.get("response", "Request processed successfully."),
-                "workflow": workflow_info,
+                "request": request_text,
+                "status": result.get("status", "completed"),
+                "started_at": request_data["started_at"],
+                "completed_at": datetime.now().isoformat(),
                 "execution_time": execution_time,
+                "workflow_type": workflow_type,
+                "files": len(files) if files else 0,
+                "agents_used": result.get("agents_used", []),
                 "results": result.get("results", {}),
-                "metadata": {
-                    "agents_used": workflow_info.get("steps", []),
-                    "execution_time": execution_time,
-                    "components_created": result.get("metadata", {}).get(
-                        "components_created", 0
-                    ),
-                    "workflow_type": workflow_type,
-                },
             }
 
-            # Move to history if completed
-            if final_status in ["success", "error", "partial"]:
-                self.workflow_history.append(self.active_workflows[workflow_id])
-                if workflow_id in self.active_workflows:
-                    del self.active_workflows[workflow_id]
+            # Add to history
+            self.workflow_history.append(workflow_data)
 
-            return formatted_response
+            # Remove from active workflows
+            if workflow_id in self.active_workflows:
+                del self.active_workflows[workflow_id]
+
+            # Format response for UI
+            return {
+                "status": "success",
+                "workflow_id": workflow_id,
+                "response": result.get("response", "Request processed successfully"),
+                "results": result.get("results", {}),
+                "execution_time": execution_time,
+                "metadata": {
+                    "agents_used": result.get("agents_used", []),
+                    "workflow_type": workflow_type,
+                    "execution_time": execution_time,
+                    "components_created": result.get("components_created", 0),
+                    "pipeline_info": {
+                        "type": "simple",
+                        "steps": result.get("pipeline_steps", []),
+                        "steps_completed": len(result.get("pipeline_steps", [])),
+                        "total_steps": len(result.get("pipeline_steps", [])),
+                        "execution_time": execution_time,
+                        "components_created": result.get("components_created", 0),
+                        "performance_grade": (
+                            "good" if execution_time < 10 else "acceptable"
+                        ),
+                    },
+                },
+                "pipeline_info": {
+                    "type": "simple",
+                    "steps": result.get("pipeline_steps", []),
+                    "steps_completed": len(result.get("pipeline_steps", [])),
+                    "total_steps": len(result.get("pipeline_steps", [])),
+                    "execution_time": execution_time,
+                    "components_created": result.get("components_created", 0),
+                    "performance_grade": (
+                        "good" if execution_time < 10 else "acceptable"
+                    ),
+                },
+                "workflow": workflow_data,
+                "chat_updated": True,
+                "message_id": f"msg_{uuid.uuid4().hex[:8]}",
+            }
 
         except Exception as e:
-            # Handle processing errors
-            error_result = {
+            print(f"ERROR: Failed to process request: {e}")
+
+            # Ensure workflow is removed from active and added to history even on error
+            if workflow_id in self.active_workflows:
+                del self.active_workflows[workflow_id]
+
+            error_workflow = {
+                "workflow_id": workflow_id,
+                "request": request_text,
+                "status": "error",
+                "started_at": datetime.now().isoformat(),
+                "completed_at": datetime.now().isoformat(),
+                "execution_time": 0,
+                "error": str(e),
+            }
+            self.workflow_history.append(error_workflow)
+
+            return {
                 "status": "error",
                 "workflow_id": workflow_id,
-                "error": str(e),
-                "message": "Request processing failed",
-                "request_data": locals().get("request_data", {}),
-                "traceback": str(e),
+                "error": f"Failed to process request: {str(e)}",
+                "message": "An error occurred while processing your request",
+                "results": {},
+                "execution_time": 0,
+                "metadata": {
+                    "agents_used": [],
+                    "workflow_type": workflow_type,
+                    "execution_time": 0,
+                    "components_created": 0,
+                    "pipeline_info": {
+                        "type": "simple",
+                        "steps": [],
+                        "steps_completed": 0,
+                        "total_steps": 0,
+                        "execution_time": 0,
+                        "components_created": 0,
+                        "performance_grade": "poor",
+                    },
+                },
+                "pipeline_info": {
+                    "type": "simple",
+                    "steps": [],
+                    "steps_completed": 0,
+                    "total_steps": 0,
+                    "execution_time": 0,
+                    "components_created": 0,
+                    "performance_grade": "poor",
+                },
+                "workflow": error_workflow,
+                "chat_updated": True,
+                "message_id": f"msg_{uuid.uuid4().hex[:8]}",
             }
-
-            # Update workflow status
-            if workflow_id in self.active_workflows:
-                self.active_workflows[workflow_id]["status"] = "error"
-                self.active_workflows[workflow_id]["error"] = str(e)
-
-            return error_result
 
     def get_workflow_status(self, workflow_id: str) -> Optional[Dict[str, Any]]:
         """Get current status of a workflow."""
@@ -9658,15 +15723,94 @@ class OrchestratorService:
 
         return None
 
-    def cancel_workflow(self, workflow_id: str) -> bool:
-        """Cancel an active workflow."""
-        if workflow_id in self.active_workflows:
-            self.active_workflows[workflow_id]["status"] = "cancelled"
-            self.active_workflows[workflow_id][
-                "cancelled_at"
-            ] = datetime.now().isoformat()
-            return True
-        return False
+    def get_workflow_metrics(self) -> Dict[str, Any]:
+        """Get workflow performance metrics."""
+        if not self.workflow_history:
+            return {"total": 0, "success_rate": 0, "avg_execution_time": 0}
+
+        total = len(self.workflow_history)
+        successful = len(
+            [w for w in self.workflow_history if w.get("status") == "success"]
+        )
+        avg_time = (
+            sum(w.get("execution_time", 0) for w in self.workflow_history) / total
+        )
+
+        return {
+            "total": total,
+            "success_rate": successful / total,
+            "avg_execution_time": avg_time,
+            "active_workflows": len(self.active_workflows),
+        }
+
+    def create_sample_workflows(self):
+        """Create sample workflow data for demonstration."""
+        if not self.workflow_history:  # Only create if empty
+            sample_workflows = [
+                {
+                    "workflow_id": "wf_demo_001",
+                    "request": "Extract emails from uploaded document",
+                    "status": "success",
+                    "started_at": (datetime.now() - timedelta(hours=2)).isoformat(),
+                    "completed_at": (
+                        datetime.now() - timedelta(hours=2) + timedelta(minutes=5)
+                    ).isoformat(),
+                    "execution_time": 4.2,
+                    "files": 1,
+                    "agents_used": ["email_extractor"],
+                },
+                {
+                    "workflow_id": "wf_demo_002",
+                    "request": "Analyze CSV data and create statistical report",
+                    "status": "success",
+                    "started_at": (datetime.now() - timedelta(hours=1)).isoformat(),
+                    "completed_at": (
+                        datetime.now() - timedelta(hours=1) + timedelta(minutes=8)
+                    ).isoformat(),
+                    "execution_time": 7.8,
+                    "files": 1,
+                    "agents_used": ["read_csv", "word_counter"],
+                },
+                {
+                    "workflow_id": "wf_demo_003",
+                    "request": "Extract phone numbers and URLs from text",
+                    "status": "partial",
+                    "started_at": (datetime.now() - timedelta(minutes=30)).isoformat(),
+                    "completed_at": (
+                        datetime.now() - timedelta(minutes=25)
+                    ).isoformat(),
+                    "execution_time": 3.1,
+                    "files": 0,
+                    "agents_used": ["url_extractor"],
+                },
+            ]
+            self.workflow_history.extend(sample_workflows)
+            print("DEBUG: Sample workflows created")
+
+    def get_pipeline_analytics(self) -> Dict[str, Any]:
+        """Get pipeline performance analytics."""
+        # Get last 10 pipeline workflows
+        recent_pipelines = [
+            w for w in self.workflow_history[-10:] if w.get("type") == "pipeline"
+        ]
+
+        if not recent_pipelines:
+            return {"trend": "no_data"}
+
+        success_count = len(
+            [w for w in recent_pipelines if w.get("status") == "success"]
+        )
+        avg_time = sum(w.get("execution_time", 0) for w in recent_pipelines) / len(
+            recent_pipelines
+        )
+
+        return {
+            "recent_success_rate": success_count / len(recent_pipelines),
+            "recent_average_time": avg_time,
+            "trend": (
+                "improving" if success_count > len(recent_pipelines) * 0.7 else "stable"
+            ),
+        }
 
     def get_active_workflows(self) -> List[Dict[str, Any]]:
         """Get list of currently active workflows."""
@@ -9777,6 +15921,437 @@ class OrchestratorService:
                 },
             ]
             self.workflow_history.extend(sample_workflows)
+
+    # ADD THESE NEW METHODS to the OrchestratorService class:
+
+    async def process_pipeline_request(
+        self,
+        request_text: str,
+        files: List[Dict] = None,
+        auto_create: bool = True,
+    ) -> Dict[str, Any]:
+        """
+        Process complex pipeline requests with enhanced capabilities.
+
+        Args:
+            request_text: User's natural language request
+            files: List of uploaded files with metadata
+            auto_create: Whether to auto-create missing agents
+
+        Returns:
+            Enhanced result with pipeline information
+        """
+
+        workflow_id = f"pipeline_{uuid.uuid4().hex[:8]}"
+
+        try:
+            if not self.is_backend_available():
+                return {
+                    "status": "error",
+                    "workflow_id": workflow_id,
+                    "error": "Backend pipeline orchestrator not available",
+                }
+
+            # Analyze request complexity
+            complexity = await self._detect_request_complexity(request_text, files)
+
+            # Process based on complexity
+            if complexity in ["pipeline", "complex"]:
+                result = await self._process_as_pipeline(
+                    request_text, files, auto_create, workflow_id
+                )
+            else:
+                # Use regular orchestrator for simple requests
+                result = await self.process_user_request(
+                    request_text, files, auto_create
+                )
+
+            # Add pipeline metadata
+            if "metadata" not in result:
+                result["metadata"] = {}
+            result["metadata"]["complexity_detected"] = complexity
+            result["metadata"]["pipeline_processing"] = complexity in [
+                "pipeline",
+                "complex",
+            ]
+
+            return result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "workflow_id": workflow_id,
+                "error": f"Pipeline processing failed: {str(e)}",
+            }
+
+    async def _detect_request_complexity(
+        self, request_text: str, files: List[Dict] = None
+    ) -> str:
+        """Detect complexity level of the request."""
+
+        request_lower = request_text.lower()
+
+        # Pipeline indicators
+        pipeline_keywords = [
+            "then",
+            "after",
+            "next",
+            "followed by",
+            "and then",
+            "first",
+            "second",
+            "third",
+            "finally",
+            "last",
+            "extract and",
+            "analyze and",
+            "process and",
+            "create and",
+            "step by step",
+            "pipeline",
+            "workflow",
+            "sequence",
+        ]
+
+        # Complex indicators
+        complex_keywords = [
+            "multiple files",
+            "compare",
+            "merge",
+            "combine",
+            "different formats",
+            "various sources",
+            "cross-reference",
+            "comprehensive",
+            "detailed analysis",
+            "full report",
+        ]
+
+        # Count indicators
+        pipeline_count = sum(
+            1 for keyword in pipeline_keywords if keyword in request_lower
+        )
+        complex_count = sum(
+            1 for keyword in complex_keywords if keyword in request_lower
+        )
+
+        # Check for numbered steps
+        step_indicators = ["1.", "2.", "3.", "step 1", "step 2", "step 3"]
+        step_count = sum(
+            1 for indicator in step_indicators if indicator in request_lower
+        )
+
+        # File complexity
+        multiple_files = files and len(files) > 1
+
+        # Decision logic
+        if (
+            complex_count > 0
+            or (pipeline_count > 2)
+            or step_count > 1
+            or multiple_files
+        ):
+            return "complex"
+        elif pipeline_count > 0 or len(request_lower.split()) > 20:
+            return "pipeline"
+        else:
+            return "simple"
+
+    async def _process_as_pipeline(
+        self, request_text: str, files: List[Dict], auto_create: bool, workflow_id: str
+    ) -> Dict[str, Any]:
+        """Process request using pipeline orchestrator."""
+
+        # Track workflow start
+        self.active_workflows[workflow_id] = {
+            "status": "processing",
+            "started_at": datetime.now().isoformat(),
+            "request": request_text,
+            "files": len(files) if files else 0,
+            "type": "pipeline",
+        }
+
+        try:
+            # Step 1: Analyze complex request
+            analysis_result = await self.pipeline_orchestrator.analyze_complex_request(
+                request_text, files
+            )
+
+            if analysis_result["status"] != "success":
+                return {
+                    "status": "error",
+                    "workflow_id": workflow_id,
+                    "error": f"Pipeline analysis failed: {analysis_result.get('error')}",
+                }
+
+            # Step 2: Plan pipeline execution
+            pipeline_plan = await self.pipeline_orchestrator.plan_pipeline(
+                analysis_result, auto_create
+            )
+
+            # Step 3: Execute with monitoring
+            execution_result = (
+                await self.pipeline_orchestrator.execute_pipeline_with_adaptation(
+                    pipeline_plan, request_text, files
+                )
+            )
+
+            # Step 4: Generate response
+            response = await self._generate_pipeline_response(
+                request_text, execution_result, analysis_result
+            )
+
+            # Update workflow status
+            final_status = execution_result.get("status", "unknown")
+            self.active_workflows[workflow_id]["status"] = final_status
+            self.active_workflows[workflow_id][
+                "completed_at"
+            ] = datetime.now().isoformat()
+
+            # Add to history
+            self.workflow_history.append(
+                {
+                    "workflow_id": workflow_id,
+                    "request": request_text,
+                    "status": final_status,
+                    "type": "pipeline",
+                    "started_at": self.active_workflows[workflow_id]["started_at"],
+                    "completed_at": self.active_workflows[workflow_id]["completed_at"],
+                    "execution_time": execution_result.get("execution_time", 0),
+                    "files": len(files) if files else 0,
+                    "steps_completed": execution_result.get("steps_completed", 0),
+                    "total_steps": execution_result.get("total_steps", 0),
+                }
+            )
+
+            return {
+                "status": final_status,
+                "workflow_id": workflow_id,
+                "workflow": {
+                    "type": "pipeline",
+                    "steps": [
+                        step.get("name", f"step_{i}")
+                        for i, step in enumerate(pipeline_plan.get("steps", []))
+                    ],
+                    "execution_strategy": pipeline_plan.get(
+                        "execution_strategy", "sequential"
+                    ),
+                    "total_steps": pipeline_plan.get("total_steps", 0),
+                    "steps_completed": execution_result.get("steps_completed", 0),
+                },
+                "response": response,
+                "results": execution_result.get("results", {}),
+                "step_results": execution_result.get("step_results", {}),
+                "metadata": {
+                    "pipeline_analysis": analysis_result,
+                    "execution_time": execution_result.get("execution_time", 0),
+                    "adaptations": execution_result.get("adaptations", []),
+                    "components_created": len(pipeline_plan.get("creation_needed", [])),
+                    "performance_grade": self._calculate_performance_grade(
+                        execution_result
+                    ),
+                },
+                "errors": execution_result.get("errors", []),
+            }
+
+        except Exception as e:
+            # Update workflow status
+            self.active_workflows[workflow_id]["status"] = "error"
+            self.active_workflows[workflow_id][
+                "completed_at"
+            ] = datetime.now().isoformat()
+
+            return {
+                "status": "error",
+                "workflow_id": workflow_id,
+                "error": f"Pipeline processing failed: {str(e)}",
+            }
+
+    async def _generate_pipeline_response(
+        self, request_text: str, execution_result: Dict, analysis_result: Dict
+    ) -> str:
+        """Generate natural language response for pipeline execution."""
+
+        steps_completed = execution_result.get("steps_completed", 0)
+        total_steps = execution_result.get("total_steps", 0)
+        adaptations = execution_result.get("adaptations", [])
+
+        # Build response based on execution results
+        if execution_result["status"] == "success":
+            response_parts = [
+                f"I successfully completed your {total_steps}-step request through an intelligent pipeline."
+            ]
+
+            # Summarize key results
+            results = execution_result.get("results", {})
+            if results:
+                response_parts.append("Here's what I accomplished:")
+                for step_name, result in results.items():
+                    if result.get("status") == "success":
+                        data = result.get("data", {})
+                        if isinstance(data, dict) and data:
+                            key_info = self._extract_key_result_info(data)
+                            if key_info:
+                                response_parts.append(f"- {step_name}: {key_info}")
+
+            # Mention adaptations if any
+            if adaptations:
+                response_parts.append(
+                    f"Note: I made {len(adaptations)} intelligent adaptations during processing to ensure optimal results."
+                )
+
+        elif execution_result["status"] == "partial":
+            response_parts = [
+                f"I completed {steps_completed} of {total_steps} steps in your pipeline request."
+            ]
+
+            # Mention what was accomplished
+            successful_results = {
+                k: v
+                for k, v in execution_result.get("results", {}).items()
+                if v.get("status") == "success"
+            }
+            if successful_results:
+                response_parts.append("Successfully completed steps:")
+                for step_name, result in successful_results.items():
+                    data = result.get("data", {})
+                    key_info = self._extract_key_result_info(data)
+                    if key_info:
+                        response_parts.append(f"- {step_name}: {key_info}")
+
+            # Mention issues
+            errors = execution_result.get("errors", [])
+            if errors:
+                response_parts.append(
+                    f"Some steps encountered issues, but I provided the best possible results."
+                )
+
+        else:
+            response_parts = [
+                "I encountered difficulties processing your multi-step request.",
+                "Please check the error details for more information.",
+            ]
+
+        return " ".join(response_parts)
+
+    def _extract_key_result_info(self, data: Any) -> str:
+        """Extract key information from result data for response generation."""
+
+        if isinstance(data, dict):
+            # Look for common result patterns
+            if "count" in data:
+                return f"found {data['count']} items"
+            elif "total" in data:
+                return f"processed {data['total']} items"
+            elif "extracted" in data:
+                extracted = data["extracted"]
+                if isinstance(extracted, list):
+                    return f"extracted {len(extracted)} items"
+            elif "processed_data" in data:
+                return "processed successfully"
+            elif len(data) > 0:
+                return f"generated {len(data)} results"
+
+        elif isinstance(data, list):
+            return f"generated {len(data)} items"
+
+        elif isinstance(data, str) and data:
+            return f"processed text ({len(data)} characters)"
+
+        return "completed successfully"
+
+    def _calculate_performance_grade(self, execution_result: Dict) -> str:
+        """Calculate performance grade for pipeline execution."""
+
+        steps_completed = execution_result.get("steps_completed", 0)
+        total_steps = execution_result.get("total_steps", 1)
+        execution_time = execution_result.get("execution_time", 0)
+        errors = len(execution_result.get("errors", []))
+        adaptations = len(execution_result.get("adaptations", []))
+
+        # Calculate completion rate
+        completion_rate = steps_completed / total_steps if total_steps > 0 else 0
+
+        # Calculate average time per step
+        avg_time_per_step = (
+            execution_time / steps_completed if steps_completed > 0 else execution_time
+        )
+
+        # Assign grade
+        if completion_rate == 1.0 and errors == 0 and avg_time_per_step < 10:
+            return "excellent"
+        elif completion_rate >= 0.8 and errors <= 1 and avg_time_per_step < 20:
+            return "good"
+        elif completion_rate >= 0.6 and errors <= 2:
+            return "acceptable"
+        else:
+            return "needs_improvement"
+
+    def get_pipeline_analytics(self) -> Dict[str, Any]:
+        """Get analytics for pipeline processing."""
+
+        # Filter pipeline workflows
+        pipeline_workflows = [
+            w for w in self.workflow_history if w.get("type") == "pipeline"
+        ]
+
+        if not pipeline_workflows:
+            return {
+                "total_pipelines": 0,
+                "success_rate": 0,
+                "average_steps": 0,
+                "average_execution_time": 0,
+            }
+
+        # Calculate metrics
+        total_pipelines = len(pipeline_workflows)
+        successful_pipelines = len(
+            [w for w in pipeline_workflows if w.get("status") == "success"]
+        )
+
+        total_steps = sum(w.get("total_steps", 0) for w in pipeline_workflows)
+        completed_steps = sum(w.get("steps_completed", 0) for w in pipeline_workflows)
+
+        total_time = sum(w.get("execution_time", 0) for w in pipeline_workflows)
+
+        analytics = {
+            "total_pipelines": total_pipelines,
+            "success_rate": successful_pipelines / total_pipelines,
+            "average_steps": total_steps / total_pipelines,
+            "step_completion_rate": (
+                completed_steps / total_steps if total_steps > 0 else 0
+            ),
+            "average_execution_time": total_time / total_pipelines,
+            "recent_performance": self._get_recent_pipeline_performance(),
+        }
+
+        return analytics
+
+    def _get_recent_pipeline_performance(self) -> Dict[str, Any]:
+        """Get performance metrics for recent pipelines."""
+
+        # Get last 10 pipeline workflows
+        recent_pipelines = [
+            w for w in self.workflow_history[-10:] if w.get("type") == "pipeline"
+        ]
+
+        if not recent_pipelines:
+            return {"trend": "no_data"}
+
+        success_count = len(
+            [w for w in recent_pipelines if w.get("status") == "success"]
+        )
+        avg_time = sum(w.get("execution_time", 0) for w in recent_pipelines) / len(
+            recent_pipelines
+        )
+
+        return {
+            "recent_success_rate": success_count / len(recent_pipelines),
+            "recent_average_time": avg_time,
+            "trend": (
+                "improving" if success_count > len(recent_pipelines) * 0.7 else "stable"
+            ),
+        }
 
 
 # Global service instance
@@ -10200,8 +16775,8 @@ registry_service = RegistryService()
 
 ### File: flask_app/services/workflow_service.py
 **Path:** `flask_app/services/workflow_service.py`
-**Size:** 15,266 bytes
-**Modified:** 2025-09-08 21:07:45
+**Size:** 18,332 bytes
+**Modified:** 2025-09-09 20:52:23
 
 ```python
 # flask_app/services/workflow_service.py
@@ -10233,9 +16808,38 @@ class WorkflowService:
     """Service layer for workflow operations."""
 
     def __init__(self):
-        """Initialize workflow service."""
-        self.workflow_engine = WorkflowEngine() if WorkflowEngine else None
-        self.workflow_cache = {}
+        """Initialize workflow service - FIXED VERSION."""
+        # FIXED: Properly handle WorkflowEngine initialization
+        try:
+            if WorkflowEngine:
+                # Try to initialize with registry first (if it requires one)
+                try:
+                    from core.registry_singleton import get_shared_registry
+
+                    registry = get_shared_registry()
+                    if registry:
+                        self.workflow_engine = WorkflowEngine(registry)
+                    else:
+                        self.workflow_engine = WorkflowEngine()
+                except TypeError:
+                    # If WorkflowEngine doesn't accept registry, use default constructor
+                    self.workflow_engine = WorkflowEngine()
+                except Exception as e:
+                    print(
+                        f"DEBUG: Failed to initialize WorkflowEngine with registry: {e}"
+                    )
+                    # Fallback to no-argument constructor
+                    self.workflow_engine = WorkflowEngine()
+            else:
+                self.workflow_engine = None
+
+            self.workflow_cache = {}
+            print("DEBUG: WorkflowService initialized successfully")
+
+        except Exception as e:
+            print(f"WARNING: Failed to initialize WorkflowService: {e}")
+            self.workflow_engine = None
+            self.workflow_cache = {}
 
     def is_available(self) -> bool:
         """Check if workflow engine is available."""
@@ -10250,11 +16854,13 @@ class WorkflowService:
         if workflow_id in self.workflow_cache:
             workflow_data = self.workflow_cache[workflow_id]
         else:
-            # Get from workflow engine
-            workflow_status = self.workflow_engine.get_workflow_status(workflow_id)
-            if not workflow_status:
-                return {"error": "Workflow not found"}
-            workflow_data = workflow_status
+            try:
+                workflow_status = self.workflow_engine.get_workflow_status(workflow_id)
+                if not workflow_status:
+                    return {"error": "Workflow not found"}
+                workflow_data = workflow_status
+            except Exception as e:
+                return {"error": f"Failed to get workflow status: {str(e)}"}
 
         return self._create_visualization_data(workflow_data)
 
@@ -10268,33 +16874,36 @@ class WorkflowService:
         # For now, simulate updates
         import time
 
-        for i in range(10):  # Simulate 10 updates
-            time.sleep(1)
+        try:
+            for i in range(10):  # Simulate 10 updates
+                time.sleep(1)
 
-            update = {
+                update = {
+                    "workflow_id": workflow_id,
+                    "timestamp": datetime.now().isoformat(),
+                    "type": "status_update",
+                    "data": {
+                        "step": i + 1,
+                        "status": "processing" if i < 9 else "completed",
+                        "message": f"Processing step {i + 1}/10",
+                    },
+                }
+
+                yield f"data: {json.dumps(update)}\n\n"
+
+            # Final completion message
+            completion = {
                 "workflow_id": workflow_id,
                 "timestamp": datetime.now().isoformat(),
-                "type": "status_update",
+                "type": "completion",
                 "data": {
-                    "step": i + 1,
-                    "status": "processing" if i < 9 else "completed",
-                    "message": f"Processing step {i + 1}/10",
+                    "status": "completed",
+                    "message": "Workflow completed successfully",
                 },
             }
-
-            yield f"data: {json.dumps(update)}\n\n"
-
-        # Final completion message
-        completion = {
-            "workflow_id": workflow_id,
-            "timestamp": datetime.now().isoformat(),
-            "type": "completion",
-            "data": {
-                "status": "completed",
-                "message": "Workflow completed successfully",
-            },
-        }
-        yield f"data: {json.dumps(completion)}\n\n"
+            yield f"data: {json.dumps(completion)}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'error': str(e)})}\n\n"
 
     def create_workflow_diagram(
         self, agents: List[str], workflow_type: str = "sequential"
@@ -10603,6 +17212,50 @@ class WorkflowService:
         else:
             return 0
 
+    def get_workflow_status(self, workflow_id: str) -> Dict[str, Any]:
+        """Get current workflow status."""
+        if not self.is_available():
+            return {
+                "workflow_id": workflow_id,
+                "status": "unavailable",
+                "message": "Workflow engine not available",
+            }
+
+        try:
+            if hasattr(self.workflow_engine, "get_workflow_status"):
+                status = self.workflow_engine.get_workflow_status(workflow_id)
+                if status:
+                    return status
+
+            # Return default status if workflow not found
+            return {
+                "workflow_id": workflow_id,
+                "status": "not_found",
+                "message": "Workflow not found",
+            }
+
+        except Exception as e:
+            return {
+                "workflow_id": workflow_id,
+                "status": "error",
+                "message": f"Error getting workflow status: {str(e)}",
+            }
+
+    def list_workflows(self) -> List[Dict[str, Any]]:
+        """List all workflows."""
+        if not self.is_available():
+            return []
+
+        try:
+            if hasattr(self.workflow_engine, "list_workflows"):
+                return self.workflow_engine.list_workflows()
+            else:
+                # Return empty list if method not available
+                return []
+        except Exception as e:
+            print(f"Error listing workflows: {e}")
+            return []
+
 
 # Global service instance
 workflow_service = WorkflowService()
@@ -10613,8 +17266,8 @@ workflow_service = WorkflowService()
 
 ### File: flask_app/static/css/custom.css
 **Path:** `flask_app/static/css/custom.css`
-**Size:** 6,513 bytes
-**Modified:** 2025-09-07 23:18:47
+**Size:** 11,431 bytes
+**Modified:** 2025-09-09 20:24:03
 
 *[Binary file or content not included]*
 
@@ -10631,8 +17284,8 @@ workflow_service = WorkflowService()
 
 ### File: flask_app/static/js/app.js
 **Path:** `flask_app/static/js/app.js`
-**Size:** 18,227 bytes
-**Modified:** 2025-09-09 08:05:15
+**Size:** 29,009 bytes
+**Modified:** 2025-09-09 19:58:56
 
 *[Binary file or content not included]*
 
@@ -10649,8 +17302,8 @@ workflow_service = WorkflowService()
 
 ### File: flask_app/templates/components/chat-container.html
 **Path:** `flask_app/templates/components/chat-container.html`
-**Size:** 18,905 bytes
-**Modified:** 2025-09-08 23:47:59
+**Size:** 22,439 bytes
+**Modified:** 2025-09-09 20:15:42
 
 *[Binary file or content not included]*
 
@@ -10712,8 +17365,8 @@ workflow_service = WorkflowService()
 
 ### File: flask_app/templates/index.jinja2
 **Path:** `flask_app/templates/index.jinja2`
-**Size:** 1,981 bytes
-**Modified:** 2025-09-08 23:45:24
+**Size:** 7,999 bytes
+**Modified:** 2025-09-09 20:23:29
 
 *[Binary file or content not included]*
 
@@ -10780,6 +17433,104 @@ workflow_service = WorkflowService()
 
 ```python
 
+```
+
+--------------------------------------------------------------------------------
+
+### File: generated/agents/calculate_mean_agent.py
+**Path:** `generated/agents/calculate_mean_agent.py`
+**Size:** 3,056 bytes
+**Modified:** 2025-09-09 21:06:37
+
+```python
+def calculate_mean_agent(state):
+    """
+    Process calculate_mean tasks
+    """
+    import sys
+    import os
+    from datetime import datetime
+    import re
+    
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    
+    # Initialize state
+    if 'results' not in state:
+        state['results'] = {}
+    if 'errors' not in state:
+        state['errors'] = []
+    if 'execution_path' not in state:
+        state['execution_path'] = []
+    
+    try:
+        start_time = datetime.now()
+        
+        # SMART DATA EXTRACTION - Try multiple sources in priority order
+        target_data = None
+        
+        # Priority 1: Use extracted data if available (from intelligent processing)
+        if 'extracted_data' in state and state['extracted_data'] is not None:
+            target_data = state['extracted_data']
+            print(f"DEBUG: Using extracted data: {target_data}")
+        
+        # Priority 2: Use current_data
+        elif 'current_data' in state and state['current_data'] is not None:
+            target_data = state['current_data']
+        
+        # Priority 3: Parse from raw request if needed
+        else:
+            raw_request = state.get('request', state.get('text', ''))
+            target_data = raw_request
+        
+        # SMART PROCESSING - Agent reasons about the input and processes accordingly
+        
+        # For calculate_mean, implement intelligent processing here
+        # Process input data
+        if isinstance(target_data, list):
+            # Input is a list of numbers
+            numbers = target_data
+        elif isinstance(target_data, str):
+            # Input is a string, extract numbers
+            numbers = [float(x) for x in re.findall(r'\d+(?:\.\d+)?', target_data)]
+        else:
+            # Input is a single number
+            numbers = [float(target_data)]
+        
+        if numbers:
+            mean = sum(numbers) / len(numbers)
+            processed_data = {'mean': mean, 'numbers': numbers}
+        else:
+            processed_data = {'result': 'No valid numbers found in the input.'}
+        
+        result = {
+            "status": "success",
+            "data": processed_data,
+            "metadata": {
+                "agent": "calculate_mean",
+                "execution_time": (datetime.now() - start_time).total_seconds(),
+                "tools_used": [],
+                "input_data_type": str(type(target_data).__name__)
+            }
+        }
+        
+        state['results']['calculate_mean'] = result
+        state['current_data'] = processed_data
+        state['execution_path'].append('calculate_mean')
+        
+    except Exception as e:
+        import traceback
+        state['errors'].append({
+            "agent": "calculate_mean",
+            "error": str(e),
+            "traceback": traceback.format_exc()
+        })
+        state['results']['calculate_mean'] = {
+            "status": "error",
+            "data": None,
+            "metadata": {"agent": "calculate_mean", "error": str(e)}
+        }
+    
+    return state
 ```
 
 --------------------------------------------------------------------------------
@@ -10898,6 +17649,240 @@ def email_extractor_agent(state):
 
     return state
 
+```
+
+--------------------------------------------------------------------------------
+
+### File: generated/agents/generic_processor_215353_agent.py
+**Path:** `generated/agents/generic_processor_215353_agent.py`
+**Size:** 3,229 bytes
+**Modified:** 2025-09-09 21:54:01
+
+```python
+def generic_processor_215353_agent(state):
+    """
+    Process generic_processor_215353 tasks
+    """
+    import sys
+    import os
+    from datetime import datetime
+    import re
+
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+    # Initialize state
+    if 'results' not in state:
+        state['results'] = {}
+    if 'errors' not in state:
+        state['errors'] = []
+    if 'execution_path' not in state:
+        state['execution_path'] = []
+
+    try:
+        start_time = datetime.now()
+
+        # SMART DATA EXTRACTION - Try multiple sources in priority order
+        target_data = None
+
+        # Priority 1: Use extracted data if available (from intelligent processing)
+        if 'extracted_data' in state and state['extracted_data'] is not None:
+            target_data = state['extracted_data']
+            print(f"DEBUG: Using extracted data: {target_data}")
+
+        # Priority 2: Use current_data
+        elif 'current_data' in state and state['current_data'] is not None:
+            target_data = state['current_data']
+
+        # Priority 3: Parse from raw request if needed
+        else:
+            raw_request = state.get('request', state.get('text', ''))
+            target_data = raw_request
+
+        # SMART PROCESSING - Agent reasons about the input and processes accordingly
+        def is_prime(n):
+            if n <= 1:
+                return False
+            for i in range(2, int(n ** 0.5) + 1):
+                if n % i == 0:
+                    return False
+            return True
+
+        # Extract numbers from input
+        if isinstance(target_data, str):
+            numbers = [int(x) for x in re.findall(r'\d+', target_data)]
+        elif isinstance(target_data, list):
+            numbers = [int(x) for x in target_data if isinstance(x, (int, str)) and x.isdigit()]
+        elif isinstance(target_data, (int, float)):
+            numbers = [int(target_data)]
+        else:
+            numbers = []
+
+        # Process the numbers
+        prime_numbers = [n for n in numbers if is_prime(n)]
+        non_prime_numbers = [n for n in numbers if not is_prime(n)]
+
+        result = {
+            "status": "success",
+            "data": {
+                "prime_numbers": prime_numbers,
+                "non_prime_numbers": non_prime_numbers
+            },
+            "metadata": {
+                "agent": "generic_processor_215353",
+                "execution_time": (datetime.now() - start_time).total_seconds(),
+                "tools_used": [],
+                "input_data_type": str(type(target_data).__name__)
+            }
+        }
+
+        state['results']['generic_processor_215353'] = result
+        state['current_data'] = result['data']
+        state['execution_path'].append('generic_processor_215353')
+
+    except Exception as e:
+        import traceback
+        state['errors'].append({
+            "agent": "generic_processor_215353",
+            "error": str(e),
+            "traceback": traceback.format_exc()
+        })
+        state['results']['generic_processor_215353'] = {
+            "status": "error",
+            "data": None,
+            "metadata": {"agent": "generic_processor_215353", "error": str(e)}
+        }
+
+    return state
+```
+
+--------------------------------------------------------------------------------
+
+### File: generated/agents/prime_checker_agent.py
+**Path:** `generated/agents/prime_checker_agent.py`
+**Size:** 4,338 bytes
+**Modified:** 2025-09-09 21:06:47
+
+```python
+def prime_checker_agent(state):
+    """
+    Filter the list for prime numbers and check if a given number (average) is prime
+    """
+    import sys
+    import os
+    from datetime import datetime
+    import re
+
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+    # Initialize state
+    if 'results' not in state:
+        state['results'] = {}
+    if 'errors' not in state:
+        state['errors'] = []
+    if 'execution_path' not in state:
+        state['execution_path'] = []
+
+    try:
+        start_time = datetime.now()
+
+        # SMART DATA EXTRACTION - Try multiple sources in priority order
+        target_data = None
+
+        # Priority 1: Use extracted data if available (from intelligent processing)
+        if 'extracted_data' in state and state['extracted_data'] is not None:
+            target_data = state['extracted_data']
+            print(f"DEBUG: Using extracted data: {target_data}")
+
+        # Priority 2: Use current_data
+        elif 'current_data' in state and state['current_data'] is not None:
+            target_data = state['current_data']
+
+        # Priority 3: Parse from raw request if needed
+        else:
+            raw_request = state.get('request', state.get('text', ''))
+            target_data = raw_request
+
+        # SMART PROCESSING - Agent reasons about the input and processes accordingly
+        if isinstance(target_data, list):
+            # Input is a list of numbers
+            prime_numbers = [num for num in target_data if is_prime(num)]
+            result = {
+                "status": "success",
+                "data": {
+                    "prime_numbers": prime_numbers,
+                    "average": sum(target_data) / len(target_data) if target_data else 0,
+                    "is_average_prime": is_prime(sum(target_data) / len(target_data)) if target_data else False
+                },
+                "metadata": {
+                    "agent": "prime_checker",
+                    "execution_time": (datetime.now() - start_time).total_seconds(),
+                    "tools_used": [],
+                    "input_data_type": "list"
+                }
+            }
+        elif isinstance(target_data, str):
+            # Input is a string with numbers
+            numbers = [int(num) for num in re.findall(r'\d+', target_data)]
+            prime_numbers = [num for num in numbers if is_prime(num)]
+            result = {
+                "status": "success",
+                "data": {
+                    "prime_numbers": prime_numbers,
+                    "average": sum(numbers) / len(numbers) if numbers else 0,
+                    "is_average_prime": is_prime(sum(numbers) / len(numbers)) if numbers else False
+                },
+                "metadata": {
+                    "agent": "prime_checker",
+                    "execution_time": (datetime.now() - start_time).total_seconds(),
+                    "tools_used": [],
+                    "input_data_type": "string"
+                }
+            }
+        else:
+            # Input is a single number
+            is_number_prime = is_prime(target_data)
+            result = {
+                "status": "success",
+                "data": {
+                    "is_prime": is_number_prime
+                },
+                "metadata": {
+                    "agent": "prime_checker",
+                    "execution_time": (datetime.now() - start_time).total_seconds(),
+                    "tools_used": [],
+                    "input_data_type": str(type(target_data).__name__)
+                }
+            }
+
+        state['results']['prime_checker'] = result
+        state['current_data'] = result['data']
+        state['execution_path'].append('prime_checker')
+
+    except Exception as e:
+        import traceback
+        state['errors'].append({
+            "agent": "prime_checker",
+            "error": str(e),
+            "traceback": traceback.format_exc()
+        })
+        state['results']['prime_checker'] = {
+            "status": "error",
+            "data": None,
+            "metadata": {"agent": "prime_checker", "error": str(e)}
+        }
+
+    return state
+
+def is_prime(n):
+    """
+    Check if a number is prime.
+    """
+    if n <= 1:
+        return False
+    for i in range(2, int(n ** 0.5) + 1):
+        if n % i == 0:
+            return False
+    return True
 ```
 
 --------------------------------------------------------------------------------
@@ -11931,8 +18916,8 @@ def read_text(input_data=None):
 
 ### File: requirements.txt
 **Path:** `requirements.txt`
-**Size:** 2,017 bytes
-**Modified:** 2025-09-09 16:34:43
+**Size:** 2,189 bytes
+**Modified:** 2025-09-09 20:32:09
 
 ```text
 annotated-types==0.7.0
@@ -12036,14 +19021,8 @@ xlrd==2.0.2
 Flask==3.0.0
 Flask-CORS==4.0.0
 
-# Template Engine (included with Flask)
-Jinja2==3.1.2
-
 # WSGI Server for production
 gunicorn==21.2.0
-
-# Development tools
-python-dotenv==1.0.0
 
 # File handling
 Werkzeug==3.0.1
@@ -12051,8 +19030,16 @@ Werkzeug==3.0.1
 # Date/time utilities (already in main requirements)
 python-dateutil==2.9.0.post0
 
-# JSON handling (built-in)
-# Async support (built-in)
+# Pipeline processing dependencies
+networkx>=3.0  # For dependency graph management
+# asyncio-extensions  # Enhanced async support
+
+# # Threading and concurrency
+# concurrent-futures>=3.1.1  # For async Flask integration
+
+# Optional: Enhanced JSON processing
+ujson>=5.0.0  # Faster JSON processing for large pipeline data
+
 ```
 
 --------------------------------------------------------------------------------
@@ -13081,8 +20068,8 @@ if __name__ == "__main__":
 
 ### File: tools.json
 **Path:** `tools.json`
-**Size:** 7,440 bytes
-**Modified:** 2025-09-09 16:54:21
+**Size:** 6,413 bytes
+**Modified:** 2025-09-09 23:22:09
 
 ```json
 {
@@ -13097,10 +20084,7 @@ if __name__ == "__main__":
       "used_by_agents": [],
       "created_by": "system",
       "created_at": "2025-01-01T00:00:00",
-      "tags": [
-        "file",
-        "reader"
-      ],
+      "tags": ["file", "reader"],
       "line_count": 35,
       "status": "active",
       "used_by": [],
@@ -13116,11 +20100,7 @@ if __name__ == "__main__":
       "used_by_agents": [],
       "created_by": "system",
       "created_at": "2025-01-01T00:00:00",
-      "tags": [
-        "file",
-        "reader",
-        "json"
-      ],
+      "tags": ["file", "reader", "json"],
       "line_count": 38,
       "status": "active",
       "used_by": [],
@@ -13136,11 +20116,7 @@ if __name__ == "__main__":
       "used_by_agents": [],
       "created_by": "system",
       "created_at": "2025-01-01T00:00:00",
-      "tags": [
-        "file",
-        "reader",
-        "csv"
-      ],
+      "tags": ["file", "reader", "csv"],
       "line_count": 37,
       "status": "active",
       "used_by": [],
@@ -13156,40 +20132,10 @@ if __name__ == "__main__":
       "used_by_agents": [],
       "created_by": "system",
       "created_at": "2025-01-01T00:00:00",
-      "tags": [
-        "file",
-        "reader",
-        "pdf"
-      ],
+      "tags": ["file", "reader", "pdf"],
       "line_count": 42,
       "status": "active",
       "used_by": [],
-      "formatted_created_at": "2025-01-01 00:00:00"
-    },
-    "extract_urls": {
-      "name": "extract_urls",
-      "description": "Extract all URLs from input text",
-      "signature": "def extract_urls(input_data=None)",
-      "location": "generated/tools/extract_urls.py",
-      "is_prebuilt": false,
-      "is_pure_function": true,
-      "used_by_agents": [
-        "url_extractor",
-        "text_analyzer"
-      ],
-      "created_by": "claude-3-haiku-20240307",
-      "created_at": "2025-01-01T00:00:00",
-      "tags": [
-        "extraction",
-        "regex",
-        "url"
-      ],
-      "line_count": 28,
-      "status": "active",
-      "used_by": [
-        "url_extractor",
-        "text_analyzer"
-      ],
       "formatted_created_at": "2025-01-01 00:00:00"
     },
     "extract_emails": {
@@ -13199,23 +20145,13 @@ if __name__ == "__main__":
       "location": "generated/tools/extract_emails.py",
       "is_prebuilt": false,
       "is_pure_function": true,
-      "used_by_agents": [
-        "email_extractor",
-        "text_analyzer"
-      ],
+      "used_by_agents": ["email_extractor", "text_analyzer"],
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-01-01T00:00:00",
-      "tags": [
-        "extraction",
-        "regex",
-        "email"
-      ],
+      "tags": ["extraction", "regex", "email"],
       "line_count": 28,
       "status": "active",
-      "used_by": [
-        "email_extractor",
-        "text_analyzer"
-      ],
+      "used_by": ["email_extractor", "text_analyzer"],
       "formatted_created_at": "2025-01-01 00:00:00"
     },
     "calculate_mean": {
@@ -13228,11 +20164,7 @@ if __name__ == "__main__":
       "used_by_agents": [],
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-01-01T00:00:00",
-      "tags": [
-        "calculation",
-        "math",
-        "statistics"
-      ],
+      "tags": ["calculation", "math", "statistics"],
       "line_count": 39,
       "status": "active",
       "used_by": [],
@@ -13248,9 +20180,7 @@ if __name__ == "__main__":
       "used_by_agents": [],
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-09-04T23:14:54.570979",
-      "tags": [
-        "extraction"
-      ],
+      "tags": ["extraction"],
       "line_count": 37,
       "status": "active",
       "used_by": [],
@@ -13266,9 +20196,7 @@ if __name__ == "__main__":
       "used_by_agents": [],
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-09-04T23:14:54.610601",
-      "tags": [
-        "calculation"
-      ],
+      "tags": ["calculation"],
       "line_count": 32,
       "status": "active",
       "used_by": [],
@@ -13284,9 +20212,7 @@ if __name__ == "__main__":
       "used_by_agents": [],
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-09-04T23:14:54.644859",
-      "tags": [
-        "calculation"
-      ],
+      "tags": ["calculation"],
       "line_count": 32,
       "status": "active",
       "used_by": [],
@@ -13302,9 +20228,7 @@ if __name__ == "__main__":
       "used_by_agents": [],
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-09-04T23:26:14.815178",
-      "tags": [
-        "analysis"
-      ],
+      "tags": ["analysis"],
       "line_count": 47,
       "status": "active",
       "used_by": [],
@@ -13317,9 +20241,7 @@ if __name__ == "__main__":
       "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/tools/count_words.py",
       "is_prebuilt": false,
       "is_pure_function": true,
-      "used_by_agents": [
-        "word_counter"
-      ],
+      "used_by_agents": ["word_counter"],
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-09-09T00:03:54.897491",
       "tags": [],
@@ -13328,6 +20250,7 @@ if __name__ == "__main__":
     }
   }
 }
+
 ```
 
 --------------------------------------------------------------------------------

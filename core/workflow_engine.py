@@ -32,6 +32,9 @@ from config import (
 from core.registry import RegistryManager
 from core.registry_singleton import get_shared_registry
 
+from core.pipeline_executor import PipelineExecutor
+from core.workflow_intelligence import WorkflowIntelligence
+
 
 class WorkflowState(TypedDict):
     """Enhanced state schema for workflow execution."""
@@ -87,13 +90,18 @@ class WorkflowEngine:
     Handles complex multi-agent orchestration with state management.
     """
 
-    def __init__(self):
-        """Initialize the workflow engine."""
-        self.registry = get_shared_registry()
+    def __init__(self, registry=None):
+        """Initialize the workflow engine with optional registry parameter."""
+        # Use provided registry or get shared instance for consistency
+        self.registry = registry if registry is not None else get_shared_registry()
         self.checkpointer = MemorySaver()
         self.loaded_agents = {}
         self.active_workflows = {}
         self.execution_cache = {}
+
+        print(
+            f"DEBUG: WorkflowEngine initialized with registry ID: {id(self.registry)}"
+        )
 
     def create_workflow(
         self,
@@ -900,3 +908,443 @@ class WorkflowEngine:
             viz.append("END")
 
         return "\n".join(viz)
+
+    # ADD THESE NEW METHODS to the WorkflowEngine class:
+
+    async def execute_pipeline_workflow(
+        self, pipeline_plan: Dict, user_request: str, files: List[Dict] = None
+    ) -> Dict[str, Any]:
+        """
+        Execute a multi-step pipeline workflow with intelligence and adaptation.
+
+        Args:
+            pipeline_plan: Complete pipeline execution plan
+            user_request: Original user request
+            files: Uploaded files
+
+        Returns:
+            Pipeline execution results
+        """
+        print(f"DEBUG: WorkflowEngine executing pipeline workflow")
+
+        # Initialize pipeline executor
+        pipeline_executor = PipelineExecutor(self.registry)
+        workflow_intelligence = WorkflowIntelligence(self.registry)
+
+        # Execute pipeline with monitoring
+        execution_result = await self._execute_monitored_pipeline(
+            pipeline_executor, workflow_intelligence, pipeline_plan, user_request, files
+        )
+
+        return execution_result
+
+    async def _execute_monitored_pipeline(
+        self,
+        pipeline_executor: PipelineExecutor,
+        workflow_intelligence: WorkflowIntelligence,
+        pipeline_plan: Dict,
+        user_request: str,
+        files: List[Dict],
+    ) -> Dict[str, Any]:
+        """Execute pipeline with real-time monitoring and adaptation."""
+
+        try:
+            # Start pipeline execution
+            result = await pipeline_executor.execute_pipeline(
+                pipeline_plan, user_request, files
+            )
+
+            # Monitor and adapt if needed
+            if result["status"] in ["partial", "failed"] and result.get("errors"):
+                print(
+                    f"DEBUG: Pipeline had issues, checking for adaptation opportunities"
+                )
+
+                # Analyze pipeline performance
+                performance_analysis = (
+                    workflow_intelligence.analyze_pipeline_performance(
+                        result.get("pipeline_id", "unknown")
+                    )
+                )
+
+                print(
+                    f"DEBUG: Pipeline performance grade: {performance_analysis.get('performance_grade', 'unknown')}"
+                )
+
+                # Add performance metadata
+                if "metadata" not in result:
+                    result["metadata"] = {}
+                result["metadata"]["performance_analysis"] = performance_analysis
+
+            return result
+
+        except Exception as e:
+            print(f"DEBUG: Pipeline execution failed with exception: {str(e)}")
+            return {
+                "status": "error",
+                "error": f"Pipeline execution failed: {str(e)}",
+                "pipeline_id": pipeline_plan.get("pipeline_id", "unknown"),
+                "results": {},
+                "errors": [{"type": "execution_error", "message": str(e)}],
+            }
+
+    async def execute_agent(
+        self, agent_name: str, state: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Execute a single agent with enhanced error handling for pipeline context.
+        """
+        print(f"DEBUG: Executing agent '{agent_name}' with pipeline support")
+
+        # Check if agent exists
+        if not self.registry.agent_exists(agent_name):
+            return {
+                "status": "error",
+                "error": f"Agent '{agent_name}' not found",
+                "agent_name": agent_name,
+            }
+
+        # Get agent details
+        agent = self.registry.get_agent(agent_name)
+        agent_path = agent["location"]
+
+        # Handle relative paths correctly
+        if not os.path.isabs(agent_path):
+            current_dir = os.getcwd()
+            if current_dir.endswith("flask_app"):
+                project_root = os.path.dirname(current_dir)
+            else:
+                project_root = current_dir
+            agent_path = os.path.join(project_root, agent_path)
+
+        # Verify agent file exists
+        if not os.path.exists(agent_path):
+            return {
+                "status": "error",
+                "error": f"Agent file not found: {agent_path}",
+                "agent_name": agent_name,
+            }
+
+        try:
+            start_time = datetime.now()
+
+            # Load agent module
+            spec = importlib.util.spec_from_file_location(agent_name, agent_path)
+            agent_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(agent_module)
+
+            # FIXED: Get agent function with correct naming convention
+            agent_function = getattr(agent_module, f"{agent_name}_agent")
+
+            print(f"DEBUG: Found agent function: {agent_name}_agent")
+            print(f"DEBUG: Input state keys: {list(state.keys())}")
+
+            # FIXED: Execute synchronously (no await, no asyncio.wait_for)
+            agent_result = agent_function(state)
+
+            print(
+                f"DEBUG: Agent function returned. Result keys: {list(agent_result.keys()) if isinstance(agent_result, dict) else type(agent_result)}"
+            )
+
+            # Calculate execution time
+            execution_time = (datetime.now() - start_time).total_seconds()
+
+            # FIXED: Extract result correctly from state structure
+            if isinstance(agent_result, dict) and "results" in agent_result:
+                if agent_name in agent_result["results"]:
+                    result = agent_result["results"][agent_name]
+
+                    # Add execution metadata if missing
+                    if "metadata" not in result:
+                        result["metadata"] = {}
+                    result["metadata"]["execution_time"] = execution_time
+                    result["metadata"]["agent_name"] = agent_name
+
+                    print(f"DEBUG: Extracted result: {result}")
+                    return result
+                else:
+                    return {
+                        "status": "error",
+                        "error": f"Agent '{agent_name}' did not produce expected result in state",
+                        "available_results": list(
+                            agent_result.get("results", {}).keys()
+                        ),
+                        "agent_name": agent_name,
+                    }
+            else:
+                return {
+                    "status": "error",
+                    "error": f"Agent returned invalid state structure: {type(agent_result)}",
+                    "agent_name": agent_name,
+                }
+
+        except AttributeError as e:
+            if "has no attribute" in str(e):
+                return {
+                    "status": "error",
+                    "error": f"Agent function '{agent_name}_agent' not found in module",
+                    "agent_name": agent_name,
+                    "traceback": traceback.format_exc(),
+                }
+            else:
+                return {
+                    "status": "error",
+                    "error": f"Attribute error: {str(e)}",
+                    "agent_name": agent_name,
+                    "traceback": traceback.format_exc(),
+                }
+        except Exception as e:
+            print(f"DEBUG: Agent execution failed with exception: {str(e)}")
+            print(f"DEBUG: Full traceback: {traceback.format_exc()}")
+            return {
+                "status": "error",
+                "error": f"Agent execution failed: {str(e)}",
+                "agent_name": agent_name,
+                "traceback": traceback.format_exc(),
+            }
+
+    def create_pipeline_state(
+        self, request: str, pipeline_plan: Dict, files: List[Dict] = None
+    ) -> Dict[str, Any]:
+        """
+        Create enhanced state for pipeline execution.
+
+        Args:
+            request: User request
+            pipeline_plan: Pipeline execution plan
+            files: Uploaded files
+
+        Returns:
+            Enhanced pipeline state
+        """
+
+        pipeline_state = {
+            "request": request,
+            "pipeline_id": pipeline_plan.get(
+                "pipeline_id", f"pipeline_{datetime.now().strftime('%H%M%S')}"
+            ),
+            "files": files or [],
+            "execution_path": [],
+            "current_data": {"user_request": request, "files": files},
+            "results": {},
+            "errors": [],
+            # Pipeline-specific fields
+            "pipeline_context": {
+                "total_steps": pipeline_plan.get("total_steps", 0),
+                "current_step": 0,
+                "execution_strategy": pipeline_plan.get(
+                    "execution_strategy", "sequential"
+                ),
+                "data_flow": pipeline_plan.get("data_flow", {}),
+                "step_plans": pipeline_plan.get("steps", []),
+            },
+            # Timing information
+            "started_at": datetime.now().isoformat(),
+            "completed_at": None,
+            # Monitoring data
+            "step_results": {},
+            "adaptations": [],
+            "performance_metrics": {
+                "steps_completed": 0,
+                "total_execution_time": 0,
+                "average_step_time": 0,
+            },
+        }
+
+        return pipeline_state
+
+    async def execute_workflow_step(
+        self, step_plan: Dict, pipeline_state: Dict, workflow_intelligence=None
+    ) -> Dict[str, Any]:
+        """
+        Execute a single workflow step with monitoring.
+
+        Args:
+            step_plan: Individual step execution plan
+            pipeline_state: Current pipeline state
+            workflow_intelligence: Optional intelligence engine for monitoring
+
+        Returns:
+            Step execution result
+        """
+
+        agent_name = step_plan.get("agent_assigned")
+        step_name = step_plan.get("name", "unnamed_step")
+
+        print(f"DEBUG: Executing workflow step: {step_name} with agent: {agent_name}")
+
+        if not agent_name:
+            return {
+                "status": "error",
+                "error": "No agent assigned to step",
+                "step_name": step_name,
+            }
+
+        try:
+            # Update pipeline context for this step
+            pipeline_state["pipeline_context"]["current_step"] = step_plan.get(
+                "step_index", 0
+            )
+            pipeline_state["pipeline_context"]["current_step_name"] = step_name
+
+            # Execute the agent
+            step_result = await self.execute_agent(agent_name, pipeline_state)
+
+            # Add step metadata
+            step_result["step_name"] = step_name
+            step_result["step_index"] = step_plan.get("step_index", 0)
+
+            # Monitor execution if intelligence engine provided
+            if workflow_intelligence and step_result:
+                monitoring_result = (
+                    await workflow_intelligence.monitor_pipeline_execution(
+                        pipeline_state, step_result
+                    )
+                )
+
+                # Handle adaptation if needed
+                if monitoring_result.get("adaptation_needed"):
+                    adaptation_strategy = monitoring_result.get("adaptation_strategy")
+                    if adaptation_strategy:
+                        print(f"DEBUG: Executing adaptation for step: {step_name}")
+
+                        adaptation_result = (
+                            await workflow_intelligence.execute_adaptation(
+                                adaptation_strategy, pipeline_state, step_plan
+                            )
+                        )
+
+                        # Update step result if adaptation succeeded
+                        if adaptation_result.get("status") == "success":
+                            step_result = adaptation_result.get(
+                                "recovery_result", step_result
+                            )
+                            step_result["adaptation_applied"] = True
+                            step_result["adaptation_details"] = adaptation_result
+
+            return step_result
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "error": str(e),
+                "step_name": step_name,
+                "agent_name": agent_name,
+            }
+
+    def validate_pipeline_state(self, state: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Validate and fix pipeline state structure.
+
+        Args:
+            state: Pipeline state to validate
+
+        Returns:
+            Validation result with fixes applied
+        """
+
+        validation_result = {"valid": True, "issues_found": [], "fixes_applied": []}
+
+        # Check required fields
+        required_fields = ["request", "results", "errors", "execution_path"]
+        for field in required_fields:
+            if field not in state:
+                state[field] = (
+                    []
+                    if field in ["errors", "execution_path"]
+                    else ({} if field == "results" else "")
+                )
+                validation_result["fixes_applied"].append(
+                    f"Added missing field: {field}"
+                )
+
+        # Check pipeline context
+        if "pipeline_context" not in state:
+            state["pipeline_context"] = {
+                "total_steps": 0,
+                "current_step": 0,
+                "execution_strategy": "sequential",
+            }
+            validation_result["fixes_applied"].append("Added missing pipeline_context")
+
+        # Validate data types
+        if not isinstance(state["results"], dict):
+            state["results"] = {}
+            validation_result["fixes_applied"].append("Fixed results field type")
+
+        if not isinstance(state["errors"], list):
+            state["errors"] = []
+            validation_result["fixes_applied"].append("Fixed errors field type")
+
+        if not isinstance(state["execution_path"], list):
+            state["execution_path"] = []
+            validation_result["fixes_applied"].append("Fixed execution_path field type")
+
+        # Check for issues
+        if len(validation_result["fixes_applied"]) > 0:
+            validation_result["valid"] = False
+            validation_result["issues_found"] = [
+                f"Structure issues fixed: {len(validation_result['fixes_applied'])} problems"
+            ]
+
+        return validation_result
+
+    def get_pipeline_progress(self, pipeline_state: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Get current pipeline execution progress.
+
+        Args:
+            pipeline_state: Current pipeline state
+
+        Returns:
+            Progress information
+        """
+
+        pipeline_context = pipeline_state.get("pipeline_context", {})
+
+        current_step = pipeline_context.get("current_step", 0)
+        total_steps = pipeline_context.get("total_steps", 0)
+
+        # Calculate progress percentage
+        progress_percent = (current_step / total_steps * 100) if total_steps > 0 else 0
+
+        # Get timing information
+        started_at = pipeline_state.get("started_at")
+        current_time = datetime.now().isoformat()
+
+        # Calculate elapsed time
+        elapsed_time = 0
+        if started_at:
+            try:
+                start = datetime.fromisoformat(started_at.replace("Z", "+00:00"))
+                now = datetime.now()
+                elapsed_time = (now - start).total_seconds()
+            except:
+                pass
+
+        # Get step results summary
+        step_results = pipeline_state.get("step_results", {})
+        successful_steps = len(
+            [r for r in step_results.values() if r.get("status") == "success"]
+        )
+        failed_steps = len(
+            [r for r in step_results.values() if r.get("status") == "error"]
+        )
+
+        progress_info = {
+            "pipeline_id": pipeline_state.get("pipeline_id", "unknown"),
+            "current_step": current_step,
+            "total_steps": total_steps,
+            "progress_percent": round(progress_percent, 1),
+            "successful_steps": successful_steps,
+            "failed_steps": failed_steps,
+            "elapsed_time": round(elapsed_time, 1),
+            "execution_strategy": pipeline_context.get(
+                "execution_strategy", "sequential"
+            ),
+            "status": "in_progress" if current_step < total_steps else "completed",
+            "errors_count": len(pipeline_state.get("errors", [])),
+            "adaptations_count": len(pipeline_state.get("adaptations", [])),
+        }
+
+        return progress_info

@@ -110,8 +110,7 @@ If no specific data can be extracted, return null for extracted_data."""
 
             response = self.client.chat.completions.create(
                 model=ORCHESTRATOR_MODEL,
-                temperature=ORCHESTRATOR_TEMPERATURE,
-                max_tokens=1000,
+                max_completion_tokens=1000,
                 messages=[{"role": "user", "content": extraction_prompt}],
             )
 

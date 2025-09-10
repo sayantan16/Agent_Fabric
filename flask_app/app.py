@@ -1,6 +1,6 @@
 # flask_app/app.py
 """
-Main Flask Application
+Main Flask Application - FIXED VERSION
 Entry point for the Agentic Fabric web interface
 """
 
@@ -53,8 +53,6 @@ def create_app(config_name=None):
 
     # Ensure upload directory exists
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
-
-    # ADD THIS LINE:
     os.makedirs(app.config["OUTPUT_FOLDER"], exist_ok=True)
 
     # Initialize extensions and register blueprints
@@ -62,13 +60,39 @@ def create_app(config_name=None):
     register_error_handlers(app)
     register_template_functions(app)
 
+    # FIXED: Use proper Flask 3.0 initialization method instead of before_first_request
+    with app.app_context():
+        initialize_services()
+
     return app
+
+
+def initialize_services():
+    """Initialize services at application startup (Flask 3.0 compatible)."""
+    try:
+        from flask_app.services import (
+            orchestrator_service,
+            registry_service,
+            workflow_service,
+        )
+
+        print("DEBUG: Initializing services...")
+
+        # Initialize orchestrator service with sample data
+        if orchestrator_service.is_backend_available():
+            orchestrator_service.create_sample_workflows()
+            print("DEBUG: Orchestrator service initialized successfully")
+        else:
+            print("WARNING: Orchestrator service not available")
+
+        print("DEBUG: Services initialization completed")
+
+    except Exception as e:
+        print(f"ERROR: Failed to initialize services: {e}")
 
 
 def register_blueprints(app):
     """Register Flask blueprints for route organization."""
-
-    # Import route blueprints (will create these in next steps)
     try:
         from flask_app.routes.main import main_bp
         from flask_app.routes.api import api_bp
@@ -77,7 +101,7 @@ def register_blueprints(app):
         app.register_blueprint(api_bp, url_prefix="/api")
 
     except ImportError as e:
-        app.logger.warning(f"Blueprint import failed: {e}.")
+        app.logger.warning(f"Blueprint import failed: {e}")
 
 
 def register_error_handlers(app):
@@ -183,29 +207,34 @@ def favicon():
     )
 
 
-# Add this test route to flask_app/app.py
 @app.route("/test-backend")
 def test_backend():
     """Test backend integration."""
-    from flask_app.services import OrchestratorService, RegistryService, WorkflowService
+    from flask_app.services import (
+        orchestrator_service,
+        registry_service,
+        workflow_service,
+    )
 
     # Test services
-    orch_service = OrchestratorService()
-    reg_service = RegistryService()
-    workflow_service = WorkflowService()
-
     results = {
-        "orchestrator_available": orch_service.is_backend_available(),
-        "registry_available": reg_service.is_available(),
+        "orchestrator_available": orchestrator_service.is_backend_available(),
+        "registry_available": registry_service.is_available(),
         "workflow_available": workflow_service.is_available(),
         "registry_stats": (
-            reg_service.get_registry_stats() if reg_service.is_available() else {}
+            registry_service.get_registry_stats()
+            if registry_service.is_available()
+            else {}
         ),
         "agents_count": (
-            len(reg_service.get_agents_list()) if reg_service.is_available() else 0
+            len(registry_service.get_agents_list())
+            if registry_service.is_available()
+            else 0
         ),
         "tools_count": (
-            len(reg_service.get_tools_list()) if reg_service.is_available() else 0
+            len(registry_service.get_tools_list())
+            if registry_service.is_available()
+            else 0
         ),
     }
 

@@ -318,6 +318,284 @@ body {
     font-size: .875rem;
 }
 
+/* ===== PIPELINE-SPECIFIC STYLES (Regular CSS) ===== */
+
+/* Enhanced Pipeline Information Display */
+.pipeline-info {
+    border-left: 4px solid #3b82f6;
+    background: linear-gradient(to right, #eff6ff, #dbeafe);
+    padding: 1rem;
+    margin-top: 0.75rem;
+    border-radius: 0.5rem;
+}
+
+/* Workflow Panel Styling - Enhanced */
+#workflow-panel {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+.workflow-step {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+    margin-bottom: 0.5rem;
+}
+
+.workflow-step.completed {
+    background: linear-gradient(to right, #f0fdf4, #dcfce7);
+    border-color: #16a34a;
+    color: #15803d;
+}
+
+.workflow-step.pending {
+    background: linear-gradient(to right, #f9fafb, #f3f4f6);
+    border-color: #d1d5db;
+    color: #6b7280;
+}
+
+.workflow-step.active {
+    background: linear-gradient(to right, #eff6ff, #dbeafe);
+    border-color: #2563eb;
+    color: #1d4ed8;
+    animation: pulse 2s infinite;
+}
+
+.step-number {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.75rem;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+}
+
+.workflow-step.completed .step-number {
+    background: #16a34a;
+    color: white;
+}
+
+.workflow-step.pending .step-number {
+    background: #6b7280;
+    color: white;
+}
+
+.workflow-step.active .step-number {
+    background: #2563eb;
+    color: white;
+}
+
+/* Analytics Panel */
+.analytics-stats .stat-item {
+    padding: 0.25rem 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.analytics-stats .stat-item:last-child {
+    border-bottom: none;
+}
+
+/* Right Sidebar Styling */
+.workflow-sidebar {
+    width: 20rem;
+    /* w-80 equivalent */
+    flex-shrink: 0;
+    border-left: 1px solid #e5e7eb;
+    background: white;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-panel {
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-panel.flex-1 {
+    flex: 1;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.sidebar-panel.fixed-height {
+    height: 16rem;
+    /* h-64 equivalent */
+}
+
+.sidebar-header {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f9fafb;
+}
+
+.sidebar-header h6 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar-header svg {
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.5rem;
+}
+
+.sidebar-body {
+    flex: 1;
+    padding: 1rem;
+    overflow-y: auto;
+}
+
+.sidebar-empty-state {
+    text-align: center;
+    color: #6b7280;
+    padding: 2rem 0;
+}
+
+.sidebar-empty-state svg {
+    width: 3rem;
+    height: 3rem;
+    margin: 0 auto 0.75rem;
+    opacity: 0.5;
+}
+
+.sidebar-empty-state p {
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+/* Status Badge Colors */
+.status-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-weight: 500;
+}
+
+.status-badge.excellent {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.status-badge.good {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.status-badge.acceptable {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-badge.needs_improvement {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.status-badge.unknown {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+/* Responsive Design - Hide sidebar on mobile */
+@media (max-width: 768px) {
+    .workflow-sidebar {
+        display: none;
+    }
+
+    .chat-main-area {
+        width: 100%;
+        flex: 1;
+    }
+}
+
+/* Pipeline Info in Chat Messages - Enhanced */
+.pipeline-display {
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 1px solid #0ea5e9;
+    border-radius: 0.5rem;
+}
+
+.pipeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.pipeline-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #0c4a6e;
+    display: flex;
+    align-items: center;
+}
+
+.pipeline-steps-container {
+    margin-top: 0.75rem;
+}
+
+.pipeline-steps-title {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #075985;
+    margin-bottom: 0.25rem;
+}
+
+.pipeline-step-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+
+.pipeline-step-item svg {
+    width: 0.75rem;
+    height: 0.75rem;
+    margin-right: 0.5rem;
+}
+
+.pipeline-step-text {
+    font-size: 0.75rem;
+}
+
+.pipeline-step-text.completed {
+    color: #111827;
+}
+
+.pipeline-step-text.pending {
+    color: #6b7280;
+}
+
+.pipeline-stats {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #0ea5e9;
+    font-size: 0.75rem;
+    color: #0c4a6e;
+}
+
+.pipeline-stats span {
+    margin-right: 0.75rem;
+}
+
+.pipeline-stats .highlight {
+    color: #059669;
+    font-weight: 500;
+}
+
+
 /* Responsive tweaks */
 @media (max-width: 768px) {
 
