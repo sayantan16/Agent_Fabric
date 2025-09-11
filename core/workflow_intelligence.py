@@ -336,7 +336,7 @@ class WorkflowIntelligence:
         replacement_spec = adaptation_strategy.get("replacement_spec", {})
 
         # Use agent factory to create replacement
-        creation_result = await self.agent_factory.create_pipeline_agent(
+        creation_result = self.agent_factory.create_pipeline_agent(
             {
                 "name": replacement_spec.get(
                     "name", f"replacement_{step_plan.get('name', 'agent')}"
@@ -381,7 +381,7 @@ class WorkflowIntelligence:
             "original_agent": original_agent,
         }
 
-        creation_result = await self.agent_factory.create_pipeline_agent(modified_spec)
+        creation_result = self.agent_factory.create_pipeline_agent(modified_spec)
 
         if creation_result["status"] == "success":
             return {
@@ -409,7 +409,7 @@ class WorkflowIntelligence:
         preprocessing_spec = adaptation_strategy.get("preprocessing_spec", {})
 
         # Create preprocessing agent
-        creation_result = await self.agent_factory.create_pipeline_agent(
+        creation_result = self.agent_factory.create_pipeline_agent(
             {
                 "name": f"preprocessor_{step_plan.get('name', 'data')}",
                 "description": f"Preprocessor for {step_plan.get('name')}",

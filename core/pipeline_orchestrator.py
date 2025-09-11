@@ -248,7 +248,6 @@ class PipelineOrchestrator:
     ) -> Dict[str, Any]:
         """Generate enhanced agent specification with data type awareness."""
 
-        # Analyze the expected input/output types
         input_type = (
             type(previous_step_output).__name__
             if previous_step_output is not None
@@ -258,41 +257,40 @@ class PipelineOrchestrator:
             str(previous_step_output)[:200] if previous_step_output else "text input"
         )
 
-        # Enhanced prompt that includes data type information
+        # Enhanced prompt that DISCOURAGES unnecessary tool creation
         prompt = f"""
-    Design a pipeline-aware agent that can handle the specific data types and requirements.
+    Design a pipeline-aware agent for this step. IMPORTANT: Agents should be self-sufficient and only request tools for complex external operations.
 
     STEP REQUIREMENTS:
-    - Name: {step.get('name', f'step_{step_index}')}
+    - Name: {step.get('name', f'step_{step_index}')}  
     - Description: {step.get('description', '')}
     - Step Index: {step_index}
     - Expected Input Type: {input_type}
     - Input Sample: {input_sample}
-    - Input Requirements: {json.dumps(step.get('input_requirements', {}))}
-    - Output Requirements: {json.dumps(step.get('output_requirements', {}))}
 
-    AVAILABLE TOOLS: {json.dumps([t["name"] for t in self.registry.list_tools()])}
+    TOOL CREATION GUIDELINES:
+    - DO NOT create tools for simple logic (prime checking, basic math, string operations)
+    - DO NOT create tools for data parsing or filtering
+    - ONLY create tools for:
+    * External API calls
+    * Complex file I/O operations  
+    * Specialized libraries (PDF parsing, Excel manipulation)
+    * Database connections
 
-    DESIGN REQUIREMENTS:
-    1. Agent must handle the specific input data type: {input_type}
-    2. Agent must work in pipeline context (receives state dict with current_data)
-    3. Agent must have proper error handling for data type mismatches
-    4. Agent must return structured output compatible with next pipeline step
-    5. If no existing tools are suitable, specify new tools needed
+    For this step, determine if ANY tools are actually needed. Most likely, the answer is NO.
+
+    Simple operations like:
+    - Checking if a number is prime → Agent code
+    - Calculating averages → Agent code  
+    - Parsing strings → Agent code
+    - Filtering lists → Agent code
 
     RESPOND WITH JSON:
     {{
         "name": "descriptive_agent_name",
-        "description": "what this agent does and how it handles the data",
-        "required_tools": ["tool1", "tool2"],
-        "new_tools_needed": [
-            {{
-                "name": "tool_name",
-                "description": "what this tool does",
-                "input_type": "{input_type}",
-                "output_type": "expected_output_type"
-            }}
-        ],
+        "description": "what this agent does",
+        "required_tools": [],  // Usually empty! Only add if TRULY needed
+        "new_tools_needed": [],  // Usually empty!
         "input_handling": {{
             "expected_type": "{input_type}",
             "error_handling": "how to handle wrong types",
@@ -302,6 +300,7 @@ class PipelineOrchestrator:
             "type": "expected_output_type",
             "structure": "description of output structure"
         }},
+        "agent_logic_description": "Describe what the agent will do internally WITHOUT external tools",
         "pipeline_context": {{
             "step_index": {step_index},
             "works_with_state": true,
@@ -312,7 +311,7 @@ class PipelineOrchestrator:
 
         try:
             response = await self._call_gpt4_json(
-                system_prompt="Design intelligent pipeline agents with proper data type handling.",
+                system_prompt="Design intelligent pipeline agents that are self-sufficient.",
                 user_prompt=prompt,
             )
 
@@ -320,32 +319,35 @@ class PipelineOrchestrator:
 
             # Ensure required fields exist
             if "name" not in spec:
-                spec["name"] = f"enhanced_pipeline_agent_step_{step_index}"
+                spec["name"] = f"pipeline_agent_step_{step_index}"
 
             if "description" not in spec:
                 spec["description"] = (
-                    f"Enhanced agent for step {step_index} handling {input_type} input"
+                    f"Agent for step {step_index} handling {input_type} input"
                 )
+
+            # Default to NO tools unless absolutely necessary
+            if "required_tools" not in spec:
+                spec["required_tools"] = []
 
             return spec
 
         except Exception as e:
             print(f"DEBUG: Enhanced agent spec generation failed: {str(e)}")
-            # Fallback with data type awareness
+            # Fallback with NO tools
             return {
-                "name": f"enhanced_pipeline_agent_step_{step_index}",
-                "description": f"Enhanced agent for step {step_index} that handles {input_type} input and works in pipeline context",
-                "required_tools": [],
+                "name": f"pipeline_agent_step_{step_index}",
+                "description": f"Agent for step {step_index}",
+                "required_tools": [],  # No tools by default
                 "input_handling": {
                     "expected_type": input_type,
-                    "error_handling": "flexible input processing with type checking",
+                    "error_handling": "flexible input processing",
                     "data_extraction": "extract from current_data in pipeline state",
                 },
                 "pipeline_context": {
                     "step_index": step_index,
                     "works_with_state": True,
                     "data_flow_aware": True,
-                    "input_type": input_type,
                 },
             }
 
@@ -489,10 +491,17 @@ class PipelineOrchestrator:
             try:
                 if spec.get("type") == "agent" or "name" in spec:
                     # Create agent
-                    result = await self.agent_factory.create_pipeline_agent(spec)
+                    result = self.agent_factory.create_pipeline_agent(spec)
+                    print(f"DEBUG: Agent creation result: {result}")
+
                     if result["status"] == "success":
                         created["agents"].append(spec["name"])
+                        print(f"DEBUG: Agent {spec['name']} created successfully")
+
                     else:
+                        print(
+                            f"DEBUG: Agent {spec['name']} creation failed: {result.get('message', 'unknown error')}"
+                        )
                         failed["agents"].append(
                             {"name": spec["name"], "error": result.get("message")}
                         )
@@ -511,6 +520,10 @@ class PipelineOrchestrator:
                         )
 
             except Exception as e:
+                print(f"DEBUG: Exception in component creation: {str(e)}")
+                import traceback
+
+                print(f"DEBUG: Traceback: {traceback.format_exc()}")
                 failed["agents"].append(
                     {"name": spec.get("name", "unknown"), "error": str(e)}
                 )
@@ -584,7 +597,7 @@ class PipelineOrchestrator:
             if recovery_strategy.get("action") == "create_replacement_agent":
                 # Create new agent to replace failed one
                 replacement_spec = recovery_strategy.get("replacement_spec", {})
-                creation_result = await self.agent_factory.create_pipeline_agent(
+                creation_result = self.agent_factory.create_pipeline_agent(
                     replacement_spec
                 )
 
@@ -641,12 +654,24 @@ class PipelineOrchestrator:
         self, system_prompt: str, user_prompt: str, temperature: float = 0.1
     ) -> str:
         """Call GPT-4 for JSON responses."""
-        enhanced_prompt = f"{system_prompt}\n\n{user_prompt}\n\nRespond with ONLY valid JSON, no other text."
+        # Import the system prompt
+        from config import DYNAMIC_INTELLIGENCE_SYSTEM_PROMPT
+
+        # Combine system prompts
+        enhanced_system_prompt = (
+            f"{DYNAMIC_INTELLIGENCE_SYSTEM_PROMPT}\n\n{system_prompt}"
+        )
+        enhanced_user_prompt = (
+            f"{user_prompt}\n\nRespond with ONLY valid JSON, no other text."
+        )
 
         response = self.client.chat.completions.create(
             model=ORCHESTRATOR_MODEL,
             max_completion_tokens=ORCHESTRATOR_MAX_TOKENS,
-            messages=[{"role": "user", "content": enhanced_prompt}],
+            messages=[
+                {"role": "system", "content": enhanced_system_prompt},
+                {"role": "user", "content": enhanced_user_prompt},
+            ],
         )
 
         content = response.choices[0].message.content
@@ -770,6 +795,8 @@ class PipelineOrchestrator:
                 agent_spec = await self._generate_enhanced_agent_spec(
                     step, step_index, previous_step_output
                 )
+                # FIX: Convert agent name to lowercase
+                agent_spec["name"] = agent_spec["name"].lower()
                 step_plan["creation_specs"].append(agent_spec)
                 step_plan["agent_assigned"] = agent_spec["name"]
             else:
@@ -782,6 +809,8 @@ class PipelineOrchestrator:
             agent_spec = await self._generate_enhanced_agent_spec(
                 step, step_index, previous_step_output
             )
+            # FIX: Convert agent name to lowercase
+            agent_spec["name"] = agent_spec["name"].lower()
             step_plan["creation_specs"].append(agent_spec)
             step_plan["agent_assigned"] = agent_spec["name"]
 

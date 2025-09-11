@@ -229,7 +229,7 @@ class ToolFactory:
             # Call Claude API
             response = self.client.messages.create(
                 model=CLAUDE_MODEL,
-                max_completion_tokens=CLAUDE_MAX_TOKENS,
+                max_tokens=CLAUDE_MAX_TOKENS,
                 messages=[{"role": "user", "content": prompt}],
             )
 

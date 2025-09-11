@@ -1,6 +1,6 @@
 # AGENTIC FABRIC POC - COMPLETE PROJECT KNOWLEDGE BASE
 ================================================================================
-Generated: 2025-09-09 23:41:06
+Generated: 2025-09-10 21:39:27
 Project Root: /Users/sayantankundu/Documents/Agent Fabric
 
 ## PROJECT OVERVIEW
@@ -70,19 +70,12 @@ Agent Fabric/
 │   └── requirements_ui.txt
 ├── generated/
 │   ├── agents/
-│   │   ├── calculate_mean_agent.py
 │   │   ├── email_extractor_agent.py
-│   │   ├── generic_processor_215353_agent.py
-│   │   ├── prime_checker_agent.py
 │   │   ├── read_csv_agent.py
-│   │   ├── read_text_agent.py
-│   │   └── word_counter_agent.py
+│   │   └── read_text_agent.py
 │   ├── tools/
 │   │   ├── analyze_sentiment.py
 │   │   ├── calculate_mean.py
-│   │   ├── calculate_median.py
-│   │   ├── calculate_std.py
-│   │   ├── count_words.py
 │   │   ├── extract_emails.py
 │   │   ├── extract_phones.py
 │   │   └── extract_urls.py
@@ -163,7 +156,7 @@ Agent Fabric/
 ### File: KNOWLEDGE_BASE.md
 **Path:** `KNOWLEDGE_BASE.md`
 **Size:** 0 bytes
-**Modified:** 2025-09-09 23:40:47
+**Modified:** 2025-09-10 21:39:18
 
 ```markdown
 
@@ -203,8 +196,8 @@ POC in active development - implementing dynamic agent creation system.
 
 ### File: agents.json
 **Path:** `agents.json`
-**Size:** 14,594 bytes
-**Modified:** 2025-09-09 23:22:45
+**Size:** 5,057 bytes
+**Modified:** 2025-09-10 08:09:49
 
 ```json
 {
@@ -382,331 +375,6 @@ POC in active development - implementing dynamic agent creation system.
         "available_tools": []
       },
       "formatted_created_at": "2025-09-04 17:23:07"
-    },
-    "word_counter": {
-      "name": "word_counter",
-      "description": "Use the count_words tool to count the number of words in a provided text",
-      "uses_tools": ["count_words"],
-      "input_schema": {
-        "type": "any",
-        "description": "Flexible input - can be string, dict, or list"
-      },
-      "output_schema": {
-        "type": "object",
-        "required": ["status", "data", "metadata"],
-        "properties": {
-          "status": {
-            "type": "string",
-            "enum": ["success", "error", "partial"]
-          },
-          "data": {
-            "type": ["object", "array", "null"],
-            "description": "Agent-specific output data"
-          },
-          "metadata": {
-            "type": "object",
-            "required": ["agent", "execution_time"],
-            "properties": {
-              "agent": {
-                "type": "string"
-              },
-              "execution_time": {
-                "type": "number"
-              },
-              "tools_used": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "errors": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "warnings": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      },
-      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/agents/word_counter_agent.py",
-      "is_prebuilt": false,
-      "created_by": "claude-3-haiku-20240307",
-      "created_at": "2025-09-09T00:04:01.541911",
-      "version": "1.0.3fd0ca0d",
-      "execution_count": 1,
-      "avg_execution_time": 0.0,
-      "last_executed": "2025-09-09T00:04:07.978439",
-      "tags": [],
-      "line_count": 82,
-      "status": "active"
-    },
-    "calculate_mean": {
-      "name": "calculate_mean",
-      "description": "Process calculate_mean tasks",
-      "uses_tools": [],
-      "input_schema": {
-        "type": "any",
-        "description": "Flexible input - can be string, dict, or list"
-      },
-      "output_schema": {
-        "type": "object",
-        "required": ["status", "data", "metadata"],
-        "properties": {
-          "status": {
-            "type": "string",
-            "enum": ["success", "error", "partial"]
-          },
-          "data": {
-            "type": ["object", "array", "null"],
-            "description": "Agent-specific output data"
-          },
-          "metadata": {
-            "type": "object",
-            "required": ["agent", "execution_time"],
-            "properties": {
-              "agent": {
-                "type": "string"
-              },
-              "execution_time": {
-                "type": "number"
-              },
-              "tools_used": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "errors": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "warnings": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "generated_files": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "filename": {
-                  "type": "string"
-                },
-                "path": {
-                  "type": "string"
-                },
-                "type": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "size": {
-                  "type": "number"
-                }
-              }
-            }
-          }
-        }
-      },
-      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/agents/calculate_mean_agent.py",
-      "is_prebuilt": false,
-      "created_by": "claude-3-haiku-20240307",
-      "created_at": "2025-09-09T21:06:37.376541",
-      "version": "1.0.197417b6",
-      "execution_count": 2,
-      "avg_execution_time": 0.001,
-      "last_executed": "2025-09-09T21:12:20.211909",
-      "tags": [],
-      "line_count": 88,
-      "status": "active"
-    },
-    "prime_checker": {
-      "name": "prime_checker",
-      "description": "Filter the list for prime numbers and check if a given number (average) is prime",
-      "uses_tools": [],
-      "input_schema": {
-        "type": "any",
-        "description": "Flexible input - can be string, dict, or list"
-      },
-      "output_schema": {
-        "type": "object",
-        "required": ["status", "data", "metadata"],
-        "properties": {
-          "status": {
-            "type": "string",
-            "enum": ["success", "error", "partial"]
-          },
-          "data": {
-            "type": ["object", "array", "null"],
-            "description": "Agent-specific output data"
-          },
-          "metadata": {
-            "type": "object",
-            "required": ["agent", "execution_time"],
-            "properties": {
-              "agent": {
-                "type": "string"
-              },
-              "execution_time": {
-                "type": "number"
-              },
-              "tools_used": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "errors": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "warnings": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "generated_files": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "filename": {
-                  "type": "string"
-                },
-                "path": {
-                  "type": "string"
-                },
-                "type": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "size": {
-                  "type": "number"
-                }
-              }
-            }
-          }
-        }
-      },
-      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/agents/prime_checker_agent.py",
-      "is_prebuilt": false,
-      "created_by": "claude-3-haiku-20240307",
-      "created_at": "2025-09-09T21:06:47.161770",
-      "version": "1.0.2d6f9c51",
-      "execution_count": 2,
-      "avg_execution_time": 0.0,
-      "last_executed": "2025-09-09T21:12:20.206626",
-      "tags": [],
-      "line_count": 120,
-      "status": "active"
-    },
-    "generic_processor_215353": {
-      "name": "generic_processor_215353",
-      "description": "Process generic_processor_215353 tasks",
-      "uses_tools": [],
-      "input_schema": {
-        "type": "any",
-        "description": "Flexible input - can be string, dict, or list"
-      },
-      "output_schema": {
-        "type": "object",
-        "required": ["status", "data", "metadata"],
-        "properties": {
-          "status": {
-            "type": "string",
-            "enum": ["success", "error", "partial"]
-          },
-          "data": {
-            "type": ["object", "array", "null"],
-            "description": "Agent-specific output data"
-          },
-          "metadata": {
-            "type": "object",
-            "required": ["agent", "execution_time"],
-            "properties": {
-              "agent": {
-                "type": "string"
-              },
-              "execution_time": {
-                "type": "number"
-              },
-              "tools_used": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "errors": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "warnings": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "generated_files": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "filename": {
-                  "type": "string"
-                },
-                "path": {
-                  "type": "string"
-                },
-                "type": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "size": {
-                  "type": "number"
-                }
-              }
-            }
-          }
-        }
-      },
-      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/agents/generic_processor_215353_agent.py",
-      "is_prebuilt": false,
-      "created_by": "claude-3-haiku-20240307",
-      "created_at": "2025-09-09T21:54:01.884737",
-      "version": "1.0.3e55b3d6",
-      "execution_count": 0,
-      "avg_execution_time": 0.0,
-      "last_executed": null,
-      "tags": [],
-      "line_count": 94,
-      "status": "active"
     }
   }
 }
@@ -726,8 +394,8 @@ POC in active development - implementing dynamic agent creation system.
 
 ### File: config.py
 **Path:** `config.py`
-**Size:** 46,595 bytes
-**Modified:** 2025-09-09 23:21:29
+**Size:** 58,138 bytes
+**Modified:** 2025-09-10 16:58:45
 
 ```python
 """
@@ -978,6 +646,38 @@ TOOL_VALIDATION_RULES = {
     },
 }
 
+
+# =============================================================================
+# DYNAMIC INTELLIGENCE SYSTEM PROMPT
+# =============================================================================
+
+DYNAMIC_INTELLIGENCE_SYSTEM_PROMPT = """You are an adaptive AI that NEVER uses hardcoded patterns or predefined solutions. Your core principle is DYNAMIC REASONING.
+
+FUNDAMENTAL RULES:
+1. ANALYZE FIRST: Always understand the specific request before acting
+2. REASON DYNAMICALLY: Never apply template solutions or hardcoded patterns  
+3. THINK CONTEXTUALLY: Every situation is unique and requires unique analysis
+4. GENERATE APPROPRIATELY: Create solutions that fit the exact requirements
+5. ADAPT CONTINUOUSLY: Adjust your approach based on the specific context
+
+FORBIDDEN BEHAVIORS:
+- Using predefined examples (prime numbers, email extraction, etc.)
+- Applying template patterns without analysis
+- Assuming request types based on keywords
+- Generating generic or boilerplate responses
+- Hardcoding any logic, functions, or structures
+
+REQUIRED BEHAVIORS:
+- Analyze the specific request context deeply
+- Understand the exact data types and transformations needed
+- Reason about optimal approaches for THIS specific case
+- Generate solutions that are purpose-built for the requirements
+- Think step-by-step about what is actually needed
+
+Always think: "How do I solve THIS specific problem intelligently?"
+Never think: "Which template pattern matches this request?"
+"""
+
 # =============================================================================
 # ORCHESTRATOR PROMPTS
 # =============================================================================
@@ -991,192 +691,323 @@ Your process:
 4. Identify missing capabilities that need creation
 5. Plan efficient execution (sequential/parallel)
 
+AGENT_SELF_SUFFICIENCY_RULES = {
+    "implement_own_logic": True,
+    "minimize_tool_dependencies": True,
+    "tool_creation_threshold": "high",  # Only create tools for complex operations
+    "prefer_inline_implementation": True,
+}
+
+# Tool creation criteria
+TOOL_CREATION_CRITERIA = {
+    "required_for": [
+        "external_api_calls",
+        "database_connections",
+        "specialized_file_formats",  # PDF, Excel
+        "network_operations",
+        "complex_libraries",  # numpy, pandas operations
+    ],
+    "not_required_for": [
+        "basic_math",
+        "string_operations",
+        "list_filtering",
+        "simple_calculations",
+        "pattern_matching",
+        "data_parsing",
+    ],
+}
+
 Available agents and their capabilities will be provided. Use exact agent names from the registry."""
 
-ORCHESTRATOR_PLANNING_PROMPT = """You are planning a workflow for this user request.
+ORCHESTRATOR_PLANNING_PROMPT = """You are a workflow orchestrator planning optimal execution for a user request.
 
 REQUEST: {request}
 ANALYSIS: {analysis}
+AVAILABLE AGENTS: {available_agents}
+AVAILABLE TOOLS: {available_tools}
 
-AVAILABLE AGENTS:
-{available_agents}
+ORCHESTRATION INTELLIGENCE:
 
-AVAILABLE TOOLS:
-{available_tools}
+1. **STRATEGIC PLANNING**: How to accomplish the user's goal most effectively
+2. **RESOURCE ALLOCATION**: Best use of existing capabilities
+3. **DEPENDENCY MANAGEMENT**: Handling interdependencies intelligently
+4. **OPTIMIZATION**: Fastest, most reliable execution path
+5. **RISK MITIGATION**: Handling potential failures
 
-PLANNING INSTRUCTIONS:
-1. Identify what the user wants to accomplish
-2. Find existing agents that can handle the task
-3. Plan execution order (sequential/parallel/conditional)
-4. Only suggest creating new agents if existing ones truly cannot handle the task
-5. Be flexible - agents often have broader capabilities than their names suggest
+PLANNING FRAMEWORK:
 
-OUTPUT FORMAT - Respond with valid JSON:
+1. **GOAL ANALYSIS**: What does success look like for this request?
+2. **CAPABILITY MAPPING**: How do available agents map to requirements?
+3. **GAP ANALYSIS**: What capabilities are missing?
+4. **EXECUTION DESIGN**: What's the optimal execution strategy?
+5. **CONTINGENCY PLANNING**: What if things go wrong?
+
+RESPOND WITH JSON:
 {{
-    "workflow_id": "wf_{timestamp}",
-    "workflow_type": "sequential|parallel|conditional", 
-    "reasoning": "Brief explanation of your plan",
-    "agents_needed": ["exact_agent_names_from_available_list"],
-    "missing_capabilities": {{
-        "agents": [
+    "workflow_strategy": {{
+        "approach": "single_agent|sequential_pipeline|parallel_execution|hybrid_strategy",
+        "rationale": "why this approach is optimal for this specific request",
+        "complexity_assessment": "simple|moderate|complex|enterprise",
+        "confidence_level": 0.85
+    }},
+    "execution_plan": {{
+        "total_steps": 3,
+        "execution_pattern": "linear|branching|converging|iterative",
+        "estimated_duration": 25,
+        "resource_intensity": "low|medium|high",
+        "optimization_strategy": "speed|accuracy|reliability|cost"
+    }},
+    "agent_assignments": [
+        {{
+            "step_index": 0,
+            "assigned_agent": "existing_agent_name|null",
+            "assignment_confidence": 0.9,
+            "assignment_rationale": "why this agent fits this step",
+            "modification_needed": "none|minor|major",
+            "fallback_options": ["alternative_agent_1", "create_new"]
+        }}
+    ],
+    "capability_gaps": {{
+        "missing_agents": [
             {{
-                "name": "agent_name",
-                "purpose": "what it should do",
-                "required_tools": ["tool1", "tool2"]
+                "purpose": "what this missing agent should do",
+                "priority": "critical|high|medium|low",
+                "complexity": "simple|moderate|complex",
+                "creation_estimate": "time to create"
             }}
         ],
-        "tools": [
+        "missing_tools": [
             {{
-                "name": "tool_name", 
-                "purpose": "what it should do"
+                "purpose": "what this missing tool should do",
+                "priority": "critical|high|medium|low",
+                "complexity": "simple|moderate|complex"
             }}
-        ]
+        ],
+        "creation_order": ["component_1", "component_2"]
     }},
-    "confidence": 0.0-1.0
+    "data_flow_design": {{
+        "flow_pattern": "description of how data moves through the workflow",
+        "transformation_points": ["where data format changes"],
+        "validation_checkpoints": ["where to validate data"],
+        "state_management": "how to maintain state across steps"
+    }},
+    "risk_assessment": {{
+        "potential_failure_points": ["step or component that might fail"],
+        "mitigation_strategies": ["how to handle failures"],
+        "recovery_options": ["fallback approaches"],
+        "success_probability": 0.8
+    }},
+    "optimization_opportunities": {{
+        "parallelization": ["steps that can run in parallel"],
+        "caching": ["data that can be cached"],
+        "shortcuts": ["optimizations for common cases"],
+        "performance_bottlenecks": ["potential slow points"]
+    }}
 }}
 
-IMPORTANT: 
-- Use exact agent names from the available list
-- Don't assume rigid naming patterns 
-- Prefer existing agents over creating new ones
-- If no existing agents match, describe what needs to be created"""
+PLAN FOR THIS SPECIFIC REQUEST - avoid generic templated responses."""
 
 
-ORCHESTRATOR_ANALYSIS_PROMPT = """Analyze this user request to understand intent, requirements, and execution strategy:
+ORCHESTRATOR_ANALYSIS_PROMPT = """You are an intelligent request analyzer. Your job is to deeply understand what the user wants to accomplish and provide strategic guidance for execution.
 
-REQUEST: {request}
-FILES: {files}
-CONTEXT: {context}
+USER REQUEST: "{request}"
+UPLOADED FILES: {files}
+SYSTEM CONTEXT: {context}
 
-AVAILABLE AGENTS (use exact names):
-{available_agents}
+AVAILABLE CAPABILITIES:
+Agents: {available_agents}
+Tools: {available_tools}
 
-AVAILABLE TOOLS:
-{available_tools}
+ANALYSIS FRAMEWORK:
 
-Perform systematic analysis:
+1. **INTENT ANALYSIS**:
+   - What is the user's primary goal?
+   - What type of outcome do they expect?
+   - What domain does this request belong to? (mathematical, textual, analytical, creative, technical, etc.)
 
-1. CORE INTENT: What does the user want to accomplish?
-2. TASK CLASSIFICATION: What type of operation is this? (analysis, extraction, calculation, processing, etc.)
-3. DATA REQUIREMENTS: What kind of data does this task need? (numbers, text, files, structured data, etc.)
-4. PROCESSING COMPLEXITY: Is this a single-step or multi-step operation?
-5. CAPABILITY MATCHING: Which available agents can handle this type of task?
-6. CAPABILITY GAPS: What specific capabilities are missing and need to be created?
-7. EXECUTION STRATEGY: Should this be sequential, parallel, or conditional execution?
+2. **REQUIREMENT DECOMPOSITION**:
+   - What are the atomic operations needed?
+   - What data transformations are required?
+   - What dependencies exist between operations?
+   - What input/output formats are involved?
 
-IMPORTANT GUIDELINES:
-- Focus on WHAT needs to be done, not HOW to extract data (DataProcessor handles extraction)
-- Be specific about agent names and their actual capabilities
-- Consider the user's expertise level and adjust complexity accordingly
-- Think about error scenarios and edge cases
-- Identify if the request is ambiguous and needs clarification
+3. **COMPLEXITY ASSESSMENT**:
+   - Single-step: One clear operation
+   - Multi-step: Sequential operations with data flow
+   - Complex: Multiple interdependent operations with branching logic
 
-ANALYSIS EXAMPLES:
+4. **CAPABILITY MATCHING**:
+   - Which existing agents can handle parts of this request?
+   - What capabilities are missing?
+   - How well do available tools support the required operations?
 
-Request: "Find prime numbers in: 43, 17, 89, 56"
-→ Intent: Mathematical analysis - prime number identification
-→ Task Type: Numerical computation
-→ Data Requirements: Array of integers
-→ Complexity: Single-step operation
-→ Available Capability: None (need prime_checker)
-→ Strategy: Sequential execution with new agent
+5. **EXECUTION STRATEGY**:
+   - Sequential: Steps must happen in order
+   - Parallel: Independent operations can run simultaneously  
+   - Conditional: Logic branches based on intermediate results
 
-Request: "Extract emails and count words in this document"
-→ Intent: Multi-step text analysis
-→ Task Type: Text extraction + counting
-→ Data Requirements: Text document content
-→ Complexity: Multi-step operation  
-→ Available Capability: email_extractor + word_counter
-→ Strategy: Parallel execution of existing agents
+RESPOND WITH JSON:
+{{
+    "intent_analysis": {{
+        "primary_goal": "concise description of what user wants to achieve",
+        "expected_outcome_type": "data|analysis|visualization|document|calculation|extraction",
+        "domain": "mathematical|textual|analytical|creative|technical|mixed",
+        "user_expertise_level": "beginner|intermediate|advanced|technical"
+    }},
+    "requirements": {{
+        "atomic_operations": ["operation1", "operation2", "operation3"],
+        "data_transformations": ["input_type → intermediate_type → output_type"],
+        "dependencies": [["op1_before_op2"], ["op2_before_op3"]],
+        "input_formats": ["format1", "format2"],
+        "output_format": "expected_final_format"
+    }},
+    "complexity": {{
+        "level": "single|multi|complex",
+        "estimated_steps": 3,
+        "parallel_opportunities": ["op1_and_op2_parallel"],
+        "critical_dependencies": ["op3_needs_op1_and_op2"]
+    }},
+    "capability_assessment": {{
+        "existing_coverage": 0.7,
+        "missing_capabilities": ["specific_capability_1", "specific_capability_2"],
+        "tool_gaps": ["missing_tool_type"],
+        "agent_gaps": ["missing_agent_capability"]
+    }},
+    "execution_strategy": {{
+        "approach": "sequential|parallel|conditional",
+        "rationale": "why this approach is optimal",
+        "estimated_time": 25,
+        "confidence": 0.85
+    }}
+}}
 
-Request: "Analyze this CSV and create a report"
-→ Intent: Data analysis with visualization
-→ Task Type: Data processing + report generation
-→ Data Requirements: Structured tabular data
-→ Complexity: Multi-step pipeline
-→ Available Capability: Partial (may need data analyzer + report generator)
-→ Strategy: Sequential pipeline with possible new agent creation
+CRITICAL: Focus on understanding the ACTUAL REQUEST, not matching to predefined patterns. Every request is unique."""
 
-Be thorough but concise. Focus on strategic understanding rather than data parsing."""
+ORCHESTRATOR_SYNTHESIS_PROMPT = """You are a results synthesizer creating a natural, helpful response based on workflow execution.
 
-ORCHESTRATOR_SYNTHESIS_PROMPT = """Create a natural, helpful response based on the workflow execution results.
+USER'S REQUEST: "{request}"
+WORKFLOW EXECUTION RESULTS: {results}
+EXECUTION ERRORS: {errors}
+WORKFLOW METADATA: {{
+    "execution_time": "{execution_time}s",
+    "agents_used": {agents_used},
+    "workflow_type": "{workflow_type}"
+}}
 
-USER'S ORIGINAL REQUEST: {request}
-ACTUAL AGENT EXECUTION RESULTS: {results}
-WORKFLOW ERRORS: {errors}
+SYNTHESIS INTELLIGENCE:
 
-CRITICAL INSTRUCTIONS:
-1. **ONLY use the data that agents actually returned** - Do not make assumptions
-2. **Read the agent results carefully** - Look at the actual data structures and values
-3. **Address what the user specifically asked for** - Don't default to generic patterns
-4. **If agents returned empty/null/zero results, say so** - Don't make up data
-5. **Include processing attribution** - Show which agents contributed to the answer
-6. **If files were generated, provide download links** - Use the exact format: [Download Filename](/api/download/filename)
+1. **RESULT ANALYSIS**: What was actually accomplished?
+2. **USER ALIGNMENT**: How well do results match user expectations?
+3. **QUALITY ASSESSMENT**: Are the results complete and accurate?
+4. **PRESENTATION OPTIMIZATION**: How to present results most effectively?
+5. **VALUE COMMUNICATION**: What value was delivered to the user?
+
+RESPONSE FRAMEWORK:
+
+1. **DIRECT ANSWER**: Address what the user specifically asked for
+2. **RESULT PRESENTATION**: Show the actual data/findings clearly
+3. **PROCESS TRANSPARENCY**: Explain how results were obtained
+4. **QUALITY INDICATORS**: Indicate reliability and completeness
+5. **ACTIONABLE INSIGHTS**: Provide relevant next steps or interpretations
+
+SYNTHESIS RULES:
+- ONLY use data that was actually returned by agents
+- NEVER invent or assume data that wasn't generated
+- BE SPECIFIC about what was found vs. what was requested
+- PRESENT results in the format most useful to the user
+- ACKNOWLEDGE limitations or partial results honestly
+- PROVIDE download links for generated files using: [Download Filename](/api/download/filename)
 
 RESPONSE STRUCTURE:
-**Results Found:**
-[List actual extracted data clearly based on what agents returned]
+Based on the actual results, determine the most appropriate response format:
 
-**Issues (if any):**
-[List specific problems, empty results, or missing data based on actual agent outputs]
+For DATA EXTRACTION tasks:
+- Show what was found with specific counts/values
+- Indicate completeness of extraction
+- Highlight any patterns or notable findings
 
-**Generated Files (if any):**
-[Download Filename](/api/download/filename) - Description from agent metadata
+For CALCULATION tasks:
+- Present the computed values clearly
+- Show intermediate steps if helpful
+- Explain the methodology used
 
-**Process Summary:**
-Used [actual_agent_names] agents | Execution time: [actual_time]s
+For ANALYSIS tasks:
+- Summarize key findings and insights
+- Present supporting data
+- Indicate confidence levels
 
-IMPORTANT RULES:
-- Never invent data that wasn't returned by agents
-- Never assume what results mean without looking at actual values
-- If results are missing or empty, explain this honestly
-- Always base your response on the actual execution results provided
-- For generated files, use the exact filename and path provided by agents
-- Be conversational but factually accurate to the agent outputs
-- Show the specific data values that were extracted, not generic descriptions
-- If an agent returned empty arrays or null values, state this clearly
-- Match your response format to what the user actually requested (extraction, analysis, calculation, etc.)
+For PROCESSING tasks:
+- Describe what was processed
+- Show transformation results
+- Indicate any quality issues
 
-SITUATIONAL HANDLING GUIDELINES:
-- **Complete Success**: When all agents returned expected data, show all results clearly and concisely
-- **Partial Success**: When some agents succeeded and others failed, clearly separate what worked from what didn't
-- **Extraction Tasks**: Show exactly what was found vs what was requested, include counts and specific values
-- **Calculation Tasks**: Show the actual computed values, intermediate steps if relevant, and final answers
-- **Analysis Tasks**: Present the actual analysis results, insights, and any generated reports or summaries
-- **File Processing**: If files were processed, show what was extracted/analyzed and any generated outputs
-- **Empty Results**: When agents return empty arrays, null values, or zero counts, explain this clearly without apologizing
-- **Error Recovery**: If agents failed but pipeline continued, explain what was attempted and what succeeded
-- **Multi-Step Workflows**: Trace the data flow between steps, showing how results from one agent fed into the next
-- **Data Transformation**: When agents transform data between steps, show both input and output formats clearly
-- **Quality Assessment**: If results seem incomplete or unexpected, note this based on the actual data returned
-- **Performance Reporting**: Include actual execution times and which specific agents contributed to each result
+For FILE GENERATION tasks:
+- Provide download links
+- Describe file contents
+- Explain how to use the files
 
-CRITICAL: Your response must be based ONLY on the actual agent execution data provided in the results section. Handle each pipeline outcome based on what actually happened, not what should have happened.
-"""
+ADAPT YOUR RESPONSE to match what was actually accomplished and what the user needs to know.
+
+Create a natural, conversational response that directly addresses the user's request based on the actual execution results."""
 
 # =============================================================================
 # AGENT GENERATION PROMPTS
 # =============================================================================
 
-CLAUDE_AGENT_GENERATION_PROMPT = """Create a SMART Python agent that handles input intelligently.
+CLAUDE_AGENT_GENERATION_PROMPT = """You are an expert Python developer creating an intelligent agent for a multi-agent pipeline system.
 
-Agent Name: {agent_name}
-Purpose: {description}
-Required Tools: {tools}
+AGENT SPECIFICATION:
+- Name: {agent_name}
+- Purpose: {description}
+- Tools Available: {tools}
+- Input Description: {input_description}
+- Output Description: {output_description}
 
-CRITICAL: The agent must be smart about input data extraction and formatting.
+DYNAMIC LOGIC GENERATION INSTRUCTIONS:
 
-SMART INPUT HANDLING PATTERN:
+1. **ANALYZE THE PURPOSE**: Read the agent description carefully and understand what specific operation it needs to perform.
+
+2. **UNDERSTAND DATA FLOW**: 
+   - Input: What type of data will this agent receive? (numbers, text, lists, dicts, files, etc.)
+   - Processing: What transformation/analysis should be applied?
+   - Output: What format should the result be in?
+
+3. **IMPLEMENT APPROPRIATE LOGIC**:
+   - For mathematical operations: Implement the specific calculation or analysis needed
+   - For text processing: Implement parsing, extraction, or transformation logic  
+   - For data analysis: Implement filtering, aggregation, or statistical operations
+   - For file processing: Implement reading, parsing, or data extraction
+   - For validation: Implement checking, verification, or quality assessment
+
+4. **HANDLE MULTIPLE INPUT FORMATS**: The agent should intelligently handle different input types:
+   - Raw strings (extract relevant data)
+   - Lists/arrays (process elements)
+   - Dictionaries (extract from various keys)
+   - Results from previous pipeline steps
+
+5. **GENERATE FLEXIBLE OUTPUT**: Create output that can be consumed by next pipeline step or as final result.
+
+AGENT STRUCTURE TEMPLATE:
 ```python
 def {agent_name}_agent(state):
     \"\"\"
     {description}
+    
+    Dynamically handles: {input_description}
+    Produces: {output_description}
     \"\"\"
     import sys
     import os
+    import re
+    import json
     from datetime import datetime
+    from typing import List, Dict, Any, Union
     
+    # Add project path
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    
+    # Import tools only if needed
+    {tool_imports}
     
     # Initialize state
     if 'results' not in state:
@@ -1189,139 +1020,176 @@ def {agent_name}_agent(state):
     try:
         start_time = datetime.now()
         
-        # SMART DATA EXTRACTION - Try multiple sources in priority order
-        target_data = None
+        # INTELLIGENT INPUT EXTRACTION
+        # Extract data from multiple possible sources in state
+        input_data = None
         
-        # Priority 1: Use extracted data if available (from intelligent processing)
-        if 'extracted_data' in state and state['extracted_data'] is not None:
-            target_data = state['extracted_data']
-            print(f"DEBUG: Using extracted data: {{target_data}}")
+        # Priority order for data extraction
+        for key in ['extracted_data', 'current_data', 'data', 'input', 'request']:
+            if key in state and state[key] is not None:
+                input_data = state[key]
+                break
         
-        # Priority 2: Use current_data
-        elif 'current_data' in state and state['current_data'] is not None:
-            target_data = state['current_data']
+        # If still no data, try to extract from nested structures
+        if input_data is None:
+            for key in ['results', 'context', 'files']:
+                if key in state and state[key]:
+                    input_data = state[key]
+                    break
         
-        # Priority 3: Parse from raw request if needed
-        else:
-            raw_request = state.get('request', state.get('text', ''))
-            target_data = raw_request
+        # DYNAMIC LOGIC IMPLEMENTATION
+        # Analyze the agent's purpose and implement appropriate logic
         
-        # SMART PROCESSING - Agent reasons about the input and processes accordingly
+        # [THIS IS WHERE YOU ANALYZE THE DESCRIPTION AND IMPLEMENT THE RIGHT LOGIC]
+        # Based on the description: "{description}"
+        # Based on expected input: "{input_description}"  
+        # Based on expected output: "{output_description}"
         
-        # For {agent_name}, implement intelligent processing here
-        {agent_logic}
+        # IMPLEMENT YOUR LOGIC HERE:
+        # - If the purpose involves mathematical operations, implement those calculations
+        # - If it involves text processing, implement parsing/extraction/analysis
+        # - If it involves data filtering, implement filtering logic
+        # - If it involves validation, implement checking logic
+        # - If it involves transformation, implement conversion logic
         
+        processed_data = {{}}  # Replace with actual implementation
+        
+        # STRUCTURED OUTPUT
         result = {{
-            "status": "success",
-            "data": processed_data,
-            "metadata": {{
-                "agent": "{agent_name}",
-                "execution_time": (datetime.now() - start_time).total_seconds(),
-                "tools_used": {tools},
-                "input_data_type": str(type(target_data).__name__)
+            'status': 'success',
+            'data': processed_data,
+            'metadata': {{
+                'agent': '{agent_name}',
+                'execution_time': (datetime.now() - start_time).total_seconds(),
+                'input_type': type(input_data).__name__,
+                'output_type': type(processed_data).__name__,
+                'tools_used': {tools}
             }}
         }}
         
+        # Update pipeline state
         state['results']['{agent_name}'] = result
         state['current_data'] = processed_data
         state['execution_path'].append('{agent_name}')
         
+        return state
+        
     except Exception as e:
         import traceback
-        state['errors'].append({{
-            "agent": "{agent_name}",
-            "error": str(e),
-            "traceback": traceback.format_exc()
-        }})
-        state['results']['{agent_name}'] = {{
-            "status": "error",
-            "data": None,
-            "metadata": {{"agent": "{agent_name}", "error": str(e)}}
+        error_info = {{
+            'agent': '{agent_name}',
+            'error': str(e),
+            'traceback': traceback.format_exc()
         }}
-    
-    return state
-Make the agent SMART about handling different input types. For prime checking:
+        
+        state['errors'].append(error_info)
+        state['results']['{agent_name}'] = {{
+            'status': 'error',
+            'error': str(e),
+            'metadata': error_info
+        }}
+        
+        return state
+CRITICAL REQUIREMENTS:
 
-If input is a list of numbers → check each number
-If input is a string with numbers → extract numbers then check
-If input is a single number → check that number
+NO HARDCODED LOGIC - Analyze the description and implement appropriate logic dynamically
+FLEXIBLE INPUT HANDLING - Handle various data types and sources intelligently
+PURPOSE-DRIVEN IMPLEMENTATION - The logic should match exactly what the description asks for
+ROBUST ERROR HANDLING - Handle edge cases and unexpected input gracefully
+PIPELINE COMPATIBILITY - Ensure output can flow to next step or serve as final result
 
-Don't hardcode expectations - make agents adaptive!"""
+ANALYSIS PATTERNS:
+
+If description mentions "find/extract/identify" → Implement search/filtering logic
+If description mentions "calculate/compute/analyze" → Implement mathematical/statistical logic
+If description mentions "transform/convert/format" → Implement data transformation logic
+If description mentions "validate/check/verify" → Implement validation logic
+If description mentions "parse/read/process" → Implement parsing/processing logic
+
+Generate the complete, working agent that intelligently implements the required functionality based on the purpose description.
+"""
 
 # =============================================================================
 # TOOL GENERATION PROMPTS
 # =============================================================================
 
-CLAUDE_TOOL_GENERATION_PROMPT = """Create a PURE Python function following our standards.
+CLAUDE_TOOL_GENERATION_PROMPT = """Create a WORKING Python function that actually performs the described task.
 
-    Tool Name: {tool_name}
-    Purpose: {description}
-    Input: {input_description}
-    Output: {output_description}
+Tool Name: {tool_name}
+Purpose: {description}
+Input: {input_description}
+Output: {output_description}
 
-    MANDATORY TOOL STRUCTURE:
-    ```python
-    def {tool_name}(input_data=None):
-        \"\"\"
-        {description}
-        
-        Args:
-            input_data: {input_description}
-        
-        Returns:
-            {output_description}
-        \"\"\"
-        # Required imports
-        {imports}
-        
-        # MANDATORY: Handle None input
-        if input_data is None:
-            return {default_return}
-        
-        # MANDATORY: Type flexibility
-        try:
-            # Handle different input types
-            if isinstance(input_data, str):
-                data = input_data
-            elif isinstance(input_data, dict):
-                # Extract from common keys
-                data = input_data.get('text', input_data.get('data', input_data.get('content', str(input_data))))
-            elif isinstance(input_data, (list, tuple)):
-                data = input_data
-            elif isinstance(input_data, (int, float)):
-                data = input_data
-            else:
-                data = str(input_data)
-            
-            # TOOL LOGIC HERE - Implement actual functionality
-            # Even if it's a simple placeholder, make it functional
-            result = {default_return}
-            
-            # Add basic implementation based on tool name
-            if "format" in "{tool_name}":
-                result = f"Formatted: {{data}}"
-            elif "generate" in "{tool_name}":
-                result = f"Generated output for: {{data}}"
-            elif "extract" in "{tool_name}":
-                result = []
-            elif "calculate" in "{tool_name}":
-                result = 0
-            else:
-                result = data
-            
-            return result
-            
-        except Exception as e:
-            # NEVER raise exceptions, always return default
-            return {default_return}
-    Requirements:
+CRITICAL: This must be a REAL IMPLEMENTATION, not a placeholder!
 
-    MUST be a pure function (no side effects)
-    MUST handle None and any input type
-    MUST NOT raise exceptions
-    MUST return consistent type
-    MUST have at least basic functionality
-    Keep between {min_lines}-{max_lines} lines"""
+Based on the tool name and purpose, implement the ACTUAL logic:
+
+- If it's "prime_checker": Actually check if numbers are prime using mathematical logic
+- If it's "parse_and_filter_primes": Actually parse input and filter for prime numbers
+- If it's "calculate_std": Actually calculate standard deviation using the statistics module
+- If it's any calculation: Use proper mathematical formulas
+- If it's extraction: Use proper regex or parsing logic
+- If it's transformation: Actually transform the data
+
+EXAMPLE of a GOOD implementation for prime checking:
+```python
+def is_prime(n):
+    if n < 2:
+        return False
+    for i in range(2, int(n**0.5) + 1):
+        if n % i == 0:
+            return False
+    return True
+```
+
+Generate the COMPLETE WORKING function:
+
+```python
+def {tool_name}(input_data=None):
+    \"\"\"
+    {description}
+    \"\"\"
+    
+    if input_data is None:
+        # Return appropriate default for this specific tool
+        {default_return}
+    
+    try:
+        # Extract data from various input formats
+        if isinstance(input_data, str):
+            # Parse string input appropriately for this tool's purpose
+            # For numbers: extract numeric values
+            # For text: process as needed
+            pass
+        elif isinstance(input_data, dict):
+            # Extract from common dictionary keys
+            data = input_data.get('data', input_data.get('numbers', input_data.get('text', input_data)))
+        elif isinstance(input_data, (list, tuple)):
+            data = input_data
+        else:
+            data = input_data
+        
+        # IMPLEMENT THE ACTUAL TOOL LOGIC HERE
+        # This is where you write the REAL implementation
+        # Not placeholders or generic code
+        
+        # Return the actual result
+        return result
+        
+    except Exception as e:
+        # Return safe default on error
+        {default_return}
+```
+
+Requirements:
+1. MUST implement the actual functionality described
+2. MUST handle different input formats intelligently
+3. MUST NOT be a placeholder or generic template
+4. MUST use appropriate Python libraries (math, statistics, re, etc.)
+5. MUST return meaningful results
+
+DO NOT create generic templates. Create REAL, WORKING implementations!
+"""
 
 
 DEPENDENCY_ANALYSIS_PROMPT = """
@@ -1372,61 +1240,97 @@ Return only the Python code.
 # PIPELINE ORCHESTRATION PROMPTS
 # =============================================================================
 
-PIPELINE_ANALYSIS_PROMPT = """Analyze this complex request and break it into a logical pipeline of steps.
+PIPELINE_ANALYSIS_PROMPT = """You are a pipeline architect. Break down the request into logical, executable steps that can be orchestrated intelligently.
 
-REQUEST: {request}
-FILES: {files}
+REQUEST ANALYSIS: {request}
+FILES CONTEXT: {files}
+CAPABILITIES: 
+- Agents: {available_agents}  
+- Tools: {available_tools}
 
-AVAILABLE AGENTS:
-{available_agents}
+PIPELINE DESIGN PRINCIPLES:
 
-AVAILABLE TOOLS:
-{available_tools}
+1. **STEP IDENTIFICATION**: Each step should be atomic and well-defined
+2. **DATA FLOW DESIGN**: Clear input/output specifications for each step
+3. **DEPENDENCY MAPPING**: Understanding what depends on what
+4. **CAPABILITY MATCHING**: Using existing components when possible
+5. **GAP IDENTIFICATION**: Knowing what needs to be created
 
-ANALYSIS INSTRUCTIONS:
-1. Identify the main goal and break it into sequential steps
-2. For each step, determine what processing is needed
-3. Define input/output requirements for each step
-4. Consider data flow between steps
-5. Identify any parallel processing opportunities
+STEP DESIGN FRAMEWORK:
+For each step, define:
+- **Purpose**: What this step accomplishes
+- **Input Contract**: Exactly what data format it expects
+- **Output Contract**: Exactly what data format it produces  
+- **Processing Logic**: What transformation/analysis occurs
+- **Error Scenarios**: What can go wrong and how to handle it
 
-OUTPUT FORMAT - Respond with valid JSON:
+RESPOND WITH JSON:
 {{
-    "analysis_type": "pipeline",
-    "complexity": "simple|moderate|complex",
-    "total_steps": 3,
-    "execution_strategy": "sequential|parallel|hybrid",
+    "pipeline_metadata": {{
+        "pipeline_type": "sequential|parallel|conditional|hybrid",
+        "complexity_level": "simple|moderate|complex|enterprise",
+        "estimated_duration": 45,
+        "resource_requirements": "low|medium|high"
+    }},
     "steps": [
         {{
-            "name": "step_1_descriptive_name",
-            "description": "What this step accomplishes",
-            "input_requirements": {{
-                "type": "text|data|file|array",
-                "format": "specific format expected",
-                "source": "user_input|previous_step|file"
+            "step_id": "step_1", 
+            "name": "Descriptive_Step_Name",
+            "purpose": "What this step accomplishes",
+            "input_contract": {{
+                "data_type": "string|number|array|object|file",
+                "format": "specific format description",
+                "source": "user_input|previous_step|file_upload",
+                "validation_rules": ["rule1", "rule2"]
             }},
-            "output_requirements": {{
-                "type": "text|data|file|array", 
-                "format": "specific format produced",
-                "destination": "next_step|final_output"
+            "output_contract": {{
+                "data_type": "string|number|array|object",
+                "format": "specific format description", 
+                "destination": "next_step|final_output",
+                "structure": "detailed structure description"
             }},
-            "required_capabilities": ["extraction", "analysis", "transformation"],
-            "estimated_time": 5
+            "processing_requirements": {{
+                "operation_type": "extraction|calculation|transformation|analysis|validation",
+                "complexity": "simple|moderate|complex",
+                "special_handling": ["edge_case_1", "edge_case_2"]
+            }},
+            "dependencies": ["step_id_that_must_complete_first"],
+            "estimated_time": 8
         }}
     ],
     "data_flow": {{
-        "linear": true,
-        "parallel_opportunities": [],
-        "dependencies": []
+        "flow_pattern": "linear|branching|converging|circular",
+        "data_transformations": [
+            {{
+                "from_step": "step_1",
+                "to_step": "step_2", 
+                "transformation": "how data changes between steps"
+            }}
+        ],
+        "validation_points": ["where to validate data integrity"]
     }},
-    "confidence": 0.85
+    "execution_strategy": {{
+        "primary_approach": "sequential|parallel|hybrid",
+        "optimization_opportunities": ["where parallelism is possible"],
+        "critical_path": ["steps that determine total execution time"],
+        "fallback_strategies": ["what to do if steps fail"]
+    }},
+    "component_requirements": {{
+        "existing_agents_usable": ["agent_name_1", "agent_name_2"],
+        "new_agents_needed": [
+            {{
+                "purpose": "what this new agent should do",
+                "input_type": "expected input format",
+                "output_type": "expected output format",
+                "complexity": "simple|moderate|complex"
+            }}
+        ],
+        "tools_needed": ["tool_type_1", "tool_type_2"],
+        "creation_priority": "high|medium|low"
+    }}
 }}
 
-IMPORTANT:
-- Each step should have clear input/output requirements
-- Consider how data flows from one step to the next
-- Be specific about what processing each step needs
-- Identify opportunities for parallel execution"""
+FOCUS: Design based on the ACTUAL request requirements, not template patterns."""
 
 AGENT_COMPATIBILITY_PROMPT = """Analyze compatibility between a pipeline step and existing agents.
 
@@ -1442,6 +1346,14 @@ For each agent, analyze:
 2. Input compatibility - Can it handle the expected input format?
 3. Output compatibility - Does it produce the required output format?  
 4. Tool availability - Does it have the necessary tools?
+
+ANALYSIS RULES:
+1. Score 0.9-1.0: Agent is SPECIFICALLY designed for this exact task (has right tools, clear use case match)
+2. Score 0.6-0.8: Agent has SOME relevant capabilities but needs adaptation  
+3. Score 0.3-0.5: Agent MIGHT work with major modifications
+4. Score 0.0-0.2: Agent is NOT suitable at all
+
+CRITICAL: If an agent description mentions "generic" or "general" - be VERY skeptical. Generic agents should only get high scores if they have the EXACT tools needed.
 
 OUTPUT FORMAT - Respond with valid JSON:
 {{
@@ -1513,51 +1425,80 @@ OUTPUT FORMAT - Respond with valid JSON:
     "risks": []
 }}"""
 
-DYNAMIC_AGENT_SPEC_PROMPT = """Design a pipeline-aware agent for this specific step.
+DYNAMIC_AGENT_SPEC_PROMPT = """You are an agent architect designing a component for a specific pipeline step.
 
-STEP DESCRIPTION: {step_description}
-STEP INDEX: {step_index}
-INPUT REQUIREMENTS: {input_requirements}
-OUTPUT REQUIREMENTS: {output_requirements}
-AVAILABLE TOOLS: {available_tools}
+STEP CONTEXT:
+- Description: {step_description}
+- Step Index: {step_index}
+- Input Requirements: {input_requirements}
+- Output Requirements: {output_requirements}
+- Available Tools: {available_tools}
 
-AGENT DESIGN INSTRUCTIONS:
-1. Create an agent specifically for this pipeline step
-2. Ensure it handles the exact input format from previous step
-3. Ensure it produces the exact output format for next step
-4. Include appropriate error handling and edge cases
-5. Make it robust and reliable
+AGENT DESIGN PRINCIPLES:
 
-OUTPUT FORMAT - Respond with valid JSON:
+1. **PURPOSE CLARITY**: Agent should have one clear, well-defined responsibility
+2. **INPUT INTELLIGENCE**: Handle various input formats gracefully
+3. **OUTPUT CONSISTENCY**: Produce predictable, well-structured output
+4. **ERROR RESILIENCE**: Handle edge cases and failures gracefully
+5. **PIPELINE AWARENESS**: Understand its role in the larger workflow
+
+DESIGN ANALYSIS:
+1. What specific capability does this step require?
+2. What are the possible input variations?
+3. What processing logic is needed?
+4. What output format serves the next step best?
+5. What error scenarios need handling?
+
+RESPOND WITH JSON:
 {{
-    "name": "pipeline_step_{step_index}_descriptive_name",
-    "description": "Detailed description of what this agent does",
-    "input_specification": {{
-        "expected_format": "exact format this agent expects",
-        "validation_rules": ["rule1", "rule2"],
-        "edge_cases": ["case1", "case2"]
+    "agent_specification": {{
+        "name": "descriptive_agent_name_for_purpose",
+        "description": "clear description of what this agent does",
+        "responsibility": "single, well-defined responsibility",
+        "specialization": "what makes this agent unique/specialized"
+    }},
+    "input_handling": {{
+        "primary_input_type": "expected main input format",
+        "alternative_input_types": ["other formats it should handle"],
+        "input_validation": ["validation rules for input"],
+        "input_extraction_logic": "how to extract data from various sources",
+        "edge_cases": ["empty input", "wrong format", "missing data"]
+    }},
+    "processing_specification": {{
+        "core_logic_type": "mathematical|textual|analytical|transformational|validation",
+        "algorithm_approach": "description of processing approach",
+        "complexity_level": "simple|moderate|complex",
+        "performance_requirements": "fast|moderate|thorough",
+        "external_dependencies": ["tools or libraries needed"]
     }},
     "output_specification": {{
-        "output_format": "exact format this agent produces", 
-        "data_structure": "detailed structure description",
-        "success_indicators": ["indicator1", "indicator2"]
+        "output_format": "structured description of output",
+        "data_structure": "detailed structure specification",
+        "metadata_requirements": ["what metadata to include"],
+        "success_indicators": ["how to know processing succeeded"],
+        "error_format": "how to format error responses"
     }},
-    "required_tools": ["tool1", "tool2"],
-    "processing_steps": [
-        "step 1: validate input",
-        "step 2: process data", 
-        "step 3: format output"
-    ],
-    "error_handling": [
-        "invalid input format",
-        "processing failures",
-        "empty results"
-    ],
-    "performance_target": {{
-        "max_execution_time": 10,
-        "memory_usage": "low|medium|high"
+    "implementation_guidance": {{
+        "key_algorithms": ["algorithms or approaches to implement"],
+        "data_flow_patterns": ["how data moves through the agent"],
+        "optimization_opportunities": ["where to optimize performance"],
+        "testing_scenarios": ["scenarios to test during development"]
+    }},
+    "pipeline_integration": {{
+        "upstream_dependencies": ["what this agent expects from previous steps"],
+        "downstream_requirements": ["what next steps need from this agent"],
+        "state_management": ["how to update pipeline state"],
+        "error_propagation": ["how to handle and report errors"]
+    }},
+    "quality_requirements": {{
+        "reliability_level": "high|medium|basic",
+        "performance_target": "execution time expectations", 
+        "accuracy_requirements": "precision/accuracy needs",
+        "robustness_level": "error handling sophistication needed"
     }}
-}}"""
+}}
+
+DESIGN FOR THE SPECIFIC REQUIREMENTS - don't use generic templates."""
 
 PIPELINE_RECOVERY_PROMPT = """Generate recovery strategy for failed pipeline step.
 
@@ -1757,14 +1698,32 @@ CRITICAL REQUIREMENTS:
 5. Update pipeline state correctly
 6. Be robust to different input scenarios"""
 
+# Add to config.py
+AGENT_SELF_SUFFICIENCY_RULES = {
+    "implement_own_logic": True,
+    "minimize_tool_dependencies": True,
+    "tool_creation_threshold": "high",  # Only create tools for complex operations
+    "prefer_inline_implementation": True,
+}
 
-# =============================================================================
-# PREBUILT COMPONENTS
-# =============================================================================
-
-PREBUILT_READERS = ["read_text", "read_json", "read_csv", "read_pdf"]
-
-PREBUILT_CONNECTORS = ["jira_reader"]  # Jira-only for POC
+# Tool creation criteria
+TOOL_CREATION_CRITERIA = {
+    "required_for": [
+        "external_api_calls",
+        "database_connections",
+        "specialized_file_formats",  # PDF, Excel
+        "network_operations",
+        "complex_libraries",  # numpy, pandas operations
+    ],
+    "not_required_for": [
+        "basic_math",
+        "string_operations",
+        "list_filtering",
+        "simple_calculations",
+        "pattern_matching",
+        "data_parsing",
+    ],
+}
 
 # =============================================================================
 # UI CONFIGURATION
@@ -2783,8 +2742,8 @@ RESPOND WITH VALID JSON:
 
 ### File: core/agent_factory.py
 **Path:** `core/agent_factory.py`
-**Size:** 49,348 bytes
-**Modified:** 2025-09-09 23:10:16
+**Size:** 51,951 bytes
+**Modified:** 2025-09-10 21:34:06
 
 ```python
 """
@@ -2793,6 +2752,7 @@ Dynamically generates intelligent agents using Claude API
 """
 
 from datetime import datetime
+from unittest import result
 from core.registry import RegistryManager
 from config import (
     ANTHROPIC_API_KEY,
@@ -2829,6 +2789,12 @@ class AgentFactory:
 
     def __init__(self):
         """Initialize the agent factory."""
+
+        print(f"DEBUG: ANTHROPIC_API_KEY present: {bool(ANTHROPIC_API_KEY)}")
+        print(
+            f"DEBUG: ANTHROPIC_API_KEY length: {len(ANTHROPIC_API_KEY) if ANTHROPIC_API_KEY else 0}"
+        )
+
         self.client = Anthropic(api_key=ANTHROPIC_API_KEY)
         self.registry = get_shared_registry()
         self.generation_history = []
@@ -2849,6 +2815,9 @@ class AgentFactory:
         Create a new agent with Claude.
         FIXED: Ensures tools exist before creating agent.
         """
+
+        print(f"DEBUG: create_agent called for '{agent_name}'")
+        print(f"DEBUG: API client initialized: {self.client is not None}")
 
         print(f"DEBUG: Creating agent '{agent_name}' with tools: {required_tools}")
 
@@ -2981,6 +2950,8 @@ class AgentFactory:
             }
         )
 
+        print(f"DEBUG: create_agent returning with status: {agent_name}")
+
         return {
             "status": "success",
             "message": f"Agent '{agent_name}' created successfully",
@@ -3030,12 +3001,17 @@ class AgentFactory:
                 messages=[{"role": "user", "content": prompt}],
             )
 
+            print(f"DEBUG: Claude API response received")
+
             # Extract code from response
             raw_response = response.content[0].text
+            print(f"DEBUG: Raw response length: {len(raw_response)}")
+
             code = self._extract_code_from_response(raw_response)
 
             if not code:
                 print(f"DEBUG: No code extracted from Claude response")
+                print(f"DEBUG: First 500 chars of response: {raw_response[:500]}")
                 print(f"DEBUG: Raw Claude response:")
                 print(f"{'='*50}")
                 print(
@@ -3503,147 +3479,210 @@ class AgentFactory:
 
     # ADD THESE NEW METHODS to the AgentFactory class:
 
-    async def create_pipeline_agent(self, agent_spec: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Create a pipeline-aware agent that understands data flow context.
+    def create_pipeline_agent(self, spec: Dict) -> Dict[str, Any]:
+        """Create agent specifically designed for pipeline execution."""
 
-        Args:
-            agent_spec: Enhanced specification with pipeline context
-
-        Returns:
-            Creation result with pipeline awareness
-        """
-        print(
-            f"DEBUG: Creating pipeline-aware agent: {agent_spec.get('name', 'unnamed')}"
+        agent_name = spec.get(
+            "name", f"pipeline_agent_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         )
 
-        agent_name = agent_spec.get(
-            "name", f"pipeline_agent_{datetime.now().strftime('%H%M%S')}"
-        )
-        description = agent_spec.get("description", "Pipeline-aware agent")
+        # FIX: Convert to lowercase to match validation requirements
+        agent_name = agent_name.lower()
 
-        # Extract pipeline context
-        pipeline_context = agent_spec.get("pipeline_context", {})
-        step_index = pipeline_context.get("step_index", 0)
-        total_steps = pipeline_context.get("total_steps", 1)
-        input_format = pipeline_context.get("input_format", {})
-        output_format = pipeline_context.get("output_format", {})
+        description = spec.get("description", "Pipeline processing agent")
+        required_tools = spec.get("required_tools", [])
 
-        # Get required tools
-        required_tools = agent_spec.get("required_tools", [])
+        print(f"DEBUG: Creating pipeline agent: {agent_name}")
 
-        # Ensure required tools exist
-        for tool_name in required_tools:
-            if not self.registry.tool_exists(tool_name):
-                print(f"DEBUG: Creating missing tool for pipeline agent: {tool_name}")
-                tool_result = self.tool_factory.ensure_tool(
-                    tool_name=tool_name, description=f"Tool for {agent_name}"
-                )
-                if tool_result["status"] != "success":
-                    print(f"WARNING: Failed to create tool {tool_name}")
-
-        # Generate pipeline-specific agent code
-        agent_code = await self._generate_pipeline_agent_code(agent_spec)
-
-        # Register the agent
-        registration_result = self.registry.register_agent(
-            name=agent_name,
-            description=description,
-            code=agent_code,
-            uses_tools=required_tools,
-            is_prebuilt=False,
-            tags=["pipeline", f"step_{step_index}", "auto_generated"],
-            metadata={
-                "pipeline_context": pipeline_context,
-                "created_for_pipeline": True,
-                "step_index": step_index,
-            },
+        # Extract or generate input/output descriptions from spec
+        input_description = spec.get(
+            "input_description",
+            spec.get("input_requirements", {}).get(
+                "description",
+                "Pipeline step input - can be any format from previous step or initial data",
+            ),
         )
 
-        if registration_result["status"] == "success":
-            print(f"DEBUG: Pipeline agent '{agent_name}' created successfully")
+        output_description = spec.get(
+            "output_description",
+            spec.get("output_requirements", {}).get(
+                "description", "Processed output for next pipeline step"
+            ),
+        )
+
+        # Extract workflow steps if provided
+        workflow_steps = spec.get("workflow_steps", None)
+
+        # Enhanced agent creation with pipeline awareness
+        pipeline_context = spec.get("pipeline_context", {})
+
+        # Check if agent already exists
+        if self.registry.agent_exists(agent_name):
+            print(f"DEBUG: Agent {agent_name} already exists")
             return {
                 "status": "success",
-                "agent_name": agent_name,
-                "pipeline_context": pipeline_context,
-                "message": f"Pipeline agent created for step {step_index}",
-            }
-        else:
-            print(
-                f"DEBUG: Pipeline agent creation failed: {registration_result.get('message')}"
-            )
-            return {
-                "status": "error",
-                "message": f"Failed to create pipeline agent: {registration_result.get('message')}",
+                "agent": self.registry.get_agent(agent_name),
+                "message": "Agent already exists",
             }
 
-    async def _generate_pipeline_agent_code(self, agent_spec: Dict[str, Any]) -> str:
-        """Generate code for pipeline-aware agent."""
+        # Create tools first if needed
+        new_tools_needed = spec.get("new_tools_needed", [])
+        for tool_spec in new_tools_needed:
+            if not self.registry.tool_exists(tool_spec.get("name", "")):
+                from core.tool_factory import ToolFactory
 
-        agent_name = agent_spec.get("name", "pipeline_agent")
-        description = agent_spec.get("description", "Pipeline agent")
-        required_tools = agent_spec.get("required_tools", [])
+                tool_factory = ToolFactory()
 
-        # Extract pipeline context
-        pipeline_context = agent_spec.get("pipeline_context", {})
-        step_index = pipeline_context.get("step_index", 0)
-        total_steps = pipeline_context.get("total_steps", 1)
-        input_format = pipeline_context.get("input_format", {})
-        output_format = pipeline_context.get("output_format", {})
+                tool_result = tool_factory.ensure_tool(
+                    tool_name=tool_spec["name"],
+                    description=tool_spec.get("description", ""),
+                    tool_type="pure_function",
+                )
 
-        # Determine input/output sources
-        input_source = "user_input" if step_index == 0 else "previous_step"
-        output_target = "final_output" if step_index == total_steps - 1 else "next_step"
+                if tool_result.get("status") == "success":
+                    required_tools.append(tool_spec["name"])
+                    print(f"DEBUG: Created tool {tool_spec['name']} for agent")
 
-        # Use Claude to generate the core processing logic
-        processing_prompt = f"""Generate Python code for the core processing logic of this pipeline agent:
-
-    Agent: {agent_name}
-    Purpose: {description}
-    Step: {step_index} of {total_steps}
-    Tools Available: {required_tools}
-    Input Format: {input_format}
-    Output Format: {output_format}
-
-    Generate ONLY the core processing logic (the middle part of the agent function).
-    Focus on:
-    1. Smart input validation and extraction
-    2. Actual processing using available tools
-    3. Proper output formatting
-    4. Error handling for edge cases
-
-    Return only Python code, no explanations."""
-
+        # Now create the agent with ALL required parameters
         try:
-            # Get core processing logic from Claude
-            processing_logic = await self._call_claude_for_code(processing_prompt)
-
-            # Build complete agent using template
-            agent_code = PIPELINE_AGENT_TEMPLATE.format(
+            result = self.create_agent(
                 agent_name=agent_name,
-                step_index=step_index,
-                total_steps=total_steps,
-                input_source=input_source,
-                input_format=json.dumps(input_format),
-                output_target=output_target,
-                output_format=json.dumps(output_format),
-                purpose=description,
-                tools=json.dumps(required_tools),
+                description=description,
+                required_tools=required_tools,
+                input_description=input_description,  # NOW PROVIDED
+                output_description=output_description,  # NOW PROVIDED
+                workflow_steps=workflow_steps,
+                auto_create_tools=True,  # Allow automatic tool creation
+                is_prebuilt=False,
+                tags=["pipeline", f"step_{pipeline_context.get('step_index', 0)}"],
             )
 
-            # Insert the generated processing logic
-            agent_code = agent_code.replace(
-                "# [Agent-specific processing logic will be generated here]\n        processed_data = input_data  # Placeholder for actual processing",
-                processing_logic,
-            )
+            if result["status"] == "success":
+                print(f"DEBUG: Pipeline agent '{agent_name}' created successfully")
+                # Add pipeline context to registry if needed
+                if pipeline_context:
+                    agent_data = self.registry.get_agent(agent_name)
+                    if agent_data:
+                        agent_data["pipeline_context"] = pipeline_context
+                        # Update registry with context
+                        self.registry._save_registry()
 
-            return agent_code
+            print(
+                f"DEBUG: create_agent result for {agent_name}: {result.get('status') if isinstance(result, dict) else 'not a dict'}"
+            )
+            if result.get("status") != "success":
+                print(f"DEBUG: Agent creation failed: {result}")
+
+            return result
 
         except Exception as e:
-            print(f"DEBUG: Pipeline agent code generation failed: {str(e)}")
+            print(f"DEBUG: Failed to create pipeline agent: {str(e)}")
+            import traceback
 
-            # Use fallback template with basic processing
-            return self._generate_fallback_pipeline_agent(agent_spec)
+            print(f"DEBUG: Traceback: {traceback.format_exc()}")
+            return {
+                "status": "error",
+                "message": f"Failed to create pipeline agent: {str(e)}",
+            }
+
+    async def _generate_pipeline_agent_code(
+        self,
+        agent_name: str,
+        description: str,
+        tools: List[str],
+        pipeline_context: Dict,
+        input_handling: Dict,
+    ) -> str:
+        """Generate code for pipeline-aware agent."""
+
+        expected_input_type = input_handling.get("expected_type", "Any")
+        step_index = pipeline_context.get("step_index", 0)
+
+        template = f'''"""
+    {agent_name}: {description}
+    Pipeline-aware agent created for step {step_index}
+    """
+
+    def {agent_name}_agent(state):
+        """
+        Pipeline-aware agent that handles {expected_input_type} input.
+        
+        Expected input type: {expected_input_type}
+        Pipeline step: {step_index}
+        """
+        
+        try:
+            # Extract data with type checking
+            current_data = state.get("current_data")
+            
+            # Handle different input types intelligently
+            if current_data is None:
+                # Fallback to request text
+                current_data = state.get("request", "")
+            
+            # Type-specific processing
+            if isinstance(current_data, dict):
+                # Handle dict input
+                processed_data = _process_dict_input(current_data)
+            elif isinstance(current_data, list):
+                # Handle list input
+                processed_data = _process_list_input(current_data)
+            elif isinstance(current_data, str):
+                # Handle string input
+                processed_data = _process_string_input(current_data)
+            else:
+                # Convert to string for processing
+                processed_data = _process_string_input(str(current_data))
+            
+            # Update state with results
+            state["current_data"] = processed_data
+            state["results"]["{agent_name}"] = {{
+                "status": "success",
+                "data": processed_data,
+                "agent": "{agent_name}",
+                "step_index": {step_index}
+            }}
+            
+            # Add to execution path
+            state["execution_path"].append("{agent_name}")
+            
+            return state
+            
+        except Exception as e:
+            # Robust error handling
+            state["errors"].append({{
+                "agent": "{agent_name}",
+                "error": str(e),
+                "step_index": {step_index}
+            }})
+            
+            # Set error result but continue pipeline
+            state["results"]["{agent_name}"] = {{
+                "status": "error",
+                "error": str(e),
+                "agent": "{agent_name}",
+                "step_index": {step_index}
+            }}
+            
+            return state
+
+    def _process_dict_input(data):
+        """Process dictionary input."""
+        # Implementation based on agent purpose
+        return {{"processed": True, "input_type": "dict", "data": data}}
+
+    def _process_list_input(data):
+        """Process list input."""
+        # Implementation based on agent purpose  
+        return {{"processed": True, "input_type": "list", "count": len(data), "data": data}}
+
+    def _process_string_input(data):
+        """Process string input."""
+        # Implementation based on agent purpose
+        return {{"processed": True, "input_type": "string", "length": len(data), "data": data}}
+    '''
+
+        return template
 
     def _generate_fallback_pipeline_agent(self, agent_spec: Dict[str, Any]) -> str:
         """Generate fallback pipeline agent code."""
@@ -4846,8 +4885,8 @@ class DependencyResolver:
 
 ### File: core/orchestrator.py
 **Path:** `core/orchestrator.py`
-**Size:** 105,100 bytes
-**Modified:** 2025-09-09 23:10:15
+**Size:** 113,157 bytes
+**Modified:** 2025-09-10 17:04:58
 
 ```python
 """
@@ -4919,7 +4958,7 @@ class Orchestrator:
         self.tool_factory = ToolFactory()
         self.dependency_resolver = DependencyResolver(self.registry)
 
-        # NEW: Pipeline orchestration components
+        # FIX: Add pipeline orchestrator initialization
         self.pipeline_orchestrator = PipelineOrchestrator()
         self.pipeline_executor = PipelineExecutor(self.registry)
         self.workflow_intelligence = WorkflowIntelligence(self.registry)
@@ -5203,7 +5242,7 @@ class Orchestrator:
         """Analyze the request to understand intent and requirements."""
         # Get available components
         agents = self.registry.list_agents(active_only=True)
-        tools = self.registry.list_tools(pure_only=False)
+        tools = self.registry.list_tools()
 
         # Format components for prompt
         agents_desc = self._format_components_list(agents, "agents")
@@ -5324,19 +5363,17 @@ class Orchestrator:
     #         return self._create_fallback_plan(user_request, agents)
 
     async def _plan_workflow(
-        self, request: str, analysis: Dict, auto_create: bool = True
+        self, request: str, analysis: Dict, auto_create: bool
     ) -> Dict[str, Any]:
         """
-        Smart planning that works with your existing registry methods.
+        Plan workflow execution with proper handling of missing agents.
         """
         print(f"DEBUG: Smart planning for request")
 
         try:
-            # Use your existing registry methods without problematic parameters
-            available_agents = (
-                self.registry.list_agents()
-            )  # Remove active_only parameter
-            available_tools = self.registry.list_tools()  # Remove active_only parameter
+            # Get available agents and tools
+            available_agents = self.registry.list_agents()
+            available_tools = self.registry.list_tools()
 
             # Format for GPT-4
             agents_text = "\n".join(
@@ -5356,9 +5393,9 @@ class Orchestrator:
                 f"DEBUG: Found {len(available_agents)} agents and {len(available_tools)} tools"
             )
 
-            # Smart planning that recognizes patterns and uses existing agents
+            # Smart planning prompt
             planning_prompt = f"""
-    Analyze this request and create a smart sequential workflow using existing agents.
+    Analyze this request and create a smart sequential workflow.
 
     USER REQUEST: {request}
 
@@ -5368,19 +5405,15 @@ class Orchestrator:
     AVAILABLE TOOLS:
     {tools_text}
 
-    SMART PLANNING RULES:
-    1. For prime number requests: Use prime_checker agent
-    2. For average/mean calculations: Use calculate_mean agent  
-    3. For email extraction: Use email_extractor agent
-    4. For URL extraction: Use url_extractor agent
-    5. For CSV reading: Use read_csv agent
-    6. For text processing: Use read_text or word_counter agents
-    7. Plan agents in logical sequence for the request
+    PLANNING INSTRUCTIONS:
+    1. Identify what needs to be done step by step
+    2. For each step, suggest the best agent (even if it doesn't exist yet)
+    3. Be specific about agent names based on the task
 
-    For the request "{request}", identify:
-    1. What needs to be done step by step
-    2. Which existing agents can handle each step
-    3. What sequence makes sense
+    For prime number tasks: Use 'prime_checker' agent
+    For average/mean calculations: Use 'calculate_mean' agent  
+    For email extraction: Use 'email_extractor' agent
+    For URL extraction: Use 'url_extractor' agent
 
     RESPOND WITH VALID JSON:
     {{
@@ -5396,12 +5429,12 @@ class Orchestrator:
         "status": "success"
     }}
 
-    IMPORTANT: Only use agent names that exist in the available agents list above.
+    List ALL agents needed, whether they exist or not.
     """
 
             # Call GPT-4 for smart planning
             planning_response = await self._call_gpt4_json(
-                system_prompt="You are a smart workflow planner that uses existing agents effectively.",
+                system_prompt="You are a smart workflow planner.",
                 user_prompt=planning_prompt,
             )
 
@@ -5413,32 +5446,72 @@ class Orchestrator:
                 plan["auto_create"] = auto_create
                 plan["original_request"] = request
 
-                # Validate that requested agents actually exist
+                # CRITICAL FIX: Check which agents exist and which are missing
                 available_agent_names = [a.get("name") for a in available_agents]
                 valid_agents = []
+                missing_agents = []
 
                 for agent in plan.get("agents_needed", []):
                     if agent in available_agent_names:
                         valid_agents.append(agent)
+                        print(f"DEBUG: Agent '{agent}' exists")
                     else:
-                        print(f"DEBUG: Requested agent '{agent}' not found, skipping")
+                        print(f"DEBUG: Agent '{agent}' is missing - will need creation")
+                        missing_agents.append(
+                            {
+                                "name": agent,
+                                "purpose": f"Process {agent} tasks",
+                                "required_tools": [],
+                            }
+                        )
 
+                # Update plan with valid agents
                 plan["agents_needed"] = valid_agents
 
-                if not valid_agents:
-                    # Fallback to pattern matching
-                    plan = self._create_pattern_based_plan(request, available_agents)
+                # CRITICAL: Add missing agents to missing_capabilities
+                if missing_agents:
+                    if "missing_capabilities" not in plan:
+                        plan["missing_capabilities"] = {"agents": [], "tools": []}
+                    plan["missing_capabilities"]["agents"] = missing_agents
 
-                print(f"DEBUG: Smart plan created with agents: {plan['agents_needed']}")
+                # If auto_create is enabled and we have missing agents, they'll be created
+                # If auto_create is disabled and all agents are missing, return error status
+                if not valid_agents and not auto_create:
+                    plan["status"] = "missing_all_agents"
+                    plan["message"] = (
+                        f"None of the required agents exist: {', '.join([a['name'] for a in missing_agents])}"
+                    )
+
+                print(f"DEBUG: Smart plan created")
+                print(f"DEBUG: Existing agents to use: {valid_agents}")
+                print(
+                    f"DEBUG: Missing agents to create: {[a['name'] for a in missing_agents]}"
+                )
+
                 return plan
 
             except json.JSONDecodeError as e:
                 print(f"DEBUG: JSON parsing failed: {e}")
-                return self._create_pattern_based_plan(request, available_agents)
+                # Return error plan instead of falling back to bad agents
+                return {
+                    "status": "planning_error",
+                    "error": f"Failed to parse planning response: {str(e)}",
+                    "workflow_id": f"wf_error_{datetime.now().strftime('%Y%m%d%H%M%S')}",
+                    "workflow_type": "sequential",
+                    "agents_needed": [],
+                    "missing_capabilities": {"agents": [], "tools": []},
+                }
 
         except Exception as e:
             print(f"DEBUG: Smart planning failed: {str(e)}")
-            return self._create_pattern_based_plan(request, available_agents)
+            return {
+                "status": "planning_error",
+                "error": str(e),
+                "workflow_id": f"wf_error_{datetime.now().strftime('%Y%m%d%H%M%S')}",
+                "workflow_type": "sequential",
+                "agents_needed": [],
+                "missing_capabilities": {"agents": [], "tools": []},
+            }
 
     def _build_capability_map(self, agents: List[Dict], tools: List[Dict]) -> Dict:
         """Build detailed capability map for better planning."""
@@ -5637,6 +5710,10 @@ class Orchestrator:
         # CRITICAL: Create missing tools FIRST (agents depend on them)
         for tool_spec in missing_capabilities.get("tools", []):
             try:
+                # Handle both string and dict formats for tools
+                if isinstance(tool_spec, str):
+                    tool_spec = {"name": tool_spec, "purpose": f"Tool for {tool_spec}"}
+
                 print(f"DEBUG: Creating tool '{tool_spec['name']}'")
 
                 # Use tool factory's ensure method which handles everything
@@ -5659,13 +5736,23 @@ class Orchestrator:
                     created["tools"].append(tool_spec["name"])
 
             except Exception as e:
-                print(f"DEBUG: Tool '{tool_spec['name']}' creation error: {str(e)}")
+                print(f"DEBUG: Tool creation error: {str(e)}")
                 # Continue anyway
-                created["tools"].append(tool_spec["name"])
+                if isinstance(tool_spec, dict):
+                    created["tools"].append(tool_spec.get("name", "unknown"))
 
         # Now create missing agents (with tools available)
         for agent_spec in missing_capabilities.get("agents", []):
             try:
+                # FIX: Handle both string and dictionary formats
+                if isinstance(agent_spec, str):
+                    # Convert string to proper dictionary format
+                    agent_spec = {
+                        "name": agent_spec,
+                        "purpose": f"Process {agent_spec} tasks",
+                        "required_tools": [],  # Will be determined during creation
+                    }
+
                 print(
                     f"DEBUG: Creating agent '{agent_spec['name']}' with tools: {agent_spec.get('required_tools', [])}"
                 )
@@ -5680,27 +5767,49 @@ class Orchestrator:
 
                 if result["status"] in ["success", "exists"]:
                     created["agents"].append(agent_spec["name"])
-                    print(f"DEBUG: Agent '{agent_spec['name']}' created successfully")
+                    print(
+                        f"DEBUG: Agent '{agent_spec['name']}' created/verified successfully"
+                    )
                 else:
+                    print(
+                        f"DEBUG: Agent '{agent_spec['name']}' creation failed: {result.get('message')}"
+                    )
                     failed["agents"].append(
                         {
                             "name": agent_spec["name"],
                             "error": result.get("message", "Unknown error"),
                         }
                     )
-                    print(f"DEBUG: Agent '{agent_spec['name']}' creation failed")
 
             except Exception as e:
-                failed["agents"].append({"name": agent_spec["name"], "error": str(e)})
-                print(f"DEBUG: Agent '{agent_spec['name']}' creation error: {str(e)}")
+                print(f"DEBUG: Agent creation error for spec: {agent_spec}")
+                print(f"DEBUG: Error details: {str(e)}")
+                # Safely handle the error regardless of agent_spec type
+                agent_name = (
+                    agent_spec
+                    if isinstance(agent_spec, str)
+                    else agent_spec.get("name", "unknown")
+                )
+                failed["agents"].append({"name": agent_name, "error": str(e)})
 
-        # Return success if we created anything
-        if created["agents"] or created["tools"]:
-            return {"status": "success", "created": created, "failed": failed}
-        elif failed["agents"]:
-            return {"status": "partial", "created": created, "failed": failed}
+        # Determine overall status
+        total_created = len(created["agents"]) + len(created["tools"])
+        total_failed = len(failed["agents"]) + len(failed["tools"])
+
+        if total_failed == 0 and total_created > 0:
+            status = "success"
+        elif total_created > 0:
+            status = "partial"
         else:
-            return {"status": "success", "created": created, "failed": failed}
+            status = "failed"
+
+        return {
+            "status": status,
+            "created": created,
+            "failed": failed,
+            "total_created": total_created,
+            "total_failed": total_failed,
+        }
 
     async def _create_tool_from_spec(self, spec: Dict) -> Dict[str, Any]:
         """Create a tool from specification."""
@@ -6101,12 +6210,24 @@ Output as JSON."""
         self, system_prompt: str, user_prompt: str, temperature: float = 1.0
     ) -> str:
         """Call O3-mini model for JSON responses."""
-        enhanced_prompt = f"{system_prompt}\n\n{user_prompt}\n\nRespond with ONLY valid JSON, no other text before or after."
+        # Import the system prompt
+        from config import DYNAMIC_INTELLIGENCE_SYSTEM_PROMPT
+
+        # Combine system prompts
+        enhanced_system_prompt = (
+            f"{DYNAMIC_INTELLIGENCE_SYSTEM_PROMPT}\n\n{system_prompt}"
+        )
+        enhanced_user_prompt = (
+            f"{user_prompt}\n\nRespond with ONLY valid JSON, no other text."
+        )
 
         response = self.client.chat.completions.create(
             model=ORCHESTRATOR_MODEL,
-            max_completion_tokens=ORCHESTRATOR_MAX_TOKENS,  # Changed from max_tokens
-            messages=[{"role": "user", "content": enhanced_prompt}],
+            max_completion_tokens=ORCHESTRATOR_MAX_TOKENS,
+            messages=[
+                {"role": "system", "content": enhanced_system_prompt},
+                {"role": "user", "content": enhanced_user_prompt},
+            ],
         )
 
         content = response.choices[0].message.content
@@ -6221,29 +6342,65 @@ Output as JSON."""
         # Also check for tools specified in the plan's missing_capabilities
         if "missing_capabilities" in plan:
             plan_missing = plan["missing_capabilities"]
+
+            # Process missing agents from the plan
             if "agents" in plan_missing:
                 for agent in plan_missing["agents"]:
-                    # Add required tools for missing agents
-                    for tool in agent.get("required_tools", []):
-                        if not self.registry.tool_exists(tool):
-                            missing["tools"].append(
-                                {
-                                    "name": tool,
-                                    "purpose": f"Tool for {agent['name']}",
-                                    "type": "pure_function",
-                                }
-                            )
-                    # Add the agent itself
-                    if not any(a["name"] == agent["name"] for a in missing["agents"]):
-                        missing["agents"].append(agent)
+                    # Handle both string and dict formats
+                    if isinstance(agent, str):
+                        agent_name = agent
+                        agent_dict = {
+                            "name": agent_name,
+                            "purpose": f"Process {agent_name} tasks",
+                            "required_tools": [],
+                        }
+                    else:
+                        agent_name = agent.get("name")
+                        agent_dict = agent
 
+                    # CRITICAL FIX: Only add to missing if agent doesn't exist
+                    if agent_name and not self.registry.agent_exists(agent_name):
+                        # Check if we haven't already added this agent
+                        if not any(a["name"] == agent_name for a in missing["agents"]):
+                            missing["agents"].append(agent_dict)
+
+                        # Add required tools for missing agents
+                        for tool in agent_dict.get("required_tools", []):
+                            if not self.registry.tool_exists(tool):
+                                if not any(t["name"] == tool for t in missing["tools"]):
+                                    missing["tools"].append(
+                                        {
+                                            "name": tool,
+                                            "purpose": f"Tool for {tool}",
+                                            "type": "pure_function",
+                                        }
+                                    )
+
+            # Process missing tools from the plan
             if "tools" in plan_missing:
                 for tool in plan_missing["tools"]:
-                    if not any(t["name"] == tool["name"] for t in missing["tools"]):
-                        missing["tools"].append(tool)
+                    # Handle both string and dict formats
+                    if isinstance(tool, str):
+                        tool_name = tool
+                        tool_dict = {
+                            "name": tool_name,
+                            "purpose": f"Tool for {tool_name}",
+                            "type": "pure_function",
+                        }
+                    else:
+                        tool_name = tool.get("name")
+                        tool_dict = tool
 
-        # Return None if no missing capabilities (important!)
-        return missing if (missing["agents"] or missing["tools"]) else None
+                    # Only add if tool doesn't exist and isn't already in the list
+                    if tool_name and not self.registry.tool_exists(tool_name):
+                        if not any(t["name"] == tool_name for t in missing["tools"]):
+                            missing["tools"].append(tool_dict)
+
+        # Return empty missing capabilities if nothing is actually missing
+        if not missing["agents"] and not missing["tools"]:
+            return {}
+
+        return missing
 
     def _format_results_summary(self, execution_result: Dict) -> str:
         """Format execution results for synthesis."""
@@ -6610,16 +6767,11 @@ Output as JSON."""
         self, user_request: str, files: List[Dict] = None
     ) -> str:
         """
-        Detect if request requires pipeline processing.
-
-        Returns:
-            "simple" - single agent can handle
-            "pipeline" - requires multi-step pipeline
-            "complex" - requires advanced pipeline with adaptation
+        Enhanced complexity detection that recognizes multi-step operations.
         """
         request_lower = user_request.lower()
 
-        # Pipeline indicators
+        # Pipeline indicators (sequential operations)
         pipeline_keywords = [
             "then",
             "after",
@@ -6641,7 +6793,26 @@ Output as JSON."""
             "sequence",
         ]
 
-        # Complex pipeline indicators
+        # Multi-step operation indicators (even without explicit sequencing words)
+        multi_step_patterns = [
+            # Mathematical operations
+            ("find", "calculate"),  # Find X, calculate Y
+            ("filter", "average"),  # Filter items, average them
+            ("identify", "check"),  # Identify items, check property
+            ("extract", "count"),  # Extract items, count them
+            ("get", "analyze"),  # Get data, analyze it
+            ("select", "process"),  # Select items, process them
+            # Data operations
+            ("read", "process"),
+            ("load", "transform"),
+            ("parse", "analyze"),
+            # Multiple verbs that indicate steps
+            ("find", "check"),
+            ("calculate", "verify"),
+            ("compute", "validate"),
+        ]
+
+        # Complex indicators
         complex_keywords = [
             "multiple files",
             "compare",
@@ -6655,6 +6826,41 @@ Output as JSON."""
             "full report",
         ]
 
+        # Check for multiple operations using commas
+        # "Do X, do Y, do Z" pattern
+        comma_separated_tasks = (
+            len([x.strip() for x in request_lower.split(",") if x.strip()]) > 1
+        )
+
+        # Check for multiple action verbs
+        action_verbs = [
+            "find",
+            "calculate",
+            "check",
+            "extract",
+            "analyze",
+            "process",
+            "compute",
+            "filter",
+            "average",
+            "sum",
+            "count",
+            "identify",
+            "verify",
+            "validate",
+            "transform",
+            "convert",
+            "generate",
+        ]
+        verb_count = sum(1 for verb in action_verbs if verb in request_lower)
+
+        # Check for multi-step patterns
+        has_multi_step_pattern = False
+        for pattern in multi_step_patterns:
+            if all(word in request_lower for word in pattern):
+                has_multi_step_pattern = True
+                break
+
         # Count indicators
         pipeline_count = sum(
             1 for keyword in pipeline_keywords if keyword in request_lower
@@ -6663,16 +6869,57 @@ Output as JSON."""
             1 for keyword in complex_keywords if keyword in request_lower
         )
 
-        # Check for multiple steps in request
+        # Check for numbered steps
         step_indicators = ["1.", "2.", "3.", "step 1", "step 2", "step 3"]
         step_count = sum(
             1 for indicator in step_indicators if indicator in request_lower
         )
 
-        # Decision logic
-        if complex_count > 0 or (pipeline_count > 2) or (step_count > 1):
+        # File complexity
+        multiple_files = files and len(files) > 1
+
+        # Decision logic with enhanced detection
+        if complex_count > 0 or pipeline_count > 2 or step_count > 1 or multiple_files:
+            print(f"DEBUG: Detected as COMPLEX due to keywords/files")
             return "complex"
-        elif pipeline_count > 0 or len(request_lower.split()) > 20:
+        elif (
+            pipeline_count > 0
+            or verb_count >= 3
+            or has_multi_step_pattern
+            or comma_separated_tasks
+        ):
+            print(
+                f"DEBUG: Detected as PIPELINE due to multiple operations (verbs: {verb_count}, pattern: {has_multi_step_pattern}, commas: {comma_separated_tasks})"
+            )
+            return "pipeline"
+        elif verb_count >= 2 and len(request_lower.split()) > 10:
+            print(f"DEBUG: Detected as PIPELINE due to multiple verbs and length")
+            return "pipeline"
+        else:
+            print(
+                f"DEBUG: Detected as SIMPLE (verbs: {verb_count}, words: {len(request_lower.split())})"
+            )
+            return "simple"
+
+    def _simple_complexity_detection(
+        self, user_request: str, files: List[Dict] = None
+    ) -> str:
+        """Fallback complexity detection."""
+        request_lower = user_request.lower()
+
+        pipeline_keywords = ["then", "after", "next", "extract and", "analyze and"]
+        complex_keywords = ["multiple files", "compare", "merge", "comprehensive"]
+
+        pipeline_count = sum(
+            1 for keyword in pipeline_keywords if keyword in request_lower
+        )
+        complex_count = sum(
+            1 for keyword in complex_keywords if keyword in request_lower
+        )
+
+        if complex_count > 0 or pipeline_count > 2:
+            return "complex"
+        elif pipeline_count > 0:
             return "pipeline"
         else:
             return "simple"
@@ -8110,8 +8357,8 @@ class PipelineExecutor:
 
 ### File: core/pipeline_orchestrator.py
 **Path:** `core/pipeline_orchestrator.py`
-**Size:** 27,098 bytes
-**Modified:** 2025-09-09 23:36:45
+**Size:** 30,326 bytes
+**Modified:** 2025-09-10 21:36:13
 
 ```python
 """
@@ -8273,84 +8520,44 @@ class PipelineOrchestrator:
         )
         return pipeline_plan
 
-    async def _plan_step(
-        self,
-        step: Dict,
-        step_index: int,
-        auto_create: bool,
-        previous_step_output: Any = None,
-    ) -> Dict[str, Any]:
-        """Plan execution for a single pipeline step with enhanced code analysis."""
-        step_plan = {
-            "step_index": step_index,
-            "name": step.get("name", f"step_{step_index}"),
-            "description": step.get("description", ""),
-            "input_requirements": step.get("input_requirements", {}),
-            "output_requirements": step.get("output_requirements", {}),
-            "agent_assigned": None,
-            "needs_creation": False,
-            "creation_specs": [],
-            "estimated_time": 5,
-        }
+    def _predict_step_output(self, previous_step: Dict, current_step: Dict) -> Any:
+        """Predict output from previous step for planning purposes."""
 
-        # Enhanced compatibility analysis with code inspection
-        compatible_agents = (
-            await self.compatibility_analyzer.find_compatible_agents_with_code_analysis(
-                step, previous_step_output
-            )
-        )
+        # Analyze what the previous step should produce
+        prev_name = previous_step.get("name", "").lower()
+        prev_desc = previous_step.get("description", "").lower()
 
-        if compatible_agents:
-            best_agent = compatible_agents[0]
-            enhanced_analysis = best_agent.get("enhanced_analysis", {})
-            code_analysis = enhanced_analysis.get("code_analysis", {})
+        current_name = current_step.get("name", "").lower()
+        current_desc = current_step.get("description", "").lower()
 
-            # Check if major adaptation is needed - if so, consider creating new agent
-            adaptation_needed = code_analysis.get("adaptation_needed", "none")
-            compatibility_score = best_agent.get("compatibility_score", 0.0)
-
-            if adaptation_needed == "major" or compatibility_score < 0.6:
-                print(
-                    f"DEBUG: Agent {best_agent['name']} needs major adaptation (score: {compatibility_score})"
-                )
-                if auto_create:
-                    print(f"DEBUG: Triggering dynamic agent creation instead")
-                    step_plan["needs_creation"] = True
-                    agent_spec = await self._generate_enhanced_agent_spec(
-                        step, step_index, previous_step_output
-                    )
-                    step_plan["creation_specs"].append(agent_spec)
-                    step_plan["agent_assigned"] = agent_spec["name"]
-                else:
-                    step_plan["agent_assigned"] = best_agent["name"]
-                    step_plan["compatibility_warnings"] = [
-                        f"Major adaptation needed: {code_analysis.get('error_scenarios', [])}"
-                    ]
+        # Pattern-based output prediction
+        if "extract" in prev_desc:
+            if "email" in prev_desc:
+                return ["john@example.com", "mary@company.org"]  # Sample emails
+            elif "url" in prev_desc:
+                return [
+                    "https://example.com",
+                    "https://docs.example.com",
+                ]  # Sample URLs
             else:
-                step_plan["agent_assigned"] = best_agent["name"]
-                step_plan["estimated_time"] = best_agent.get("avg_execution_time", 5)
-                step_plan["compatibility_analysis"] = enhanced_analysis
-                print(
-                    f"DEBUG: Step {step_index} assigned to existing agent: {best_agent['name']} (score: {compatibility_score})"
-                )
+                return {"extracted_data": "sample extracted content"}
 
-        elif auto_create:
-            # No compatible agents found - create new one
-            step_plan["needs_creation"] = True
-            agent_spec = await self._generate_enhanced_agent_spec(
-                step, step_index, previous_step_output
-            )
-            step_plan["creation_specs"].append(agent_spec)
-            step_plan["agent_assigned"] = agent_spec["name"]
-            print(f"DEBUG: Step {step_index} needs new agent: {agent_spec['name']}")
+        elif "read" in prev_desc or "process" in prev_desc:
+            if "text" in prev_desc:
+                return "Sample processed text content"
+            else:
+                return {"processed_data": "sample processed content"}
 
+        elif "calculate" in prev_desc or "analyze" in prev_desc:
+            return {"result": 42, "analysis": "sample analysis"}
+
+        # Default prediction based on current step needs
+        if "text" in current_desc:
+            return "sample text for processing"
+        elif "list" in current_desc or "extract" in current_desc:
+            return ["item1", "item2", "item3"]
         else:
-            step_plan["agent_assigned"] = None
-            print(
-                f"DEBUG: Step {step_index} has no compatible agent and auto_create=False"
-            )
-
-        return step_plan
+            return {"data": "sample data", "type": "unknown"}
 
     async def _generate_agent_spec_for_step(
         self, step: Dict, step_index: int
@@ -8404,7 +8611,6 @@ class PipelineOrchestrator:
     ) -> Dict[str, Any]:
         """Generate enhanced agent specification with data type awareness."""
 
-        # Analyze the expected input/output types
         input_type = (
             type(previous_step_output).__name__
             if previous_step_output is not None
@@ -8414,41 +8620,40 @@ class PipelineOrchestrator:
             str(previous_step_output)[:200] if previous_step_output else "text input"
         )
 
-        # Enhanced prompt that includes data type information
+        # Enhanced prompt that DISCOURAGES unnecessary tool creation
         prompt = f"""
-    Design a pipeline-aware agent that can handle the specific data types and requirements.
+    Design a pipeline-aware agent for this step. IMPORTANT: Agents should be self-sufficient and only request tools for complex external operations.
 
     STEP REQUIREMENTS:
-    - Name: {step.get('name', f'step_{step_index}')}
+    - Name: {step.get('name', f'step_{step_index}')}  
     - Description: {step.get('description', '')}
     - Step Index: {step_index}
     - Expected Input Type: {input_type}
     - Input Sample: {input_sample}
-    - Input Requirements: {json.dumps(step.get('input_requirements', {}))}
-    - Output Requirements: {json.dumps(step.get('output_requirements', {}))}
 
-    AVAILABLE TOOLS: {json.dumps([t["name"] for t in self.registry.list_tools()])}
+    TOOL CREATION GUIDELINES:
+    - DO NOT create tools for simple logic (prime checking, basic math, string operations)
+    - DO NOT create tools for data parsing or filtering
+    - ONLY create tools for:
+    * External API calls
+    * Complex file I/O operations  
+    * Specialized libraries (PDF parsing, Excel manipulation)
+    * Database connections
 
-    DESIGN REQUIREMENTS:
-    1. Agent must handle the specific input data type: {input_type}
-    2. Agent must work in pipeline context (receives state dict with current_data)
-    3. Agent must have proper error handling for data type mismatches
-    4. Agent must return structured output compatible with next pipeline step
-    5. If no existing tools are suitable, specify new tools needed
+    For this step, determine if ANY tools are actually needed. Most likely, the answer is NO.
+
+    Simple operations like:
+    - Checking if a number is prime → Agent code
+    - Calculating averages → Agent code  
+    - Parsing strings → Agent code
+    - Filtering lists → Agent code
 
     RESPOND WITH JSON:
     {{
         "name": "descriptive_agent_name",
-        "description": "what this agent does and how it handles the data",
-        "required_tools": ["tool1", "tool2"],
-        "new_tools_needed": [
-            {{
-                "name": "tool_name",
-                "description": "what this tool does",
-                "input_type": "{input_type}",
-                "output_type": "expected_output_type"
-            }}
-        ],
+        "description": "what this agent does",
+        "required_tools": [],  // Usually empty! Only add if TRULY needed
+        "new_tools_needed": [],  // Usually empty!
         "input_handling": {{
             "expected_type": "{input_type}",
             "error_handling": "how to handle wrong types",
@@ -8458,6 +8663,7 @@ class PipelineOrchestrator:
             "type": "expected_output_type",
             "structure": "description of output structure"
         }},
+        "agent_logic_description": "Describe what the agent will do internally WITHOUT external tools",
         "pipeline_context": {{
             "step_index": {step_index},
             "works_with_state": true,
@@ -8468,7 +8674,7 @@ class PipelineOrchestrator:
 
         try:
             response = await self._call_gpt4_json(
-                system_prompt="Design intelligent pipeline agents with proper data type handling.",
+                system_prompt="Design intelligent pipeline agents that are self-sufficient.",
                 user_prompt=prompt,
             )
 
@@ -8476,32 +8682,35 @@ class PipelineOrchestrator:
 
             # Ensure required fields exist
             if "name" not in spec:
-                spec["name"] = f"enhanced_pipeline_agent_step_{step_index}"
+                spec["name"] = f"pipeline_agent_step_{step_index}"
 
             if "description" not in spec:
                 spec["description"] = (
-                    f"Enhanced agent for step {step_index} handling {input_type} input"
+                    f"Agent for step {step_index} handling {input_type} input"
                 )
+
+            # Default to NO tools unless absolutely necessary
+            if "required_tools" not in spec:
+                spec["required_tools"] = []
 
             return spec
 
         except Exception as e:
             print(f"DEBUG: Enhanced agent spec generation failed: {str(e)}")
-            # Fallback with data type awareness
+            # Fallback with NO tools
             return {
-                "name": f"enhanced_pipeline_agent_step_{step_index}",
-                "description": f"Enhanced agent for step {step_index} that handles {input_type} input and works in pipeline context",
-                "required_tools": [],
+                "name": f"pipeline_agent_step_{step_index}",
+                "description": f"Agent for step {step_index}",
+                "required_tools": [],  # No tools by default
                 "input_handling": {
                     "expected_type": input_type,
-                    "error_handling": "flexible input processing with type checking",
+                    "error_handling": "flexible input processing",
                     "data_extraction": "extract from current_data in pipeline state",
                 },
                 "pipeline_context": {
                     "step_index": step_index,
                     "works_with_state": True,
                     "data_flow_aware": True,
-                    "input_type": input_type,
                 },
             }
 
@@ -8645,10 +8854,17 @@ class PipelineOrchestrator:
             try:
                 if spec.get("type") == "agent" or "name" in spec:
                     # Create agent
-                    result = await self.agent_factory.create_pipeline_agent(spec)
+                    result = self.agent_factory.create_pipeline_agent(spec)
+                    print(f"DEBUG: Agent creation result: {result}")
+
                     if result["status"] == "success":
                         created["agents"].append(spec["name"])
+                        print(f"DEBUG: Agent {spec['name']} created successfully")
+
                     else:
+                        print(
+                            f"DEBUG: Agent {spec['name']} creation failed: {result.get('message', 'unknown error')}"
+                        )
                         failed["agents"].append(
                             {"name": spec["name"], "error": result.get("message")}
                         )
@@ -8667,6 +8883,10 @@ class PipelineOrchestrator:
                         )
 
             except Exception as e:
+                print(f"DEBUG: Exception in component creation: {str(e)}")
+                import traceback
+
+                print(f"DEBUG: Traceback: {traceback.format_exc()}")
                 failed["agents"].append(
                     {"name": spec.get("name", "unknown"), "error": str(e)}
                 )
@@ -8740,7 +8960,7 @@ class PipelineOrchestrator:
             if recovery_strategy.get("action") == "create_replacement_agent":
                 # Create new agent to replace failed one
                 replacement_spec = recovery_strategy.get("replacement_spec", {})
-                creation_result = await self.agent_factory.create_pipeline_agent(
+                creation_result = self.agent_factory.create_pipeline_agent(
                     replacement_spec
                 )
 
@@ -8797,12 +9017,24 @@ class PipelineOrchestrator:
         self, system_prompt: str, user_prompt: str, temperature: float = 0.1
     ) -> str:
         """Call GPT-4 for JSON responses."""
-        enhanced_prompt = f"{system_prompt}\n\n{user_prompt}\n\nRespond with ONLY valid JSON, no other text."
+        # Import the system prompt
+        from config import DYNAMIC_INTELLIGENCE_SYSTEM_PROMPT
+
+        # Combine system prompts
+        enhanced_system_prompt = (
+            f"{DYNAMIC_INTELLIGENCE_SYSTEM_PROMPT}\n\n{system_prompt}"
+        )
+        enhanced_user_prompt = (
+            f"{user_prompt}\n\nRespond with ONLY valid JSON, no other text."
+        )
 
         response = self.client.chat.completions.create(
             model=ORCHESTRATOR_MODEL,
             max_completion_tokens=ORCHESTRATOR_MAX_TOKENS,
-            messages=[{"role": "user", "content": enhanced_prompt}],
+            messages=[
+                {"role": "system", "content": enhanced_system_prompt},
+                {"role": "user", "content": enhanced_user_prompt},
+            ],
         )
 
         content = response.choices[0].message.content
@@ -8820,6 +9052,132 @@ class PipelineOrchestrator:
                 return content[start:end].strip()
 
         return content.strip()
+
+    async def _analyze_request_complexity(
+        self, user_request: str, files: List[Dict] = None
+    ) -> str:
+        """Analyze request complexity for pipeline routing."""
+        request_lower = user_request.lower()
+
+        # Pipeline indicators
+        pipeline_keywords = [
+            "then",
+            "after",
+            "next",
+            "followed by",
+            "and then",
+            "first",
+            "second",
+            "third",
+            "finally",
+            "last",
+            "extract and",
+            "analyze and",
+            "process and",
+            "create and",
+            "step by step",
+            "pipeline",
+            "workflow",
+            "sequence",
+        ]
+
+        # Complex indicators
+        complex_keywords = [
+            "multiple files",
+            "compare",
+            "merge",
+            "combine",
+            "different formats",
+            "various sources",
+            "cross-reference",
+            "comprehensive",
+            "detailed analysis",
+            "full report",
+        ]
+
+        # Count indicators
+        pipeline_count = sum(
+            1 for keyword in pipeline_keywords if keyword in request_lower
+        )
+        complex_count = sum(
+            1 for keyword in complex_keywords if keyword in request_lower
+        )
+
+        # Check for numbered steps
+        step_indicators = ["1.", "2.", "3.", "step 1", "step 2", "step 3"]
+        step_count = sum(
+            1 for indicator in step_indicators if indicator in request_lower
+        )
+
+        # File complexity
+        multiple_files = files and len(files) > 1
+
+        # Decision logic
+        if complex_count > 0 or pipeline_count > 2 or step_count > 1 or multiple_files:
+            return "complex"
+        elif pipeline_count > 0 or len(request_lower.split()) > 20:
+            return "pipeline"
+        else:
+            return "simple"
+
+    async def _plan_step(
+        self,
+        step: Dict,
+        step_index: int,
+        auto_create: bool,
+        previous_step_output: Any = None,
+    ) -> Dict[str, Any]:
+        """Plan execution for a single pipeline step."""
+        step_plan = {
+            "step_index": step_index,
+            "name": step.get("name", f"step_{step_index}"),
+            "description": step.get("description", ""),
+            "input_requirements": step.get("input_requirements", {}),
+            "output_requirements": step.get("output_requirements", {}),
+            "agent_assigned": None,
+            "needs_creation": False,
+            "creation_specs": [],
+            "estimated_time": 5,
+        }
+
+        # Find compatible agents
+        compatible_agents = await self.compatibility_analyzer.find_compatible_agents(
+            step
+        )
+
+        if compatible_agents:
+            best_agent = compatible_agents[0]
+            compatibility_score = best_agent.get("compatibility_score", 0.0)
+
+            if compatibility_score >= 0.6:
+                step_plan["agent_assigned"] = best_agent["name"]
+                step_plan["estimated_time"] = best_agent.get("avg_execution_time", 5)
+            elif auto_create:
+                # Create new agent for better compatibility
+                step_plan["needs_creation"] = True
+                agent_spec = await self._generate_enhanced_agent_spec(
+                    step, step_index, previous_step_output
+                )
+                # FIX: Convert agent name to lowercase
+                agent_spec["name"] = agent_spec["name"].lower()
+                step_plan["creation_specs"].append(agent_spec)
+                step_plan["agent_assigned"] = agent_spec["name"]
+            else:
+                # Use best available even if not perfect
+                step_plan["agent_assigned"] = best_agent["name"]
+
+        elif auto_create:
+            # No compatible agents - create new one
+            step_plan["needs_creation"] = True
+            agent_spec = await self._generate_enhanced_agent_spec(
+                step, step_index, previous_step_output
+            )
+            # FIX: Convert agent name to lowercase
+            agent_spec["name"] = agent_spec["name"].lower()
+            step_plan["creation_specs"].append(agent_spec)
+            step_plan["agent_assigned"] = agent_spec["name"]
+
+        return step_plan
 
 ```
 
@@ -12590,8 +12948,8 @@ class WorkflowEngine:
 
 ### File: core/workflow_intelligence.py
 **Path:** `core/workflow_intelligence.py`
-**Size:** 19,991 bytes
-**Modified:** 2025-09-09 23:08:56
+**Size:** 19,973 bytes
+**Modified:** 2025-09-10 21:15:39
 
 ```python
 """
@@ -12932,7 +13290,7 @@ class WorkflowIntelligence:
         replacement_spec = adaptation_strategy.get("replacement_spec", {})
 
         # Use agent factory to create replacement
-        creation_result = await self.agent_factory.create_pipeline_agent(
+        creation_result = self.agent_factory.create_pipeline_agent(
             {
                 "name": replacement_spec.get(
                     "name", f"replacement_{step_plan.get('name', 'agent')}"
@@ -12977,7 +13335,7 @@ class WorkflowIntelligence:
             "original_agent": original_agent,
         }
 
-        creation_result = await self.agent_factory.create_pipeline_agent(modified_spec)
+        creation_result = self.agent_factory.create_pipeline_agent(modified_spec)
 
         if creation_result["status"] == "success":
             return {
@@ -13005,7 +13363,7 @@ class WorkflowIntelligence:
         preprocessing_spec = adaptation_strategy.get("preprocessing_spec", {})
 
         # Create preprocessing agent
-        creation_result = await self.agent_factory.create_pipeline_agent(
+        creation_result = self.agent_factory.create_pipeline_agent(
             {
                 "name": f"preprocessor_{step_plan.get('name', 'data')}",
                 "description": f"Preprocessor for {step_plan.get('name')}",
@@ -17437,104 +17795,6 @@ workflow_service = WorkflowService()
 
 --------------------------------------------------------------------------------
 
-### File: generated/agents/calculate_mean_agent.py
-**Path:** `generated/agents/calculate_mean_agent.py`
-**Size:** 3,056 bytes
-**Modified:** 2025-09-09 21:06:37
-
-```python
-def calculate_mean_agent(state):
-    """
-    Process calculate_mean tasks
-    """
-    import sys
-    import os
-    from datetime import datetime
-    import re
-    
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    
-    # Initialize state
-    if 'results' not in state:
-        state['results'] = {}
-    if 'errors' not in state:
-        state['errors'] = []
-    if 'execution_path' not in state:
-        state['execution_path'] = []
-    
-    try:
-        start_time = datetime.now()
-        
-        # SMART DATA EXTRACTION - Try multiple sources in priority order
-        target_data = None
-        
-        # Priority 1: Use extracted data if available (from intelligent processing)
-        if 'extracted_data' in state and state['extracted_data'] is not None:
-            target_data = state['extracted_data']
-            print(f"DEBUG: Using extracted data: {target_data}")
-        
-        # Priority 2: Use current_data
-        elif 'current_data' in state and state['current_data'] is not None:
-            target_data = state['current_data']
-        
-        # Priority 3: Parse from raw request if needed
-        else:
-            raw_request = state.get('request', state.get('text', ''))
-            target_data = raw_request
-        
-        # SMART PROCESSING - Agent reasons about the input and processes accordingly
-        
-        # For calculate_mean, implement intelligent processing here
-        # Process input data
-        if isinstance(target_data, list):
-            # Input is a list of numbers
-            numbers = target_data
-        elif isinstance(target_data, str):
-            # Input is a string, extract numbers
-            numbers = [float(x) for x in re.findall(r'\d+(?:\.\d+)?', target_data)]
-        else:
-            # Input is a single number
-            numbers = [float(target_data)]
-        
-        if numbers:
-            mean = sum(numbers) / len(numbers)
-            processed_data = {'mean': mean, 'numbers': numbers}
-        else:
-            processed_data = {'result': 'No valid numbers found in the input.'}
-        
-        result = {
-            "status": "success",
-            "data": processed_data,
-            "metadata": {
-                "agent": "calculate_mean",
-                "execution_time": (datetime.now() - start_time).total_seconds(),
-                "tools_used": [],
-                "input_data_type": str(type(target_data).__name__)
-            }
-        }
-        
-        state['results']['calculate_mean'] = result
-        state['current_data'] = processed_data
-        state['execution_path'].append('calculate_mean')
-        
-    except Exception as e:
-        import traceback
-        state['errors'].append({
-            "agent": "calculate_mean",
-            "error": str(e),
-            "traceback": traceback.format_exc()
-        })
-        state['results']['calculate_mean'] = {
-            "status": "error",
-            "data": None,
-            "metadata": {"agent": "calculate_mean", "error": str(e)}
-        }
-    
-    return state
-```
-
---------------------------------------------------------------------------------
-
 ### File: generated/agents/email_extractor_agent.py
 **Path:** `generated/agents/email_extractor_agent.py`
 **Size:** 3,418 bytes
@@ -17649,240 +17909,6 @@ def email_extractor_agent(state):
 
     return state
 
-```
-
---------------------------------------------------------------------------------
-
-### File: generated/agents/generic_processor_215353_agent.py
-**Path:** `generated/agents/generic_processor_215353_agent.py`
-**Size:** 3,229 bytes
-**Modified:** 2025-09-09 21:54:01
-
-```python
-def generic_processor_215353_agent(state):
-    """
-    Process generic_processor_215353 tasks
-    """
-    import sys
-    import os
-    from datetime import datetime
-    import re
-
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-    # Initialize state
-    if 'results' not in state:
-        state['results'] = {}
-    if 'errors' not in state:
-        state['errors'] = []
-    if 'execution_path' not in state:
-        state['execution_path'] = []
-
-    try:
-        start_time = datetime.now()
-
-        # SMART DATA EXTRACTION - Try multiple sources in priority order
-        target_data = None
-
-        # Priority 1: Use extracted data if available (from intelligent processing)
-        if 'extracted_data' in state and state['extracted_data'] is not None:
-            target_data = state['extracted_data']
-            print(f"DEBUG: Using extracted data: {target_data}")
-
-        # Priority 2: Use current_data
-        elif 'current_data' in state and state['current_data'] is not None:
-            target_data = state['current_data']
-
-        # Priority 3: Parse from raw request if needed
-        else:
-            raw_request = state.get('request', state.get('text', ''))
-            target_data = raw_request
-
-        # SMART PROCESSING - Agent reasons about the input and processes accordingly
-        def is_prime(n):
-            if n <= 1:
-                return False
-            for i in range(2, int(n ** 0.5) + 1):
-                if n % i == 0:
-                    return False
-            return True
-
-        # Extract numbers from input
-        if isinstance(target_data, str):
-            numbers = [int(x) for x in re.findall(r'\d+', target_data)]
-        elif isinstance(target_data, list):
-            numbers = [int(x) for x in target_data if isinstance(x, (int, str)) and x.isdigit()]
-        elif isinstance(target_data, (int, float)):
-            numbers = [int(target_data)]
-        else:
-            numbers = []
-
-        # Process the numbers
-        prime_numbers = [n for n in numbers if is_prime(n)]
-        non_prime_numbers = [n for n in numbers if not is_prime(n)]
-
-        result = {
-            "status": "success",
-            "data": {
-                "prime_numbers": prime_numbers,
-                "non_prime_numbers": non_prime_numbers
-            },
-            "metadata": {
-                "agent": "generic_processor_215353",
-                "execution_time": (datetime.now() - start_time).total_seconds(),
-                "tools_used": [],
-                "input_data_type": str(type(target_data).__name__)
-            }
-        }
-
-        state['results']['generic_processor_215353'] = result
-        state['current_data'] = result['data']
-        state['execution_path'].append('generic_processor_215353')
-
-    except Exception as e:
-        import traceback
-        state['errors'].append({
-            "agent": "generic_processor_215353",
-            "error": str(e),
-            "traceback": traceback.format_exc()
-        })
-        state['results']['generic_processor_215353'] = {
-            "status": "error",
-            "data": None,
-            "metadata": {"agent": "generic_processor_215353", "error": str(e)}
-        }
-
-    return state
-```
-
---------------------------------------------------------------------------------
-
-### File: generated/agents/prime_checker_agent.py
-**Path:** `generated/agents/prime_checker_agent.py`
-**Size:** 4,338 bytes
-**Modified:** 2025-09-09 21:06:47
-
-```python
-def prime_checker_agent(state):
-    """
-    Filter the list for prime numbers and check if a given number (average) is prime
-    """
-    import sys
-    import os
-    from datetime import datetime
-    import re
-
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-    # Initialize state
-    if 'results' not in state:
-        state['results'] = {}
-    if 'errors' not in state:
-        state['errors'] = []
-    if 'execution_path' not in state:
-        state['execution_path'] = []
-
-    try:
-        start_time = datetime.now()
-
-        # SMART DATA EXTRACTION - Try multiple sources in priority order
-        target_data = None
-
-        # Priority 1: Use extracted data if available (from intelligent processing)
-        if 'extracted_data' in state and state['extracted_data'] is not None:
-            target_data = state['extracted_data']
-            print(f"DEBUG: Using extracted data: {target_data}")
-
-        # Priority 2: Use current_data
-        elif 'current_data' in state and state['current_data'] is not None:
-            target_data = state['current_data']
-
-        # Priority 3: Parse from raw request if needed
-        else:
-            raw_request = state.get('request', state.get('text', ''))
-            target_data = raw_request
-
-        # SMART PROCESSING - Agent reasons about the input and processes accordingly
-        if isinstance(target_data, list):
-            # Input is a list of numbers
-            prime_numbers = [num for num in target_data if is_prime(num)]
-            result = {
-                "status": "success",
-                "data": {
-                    "prime_numbers": prime_numbers,
-                    "average": sum(target_data) / len(target_data) if target_data else 0,
-                    "is_average_prime": is_prime(sum(target_data) / len(target_data)) if target_data else False
-                },
-                "metadata": {
-                    "agent": "prime_checker",
-                    "execution_time": (datetime.now() - start_time).total_seconds(),
-                    "tools_used": [],
-                    "input_data_type": "list"
-                }
-            }
-        elif isinstance(target_data, str):
-            # Input is a string with numbers
-            numbers = [int(num) for num in re.findall(r'\d+', target_data)]
-            prime_numbers = [num for num in numbers if is_prime(num)]
-            result = {
-                "status": "success",
-                "data": {
-                    "prime_numbers": prime_numbers,
-                    "average": sum(numbers) / len(numbers) if numbers else 0,
-                    "is_average_prime": is_prime(sum(numbers) / len(numbers)) if numbers else False
-                },
-                "metadata": {
-                    "agent": "prime_checker",
-                    "execution_time": (datetime.now() - start_time).total_seconds(),
-                    "tools_used": [],
-                    "input_data_type": "string"
-                }
-            }
-        else:
-            # Input is a single number
-            is_number_prime = is_prime(target_data)
-            result = {
-                "status": "success",
-                "data": {
-                    "is_prime": is_number_prime
-                },
-                "metadata": {
-                    "agent": "prime_checker",
-                    "execution_time": (datetime.now() - start_time).total_seconds(),
-                    "tools_used": [],
-                    "input_data_type": str(type(target_data).__name__)
-                }
-            }
-
-        state['results']['prime_checker'] = result
-        state['current_data'] = result['data']
-        state['execution_path'].append('prime_checker')
-
-    except Exception as e:
-        import traceback
-        state['errors'].append({
-            "agent": "prime_checker",
-            "error": str(e),
-            "traceback": traceback.format_exc()
-        })
-        state['results']['prime_checker'] = {
-            "status": "error",
-            "data": None,
-            "metadata": {"agent": "prime_checker", "error": str(e)}
-        }
-
-    return state
-
-def is_prime(n):
-    """
-    Check if a number is prime.
-    """
-    if n <= 1:
-        return False
-    for i in range(2, int(n ** 0.5) + 1):
-        if n % i == 0:
-            return False
-    return True
 ```
 
 --------------------------------------------------------------------------------
@@ -18120,122 +18146,6 @@ def read_text_agent(state):
 
 --------------------------------------------------------------------------------
 
-### File: generated/agents/word_counter_agent.py
-**Path:** `generated/agents/word_counter_agent.py`
-**Size:** 3,513 bytes
-**Modified:** 2025-09-09 00:27:30
-
-```python
-def word_counter_agent(state):
-    """
-    Use the count_words tool to count the number of words in a provided text
-    """
-    import sys
-    import os
-    from datetime import datetime
-
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-    # Import tools
-    try:
-        from generated.tools.count_words import count_words
-    except ImportError:
-        try:
-            from prebuilt.tools.count_words import count_words
-        except ImportError:
-            # Define fallback if tool not found
-            def count_words(input_data=None):
-                return {"error": "Tool count_words not found", "data": None}
-
-    # Initialize state
-    if "results" not in state:
-        state["results"] = {}
-    if "errors" not in state:
-        state["errors"] = []
-    if "execution_path" not in state:
-        state["execution_path"] = []
-
-    try:
-        start_time = datetime.now()
-
-        # Get input data using standard pattern
-        input_data = state.get("current_data")
-        if input_data is None:
-            if "results" in state and state["execution_path"]:
-                last_agent = state["execution_path"][-1]
-                if last_agent in state["results"]:
-                    last_result = state["results"][last_agent]
-                    if isinstance(last_result, dict) and "data" in last_result:
-                        input_data = last_result["data"]
-
-        if input_data is None:
-            input_data = state.get("text", state.get("data", state.get("request")))
-
-        import re
-
-        target_text = input_data
-        if isinstance(input_data, str):
-            # Look for text in quotes (the actual text to count)
-            quote_patterns = [
-                r'"([^"]+)"',  # Double quotes
-                r"'([^']+)'",  # Single quotes
-            ]
-
-            for pattern in quote_patterns:
-                matches = re.findall(pattern, input_data)
-                if matches:
-                    # Use the last quoted text found (likely the target)
-                    target_text = matches[-1]
-                    break
-
-        # Then use target_text instead of input_data:
-        tool_result = count_words(target_text)
-        if isinstance(tool_result, dict):
-            word_count = tool_result.get("word_count", tool_result.get("data", 0))
-        else:
-            word_count = tool_result if isinstance(tool_result, int) else 0
-
-        # Create meaningful output
-        result = {
-            "status": "success",
-            "data": {
-                "word_count": word_count,
-                "input_length": len(input_data.split()),
-                "input_text": input_data,
-            },
-            "metadata": {
-                "agent": "word_counter",
-                "execution_time": (datetime.now() - start_time).total_seconds(),
-                "tools_used": ["count_words"],
-            },
-        }
-
-        state["results"]["word_counter"] = result
-        state["current_data"] = result["data"]
-        state["execution_path"].append("word_counter")
-
-    except Exception as e:
-        import traceback
-
-        state["errors"].append(
-            {
-                "agent": "word_counter",
-                "error": str(e),
-                "traceback": traceback.format_exc(),
-            }
-        )
-        state["results"]["word_counter"] = {
-            "status": "error",
-            "data": None,
-            "metadata": {"agent": "word_counter", "error": str(e)},
-        }
-
-    return state
-
-```
-
---------------------------------------------------------------------------------
-
 ### File: generated/tools/analyze_sentiment.py
 **Path:** `generated/tools/analyze_sentiment.py`
 **Size:** 2,001 bytes
@@ -18344,132 +18254,6 @@ def calculate_mean(input_data=None):
     except Exception:
         return 0
 
-```
-
---------------------------------------------------------------------------------
-
-### File: generated/tools/calculate_median.py
-**Path:** `generated/tools/calculate_median.py`
-**Size:** 1,157 bytes
-**Modified:** 2025-09-04 23:14:54
-
-```python
-def calculate_median(input_data=None):
-        """
-        Calculate median of numbers
-        """
-        
-        if input_data is None:
-            return {"status": "no_input", "result": None}
-        
-        try:
-            result = {"status": "success"}
-            
-            # Process based on input type
-            if isinstance(input_data, str):
-                result["text_length"] = len(input_data)
-                result["word_count"] = len(input_data.split())
-                result["processed"] = input_data.strip()
-            elif isinstance(input_data, dict):
-                result["keys"] = list(input_data.keys())
-                result["size"] = len(input_data)
-                result["processed"] = input_data
-            elif isinstance(input_data, list):
-                result["count"] = len(input_data)
-                result["processed"] = input_data
-            else:
-                result["type"] = type(input_data).__name__
-                result["value"] = str(input_data)
-            
-            return result
-            
-        except Exception as e:
-            return {"status": "error", "message": str(e)}
-    
-```
-
---------------------------------------------------------------------------------
-
-### File: generated/tools/calculate_std.py
-**Path:** `generated/tools/calculate_std.py`
-**Size:** 1,155 bytes
-**Modified:** 2025-09-04 23:14:54
-
-```python
-def calculate_std(input_data=None):
-        """
-        Calculate standard deviation
-        """
-        
-        if input_data is None:
-            return {"status": "no_input", "result": None}
-        
-        try:
-            result = {"status": "success"}
-            
-            # Process based on input type
-            if isinstance(input_data, str):
-                result["text_length"] = len(input_data)
-                result["word_count"] = len(input_data.split())
-                result["processed"] = input_data.strip()
-            elif isinstance(input_data, dict):
-                result["keys"] = list(input_data.keys())
-                result["size"] = len(input_data)
-                result["processed"] = input_data
-            elif isinstance(input_data, list):
-                result["count"] = len(input_data)
-                result["processed"] = input_data
-            else:
-                result["type"] = type(input_data).__name__
-                result["value"] = str(input_data)
-            
-            return result
-            
-        except Exception as e:
-            return {"status": "error", "message": str(e)}
-    
-```
-
---------------------------------------------------------------------------------
-
-### File: generated/tools/count_words.py
-**Path:** `generated/tools/count_words.py`
-**Size:** 1,166 bytes
-**Modified:** 2025-09-09 00:03:54
-
-```python
-def count_words(input_data=None):
-        """
-        Count the number of words in a given text
-        """
-        
-        if input_data is None:
-            return {"status": "no_input", "result": None}
-        
-        try:
-            result = {"status": "success"}
-            
-            # Process based on input type
-            if isinstance(input_data, str):
-                result["text_length"] = len(input_data)
-                result["word_count"] = len(input_data.split())
-                result["processed"] = input_data.strip()
-            elif isinstance(input_data, dict):
-                result["keys"] = list(input_data.keys())
-                result["size"] = len(input_data)
-                result["processed"] = input_data
-            elif isinstance(input_data, list):
-                result["count"] = len(input_data)
-                result["processed"] = input_data
-            else:
-                result["type"] = type(input_data).__name__
-                result["value"] = str(input_data)
-            
-            return result
-            
-        except Exception as e:
-            return {"status": "error", "message": str(e)}
-    
 ```
 
 --------------------------------------------------------------------------------
@@ -20068,8 +19852,8 @@ if __name__ == "__main__":
 
 ### File: tools.json
 **Path:** `tools.json`
-**Size:** 6,413 bytes
-**Modified:** 2025-09-09 23:22:09
+**Size:** 4,646 bytes
+**Modified:** 2025-09-10 08:08:57
 
 ```json
 {
@@ -20186,38 +19970,6 @@ if __name__ == "__main__":
       "used_by": [],
       "formatted_created_at": "2025-09-04 23:14:54"
     },
-    "calculate_median": {
-      "name": "calculate_median",
-      "description": "Calculate median of numbers",
-      "signature": "def calculate_median(input_data=None)",
-      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/tools/calculate_median.py",
-      "is_prebuilt": false,
-      "is_pure_function": true,
-      "used_by_agents": [],
-      "created_by": "claude-3-haiku-20240307",
-      "created_at": "2025-09-04T23:14:54.610601",
-      "tags": ["calculation"],
-      "line_count": 32,
-      "status": "active",
-      "used_by": [],
-      "formatted_created_at": "2025-09-04 23:14:54"
-    },
-    "calculate_std": {
-      "name": "calculate_std",
-      "description": "Calculate standard deviation",
-      "signature": "def calculate_std(input_data=None)",
-      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/tools/calculate_std.py",
-      "is_prebuilt": false,
-      "is_pure_function": true,
-      "used_by_agents": [],
-      "created_by": "claude-3-haiku-20240307",
-      "created_at": "2025-09-04T23:14:54.644859",
-      "tags": ["calculation"],
-      "line_count": 32,
-      "status": "active",
-      "used_by": [],
-      "formatted_created_at": "2025-09-04 23:14:54"
-    },
     "analyze_sentiment": {
       "name": "analyze_sentiment",
       "description": "Analyze sentiment of text",
@@ -20233,20 +19985,6 @@ if __name__ == "__main__":
       "status": "active",
       "used_by": [],
       "formatted_created_at": "2025-09-04 23:26:14"
-    },
-    "count_words": {
-      "name": "count_words",
-      "description": "Count the number of words in a given text",
-      "signature": "def count_words(input_data=None)",
-      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/tools/count_words.py",
-      "is_prebuilt": false,
-      "is_pure_function": true,
-      "used_by_agents": ["word_counter"],
-      "created_by": "claude-3-haiku-20240307",
-      "created_at": "2025-09-09T00:03:54.897491",
-      "tags": [],
-      "line_count": 32,
-      "status": "active"
     }
   }
 }
@@ -20258,7 +19996,7 @@ if __name__ == "__main__":
 ### File: tools.json.lock
 **Path:** `tools.json.lock`
 **Size:** 0 bytes
-**Modified:** 2025-09-09 00:03:54
+**Modified:** 2025-09-10 07:56:48
 
 *[Binary file or content not included]*
 

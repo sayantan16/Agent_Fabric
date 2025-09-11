@@ -4,6 +4,7 @@ Dynamically generates intelligent agents using Claude API
 """
 
 from datetime import datetime
+from unittest import result
 from core.registry import RegistryManager
 from config import (
     ANTHROPIC_API_KEY,
@@ -40,6 +41,12 @@ class AgentFactory:
 
     def __init__(self):
         """Initialize the agent factory."""
+
+        print(f"DEBUG: ANTHROPIC_API_KEY present: {bool(ANTHROPIC_API_KEY)}")
+        print(
+            f"DEBUG: ANTHROPIC_API_KEY length: {len(ANTHROPIC_API_KEY) if ANTHROPIC_API_KEY else 0}"
+        )
+
         self.client = Anthropic(api_key=ANTHROPIC_API_KEY)
         self.registry = get_shared_registry()
         self.generation_history = []
@@ -60,6 +67,9 @@ class AgentFactory:
         Create a new agent with Claude.
         FIXED: Ensures tools exist before creating agent.
         """
+
+        print(f"DEBUG: create_agent called for '{agent_name}'")
+        print(f"DEBUG: API client initialized: {self.client is not None}")
 
         print(f"DEBUG: Creating agent '{agent_name}' with tools: {required_tools}")
 
@@ -192,6 +202,8 @@ class AgentFactory:
             }
         )
 
+        print(f"DEBUG: create_agent returning with status: {agent_name}")
+
         return {
             "status": "success",
             "message": f"Agent '{agent_name}' created successfully",
@@ -237,16 +249,21 @@ class AgentFactory:
             # Call Claude API
             response = self.client.messages.create(
                 model=CLAUDE_MODEL,
-                max_completion_tokens=CLAUDE_MAX_TOKENS,
+                max_tokens=CLAUDE_MAX_TOKENS,
                 messages=[{"role": "user", "content": prompt}],
             )
 
+            print(f"DEBUG: Claude API response received")
+
             # Extract code from response
             raw_response = response.content[0].text
+            print(f"DEBUG: Raw response length: {len(raw_response)}")
+
             code = self._extract_code_from_response(raw_response)
 
             if not code:
                 print(f"DEBUG: No code extracted from Claude response")
+                print(f"DEBUG: First 500 chars of response: {raw_response[:500]}")
                 print(f"DEBUG: Raw Claude response:")
                 print(f"{'='*50}")
                 print(
@@ -714,49 +731,111 @@ class AgentFactory:
 
     # ADD THESE NEW METHODS to the AgentFactory class:
 
-    async def create_pipeline_agent(self, spec: Dict) -> Dict[str, Any]:
+    def create_pipeline_agent(self, spec: Dict) -> Dict[str, Any]:
         """Create agent specifically designed for pipeline execution."""
 
-        agent_name = spec.get("name")
-        description = spec.get("description", "")
+        agent_name = spec.get(
+            "name", f"pipeline_agent_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        )
+
+        # FIX: Convert to lowercase to match validation requirements
+        agent_name = agent_name.lower()
+
+        description = spec.get("description", "Pipeline processing agent")
         required_tools = spec.get("required_tools", [])
 
         print(f"DEBUG: Creating pipeline agent: {agent_name}")
 
+        # Extract or generate input/output descriptions from spec
+        input_description = spec.get(
+            "input_description",
+            spec.get("input_requirements", {}).get(
+                "description",
+                "Pipeline step input - can be any format from previous step or initial data",
+            ),
+        )
+
+        output_description = spec.get(
+            "output_description",
+            spec.get("output_requirements", {}).get(
+                "description", "Processed output for next pipeline step"
+            ),
+        )
+
+        # Extract workflow steps if provided
+        workflow_steps = spec.get("workflow_steps", None)
+
         # Enhanced agent creation with pipeline awareness
         pipeline_context = spec.get("pipeline_context", {})
-        input_handling = spec.get("input_handling", {})
+
+        # Check if agent already exists
+        if self.registry.agent_exists(agent_name):
+            print(f"DEBUG: Agent {agent_name} already exists")
+            return {
+                "status": "success",
+                "agent": self.registry.get_agent(agent_name),
+                "message": "Agent already exists",
+            }
 
         # Create tools first if needed
         new_tools_needed = spec.get("new_tools_needed", [])
         for tool_spec in new_tools_needed:
-            tool_result = await self._create_tool_for_agent(tool_spec)
-            if tool_result.get("status") == "success":
-                required_tools.append(tool_spec["name"])
+            if not self.registry.tool_exists(tool_spec.get("name", "")):
+                from core.tool_factory import ToolFactory
 
-        # Generate pipeline-aware agent code
-        agent_code = await self._generate_pipeline_agent_code(
-            agent_name, description, required_tools, pipeline_context, input_handling
-        )
+                tool_factory = ToolFactory()
 
-        if not agent_code:
-            return {"status": "error", "message": "Failed to generate agent code"}
+                tool_result = tool_factory.ensure_tool(
+                    tool_name=tool_spec["name"],
+                    description=tool_spec.get("description", ""),
+                    tool_type="pure_function",
+                )
 
-        # Register the agent
-        result = self.registry.register_agent(
-            name=agent_name,
-            description=description,
-            code=agent_code,
-            uses_tools=required_tools,
-            agent_type="pipeline",
-            capabilities=spec.get("capabilities", []),
-            pipeline_context=pipeline_context,
-        )
+                if tool_result.get("status") == "success":
+                    required_tools.append(tool_spec["name"])
+                    print(f"DEBUG: Created tool {tool_spec['name']} for agent")
 
-        if result["status"] == "success":
-            print(f"DEBUG: Pipeline agent '{agent_name}' created successfully")
+        # Now create the agent with ALL required parameters
+        try:
+            result = self.create_agent(
+                agent_name=agent_name,
+                description=description,
+                required_tools=required_tools,
+                input_description=input_description,  # NOW PROVIDED
+                output_description=output_description,  # NOW PROVIDED
+                workflow_steps=workflow_steps,
+                auto_create_tools=True,  # Allow automatic tool creation
+                is_prebuilt=False,
+                tags=["pipeline", f"step_{pipeline_context.get('step_index', 0)}"],
+            )
 
-        return result
+            if result["status"] == "success":
+                print(f"DEBUG: Pipeline agent '{agent_name}' created successfully")
+                # Add pipeline context to registry if needed
+                if pipeline_context:
+                    agent_data = self.registry.get_agent(agent_name)
+                    if agent_data:
+                        agent_data["pipeline_context"] = pipeline_context
+                        # Update registry with context
+                        self.registry.save_all()
+
+            print(
+                f"DEBUG: create_agent result for {agent_name}: {result.get('status') if isinstance(result, dict) else 'not a dict'}"
+            )
+            if result.get("status") != "success":
+                print(f"DEBUG: Agent creation failed: {result}")
+
+            return result
+
+        except Exception as e:
+            print(f"DEBUG: Failed to create pipeline agent: {str(e)}")
+            import traceback
+
+            print(f"DEBUG: Traceback: {traceback.format_exc()}")
+            return {
+                "status": "error",
+                "message": f"Failed to create pipeline agent: {str(e)}",
+            }
 
     async def _generate_pipeline_agent_code(
         self,

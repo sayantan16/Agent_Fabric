@@ -22,9 +22,10 @@ ORCHESTRATOR_MAX_TOKENS = 4000
 
 # Anthropic Configuration (Agent Execution Engine)
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
-CLAUDE_MODEL = "claude-3-haiku-20240307"  # Fast and efficient for agents
+CLAUDE_MODEL = "claude-sonnet-4-20250514"  # Fast and efficient for agents
+# claude-3-haiku-20240307
 CLAUDE_TEMPERATURE = 0.1  # Very low for consistent code generation
-CLAUDE_MAX_TOKENS = 2000
+CLAUDE_MAX_TOKENS = 4000
 
 # =============================================================================
 # SYSTEM CONSTRAINTS
@@ -246,6 +247,38 @@ TOOL_VALIDATION_RULES = {
     },
 }
 
+
+# =============================================================================
+# DYNAMIC INTELLIGENCE SYSTEM PROMPT
+# =============================================================================
+
+DYNAMIC_INTELLIGENCE_SYSTEM_PROMPT = """You are an adaptive AI that NEVER uses hardcoded patterns or predefined solutions. Your core principle is DYNAMIC REASONING.
+
+FUNDAMENTAL RULES:
+1. ANALYZE FIRST: Always understand the specific request before acting
+2. REASON DYNAMICALLY: Never apply template solutions or hardcoded patterns  
+3. THINK CONTEXTUALLY: Every situation is unique and requires unique analysis
+4. GENERATE APPROPRIATELY: Create solutions that fit the exact requirements
+5. ADAPT CONTINUOUSLY: Adjust your approach based on the specific context
+
+FORBIDDEN BEHAVIORS:
+- Using predefined examples (prime numbers, email extraction, etc.)
+- Applying template patterns without analysis
+- Assuming request types based on keywords
+- Generating generic or boilerplate responses
+- Hardcoding any logic, functions, or structures
+
+REQUIRED BEHAVIORS:
+- Analyze the specific request context deeply
+- Understand the exact data types and transformations needed
+- Reason about optimal approaches for THIS specific case
+- Generate solutions that are purpose-built for the requirements
+- Think step-by-step about what is actually needed
+
+Always think: "How do I solve THIS specific problem intelligently?"
+Never think: "Which template pattern matches this request?"
+"""
+
 # =============================================================================
 # ORCHESTRATOR PROMPTS
 # =============================================================================
@@ -259,192 +292,323 @@ Your process:
 4. Identify missing capabilities that need creation
 5. Plan efficient execution (sequential/parallel)
 
+AGENT_SELF_SUFFICIENCY_RULES = {
+    "implement_own_logic": True,
+    "minimize_tool_dependencies": True,
+    "tool_creation_threshold": "high",  # Only create tools for complex operations
+    "prefer_inline_implementation": True,
+}
+
+# Tool creation criteria
+TOOL_CREATION_CRITERIA = {
+    "required_for": [
+        "external_api_calls",
+        "database_connections",
+        "specialized_file_formats",  # PDF, Excel
+        "network_operations",
+        "complex_libraries",  # numpy, pandas operations
+    ],
+    "not_required_for": [
+        "basic_math",
+        "string_operations",
+        "list_filtering",
+        "simple_calculations",
+        "pattern_matching",
+        "data_parsing",
+    ],
+}
+
 Available agents and their capabilities will be provided. Use exact agent names from the registry."""
 
-ORCHESTRATOR_PLANNING_PROMPT = """You are planning a workflow for this user request.
+ORCHESTRATOR_PLANNING_PROMPT = """You are a workflow orchestrator planning optimal execution for a user request.
 
 REQUEST: {request}
 ANALYSIS: {analysis}
+AVAILABLE AGENTS: {available_agents}
+AVAILABLE TOOLS: {available_tools}
 
-AVAILABLE AGENTS:
-{available_agents}
+ORCHESTRATION INTELLIGENCE:
 
-AVAILABLE TOOLS:
-{available_tools}
+1. **STRATEGIC PLANNING**: How to accomplish the user's goal most effectively
+2. **RESOURCE ALLOCATION**: Best use of existing capabilities
+3. **DEPENDENCY MANAGEMENT**: Handling interdependencies intelligently
+4. **OPTIMIZATION**: Fastest, most reliable execution path
+5. **RISK MITIGATION**: Handling potential failures
 
-PLANNING INSTRUCTIONS:
-1. Identify what the user wants to accomplish
-2. Find existing agents that can handle the task
-3. Plan execution order (sequential/parallel/conditional)
-4. Only suggest creating new agents if existing ones truly cannot handle the task
-5. Be flexible - agents often have broader capabilities than their names suggest
+PLANNING FRAMEWORK:
 
-OUTPUT FORMAT - Respond with valid JSON:
+1. **GOAL ANALYSIS**: What does success look like for this request?
+2. **CAPABILITY MAPPING**: How do available agents map to requirements?
+3. **GAP ANALYSIS**: What capabilities are missing?
+4. **EXECUTION DESIGN**: What's the optimal execution strategy?
+5. **CONTINGENCY PLANNING**: What if things go wrong?
+
+RESPOND WITH JSON:
 {{
-    "workflow_id": "wf_{timestamp}",
-    "workflow_type": "sequential|parallel|conditional", 
-    "reasoning": "Brief explanation of your plan",
-    "agents_needed": ["exact_agent_names_from_available_list"],
-    "missing_capabilities": {{
-        "agents": [
+    "workflow_strategy": {{
+        "approach": "single_agent|sequential_pipeline|parallel_execution|hybrid_strategy",
+        "rationale": "why this approach is optimal for this specific request",
+        "complexity_assessment": "simple|moderate|complex|enterprise",
+        "confidence_level": 0.85
+    }},
+    "execution_plan": {{
+        "total_steps": 3,
+        "execution_pattern": "linear|branching|converging|iterative",
+        "estimated_duration": 25,
+        "resource_intensity": "low|medium|high",
+        "optimization_strategy": "speed|accuracy|reliability|cost"
+    }},
+    "agent_assignments": [
+        {{
+            "step_index": 0,
+            "assigned_agent": "existing_agent_name|null",
+            "assignment_confidence": 0.9,
+            "assignment_rationale": "why this agent fits this step",
+            "modification_needed": "none|minor|major",
+            "fallback_options": ["alternative_agent_1", "create_new"]
+        }}
+    ],
+    "capability_gaps": {{
+        "missing_agents": [
             {{
-                "name": "agent_name",
-                "purpose": "what it should do",
-                "required_tools": ["tool1", "tool2"]
+                "purpose": "what this missing agent should do",
+                "priority": "critical|high|medium|low",
+                "complexity": "simple|moderate|complex",
+                "creation_estimate": "time to create"
             }}
         ],
-        "tools": [
+        "missing_tools": [
             {{
-                "name": "tool_name", 
-                "purpose": "what it should do"
+                "purpose": "what this missing tool should do",
+                "priority": "critical|high|medium|low",
+                "complexity": "simple|moderate|complex"
             }}
-        ]
+        ],
+        "creation_order": ["component_1", "component_2"]
     }},
-    "confidence": 0.0-1.0
+    "data_flow_design": {{
+        "flow_pattern": "description of how data moves through the workflow",
+        "transformation_points": ["where data format changes"],
+        "validation_checkpoints": ["where to validate data"],
+        "state_management": "how to maintain state across steps"
+    }},
+    "risk_assessment": {{
+        "potential_failure_points": ["step or component that might fail"],
+        "mitigation_strategies": ["how to handle failures"],
+        "recovery_options": ["fallback approaches"],
+        "success_probability": 0.8
+    }},
+    "optimization_opportunities": {{
+        "parallelization": ["steps that can run in parallel"],
+        "caching": ["data that can be cached"],
+        "shortcuts": ["optimizations for common cases"],
+        "performance_bottlenecks": ["potential slow points"]
+    }}
 }}
 
-IMPORTANT: 
-- Use exact agent names from the available list
-- Don't assume rigid naming patterns 
-- Prefer existing agents over creating new ones
-- If no existing agents match, describe what needs to be created"""
+PLAN FOR THIS SPECIFIC REQUEST - avoid generic templated responses."""
 
 
-ORCHESTRATOR_ANALYSIS_PROMPT = """Analyze this user request to understand intent, requirements, and execution strategy:
+ORCHESTRATOR_ANALYSIS_PROMPT = """You are an intelligent request analyzer. Your job is to deeply understand what the user wants to accomplish and provide strategic guidance for execution.
 
-REQUEST: {request}
-FILES: {files}
-CONTEXT: {context}
+USER REQUEST: "{request}"
+UPLOADED FILES: {files}
+SYSTEM CONTEXT: {context}
 
-AVAILABLE AGENTS (use exact names):
-{available_agents}
+AVAILABLE CAPABILITIES:
+Agents: {available_agents}
+Tools: {available_tools}
 
-AVAILABLE TOOLS:
-{available_tools}
+ANALYSIS FRAMEWORK:
 
-Perform systematic analysis:
+1. **INTENT ANALYSIS**:
+   - What is the user's primary goal?
+   - What type of outcome do they expect?
+   - What domain does this request belong to? (mathematical, textual, analytical, creative, technical, etc.)
 
-1. CORE INTENT: What does the user want to accomplish?
-2. TASK CLASSIFICATION: What type of operation is this? (analysis, extraction, calculation, processing, etc.)
-3. DATA REQUIREMENTS: What kind of data does this task need? (numbers, text, files, structured data, etc.)
-4. PROCESSING COMPLEXITY: Is this a single-step or multi-step operation?
-5. CAPABILITY MATCHING: Which available agents can handle this type of task?
-6. CAPABILITY GAPS: What specific capabilities are missing and need to be created?
-7. EXECUTION STRATEGY: Should this be sequential, parallel, or conditional execution?
+2. **REQUIREMENT DECOMPOSITION**:
+   - What are the atomic operations needed?
+   - What data transformations are required?
+   - What dependencies exist between operations?
+   - What input/output formats are involved?
 
-IMPORTANT GUIDELINES:
-- Focus on WHAT needs to be done, not HOW to extract data (DataProcessor handles extraction)
-- Be specific about agent names and their actual capabilities
-- Consider the user's expertise level and adjust complexity accordingly
-- Think about error scenarios and edge cases
-- Identify if the request is ambiguous and needs clarification
+3. **COMPLEXITY ASSESSMENT**:
+   - Single-step: One clear operation
+   - Multi-step: Sequential operations with data flow
+   - Complex: Multiple interdependent operations with branching logic
 
-ANALYSIS EXAMPLES:
+4. **CAPABILITY MATCHING**:
+   - Which existing agents can handle parts of this request?
+   - What capabilities are missing?
+   - How well do available tools support the required operations?
 
-Request: "Find prime numbers in: 43, 17, 89, 56"
-→ Intent: Mathematical analysis - prime number identification
-→ Task Type: Numerical computation
-→ Data Requirements: Array of integers
-→ Complexity: Single-step operation
-→ Available Capability: None (need prime_checker)
-→ Strategy: Sequential execution with new agent
+5. **EXECUTION STRATEGY**:
+   - Sequential: Steps must happen in order
+   - Parallel: Independent operations can run simultaneously  
+   - Conditional: Logic branches based on intermediate results
 
-Request: "Extract emails and count words in this document"
-→ Intent: Multi-step text analysis
-→ Task Type: Text extraction + counting
-→ Data Requirements: Text document content
-→ Complexity: Multi-step operation  
-→ Available Capability: email_extractor + word_counter
-→ Strategy: Parallel execution of existing agents
+RESPOND WITH JSON:
+{{
+    "intent_analysis": {{
+        "primary_goal": "concise description of what user wants to achieve",
+        "expected_outcome_type": "data|analysis|visualization|document|calculation|extraction",
+        "domain": "mathematical|textual|analytical|creative|technical|mixed",
+        "user_expertise_level": "beginner|intermediate|advanced|technical"
+    }},
+    "requirements": {{
+        "atomic_operations": ["operation1", "operation2", "operation3"],
+        "data_transformations": ["input_type → intermediate_type → output_type"],
+        "dependencies": [["op1_before_op2"], ["op2_before_op3"]],
+        "input_formats": ["format1", "format2"],
+        "output_format": "expected_final_format"
+    }},
+    "complexity": {{
+        "level": "single|multi|complex",
+        "estimated_steps": 3,
+        "parallel_opportunities": ["op1_and_op2_parallel"],
+        "critical_dependencies": ["op3_needs_op1_and_op2"]
+    }},
+    "capability_assessment": {{
+        "existing_coverage": 0.7,
+        "missing_capabilities": ["specific_capability_1", "specific_capability_2"],
+        "tool_gaps": ["missing_tool_type"],
+        "agent_gaps": ["missing_agent_capability"]
+    }},
+    "execution_strategy": {{
+        "approach": "sequential|parallel|conditional",
+        "rationale": "why this approach is optimal",
+        "estimated_time": 25,
+        "confidence": 0.85
+    }}
+}}
 
-Request: "Analyze this CSV and create a report"
-→ Intent: Data analysis with visualization
-→ Task Type: Data processing + report generation
-→ Data Requirements: Structured tabular data
-→ Complexity: Multi-step pipeline
-→ Available Capability: Partial (may need data analyzer + report generator)
-→ Strategy: Sequential pipeline with possible new agent creation
+CRITICAL: Focus on understanding the ACTUAL REQUEST, not matching to predefined patterns. Every request is unique."""
 
-Be thorough but concise. Focus on strategic understanding rather than data parsing."""
+ORCHESTRATOR_SYNTHESIS_PROMPT = """You are a results synthesizer creating a natural, helpful response based on workflow execution.
 
-ORCHESTRATOR_SYNTHESIS_PROMPT = """Create a natural, helpful response based on the workflow execution results.
+USER'S REQUEST: "{request}"
+WORKFLOW EXECUTION RESULTS: {results}
+EXECUTION ERRORS: {errors}
+WORKFLOW METADATA: {{
+    "execution_time": "{execution_time}s",
+    "agents_used": {agents_used},
+    "workflow_type": "{workflow_type}"
+}}
 
-USER'S ORIGINAL REQUEST: {request}
-ACTUAL AGENT EXECUTION RESULTS: {results}
-WORKFLOW ERRORS: {errors}
+SYNTHESIS INTELLIGENCE:
 
-CRITICAL INSTRUCTIONS:
-1. **ONLY use the data that agents actually returned** - Do not make assumptions
-2. **Read the agent results carefully** - Look at the actual data structures and values
-3. **Address what the user specifically asked for** - Don't default to generic patterns
-4. **If agents returned empty/null/zero results, say so** - Don't make up data
-5. **Include processing attribution** - Show which agents contributed to the answer
-6. **If files were generated, provide download links** - Use the exact format: [Download Filename](/api/download/filename)
+1. **RESULT ANALYSIS**: What was actually accomplished?
+2. **USER ALIGNMENT**: How well do results match user expectations?
+3. **QUALITY ASSESSMENT**: Are the results complete and accurate?
+4. **PRESENTATION OPTIMIZATION**: How to present results most effectively?
+5. **VALUE COMMUNICATION**: What value was delivered to the user?
+
+RESPONSE FRAMEWORK:
+
+1. **DIRECT ANSWER**: Address what the user specifically asked for
+2. **RESULT PRESENTATION**: Show the actual data/findings clearly
+3. **PROCESS TRANSPARENCY**: Explain how results were obtained
+4. **QUALITY INDICATORS**: Indicate reliability and completeness
+5. **ACTIONABLE INSIGHTS**: Provide relevant next steps or interpretations
+
+SYNTHESIS RULES:
+- ONLY use data that was actually returned by agents
+- NEVER invent or assume data that wasn't generated
+- BE SPECIFIC about what was found vs. what was requested
+- PRESENT results in the format most useful to the user
+- ACKNOWLEDGE limitations or partial results honestly
+- PROVIDE download links for generated files using: [Download Filename](/api/download/filename)
 
 RESPONSE STRUCTURE:
-**Results Found:**
-[List actual extracted data clearly based on what agents returned]
+Based on the actual results, determine the most appropriate response format:
 
-**Issues (if any):**
-[List specific problems, empty results, or missing data based on actual agent outputs]
+For DATA EXTRACTION tasks:
+- Show what was found with specific counts/values
+- Indicate completeness of extraction
+- Highlight any patterns or notable findings
 
-**Generated Files (if any):**
-[Download Filename](/api/download/filename) - Description from agent metadata
+For CALCULATION tasks:
+- Present the computed values clearly
+- Show intermediate steps if helpful
+- Explain the methodology used
 
-**Process Summary:**
-Used [actual_agent_names] agents | Execution time: [actual_time]s
+For ANALYSIS tasks:
+- Summarize key findings and insights
+- Present supporting data
+- Indicate confidence levels
 
-IMPORTANT RULES:
-- Never invent data that wasn't returned by agents
-- Never assume what results mean without looking at actual values
-- If results are missing or empty, explain this honestly
-- Always base your response on the actual execution results provided
-- For generated files, use the exact filename and path provided by agents
-- Be conversational but factually accurate to the agent outputs
-- Show the specific data values that were extracted, not generic descriptions
-- If an agent returned empty arrays or null values, state this clearly
-- Match your response format to what the user actually requested (extraction, analysis, calculation, etc.)
+For PROCESSING tasks:
+- Describe what was processed
+- Show transformation results
+- Indicate any quality issues
 
-SITUATIONAL HANDLING GUIDELINES:
-- **Complete Success**: When all agents returned expected data, show all results clearly and concisely
-- **Partial Success**: When some agents succeeded and others failed, clearly separate what worked from what didn't
-- **Extraction Tasks**: Show exactly what was found vs what was requested, include counts and specific values
-- **Calculation Tasks**: Show the actual computed values, intermediate steps if relevant, and final answers
-- **Analysis Tasks**: Present the actual analysis results, insights, and any generated reports or summaries
-- **File Processing**: If files were processed, show what was extracted/analyzed and any generated outputs
-- **Empty Results**: When agents return empty arrays, null values, or zero counts, explain this clearly without apologizing
-- **Error Recovery**: If agents failed but pipeline continued, explain what was attempted and what succeeded
-- **Multi-Step Workflows**: Trace the data flow between steps, showing how results from one agent fed into the next
-- **Data Transformation**: When agents transform data between steps, show both input and output formats clearly
-- **Quality Assessment**: If results seem incomplete or unexpected, note this based on the actual data returned
-- **Performance Reporting**: Include actual execution times and which specific agents contributed to each result
+For FILE GENERATION tasks:
+- Provide download links
+- Describe file contents
+- Explain how to use the files
 
-CRITICAL: Your response must be based ONLY on the actual agent execution data provided in the results section. Handle each pipeline outcome based on what actually happened, not what should have happened.
-"""
+ADAPT YOUR RESPONSE to match what was actually accomplished and what the user needs to know.
+
+Create a natural, conversational response that directly addresses the user's request based on the actual execution results."""
 
 # =============================================================================
 # AGENT GENERATION PROMPTS
 # =============================================================================
 
-CLAUDE_AGENT_GENERATION_PROMPT = """Create a SMART Python agent that handles input intelligently.
+CLAUDE_AGENT_GENERATION_PROMPT = """You are an expert Python developer creating an intelligent agent for a multi-agent pipeline system.
 
-Agent Name: {agent_name}
-Purpose: {description}
-Required Tools: {tools}
+AGENT SPECIFICATION:
+- Name: {agent_name}
+- Purpose: {description}
+- Tools Available: {tools}
+- Input Description: {input_description}
+- Output Description: {output_description}
 
-CRITICAL: The agent must be smart about input data extraction and formatting.
+DYNAMIC LOGIC GENERATION INSTRUCTIONS:
 
-SMART INPUT HANDLING PATTERN:
+1. **ANALYZE THE PURPOSE**: Read the agent description carefully and understand what specific operation it needs to perform.
+
+2. **UNDERSTAND DATA FLOW**: 
+   - Input: What type of data will this agent receive? (numbers, text, lists, dicts, files, etc.)
+   - Processing: What transformation/analysis should be applied?
+   - Output: What format should the result be in?
+
+3. **IMPLEMENT APPROPRIATE LOGIC**:
+   - For mathematical operations: Implement the specific calculation or analysis needed
+   - For text processing: Implement parsing, extraction, or transformation logic  
+   - For data analysis: Implement filtering, aggregation, or statistical operations
+   - For file processing: Implement reading, parsing, or data extraction
+   - For validation: Implement checking, verification, or quality assessment
+
+4. **HANDLE MULTIPLE INPUT FORMATS**: The agent should intelligently handle different input types:
+   - Raw strings (extract relevant data)
+   - Lists/arrays (process elements)
+   - Dictionaries (extract from various keys)
+   - Results from previous pipeline steps
+
+5. **GENERATE FLEXIBLE OUTPUT**: Create output that can be consumed by next pipeline step or as final result.
+
+AGENT STRUCTURE TEMPLATE:
 ```python
 def {agent_name}_agent(state):
     \"\"\"
     {description}
+    
+    Dynamically handles: {input_description}
+    Produces: {output_description}
     \"\"\"
     import sys
     import os
+    import re
+    import json
     from datetime import datetime
+    from typing import List, Dict, Any, Union
     
+    # Add project path
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    
+    # Import tools only if needed
+    {tool_imports}
     
     # Initialize state
     if 'results' not in state:
@@ -457,139 +621,182 @@ def {agent_name}_agent(state):
     try:
         start_time = datetime.now()
         
-        # SMART DATA EXTRACTION - Try multiple sources in priority order
-        target_data = None
+        # INTELLIGENT INPUT EXTRACTION
+        # Extract data from multiple possible sources in state
+        input_data = None
         
-        # Priority 1: Use extracted data if available (from intelligent processing)
-        if 'extracted_data' in state and state['extracted_data'] is not None:
-            target_data = state['extracted_data']
-            print(f"DEBUG: Using extracted data: {{target_data}}")
+        # Priority order for data extraction
+        for key in ['extracted_data', 'current_data', 'data', 'input', 'request']:
+            if key in state and state[key] is not None:
+                input_data = state[key]
+                break
         
-        # Priority 2: Use current_data
-        elif 'current_data' in state and state['current_data'] is not None:
-            target_data = state['current_data']
+        # If still no data, try to extract from nested structures
+        if input_data is None:
+            for key in ['results', 'context', 'files']:
+                if key in state and state[key]:
+                    input_data = state[key]
+                    break
         
-        # Priority 3: Parse from raw request if needed
-        else:
-            raw_request = state.get('request', state.get('text', ''))
-            target_data = raw_request
+        # DYNAMIC LOGIC IMPLEMENTATION
+        # Analyze the agent's purpose and implement appropriate logic
         
-        # SMART PROCESSING - Agent reasons about the input and processes accordingly
+        # [THIS IS WHERE YOU ANALYZE THE DESCRIPTION AND IMPLEMENT THE RIGHT LOGIC]
+        # Based on the description: "{description}"
+        # Based on expected input: "{input_description}"  
+        # Based on expected output: "{output_description}"
         
-        # For {agent_name}, implement intelligent processing here
-        {agent_logic}
+        # IMPLEMENT YOUR LOGIC HERE:
+        # - If the purpose involves mathematical operations, implement those calculations
+        # - If it involves text processing, implement parsing/extraction/analysis
+        # - If it involves data filtering, implement filtering logic
+        # - If it involves validation, implement checking logic
+        # - If it involves transformation, implement conversion logic
         
+        processed_data = {{}}  # Replace with actual implementation
+        
+        # STRUCTURED OUTPUT
         result = {{
-            "status": "success",
-            "data": processed_data,
-            "metadata": {{
-                "agent": "{agent_name}",
-                "execution_time": (datetime.now() - start_time).total_seconds(),
-                "tools_used": {tools},
-                "input_data_type": str(type(target_data).__name__)
+            'status': 'success',
+            'data': processed_data,
+            'metadata': {{
+                'agent': '{agent_name}',
+                'execution_time': (datetime.now() - start_time).total_seconds(),
+                'input_type': type(input_data).__name__,
+                'output_type': type(processed_data).__name__,
+                'tools_used': {tools}
             }}
         }}
         
+        # Update pipeline state
         state['results']['{agent_name}'] = result
         state['current_data'] = processed_data
         state['execution_path'].append('{agent_name}')
         
+        return state
+        
     except Exception as e:
         import traceback
-        state['errors'].append({{
-            "agent": "{agent_name}",
-            "error": str(e),
-            "traceback": traceback.format_exc()
-        }})
-        state['results']['{agent_name}'] = {{
-            "status": "error",
-            "data": None,
-            "metadata": {{"agent": "{agent_name}", "error": str(e)}}
+        error_info = {{
+            'agent': '{agent_name}',
+            'error': str(e),
+            'traceback': traceback.format_exc()
         }}
-    
-    return state
-Make the agent SMART about handling different input types. For prime checking:
+        
+        state['errors'].append(error_info)
+        state['results']['{agent_name}'] = {{
+            'status': 'error',
+            'error': str(e),
+            'metadata': error_info
+        }}
+        
+        return state
 
-If input is a list of numbers → check each number
-If input is a string with numbers → extract numbers then check
-If input is a single number → check that number
+CRITICAL: 
 
-Don't hardcode expectations - make agents adaptive!"""
+NEVER use locals(), globals(), exec(), eval(), or other introspection functions.
+Use simple variable assignments and try/except for error handling instead.
+
+CRITICAL REQUIREMENTS:
+
+NO HARDCODED LOGIC - Analyze the description and implement appropriate logic dynamically
+FLEXIBLE INPUT HANDLING - Handle various data types and sources intelligently
+PURPOSE-DRIVEN IMPLEMENTATION - The logic should match exactly what the description asks for
+ROBUST ERROR HANDLING - Handle edge cases and unexpected input gracefully
+PIPELINE COMPATIBILITY - Ensure output can flow to next step or serve as final result
+
+ANALYSIS PATTERNS:
+
+If description mentions "find/extract/identify" → Implement search/filtering logic
+If description mentions "calculate/compute/analyze" → Implement mathematical/statistical logic
+If description mentions "transform/convert/format" → Implement data transformation logic
+If description mentions "validate/check/verify" → Implement validation logic
+If description mentions "parse/read/process" → Implement parsing/processing logic
+
+Generate the complete, working agent that intelligently implements the required functionality based on the purpose description.
+"""
 
 # =============================================================================
 # TOOL GENERATION PROMPTS
 # =============================================================================
 
-CLAUDE_TOOL_GENERATION_PROMPT = """Create a PURE Python function following our standards.
+CLAUDE_TOOL_GENERATION_PROMPT = """Create a WORKING Python function that actually performs the described task.
 
-    Tool Name: {tool_name}
-    Purpose: {description}
-    Input: {input_description}
-    Output: {output_description}
+Tool Name: {tool_name}
+Purpose: {description}
+Input: {input_description}
+Output: {output_description}
 
-    MANDATORY TOOL STRUCTURE:
-    ```python
-    def {tool_name}(input_data=None):
-        \"\"\"
-        {description}
-        
-        Args:
-            input_data: {input_description}
-        
-        Returns:
-            {output_description}
-        \"\"\"
-        # Required imports
-        {imports}
-        
-        # MANDATORY: Handle None input
-        if input_data is None:
-            return {default_return}
-        
-        # MANDATORY: Type flexibility
-        try:
-            # Handle different input types
-            if isinstance(input_data, str):
-                data = input_data
-            elif isinstance(input_data, dict):
-                # Extract from common keys
-                data = input_data.get('text', input_data.get('data', input_data.get('content', str(input_data))))
-            elif isinstance(input_data, (list, tuple)):
-                data = input_data
-            elif isinstance(input_data, (int, float)):
-                data = input_data
-            else:
-                data = str(input_data)
-            
-            # TOOL LOGIC HERE - Implement actual functionality
-            # Even if it's a simple placeholder, make it functional
-            result = {default_return}
-            
-            # Add basic implementation based on tool name
-            if "format" in "{tool_name}":
-                result = f"Formatted: {{data}}"
-            elif "generate" in "{tool_name}":
-                result = f"Generated output for: {{data}}"
-            elif "extract" in "{tool_name}":
-                result = []
-            elif "calculate" in "{tool_name}":
-                result = 0
-            else:
-                result = data
-            
-            return result
-            
-        except Exception as e:
-            # NEVER raise exceptions, always return default
-            return {default_return}
-    Requirements:
+CRITICAL: This must be a REAL IMPLEMENTATION, not a placeholder!
 
-    MUST be a pure function (no side effects)
-    MUST handle None and any input type
-    MUST NOT raise exceptions
-    MUST return consistent type
-    MUST have at least basic functionality
-    Keep between {min_lines}-{max_lines} lines"""
+Based on the tool name and purpose, implement the ACTUAL logic:
+
+- If it's "prime_checker": Actually check if numbers are prime using mathematical logic
+- If it's "parse_and_filter_primes": Actually parse input and filter for prime numbers
+- If it's "calculate_std": Actually calculate standard deviation using the statistics module
+- If it's any calculation: Use proper mathematical formulas
+- If it's extraction: Use proper regex or parsing logic
+- If it's transformation: Actually transform the data
+
+EXAMPLE of a GOOD implementation for prime checking:
+```python
+def is_prime(n):
+    if n < 2:
+        return False
+    for i in range(2, int(n**0.5) + 1):
+        if n % i == 0:
+            return False
+    return True
+```
+
+Generate the COMPLETE WORKING function:
+
+```python
+def {tool_name}(input_data=None):
+    \"\"\"
+    {description}
+    \"\"\"
+    
+    if input_data is None:
+        # Return appropriate default for this specific tool
+        {default_return}
+    
+    try:
+        # Extract data from various input formats
+        if isinstance(input_data, str):
+            # Parse string input appropriately for this tool's purpose
+            # For numbers: extract numeric values
+            # For text: process as needed
+            pass
+        elif isinstance(input_data, dict):
+            # Extract from common dictionary keys
+            data = input_data.get('data', input_data.get('numbers', input_data.get('text', input_data)))
+        elif isinstance(input_data, (list, tuple)):
+            data = input_data
+        else:
+            data = input_data
+        
+        # IMPLEMENT THE ACTUAL TOOL LOGIC HERE
+        # This is where you write the REAL implementation
+        # Not placeholders or generic code
+        
+        # Return the actual result
+        return result
+        
+    except Exception as e:
+        # Return safe default on error
+        {default_return}
+```
+
+Requirements:
+1. MUST implement the actual functionality described
+2. MUST handle different input formats intelligently
+3. MUST NOT be a placeholder or generic template
+4. MUST use appropriate Python libraries (math, statistics, re, etc.)
+5. MUST return meaningful results
+
+DO NOT create generic templates. Create REAL, WORKING implementations!
+"""
 
 
 DEPENDENCY_ANALYSIS_PROMPT = """
@@ -640,75 +847,97 @@ Return only the Python code.
 # PIPELINE ORCHESTRATION PROMPTS
 # =============================================================================
 
-PIPELINE_ANALYSIS_PROMPT = """Analyze this complex request and break it into a logical pipeline of steps.
+PIPELINE_ANALYSIS_PROMPT = """You are a pipeline architect. Break down the request into logical, executable steps that can be orchestrated intelligently.
 
-REQUEST: {request}
-FILES: {files}
+REQUEST ANALYSIS: {request}
+FILES CONTEXT: {files}
+CAPABILITIES: 
+- Agents: {available_agents}  
+- Tools: {available_tools}
 
-AVAILABLE AGENTS:
-{available_agents}
+PIPELINE DESIGN PRINCIPLES:
 
-AVAILABLE TOOLS:
-{available_tools}
+1. **STEP IDENTIFICATION**: Each step should be atomic and well-defined
+2. **DATA FLOW DESIGN**: Clear input/output specifications for each step
+3. **DEPENDENCY MAPPING**: Understanding what depends on what
+4. **CAPABILITY MATCHING**: Using existing components when possible
+5. **GAP IDENTIFICATION**: Knowing what needs to be created
 
-ANALYSIS INSTRUCTIONS:
-1. Identify the main goal and break it into sequential steps
-2. For each step, determine what processing is needed
-3. Define input/output requirements for each step
-4. Consider data flow between steps
-5. Identify any parallel processing opportunities
+STEP DESIGN FRAMEWORK:
+For each step, define:
+- **Purpose**: What this step accomplishes
+- **Input Contract**: Exactly what data format it expects
+- **Output Contract**: Exactly what data format it produces  
+- **Processing Logic**: What transformation/analysis occurs
+- **Error Scenarios**: What can go wrong and how to handle it
 
-IMPORTANT: Look at each agent's ACTUAL capabilities:
-- What tools they use
-- What they're designed for
-- Their input/output types
-
-Create steps that match EXISTING agent capabilities. Don't assume agents can do things they're not designed for.
-
-For each step, specify:
-- EXACT agent requirements
-- Required tools
-- Input/output data types
-- Why this specific capability is needed
-
-
-OUTPUT FORMAT - Respond with valid JSON:
+RESPOND WITH JSON:
 {{
-    "analysis_type": "pipeline",
-    "complexity": "simple|moderate|complex",
-    "total_steps": 3,
-    "execution_strategy": "sequential|parallel|hybrid",
+    "pipeline_metadata": {{
+        "pipeline_type": "sequential|parallel|conditional|hybrid",
+        "complexity_level": "simple|moderate|complex|enterprise",
+        "estimated_duration": 45,
+        "resource_requirements": "low|medium|high"
+    }},
     "steps": [
         {{
-            "name": "step_1_descriptive_name",
-            "description": "What this step accomplishes",
-            "input_requirements": {{
-                "type": "text|data|file|array",
-                "format": "specific format expected",
-                "source": "user_input|previous_step|file"
+            "step_id": "step_1", 
+            "name": "Descriptive_Step_Name",
+            "purpose": "What this step accomplishes",
+            "input_contract": {{
+                "data_type": "string|number|array|object|file",
+                "format": "specific format description",
+                "source": "user_input|previous_step|file_upload",
+                "validation_rules": ["rule1", "rule2"]
             }},
-            "output_requirements": {{
-                "type": "text|data|file|array", 
-                "format": "specific format produced",
-                "destination": "next_step|final_output"
+            "output_contract": {{
+                "data_type": "string|number|array|object",
+                "format": "specific format description", 
+                "destination": "next_step|final_output",
+                "structure": "detailed structure description"
             }},
-            "required_capabilities": ["extraction", "analysis", "transformation"],
-            "estimated_time": 5
+            "processing_requirements": {{
+                "operation_type": "extraction|calculation|transformation|analysis|validation",
+                "complexity": "simple|moderate|complex",
+                "special_handling": ["edge_case_1", "edge_case_2"]
+            }},
+            "dependencies": ["step_id_that_must_complete_first"],
+            "estimated_time": 8
         }}
     ],
     "data_flow": {{
-        "linear": true,
-        "parallel_opportunities": [],
-        "dependencies": []
+        "flow_pattern": "linear|branching|converging|circular",
+        "data_transformations": [
+            {{
+                "from_step": "step_1",
+                "to_step": "step_2", 
+                "transformation": "how data changes between steps"
+            }}
+        ],
+        "validation_points": ["where to validate data integrity"]
     }},
-    "confidence": 0.85
+    "execution_strategy": {{
+        "primary_approach": "sequential|parallel|hybrid",
+        "optimization_opportunities": ["where parallelism is possible"],
+        "critical_path": ["steps that determine total execution time"],
+        "fallback_strategies": ["what to do if steps fail"]
+    }},
+    "component_requirements": {{
+        "existing_agents_usable": ["agent_name_1", "agent_name_2"],
+        "new_agents_needed": [
+            {{
+                "purpose": "what this new agent should do",
+                "input_type": "expected input format",
+                "output_type": "expected output format",
+                "complexity": "simple|moderate|complex"
+            }}
+        ],
+        "tools_needed": ["tool_type_1", "tool_type_2"],
+        "creation_priority": "high|medium|low"
+    }}
 }}
 
-IMPORTANT:
-- Each step should have clear input/output requirements
-- Consider how data flows from one step to the next
-- Be specific about what processing each step needs
-- Identify opportunities for parallel execution"""
+FOCUS: Design based on the ACTUAL request requirements, not template patterns."""
 
 AGENT_COMPATIBILITY_PROMPT = """Analyze compatibility between a pipeline step and existing agents.
 
@@ -803,51 +1032,80 @@ OUTPUT FORMAT - Respond with valid JSON:
     "risks": []
 }}"""
 
-DYNAMIC_AGENT_SPEC_PROMPT = """Design a pipeline-aware agent for this specific step.
+DYNAMIC_AGENT_SPEC_PROMPT = """You are an agent architect designing a component for a specific pipeline step.
 
-STEP DESCRIPTION: {step_description}
-STEP INDEX: {step_index}
-INPUT REQUIREMENTS: {input_requirements}
-OUTPUT REQUIREMENTS: {output_requirements}
-AVAILABLE TOOLS: {available_tools}
+STEP CONTEXT:
+- Description: {step_description}
+- Step Index: {step_index}
+- Input Requirements: {input_requirements}
+- Output Requirements: {output_requirements}
+- Available Tools: {available_tools}
 
-AGENT DESIGN INSTRUCTIONS:
-1. Create an agent specifically for this pipeline step
-2. Ensure it handles the exact input format from previous step
-3. Ensure it produces the exact output format for next step
-4. Include appropriate error handling and edge cases
-5. Make it robust and reliable
+AGENT DESIGN PRINCIPLES:
 
-OUTPUT FORMAT - Respond with valid JSON:
+1. **PURPOSE CLARITY**: Agent should have one clear, well-defined responsibility
+2. **INPUT INTELLIGENCE**: Handle various input formats gracefully
+3. **OUTPUT CONSISTENCY**: Produce predictable, well-structured output
+4. **ERROR RESILIENCE**: Handle edge cases and failures gracefully
+5. **PIPELINE AWARENESS**: Understand its role in the larger workflow
+
+DESIGN ANALYSIS:
+1. What specific capability does this step require?
+2. What are the possible input variations?
+3. What processing logic is needed?
+4. What output format serves the next step best?
+5. What error scenarios need handling?
+
+RESPOND WITH JSON:
 {{
-    "name": "pipeline_step_{step_index}_descriptive_name",
-    "description": "Detailed description of what this agent does",
-    "input_specification": {{
-        "expected_format": "exact format this agent expects",
-        "validation_rules": ["rule1", "rule2"],
-        "edge_cases": ["case1", "case2"]
+    "agent_specification": {{
+        "name": "descriptive_agent_name_for_purpose",
+        "description": "clear description of what this agent does",
+        "responsibility": "single, well-defined responsibility",
+        "specialization": "what makes this agent unique/specialized"
+    }},
+    "input_handling": {{
+        "primary_input_type": "expected main input format",
+        "alternative_input_types": ["other formats it should handle"],
+        "input_validation": ["validation rules for input"],
+        "input_extraction_logic": "how to extract data from various sources",
+        "edge_cases": ["empty input", "wrong format", "missing data"]
+    }},
+    "processing_specification": {{
+        "core_logic_type": "mathematical|textual|analytical|transformational|validation",
+        "algorithm_approach": "description of processing approach",
+        "complexity_level": "simple|moderate|complex",
+        "performance_requirements": "fast|moderate|thorough",
+        "external_dependencies": ["tools or libraries needed"]
     }},
     "output_specification": {{
-        "output_format": "exact format this agent produces", 
-        "data_structure": "detailed structure description",
-        "success_indicators": ["indicator1", "indicator2"]
+        "output_format": "structured description of output",
+        "data_structure": "detailed structure specification",
+        "metadata_requirements": ["what metadata to include"],
+        "success_indicators": ["how to know processing succeeded"],
+        "error_format": "how to format error responses"
     }},
-    "required_tools": ["tool1", "tool2"],
-    "processing_steps": [
-        "step 1: validate input",
-        "step 2: process data", 
-        "step 3: format output"
-    ],
-    "error_handling": [
-        "invalid input format",
-        "processing failures",
-        "empty results"
-    ],
-    "performance_target": {{
-        "max_execution_time": 10,
-        "memory_usage": "low|medium|high"
+    "implementation_guidance": {{
+        "key_algorithms": ["algorithms or approaches to implement"],
+        "data_flow_patterns": ["how data moves through the agent"],
+        "optimization_opportunities": ["where to optimize performance"],
+        "testing_scenarios": ["scenarios to test during development"]
+    }},
+    "pipeline_integration": {{
+        "upstream_dependencies": ["what this agent expects from previous steps"],
+        "downstream_requirements": ["what next steps need from this agent"],
+        "state_management": ["how to update pipeline state"],
+        "error_propagation": ["how to handle and report errors"]
+    }},
+    "quality_requirements": {{
+        "reliability_level": "high|medium|basic",
+        "performance_target": "execution time expectations", 
+        "accuracy_requirements": "precision/accuracy needs",
+        "robustness_level": "error handling sophistication needed"
     }}
-}}"""
+}}
+
+DESIGN FOR THE SPECIFIC REQUIREMENTS - don't use generic templates."""
 
 PIPELINE_RECOVERY_PROMPT = """Generate recovery strategy for failed pipeline step.
 
@@ -1047,14 +1305,32 @@ CRITICAL REQUIREMENTS:
 5. Update pipeline state correctly
 6. Be robust to different input scenarios"""
 
+# Add to config.py
+AGENT_SELF_SUFFICIENCY_RULES = {
+    "implement_own_logic": True,
+    "minimize_tool_dependencies": True,
+    "tool_creation_threshold": "high",  # Only create tools for complex operations
+    "prefer_inline_implementation": True,
+}
 
-# =============================================================================
-# PREBUILT COMPONENTS
-# =============================================================================
-
-PREBUILT_READERS = ["read_text", "read_json", "read_csv", "read_pdf"]
-
-PREBUILT_CONNECTORS = ["jira_reader"]  # Jira-only for POC
+# Tool creation criteria
+TOOL_CREATION_CRITERIA = {
+    "required_for": [
+        "external_api_calls",
+        "database_connections",
+        "specialized_file_formats",  # PDF, Excel
+        "network_operations",
+        "complex_libraries",  # numpy, pandas operations
+    ],
+    "not_required_for": [
+        "basic_math",
+        "string_operations",
+        "list_filtering",
+        "simple_calculations",
+        "pattern_matching",
+        "data_parsing",
+    ],
+}
 
 # =============================================================================
 # UI CONFIGURATION

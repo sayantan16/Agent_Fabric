@@ -18,6 +18,7 @@ import networkx as nx
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from config import (
+    CLAUDE_MAX_TOKENS,
     CLAUDE_MODEL,
     OPENAI_API_KEY,
     ORCHESTRATOR_MODEL,
@@ -472,19 +473,17 @@ class Orchestrator:
     #         return self._create_fallback_plan(user_request, agents)
 
     async def _plan_workflow(
-        self, request: str, analysis: Dict, auto_create: bool = True
+        self, request: str, analysis: Dict, auto_create: bool
     ) -> Dict[str, Any]:
         """
-        Smart planning that works with your existing registry methods.
+        Plan workflow execution with proper handling of missing agents.
         """
         print(f"DEBUG: Smart planning for request")
 
         try:
-            # Use your existing registry methods without problematic parameters
-            available_agents = (
-                self.registry.list_agents()
-            )  # Remove active_only parameter
-            available_tools = self.registry.list_tools()  # Remove active_only parameter
+            # Get available agents and tools
+            available_agents = self.registry.list_agents()
+            available_tools = self.registry.list_tools()
 
             # Format for GPT-4
             agents_text = "\n".join(
@@ -504,9 +503,9 @@ class Orchestrator:
                 f"DEBUG: Found {len(available_agents)} agents and {len(available_tools)} tools"
             )
 
-            # Smart planning that recognizes patterns and uses existing agents
+            # Smart planning prompt
             planning_prompt = f"""
-    Analyze this request and create a smart sequential workflow using existing agents.
+    Analyze this request and create a smart sequential workflow.
 
     USER REQUEST: {request}
 
@@ -516,19 +515,15 @@ class Orchestrator:
     AVAILABLE TOOLS:
     {tools_text}
 
-    SMART PLANNING RULES:
-    1. For prime number requests: Use prime_checker agent
-    2. For average/mean calculations: Use calculate_mean agent  
-    3. For email extraction: Use email_extractor agent
-    4. For URL extraction: Use url_extractor agent
-    5. For CSV reading: Use read_csv agent
-    6. For text processing: Use read_text or word_counter agents
-    7. Plan agents in logical sequence for the request
+    PLANNING INSTRUCTIONS:
+    1. Identify what needs to be done step by step
+    2. For each step, suggest the best agent (even if it doesn't exist yet)
+    3. Be specific about agent names based on the task
 
-    For the request "{request}", identify:
-    1. What needs to be done step by step
-    2. Which existing agents can handle each step
-    3. What sequence makes sense
+    For prime number tasks: Use 'prime_checker' agent
+    For average/mean calculations: Use 'calculate_mean' agent  
+    For email extraction: Use 'email_extractor' agent
+    For URL extraction: Use 'url_extractor' agent
 
     RESPOND WITH VALID JSON:
     {{
@@ -544,12 +539,12 @@ class Orchestrator:
         "status": "success"
     }}
 
-    IMPORTANT: Only use agent names that exist in the available agents list above.
+    List ALL agents needed, whether they exist or not.
     """
 
             # Call GPT-4 for smart planning
             planning_response = await self._call_gpt4_json(
-                system_prompt="You are a smart workflow planner that uses existing agents effectively.",
+                system_prompt="You are a smart workflow planner.",
                 user_prompt=planning_prompt,
             )
 
@@ -561,32 +556,72 @@ class Orchestrator:
                 plan["auto_create"] = auto_create
                 plan["original_request"] = request
 
-                # Validate that requested agents actually exist
+                # CRITICAL FIX: Check which agents exist and which are missing
                 available_agent_names = [a.get("name") for a in available_agents]
                 valid_agents = []
+                missing_agents = []
 
                 for agent in plan.get("agents_needed", []):
                     if agent in available_agent_names:
                         valid_agents.append(agent)
+                        print(f"DEBUG: Agent '{agent}' exists")
                     else:
-                        print(f"DEBUG: Requested agent '{agent}' not found, skipping")
+                        print(f"DEBUG: Agent '{agent}' is missing - will need creation")
+                        missing_agents.append(
+                            {
+                                "name": agent,
+                                "purpose": f"Process {agent} tasks",
+                                "required_tools": [],
+                            }
+                        )
 
+                # Update plan with valid agents
                 plan["agents_needed"] = valid_agents
 
-                if not valid_agents:
-                    # Fallback to pattern matching
-                    plan = self._create_pattern_based_plan(request, available_agents)
+                # CRITICAL: Add missing agents to missing_capabilities
+                if missing_agents:
+                    if "missing_capabilities" not in plan:
+                        plan["missing_capabilities"] = {"agents": [], "tools": []}
+                    plan["missing_capabilities"]["agents"] = missing_agents
 
-                print(f"DEBUG: Smart plan created with agents: {plan['agents_needed']}")
+                # If auto_create is enabled and we have missing agents, they'll be created
+                # If auto_create is disabled and all agents are missing, return error status
+                if not valid_agents and not auto_create:
+                    plan["status"] = "missing_all_agents"
+                    plan["message"] = (
+                        f"None of the required agents exist: {', '.join([a['name'] for a in missing_agents])}"
+                    )
+
+                print(f"DEBUG: Smart plan created")
+                print(f"DEBUG: Existing agents to use: {valid_agents}")
+                print(
+                    f"DEBUG: Missing agents to create: {[a['name'] for a in missing_agents]}"
+                )
+
                 return plan
 
             except json.JSONDecodeError as e:
                 print(f"DEBUG: JSON parsing failed: {e}")
-                return self._create_pattern_based_plan(request, available_agents)
+                # Return error plan instead of falling back to bad agents
+                return {
+                    "status": "planning_error",
+                    "error": f"Failed to parse planning response: {str(e)}",
+                    "workflow_id": f"wf_error_{datetime.now().strftime('%Y%m%d%H%M%S')}",
+                    "workflow_type": "sequential",
+                    "agents_needed": [],
+                    "missing_capabilities": {"agents": [], "tools": []},
+                }
 
         except Exception as e:
             print(f"DEBUG: Smart planning failed: {str(e)}")
-            return self._create_pattern_based_plan(request, available_agents)
+            return {
+                "status": "planning_error",
+                "error": str(e),
+                "workflow_id": f"wf_error_{datetime.now().strftime('%Y%m%d%H%M%S')}",
+                "workflow_type": "sequential",
+                "agents_needed": [],
+                "missing_capabilities": {"agents": [], "tools": []},
+            }
 
     def _build_capability_map(self, agents: List[Dict], tools: List[Dict]) -> Dict:
         """Build detailed capability map for better planning."""
@@ -785,6 +820,10 @@ class Orchestrator:
         # CRITICAL: Create missing tools FIRST (agents depend on them)
         for tool_spec in missing_capabilities.get("tools", []):
             try:
+                # Handle both string and dict formats for tools
+                if isinstance(tool_spec, str):
+                    tool_spec = {"name": tool_spec, "purpose": f"Tool for {tool_spec}"}
+
                 print(f"DEBUG: Creating tool '{tool_spec['name']}'")
 
                 # Use tool factory's ensure method which handles everything
@@ -807,13 +846,23 @@ class Orchestrator:
                     created["tools"].append(tool_spec["name"])
 
             except Exception as e:
-                print(f"DEBUG: Tool '{tool_spec['name']}' creation error: {str(e)}")
+                print(f"DEBUG: Tool creation error: {str(e)}")
                 # Continue anyway
-                created["tools"].append(tool_spec["name"])
+                if isinstance(tool_spec, dict):
+                    created["tools"].append(tool_spec.get("name", "unknown"))
 
         # Now create missing agents (with tools available)
         for agent_spec in missing_capabilities.get("agents", []):
             try:
+                # FIX: Handle both string and dictionary formats
+                if isinstance(agent_spec, str):
+                    # Convert string to proper dictionary format
+                    agent_spec = {
+                        "name": agent_spec,
+                        "purpose": f"Process {agent_spec} tasks",
+                        "required_tools": [],  # Will be determined during creation
+                    }
+
                 print(
                     f"DEBUG: Creating agent '{agent_spec['name']}' with tools: {agent_spec.get('required_tools', [])}"
                 )
@@ -828,27 +877,49 @@ class Orchestrator:
 
                 if result["status"] in ["success", "exists"]:
                     created["agents"].append(agent_spec["name"])
-                    print(f"DEBUG: Agent '{agent_spec['name']}' created successfully")
+                    print(
+                        f"DEBUG: Agent '{agent_spec['name']}' created/verified successfully"
+                    )
                 else:
+                    print(
+                        f"DEBUG: Agent '{agent_spec['name']}' creation failed: {result.get('message')}"
+                    )
                     failed["agents"].append(
                         {
                             "name": agent_spec["name"],
                             "error": result.get("message", "Unknown error"),
                         }
                     )
-                    print(f"DEBUG: Agent '{agent_spec['name']}' creation failed")
 
             except Exception as e:
-                failed["agents"].append({"name": agent_spec["name"], "error": str(e)})
-                print(f"DEBUG: Agent '{agent_spec['name']}' creation error: {str(e)}")
+                print(f"DEBUG: Agent creation error for spec: {agent_spec}")
+                print(f"DEBUG: Error details: {str(e)}")
+                # Safely handle the error regardless of agent_spec type
+                agent_name = (
+                    agent_spec
+                    if isinstance(agent_spec, str)
+                    else agent_spec.get("name", "unknown")
+                )
+                failed["agents"].append({"name": agent_name, "error": str(e)})
 
-        # Return success if we created anything
-        if created["agents"] or created["tools"]:
-            return {"status": "success", "created": created, "failed": failed}
-        elif failed["agents"]:
-            return {"status": "partial", "created": created, "failed": failed}
+        # Determine overall status
+        total_created = len(created["agents"]) + len(created["tools"])
+        total_failed = len(failed["agents"]) + len(failed["tools"])
+
+        if total_failed == 0 and total_created > 0:
+            status = "success"
+        elif total_created > 0:
+            status = "partial"
         else:
-            return {"status": "success", "created": created, "failed": failed}
+            status = "failed"
+
+        return {
+            "status": status,
+            "created": created,
+            "failed": failed,
+            "total_created": total_created,
+            "total_failed": total_failed,
+        }
 
     async def _create_tool_from_spec(self, spec: Dict) -> Dict[str, Any]:
         """Create a tool from specification."""
@@ -1249,12 +1320,24 @@ Output as JSON."""
         self, system_prompt: str, user_prompt: str, temperature: float = 1.0
     ) -> str:
         """Call O3-mini model for JSON responses."""
-        enhanced_prompt = f"{system_prompt}\n\n{user_prompt}\n\nRespond with ONLY valid JSON, no other text before or after."
+        # Import the system prompt
+        from config import DYNAMIC_INTELLIGENCE_SYSTEM_PROMPT
+
+        # Combine system prompts
+        enhanced_system_prompt = (
+            f"{DYNAMIC_INTELLIGENCE_SYSTEM_PROMPT}\n\n{system_prompt}"
+        )
+        enhanced_user_prompt = (
+            f"{user_prompt}\n\nRespond with ONLY valid JSON, no other text."
+        )
 
         response = self.client.chat.completions.create(
             model=ORCHESTRATOR_MODEL,
-            max_completion_tokens=ORCHESTRATOR_MAX_TOKENS,  # Changed from max_tokens
-            messages=[{"role": "user", "content": enhanced_prompt}],
+            max_completion_tokens=ORCHESTRATOR_MAX_TOKENS,
+            messages=[
+                {"role": "system", "content": enhanced_system_prompt},
+                {"role": "user", "content": enhanced_user_prompt},
+            ],
         )
 
         content = response.choices[0].message.content
@@ -1369,29 +1452,65 @@ Output as JSON."""
         # Also check for tools specified in the plan's missing_capabilities
         if "missing_capabilities" in plan:
             plan_missing = plan["missing_capabilities"]
+
+            # Process missing agents from the plan
             if "agents" in plan_missing:
                 for agent in plan_missing["agents"]:
-                    # Add required tools for missing agents
-                    for tool in agent.get("required_tools", []):
-                        if not self.registry.tool_exists(tool):
-                            missing["tools"].append(
-                                {
-                                    "name": tool,
-                                    "purpose": f"Tool for {agent['name']}",
-                                    "type": "pure_function",
-                                }
-                            )
-                    # Add the agent itself
-                    if not any(a["name"] == agent["name"] for a in missing["agents"]):
-                        missing["agents"].append(agent)
+                    # Handle both string and dict formats
+                    if isinstance(agent, str):
+                        agent_name = agent
+                        agent_dict = {
+                            "name": agent_name,
+                            "purpose": f"Process {agent_name} tasks",
+                            "required_tools": [],
+                        }
+                    else:
+                        agent_name = agent.get("name")
+                        agent_dict = agent
 
+                    # CRITICAL FIX: Only add to missing if agent doesn't exist
+                    if agent_name and not self.registry.agent_exists(agent_name):
+                        # Check if we haven't already added this agent
+                        if not any(a["name"] == agent_name for a in missing["agents"]):
+                            missing["agents"].append(agent_dict)
+
+                        # Add required tools for missing agents
+                        for tool in agent_dict.get("required_tools", []):
+                            if not self.registry.tool_exists(tool):
+                                if not any(t["name"] == tool for t in missing["tools"]):
+                                    missing["tools"].append(
+                                        {
+                                            "name": tool,
+                                            "purpose": f"Tool for {tool}",
+                                            "type": "pure_function",
+                                        }
+                                    )
+
+            # Process missing tools from the plan
             if "tools" in plan_missing:
                 for tool in plan_missing["tools"]:
-                    if not any(t["name"] == tool["name"] for t in missing["tools"]):
-                        missing["tools"].append(tool)
+                    # Handle both string and dict formats
+                    if isinstance(tool, str):
+                        tool_name = tool
+                        tool_dict = {
+                            "name": tool_name,
+                            "purpose": f"Tool for {tool_name}",
+                            "type": "pure_function",
+                        }
+                    else:
+                        tool_name = tool.get("name")
+                        tool_dict = tool
 
-        # Return None if no missing capabilities (important!)
-        return missing if (missing["agents"] or missing["tools"]) else None
+                    # Only add if tool doesn't exist and isn't already in the list
+                    if tool_name and not self.registry.tool_exists(tool_name):
+                        if not any(t["name"] == tool_name for t in missing["tools"]):
+                            missing["tools"].append(tool_dict)
+
+        # Return empty missing capabilities if nothing is actually missing
+        if not missing["agents"] and not missing["tools"]:
+            return {}
+
+        return missing
 
     def _format_results_summary(self, execution_result: Dict) -> str:
         """Format execution results for synthesis."""
@@ -1618,7 +1737,7 @@ Output as JSON."""
         # Call Claude to generate implementation
         response = self.tool_factory.client.messages.create(
             model=CLAUDE_MODEL,
-            max_completion_tokens=1000,
+            max_tokens=CLAUDE_MAX_TOKENS,
             messages=[{"role": "user", "content": creation_prompt}],
         )
 
@@ -1757,17 +1876,140 @@ Output as JSON."""
     async def _detect_pipeline_complexity(
         self, user_request: str, files: List[Dict] = None
     ) -> str:
-        """Unified complexity detection."""
+        """
+        Enhanced complexity detection that recognizes multi-step operations.
+        """
+        request_lower = user_request.lower()
 
-        # Use the enhanced detection from pipeline orchestrator
-        if hasattr(self, "pipeline_orchestrator"):
-            # Delegate to pipeline orchestrator for consistency
-            return await self.pipeline_orchestrator._analyze_request_complexity(
-                user_request, files
+        # Pipeline indicators (sequential operations)
+        pipeline_keywords = [
+            "then",
+            "after",
+            "next",
+            "followed by",
+            "and then",
+            "first",
+            "second",
+            "third",
+            "finally",
+            "last",
+            "extract and",
+            "analyze and",
+            "process and",
+            "create and",
+            "step by step",
+            "pipeline",
+            "workflow",
+            "sequence",
+        ]
+
+        # Multi-step operation indicators (even without explicit sequencing words)
+        multi_step_patterns = [
+            # Mathematical operations
+            ("find", "calculate"),  # Find X, calculate Y
+            ("filter", "average"),  # Filter items, average them
+            ("identify", "check"),  # Identify items, check property
+            ("extract", "count"),  # Extract items, count them
+            ("get", "analyze"),  # Get data, analyze it
+            ("select", "process"),  # Select items, process them
+            # Data operations
+            ("read", "process"),
+            ("load", "transform"),
+            ("parse", "analyze"),
+            # Multiple verbs that indicate steps
+            ("find", "check"),
+            ("calculate", "verify"),
+            ("compute", "validate"),
+        ]
+
+        # Complex indicators
+        complex_keywords = [
+            "multiple files",
+            "compare",
+            "merge",
+            "combine",
+            "different formats",
+            "various sources",
+            "cross-reference",
+            "comprehensive",
+            "detailed analysis",
+            "full report",
+        ]
+
+        # Check for multiple operations using commas
+        # "Do X, do Y, do Z" pattern
+        comma_separated_tasks = (
+            len([x.strip() for x in request_lower.split(",") if x.strip()]) > 1
+        )
+
+        # Check for multiple action verbs
+        action_verbs = [
+            "find",
+            "calculate",
+            "check",
+            "extract",
+            "analyze",
+            "process",
+            "compute",
+            "filter",
+            "average",
+            "sum",
+            "count",
+            "identify",
+            "verify",
+            "validate",
+            "transform",
+            "convert",
+            "generate",
+        ]
+        verb_count = sum(1 for verb in action_verbs if verb in request_lower)
+
+        # Check for multi-step patterns
+        has_multi_step_pattern = False
+        for pattern in multi_step_patterns:
+            if all(word in request_lower for word in pattern):
+                has_multi_step_pattern = True
+                break
+
+        # Count indicators
+        pipeline_count = sum(
+            1 for keyword in pipeline_keywords if keyword in request_lower
+        )
+        complex_count = sum(
+            1 for keyword in complex_keywords if keyword in request_lower
+        )
+
+        # Check for numbered steps
+        step_indicators = ["1.", "2.", "3.", "step 1", "step 2", "step 3"]
+        step_count = sum(
+            1 for indicator in step_indicators if indicator in request_lower
+        )
+
+        # File complexity
+        multiple_files = files and len(files) > 1
+
+        # Decision logic with enhanced detection
+        if complex_count > 0 or pipeline_count > 2 or step_count > 1 or multiple_files:
+            print(f"DEBUG: Detected as COMPLEX due to keywords/files")
+            return "complex"
+        elif (
+            pipeline_count > 0
+            or verb_count >= 3
+            or has_multi_step_pattern
+            or comma_separated_tasks
+        ):
+            print(
+                f"DEBUG: Detected as PIPELINE due to multiple operations (verbs: {verb_count}, pattern: {has_multi_step_pattern}, commas: {comma_separated_tasks})"
             )
-
-        # Fallback to simple detection
-        return self._simple_complexity_detection(user_request, files)
+            return "pipeline"
+        elif verb_count >= 2 and len(request_lower.split()) > 10:
+            print(f"DEBUG: Detected as PIPELINE due to multiple verbs and length")
+            return "pipeline"
+        else:
+            print(
+                f"DEBUG: Detected as SIMPLE (verbs: {verb_count}, words: {len(request_lower.split())})"
+            )
+            return "simple"
 
     def _simple_complexity_detection(
         self, user_request: str, files: List[Dict] = None
