@@ -290,6 +290,13 @@ class PipelineExecutor:
                 "agent_name": agent_name,
             }
 
+    def _get_agent_function_name(self, agent_name: str) -> str:
+        """Smart function name resolution"""
+        if agent_name.endswith("_agent"):
+            return agent_name
+        else:
+            return f"{agent_name}_agent"
+
     async def _execute_agent_with_pipeline_context(
         self, agent_name: str, step_plan: Dict, state: PipelineState
     ) -> Dict[str, Any]:
@@ -322,7 +329,39 @@ class PipelineExecutor:
             spec.loader.exec_module(agent_module)
 
             # Get agent function
-            agent_function = getattr(agent_module, agent_name)
+            function_name = self._get_agent_function_name(agent_name)
+            print(f"DEBUG: Looking for function: {function_name}")
+
+            try:
+                agent_function = getattr(agent_module, function_name)
+                print(f"DEBUG: Found agent function: {function_name}")
+            except AttributeError:
+                # Try the other pattern
+                fallback_name = (
+                    agent_name
+                    if agent_name.endswith("_agent")
+                    else f"{agent_name}_agent"
+                )
+                if fallback_name != function_name:
+                    try:
+                        agent_function = getattr(agent_module, fallback_name)
+                        print(f"DEBUG: Found with fallback: {fallback_name}")
+                    except AttributeError:
+                        available_funcs = [
+                            name
+                            for name in dir(agent_module)
+                            if not name.startswith("_")
+                        ]
+                        print(f"DEBUG: Available functions: {available_funcs}")
+                        raise AttributeError(
+                            f"No agent function found. Tried: {function_name}, {fallback_name}"
+                        )
+                else:
+                    available_funcs = [
+                        name for name in dir(agent_module) if not name.startswith("_")
+                    ]
+                    print(f"DEBUG: Available functions: {available_funcs}")
+                    raise AttributeError(f"Agent function not found: {function_name}")
 
             # Prepare agent state with pipeline context
             agent_state = self._prepare_agent_state_for_pipeline(state, step_plan)

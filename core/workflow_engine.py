@@ -988,6 +988,13 @@ class WorkflowEngine:
                 "errors": [{"type": "execution_error", "message": str(e)}],
             }
 
+    def _get_agent_function_name(self, agent_name: str) -> str:
+        """Smart function name resolution"""
+        if agent_name.endswith("_agent"):
+            return agent_name
+        else:
+            return f"{agent_name}_agent"
+
     async def execute_agent(
         self, agent_name: str, state: Dict[str, Any]
     ) -> Dict[str, Any]:
@@ -1034,7 +1041,39 @@ class WorkflowEngine:
             spec.loader.exec_module(agent_module)
 
             # FIXED: Get agent function with correct naming convention
-            agent_function = getattr(agent_module, f"{agent_name}_agent")
+            function_name = self._get_agent_function_name(agent_name)
+            print(f"DEBUG: Looking for function: {function_name}")
+
+            try:
+                agent_function = getattr(agent_module, function_name)
+                print(f"DEBUG: Found agent function: {function_name}")
+            except AttributeError:
+                # Try the other pattern
+                fallback_name = (
+                    agent_name
+                    if agent_name.endswith("_agent")
+                    else f"{agent_name}_agent"
+                )
+                if fallback_name != function_name:
+                    try:
+                        agent_function = getattr(agent_module, fallback_name)
+                        print(f"DEBUG: Found with fallback: {fallback_name}")
+                    except AttributeError:
+                        available_funcs = [
+                            name
+                            for name in dir(agent_module)
+                            if not name.startswith("_")
+                        ]
+                        print(f"DEBUG: Available functions: {available_funcs}")
+                        raise AttributeError(
+                            f"No agent function found. Tried: {function_name}, {fallback_name}"
+                        )
+                else:
+                    available_funcs = [
+                        name for name in dir(agent_module) if not name.startswith("_")
+                    ]
+                    print(f"DEBUG: Available functions: {available_funcs}")
+                    raise AttributeError(f"Agent function not found: {function_name}")
 
             print(f"DEBUG: Found agent function: {agent_name}_agent")
             print(f"DEBUG: Input state keys: {list(state.keys())}")
