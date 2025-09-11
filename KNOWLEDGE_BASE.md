@@ -1,6 +1,6 @@
 # AGENTIC FABRIC POC - COMPLETE PROJECT KNOWLEDGE BASE
 ================================================================================
-Generated: 2025-09-10 21:39:27
+Generated: 2025-09-11 09:17:38
 Project Root: /Users/sayantankundu/Documents/Agent Fabric
 
 ## PROJECT OVERVIEW
@@ -70,7 +70,10 @@ Agent Fabric/
 │   └── requirements_ui.txt
 ├── generated/
 │   ├── agents/
+│   │   ├── calculate_average_agent_agent.py
+│   │   ├── check_average_prime_agent_agent.py
 │   │   ├── email_extractor_agent.py
+│   │   ├── filter_prime_numbers_agent.py
 │   │   ├── read_csv_agent.py
 │   │   └── read_text_agent.py
 │   ├── tools/
@@ -156,7 +159,7 @@ Agent Fabric/
 ### File: KNOWLEDGE_BASE.md
 **Path:** `KNOWLEDGE_BASE.md`
 **Size:** 0 bytes
-**Modified:** 2025-09-10 21:39:18
+**Modified:** 2025-09-11 09:17:22
 
 ```markdown
 
@@ -196,8 +199,8 @@ POC in active development - implementing dynamic agent creation system.
 
 ### File: agents.json
 **Path:** `agents.json`
-**Size:** 5,057 bytes
-**Modified:** 2025-09-10 08:09:49
+**Size:** 14,530 bytes
+**Modified:** 2025-09-11 09:14:18
 
 ```json
 {
@@ -205,7 +208,9 @@ POC in active development - implementing dynamic agent creation system.
     "email_extractor": {
       "name": "email_extractor",
       "description": "Extracts email addresses from text input",
-      "uses_tools": ["extract_emails"],
+      "uses_tools": [
+        "extract_emails"
+      ],
       "input_schema": {
         "data": "any"
       },
@@ -225,14 +230,21 @@ POC in active development - implementing dynamic agent creation system.
       "version": "1.0.0",
       "execution_count": 4,
       "avg_execution_time": 0.001,
-      "tags": ["extraction", "emails"],
+      "tags": [
+        "extraction",
+        "emails"
+      ],
       "line_count": 98,
       "status": "active",
       "last_executed": "2025-09-08T23:58:52.927352",
       "dependencies": {
-        "tools": ["extract_emails"],
+        "tools": [
+          "extract_emails"
+        ],
         "missing_tools": [],
-        "available_tools": ["extract_emails"]
+        "available_tools": [
+          "extract_emails"
+        ]
       },
       "formatted_created_at": "2025-01-01 00:00:00"
     },
@@ -246,19 +258,34 @@ POC in active development - implementing dynamic agent creation system.
       },
       "output_schema": {
         "type": "object",
-        "required": ["status", "data", "metadata"],
+        "required": [
+          "status",
+          "data",
+          "metadata"
+        ],
         "properties": {
           "status": {
             "type": "string",
-            "enum": ["success", "error", "partial"]
+            "enum": [
+              "success",
+              "error",
+              "partial"
+            ]
           },
           "data": {
-            "type": ["object", "array", "null"],
+            "type": [
+              "object",
+              "array",
+              "null"
+            ],
             "description": "Agent-specific output data"
           },
           "metadata": {
             "type": "object",
-            "required": ["agent", "execution_time"],
+            "required": [
+              "agent",
+              "execution_time"
+            ],
             "properties": {
               "agent": {
                 "type": "string"
@@ -316,19 +343,34 @@ POC in active development - implementing dynamic agent creation system.
       },
       "output_schema": {
         "type": "object",
-        "required": ["status", "data", "metadata"],
+        "required": [
+          "status",
+          "data",
+          "metadata"
+        ],
         "properties": {
           "status": {
             "type": "string",
-            "enum": ["success", "error", "partial"]
+            "enum": [
+              "success",
+              "error",
+              "partial"
+            ]
           },
           "data": {
-            "type": ["object", "array", "null"],
+            "type": [
+              "object",
+              "array",
+              "null"
+            ],
             "description": "Agent-specific output data"
           },
           "metadata": {
             "type": "object",
-            "required": ["agent", "execution_time"],
+            "required": [
+              "agent",
+              "execution_time"
+            ],
             "properties": {
               "agent": {
                 "type": "string"
@@ -375,10 +417,339 @@ POC in active development - implementing dynamic agent creation system.
         "available_tools": []
       },
       "formatted_created_at": "2025-09-04 17:23:07"
+    },
+    "filter_prime_numbers": {
+      "name": "filter_prime_numbers",
+      "description": "Extracts numerical values from the input string and filters out only the prime numbers.",
+      "uses_tools": [],
+      "input_schema": {
+        "type": "any",
+        "description": "Pipeline step input - can be any format from previous step or initial data"
+      },
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "status",
+          "data",
+          "metadata"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "success",
+              "error",
+              "partial"
+            ]
+          },
+          "data": {
+            "type": [
+              "object",
+              "array",
+              "null"
+            ],
+            "description": "Agent-specific output data"
+          },
+          "metadata": {
+            "type": "object",
+            "required": [
+              "agent",
+              "execution_time"
+            ],
+            "properties": {
+              "agent": {
+                "type": "string"
+              },
+              "execution_time": {
+                "type": "number"
+              },
+              "tools_used": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "errors": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "warnings": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "generated_files": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "filename": {
+                  "type": "string"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "size": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      },
+      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/agents/filter_prime_numbers_agent.py",
+      "is_prebuilt": false,
+      "created_by": "claude-sonnet-4-20250514",
+      "created_at": "2025-09-11T09:13:26.558123",
+      "version": "1.0.2ae6ae05",
+      "execution_count": 0,
+      "avg_execution_time": 0.0,
+      "last_executed": null,
+      "tags": [
+        "pipeline",
+        "step_0"
+      ],
+      "line_count": 200,
+      "status": "active",
+      "pipeline_context": {
+        "step_index": 0,
+        "works_with_state": true,
+        "data_flow_aware": true
+      }
+    },
+    "calculate_average_agent": {
+      "name": "calculate_average_agent",
+      "description": "This agent receives a string input containing numeric values and calculates their average using built-in operations.",
+      "uses_tools": [],
+      "input_schema": {
+        "type": "any",
+        "description": "Pipeline step input - can be any format from previous step or initial data"
+      },
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "status",
+          "data",
+          "metadata"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "success",
+              "error",
+              "partial"
+            ]
+          },
+          "data": {
+            "type": [
+              "object",
+              "array",
+              "null"
+            ],
+            "description": "Agent-specific output data"
+          },
+          "metadata": {
+            "type": "object",
+            "required": [
+              "agent",
+              "execution_time"
+            ],
+            "properties": {
+              "agent": {
+                "type": "string"
+              },
+              "execution_time": {
+                "type": "number"
+              },
+              "tools_used": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "errors": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "warnings": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "generated_files": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "filename": {
+                  "type": "string"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "size": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      },
+      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/agents/calculate_average_agent_agent.py",
+      "is_prebuilt": false,
+      "created_by": "claude-sonnet-4-20250514",
+      "created_at": "2025-09-11T09:13:56.557195",
+      "version": "1.0.036bbeb4",
+      "execution_count": 0,
+      "avg_execution_time": 0.0,
+      "last_executed": null,
+      "tags": [
+        "pipeline",
+        "step_1"
+      ],
+      "line_count": 181,
+      "status": "active",
+      "pipeline_context": {
+        "step_index": 1,
+        "works_with_state": true,
+        "data_flow_aware": true
+      }
+    },
+    "check_average_prime_agent": {
+      "name": "check_average_prime_agent",
+      "description": "This agent receives a string input, parses it to extract numeric values, calculates their average, and checks whether the computed average is a prime number using built-in logic.",
+      "uses_tools": [],
+      "input_schema": {
+        "type": "any",
+        "description": "Pipeline step input - can be any format from previous step or initial data"
+      },
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "status",
+          "data",
+          "metadata"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "success",
+              "error",
+              "partial"
+            ]
+          },
+          "data": {
+            "type": [
+              "object",
+              "array",
+              "null"
+            ],
+            "description": "Agent-specific output data"
+          },
+          "metadata": {
+            "type": "object",
+            "required": [
+              "agent",
+              "execution_time"
+            ],
+            "properties": {
+              "agent": {
+                "type": "string"
+              },
+              "execution_time": {
+                "type": "number"
+              },
+              "tools_used": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "errors": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "warnings": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "generated_files": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "filename": {
+                  "type": "string"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "size": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      },
+      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/agents/check_average_prime_agent_agent.py",
+      "is_prebuilt": false,
+      "created_by": "claude-sonnet-4-20250514",
+      "created_at": "2025-09-11T09:14:18.932232",
+      "version": "1.0.03985549",
+      "execution_count": 0,
+      "avg_execution_time": 0.0,
+      "last_executed": null,
+      "tags": [
+        "pipeline",
+        "step_2"
+      ],
+      "line_count": 179,
+      "status": "active",
+      "pipeline_context": {
+        "step_index": 2,
+        "works_with_state": true,
+        "data_flow_aware": true
+      }
     }
   }
 }
-
 ```
 
 --------------------------------------------------------------------------------
@@ -386,7 +757,7 @@ POC in active development - implementing dynamic agent creation system.
 ### File: agents.json.lock
 **Path:** `agents.json.lock`
 **Size:** 0 bytes
-**Modified:** 2025-09-09 21:54:01
+**Modified:** 2025-09-11 09:13:26
 
 *[Binary file or content not included]*
 
@@ -394,8 +765,8 @@ POC in active development - implementing dynamic agent creation system.
 
 ### File: config.py
 **Path:** `config.py`
-**Size:** 58,138 bytes
-**Modified:** 2025-09-10 16:58:45
+**Size:** 58,335 bytes
+**Modified:** 2025-09-10 22:06:10
 
 ```python
 """
@@ -422,9 +793,10 @@ ORCHESTRATOR_MAX_TOKENS = 4000
 
 # Anthropic Configuration (Agent Execution Engine)
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
-CLAUDE_MODEL = "claude-3-haiku-20240307"  # Fast and efficient for agents
+CLAUDE_MODEL = "claude-sonnet-4-20250514"  # Fast and efficient for agents
+# claude-3-haiku-20240307
 CLAUDE_TEMPERATURE = 0.1  # Very low for consistent code generation
-CLAUDE_MAX_TOKENS = 2000
+CLAUDE_MAX_TOKENS = 4000
 
 # =============================================================================
 # SYSTEM CONSTRAINTS
@@ -1090,6 +1462,12 @@ def {agent_name}_agent(state):
         }}
         
         return state
+
+CRITICAL: 
+
+NEVER use locals(), globals(), exec(), eval(), or other introspection functions.
+Use simple variable assignments and try/except for error handling instead.
+
 CRITICAL REQUIREMENTS:
 
 NO HARDCODED LOGIC - Analyze the description and implement appropriate logic dynamically
@@ -2742,8 +3120,8 @@ RESPOND WITH VALID JSON:
 
 ### File: core/agent_factory.py
 **Path:** `core/agent_factory.py`
-**Size:** 51,951 bytes
-**Modified:** 2025-09-10 21:34:06
+**Size:** 51,934 bytes
+**Modified:** 2025-09-10 22:05:18
 
 ```python
 """
@@ -2997,7 +3375,7 @@ class AgentFactory:
             # Call Claude API
             response = self.client.messages.create(
                 model=CLAUDE_MODEL,
-                max_completion_tokens=CLAUDE_MAX_TOKENS,
+                max_tokens=CLAUDE_MAX_TOKENS,
                 messages=[{"role": "user", "content": prompt}],
             )
 
@@ -3565,7 +3943,7 @@ class AgentFactory:
                     if agent_data:
                         agent_data["pipeline_context"] = pipeline_context
                         # Update registry with context
-                        self.registry._save_registry()
+                        self.registry.save_all()
 
             print(
                 f"DEBUG: create_agent result for {agent_name}: {result.get('status') if isinstance(result, dict) else 'not a dict'}"
@@ -4885,8 +5263,8 @@ class DependencyResolver:
 
 ### File: core/orchestrator.py
 **Path:** `core/orchestrator.py`
-**Size:** 113,157 bytes
-**Modified:** 2025-09-10 17:04:58
+**Size:** 113,182 bytes
+**Modified:** 2025-09-10 21:56:15
 
 ```python
 """
@@ -4909,6 +5287,7 @@ import networkx as nx
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from config import (
+    CLAUDE_MAX_TOKENS,
     CLAUDE_MODEL,
     OPENAI_API_KEY,
     ORCHESTRATOR_MODEL,
@@ -6627,7 +7006,7 @@ Output as JSON."""
         # Call Claude to generate implementation
         response = self.tool_factory.client.messages.create(
             model=CLAUDE_MODEL,
-            max_completion_tokens=1000,
+            max_tokens=CLAUDE_MAX_TOKENS,
             messages=[{"role": "user", "content": creation_prompt}],
         )
 
@@ -7800,8 +8179,8 @@ Output as JSON."""
 
 ### File: core/pipeline_executor.py
 **Path:** `core/pipeline_executor.py`
-**Size:** 19,563 bytes
-**Modified:** 2025-09-09 19:34:26
+**Size:** 21,365 bytes
+**Modified:** 2025-09-11 07:44:10
 
 ```python
 """
@@ -8096,6 +8475,13 @@ class PipelineExecutor:
                 "agent_name": agent_name,
             }
 
+    def _get_agent_function_name(self, agent_name: str) -> str:
+        """Smart function name resolution"""
+        if agent_name.endswith("_agent"):
+            return agent_name
+        else:
+            return f"{agent_name}_agent"
+
     async def _execute_agent_with_pipeline_context(
         self, agent_name: str, step_plan: Dict, state: PipelineState
     ) -> Dict[str, Any]:
@@ -8128,7 +8514,39 @@ class PipelineExecutor:
             spec.loader.exec_module(agent_module)
 
             # Get agent function
-            agent_function = getattr(agent_module, agent_name)
+            function_name = self._get_agent_function_name(agent_name)
+            print(f"DEBUG: Looking for function: {function_name}")
+
+            try:
+                agent_function = getattr(agent_module, function_name)
+                print(f"DEBUG: Found agent function: {function_name}")
+            except AttributeError:
+                # Try the other pattern
+                fallback_name = (
+                    agent_name
+                    if agent_name.endswith("_agent")
+                    else f"{agent_name}_agent"
+                )
+                if fallback_name != function_name:
+                    try:
+                        agent_function = getattr(agent_module, fallback_name)
+                        print(f"DEBUG: Found with fallback: {fallback_name}")
+                    except AttributeError:
+                        available_funcs = [
+                            name
+                            for name in dir(agent_module)
+                            if not name.startswith("_")
+                        ]
+                        print(f"DEBUG: Available functions: {available_funcs}")
+                        raise AttributeError(
+                            f"No agent function found. Tried: {function_name}, {fallback_name}"
+                        )
+                else:
+                    available_funcs = [
+                        name for name in dir(agent_module) if not name.startswith("_")
+                    ]
+                    print(f"DEBUG: Available functions: {available_funcs}")
+                    raise AttributeError(f"Agent function not found: {function_name}")
 
             # Prepare agent state with pipeline context
             agent_state = self._prepare_agent_state_for_pipeline(state, step_plan)
@@ -8357,8 +8775,8 @@ class PipelineExecutor:
 
 ### File: core/pipeline_orchestrator.py
 **Path:** `core/pipeline_orchestrator.py`
-**Size:** 30,326 bytes
-**Modified:** 2025-09-10 21:36:13
+**Size:** 32,511 bytes
+**Modified:** 2025-09-11 09:07:53
 
 ```python
 """
@@ -8403,7 +8821,9 @@ class PipelineOrchestrator:
     def __init__(self):
         """Initialize the pipeline orchestrator."""
         self.client = openai.OpenAI(api_key=OPENAI_API_KEY)
-        self.registry = RegistryManager()
+        from core.registry_singleton import get_shared_registry
+
+        self.registry = get_shared_registry()  # ← FIX: Use shared instance
         self.compatibility_analyzer = AgentCompatibilityAnalyzer(self.registry)
         self.agent_factory = AgentFactory()
         self.tool_factory = ToolFactory()
@@ -8776,6 +9196,18 @@ class PipelineOrchestrator:
                     "error": "Failed to create required components",
                 }
 
+        # VERIFY ALL AGENTS EXIST BEFORE EXECUTION
+        required_agents = [
+            step["agent_assigned"]
+            for step in pipeline_plan["steps"]
+            if step.get("agent_assigned")
+        ]
+        if not self._verify_agents_exist(required_agents):
+            return {
+                "status": "error",
+                "error": "Required agents not found in registry after creation",
+            }
+
         # Execute pipeline steps
         execution_result = {
             "status": "in_progress",
@@ -8908,8 +9340,27 @@ class PipelineOrchestrator:
         # Import and execute the agent
         try:
             from core.workflow_engine import WorkflowEngine
+            from core.registry_singleton import get_shared_registry, force_global_reload
 
-            workflow_engine = WorkflowEngine(self.registry)
+            # COMPREHENSIVE REGISTRY SYNCHRONIZATION
+            force_global_reload()
+            fresh_registry = get_shared_registry()
+
+            # Verify agent exists before proceeding
+            if not fresh_registry.agent_exists(agent_name):
+                print(f"DEBUG: CRITICAL - Agent '{agent_name}' not found in registry")
+                print(
+                    f"DEBUG: Available agents: {list(fresh_registry.agents.get('agents', {}).keys())}"
+                )
+                return {
+                    "status": "error",
+                    "error": f"Agent '{agent_name}' not found in registry",
+                }
+
+            workflow_engine = WorkflowEngine(fresh_registry)
+            print(
+                f"DEBUG: Successfully verified agent '{agent_name}' exists in registry"
+            )
 
             # Create minimal workflow state for single agent execution
             workflow_state = {
@@ -9178,6 +9629,28 @@ class PipelineOrchestrator:
             step_plan["agent_assigned"] = agent_spec["name"]
 
         return step_plan
+
+    def _verify_agents_exist(self, agent_names: List[str]) -> bool:
+        """Verify all required agents exist in registry"""
+        from core.registry_singleton import get_shared_registry, force_global_reload
+
+        force_global_reload()
+        registry = get_shared_registry()
+
+        available_agents = list(registry.agents.get("agents", {}).keys())
+        print(f"DEBUG: Available agents in registry: {available_agents}")
+
+        missing_agents = []
+        for agent_name in agent_names:
+            if not registry.agent_exists(agent_name):
+                missing_agents.append(agent_name)
+
+        if missing_agents:
+            print(f"DEBUG: Missing agents: {missing_agents}")
+            return False
+
+        print(f"DEBUG: All required agents found: {agent_names}")
+        return True
 
 ```
 
@@ -10187,8 +10660,8 @@ def force_global_reload():
 
 ### File: core/tool_factory.py
 **Path:** `core/tool_factory.py`
-**Size:** 50,884 bytes
-**Modified:** 2025-09-09 23:08:52
+**Size:** 50,873 bytes
+**Modified:** 2025-09-10 21:56:33
 
 ```python
 """
@@ -10422,7 +10895,7 @@ class ToolFactory:
             # Call Claude API
             response = self.client.messages.create(
                 model=CLAUDE_MODEL,
-                max_completion_tokens=CLAUDE_MAX_TOKENS,
+                max_tokens=CLAUDE_MAX_TOKENS,
                 messages=[{"role": "user", "content": prompt}],
             )
 
@@ -11587,8 +12060,8 @@ class ToolFactory:
 
 ### File: core/workflow_engine.py
 **Path:** `core/workflow_engine.py`
-**Size:** 49,845 bytes
-**Modified:** 2025-09-09 22:34:28
+**Size:** 51,636 bytes
+**Modified:** 2025-09-11 07:43:10
 
 ```python
 """
@@ -12581,6 +13054,13 @@ class WorkflowEngine:
                 "errors": [{"type": "execution_error", "message": str(e)}],
             }
 
+    def _get_agent_function_name(self, agent_name: str) -> str:
+        """Smart function name resolution"""
+        if agent_name.endswith("_agent"):
+            return agent_name
+        else:
+            return f"{agent_name}_agent"
+
     async def execute_agent(
         self, agent_name: str, state: Dict[str, Any]
     ) -> Dict[str, Any]:
@@ -12627,7 +13107,39 @@ class WorkflowEngine:
             spec.loader.exec_module(agent_module)
 
             # FIXED: Get agent function with correct naming convention
-            agent_function = getattr(agent_module, f"{agent_name}_agent")
+            function_name = self._get_agent_function_name(agent_name)
+            print(f"DEBUG: Looking for function: {function_name}")
+
+            try:
+                agent_function = getattr(agent_module, function_name)
+                print(f"DEBUG: Found agent function: {function_name}")
+            except AttributeError:
+                # Try the other pattern
+                fallback_name = (
+                    agent_name
+                    if agent_name.endswith("_agent")
+                    else f"{agent_name}_agent"
+                )
+                if fallback_name != function_name:
+                    try:
+                        agent_function = getattr(agent_module, fallback_name)
+                        print(f"DEBUG: Found with fallback: {fallback_name}")
+                    except AttributeError:
+                        available_funcs = [
+                            name
+                            for name in dir(agent_module)
+                            if not name.startswith("_")
+                        ]
+                        print(f"DEBUG: Available functions: {available_funcs}")
+                        raise AttributeError(
+                            f"No agent function found. Tried: {function_name}, {fallback_name}"
+                        )
+                else:
+                    available_funcs = [
+                        name for name in dir(agent_module) if not name.startswith("_")
+                    ]
+                    print(f"DEBUG: Available functions: {available_funcs}")
+                    raise AttributeError(f"Agent function not found: {function_name}")
 
             print(f"DEBUG: Found agent function: {agent_name}_agent")
             print(f"DEBUG: Input state keys: {list(state.keys())}")
@@ -17795,6 +18307,386 @@ workflow_service = WorkflowService()
 
 --------------------------------------------------------------------------------
 
+### File: generated/agents/calculate_average_agent_agent.py
+**Path:** `generated/agents/calculate_average_agent_agent.py`
+**Size:** 7,027 bytes
+**Modified:** 2025-09-11 09:13:56
+
+```python
+def calculate_average_agent_agent(state):
+    """
+    This agent receives a string input containing numeric values and calculates their average using built-in operations.
+    
+    Dynamically handles: Pipeline step input - can be any format from previous step or initial data
+    Produces: Processed output for next pipeline step
+    """
+    import sys
+    import os
+    import re
+    import json
+    from datetime import datetime
+    from typing import List, Dict, Any, Union
+    
+    # Add project path
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    
+    # Initialize state
+    if 'results' not in state:
+        state['results'] = {}
+    if 'errors' not in state:
+        state['errors'] = []
+    if 'execution_path' not in state:
+        state['execution_path'] = []
+    
+    try:
+        start_time = datetime.now()
+        
+        # INTELLIGENT INPUT EXTRACTION
+        input_data = None
+        
+        # Priority order for data extraction
+        for key in ['extracted_data', 'current_data', 'data', 'input', 'request']:
+            if key in state and state[key] is not None:
+                input_data = state[key]
+                break
+        
+        # If still no data, try to extract from nested structures
+        if input_data is None:
+            for key in ['results', 'context', 'files']:
+                if key in state and state[key]:
+                    input_data = state[key]
+                    break
+        
+        if input_data is None:
+            raise ValueError("No input data found in state")
+        
+        # DYNAMIC NUMERIC VALUE EXTRACTION AND AVERAGE CALCULATION
+        numeric_values = []
+        
+        def extract_numbers_from_text(text):
+            """Extract all numeric values from text string"""
+            # Pattern to match integers and floats (including negative numbers)
+            number_pattern = r'-?\d+\.?\d*'
+            matches = re.findall(number_pattern, str(text))
+            numbers = []
+            for match in matches:
+                try:
+                    # Try to convert to float first, then int if it's a whole number
+                    num = float(match)
+                    if num.is_integer():
+                        numbers.append(int(num))
+                    else:
+                        numbers.append(num)
+                except ValueError:
+                    continue
+            return numbers
+        
+        # Handle different input types
+        if isinstance(input_data, str):
+            # Extract numbers from string
+            numeric_values = extract_numbers_from_text(input_data)
+            
+        elif isinstance(input_data, (list, tuple)):
+            # Process list/tuple - could contain numbers or strings with numbers
+            for item in input_data:
+                if isinstance(item, (int, float)):
+                    numeric_values.append(item)
+                elif isinstance(item, str):
+                    numeric_values.extend(extract_numbers_from_text(item))
+                elif isinstance(item, dict):
+                    # Extract numbers from dictionary values
+                    for value in item.values():
+                        if isinstance(value, (int, float)):
+                            numeric_values.append(value)
+                        elif isinstance(value, str):
+                            numeric_values.extend(extract_numbers_from_text(value))
+                            
+        elif isinstance(input_data, dict):
+            # Extract numbers from dictionary values and nested structures
+            def extract_from_dict(d):
+                numbers = []
+                for value in d.values():
+                    if isinstance(value, (int, float)):
+                        numbers.append(value)
+                    elif isinstance(value, str):
+                        numbers.extend(extract_numbers_from_text(value))
+                    elif isinstance(value, (list, tuple)):
+                        for item in value:
+                            if isinstance(item, (int, float)):
+                                numbers.append(item)
+                            elif isinstance(item, str):
+                                numbers.extend(extract_numbers_from_text(item))
+                    elif isinstance(value, dict):
+                        numbers.extend(extract_from_dict(value))
+                return numbers
+            
+            numeric_values = extract_from_dict(input_data)
+            
+        elif isinstance(input_data, (int, float)):
+            # Single numeric value
+            numeric_values = [input_data]
+            
+        else:
+            # Try to extract from string representation
+            numeric_values = extract_numbers_from_text(str(input_data))
+        
+        # Calculate average
+        if not numeric_values:
+            raise ValueError("No numeric values found in input data")
+        
+        # Remove any None values or invalid numbers
+        valid_numbers = [num for num in numeric_values if num is not None and isinstance(num, (int, float))]
+        
+        if not valid_numbers:
+            raise ValueError("No valid numeric values found in input data")
+        
+        # Calculate average using built-in operations
+        total_sum = sum(valid_numbers)
+        count = len(valid_numbers)
+        average = total_sum / count
+        
+        # Prepare processed data with comprehensive results
+        processed_data = {
+            'average': average,
+            'sum': total_sum,
+            'count': count,
+            'values': valid_numbers,
+            'min_value': min(valid_numbers),
+            'max_value': max(valid_numbers),
+            'range': max(valid_numbers) - min(valid_numbers)
+        }
+        
+        # STRUCTURED OUTPUT
+        result = {
+            'status': 'success',
+            'data': processed_data,
+            'metadata': {
+                'agent': 'calculate_average_agent',
+                'execution_time': (datetime.now() - start_time).total_seconds(),
+                'input_type': type(input_data).__name__,
+                'output_type': type(processed_data).__name__,
+                'tools_used': [],
+                'values_found': count,
+                'calculation_method': 'sum_divided_by_count'
+            }
+        }
+        
+        # Update pipeline state
+        state['results']['calculate_average_agent'] = result
+        state['current_data'] = processed_data
+        state['execution_path'].append('calculate_average_agent')
+        
+        return state
+        
+    except Exception as e:
+        import traceback
+        error_info = {
+            'agent': 'calculate_average_agent',
+            'error': str(e),
+            'traceback': traceback.format_exc()
+        }
+        
+        state['errors'].append(error_info)
+        state['results']['calculate_average_agent'] = {
+            'status': 'error',
+            'error': str(e),
+            'metadata': error_info
+        }
+        
+        return state
+```
+
+--------------------------------------------------------------------------------
+
+### File: generated/agents/check_average_prime_agent_agent.py
+**Path:** `generated/agents/check_average_prime_agent_agent.py`
+**Size:** 6,742 bytes
+**Modified:** 2025-09-11 09:14:18
+
+```python
+def check_average_prime_agent_agent(state):
+    """
+    This agent receives a string input, parses it to extract numeric values, calculates their average, and checks whether the computed average is a prime number using built-in logic.
+    
+    Dynamically handles: Pipeline step input - can be any format from previous step or initial data
+    Produces: Processed output for next pipeline step
+    """
+    import sys
+    import os
+    import re
+    import json
+    from datetime import datetime
+    from typing import List, Dict, Any, Union
+    
+    # Add project path
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    
+    # Initialize state
+    if 'results' not in state:
+        state['results'] = {}
+    if 'errors' not in state:
+        state['errors'] = []
+    if 'execution_path' not in state:
+        state['execution_path'] = []
+    
+    try:
+        start_time = datetime.now()
+        
+        # INTELLIGENT INPUT EXTRACTION
+        # Extract data from multiple possible sources in state
+        input_data = None
+        
+        # Priority order for data extraction
+        for key in ['extracted_data', 'current_data', 'data', 'input', 'request']:
+            if key in state and state[key] is not None:
+                input_data = state[key]
+                break
+        
+        # If still no data, try to extract from nested structures
+        if input_data is None:
+            for key in ['results', 'context', 'files']:
+                if key in state and state[key]:
+                    input_data = state[key]
+                    break
+        
+        # DYNAMIC LOGIC IMPLEMENTATION
+        def is_prime(n):
+            """Check if a number is prime using built-in logic"""
+            if n < 2:
+                return False
+            if n == 2:
+                return True
+            if n % 2 == 0:
+                return False
+            
+            # Check odd divisors up to sqrt(n)
+            i = 3
+            while i * i <= n:
+                if n % i == 0:
+                    return False
+                i += 2
+            return True
+        
+        def extract_numbers_from_string(text):
+            """Extract numeric values from string input"""
+            if isinstance(text, str):
+                # Find all integer and float numbers in the string
+                number_pattern = r'-?\d+\.?\d*'
+                matches = re.findall(number_pattern, text)
+                numbers = []
+                for match in matches:
+                    try:
+                        # Try to convert to int first, then float
+                        if '.' in match:
+                            numbers.append(float(match))
+                        else:
+                            numbers.append(int(match))
+                    except ValueError:
+                        continue
+                return numbers
+            return []
+        
+        def extract_numbers_from_any_format(data):
+            """Extract numbers from various data formats"""
+            numbers = []
+            
+            if isinstance(data, (int, float)):
+                numbers.append(data)
+            elif isinstance(data, str):
+                numbers.extend(extract_numbers_from_string(data))
+            elif isinstance(data, list):
+                for item in data:
+                    if isinstance(item, (int, float)):
+                        numbers.append(item)
+                    elif isinstance(item, str):
+                        numbers.extend(extract_numbers_from_string(item))
+                    elif isinstance(item, dict):
+                        numbers.extend(extract_numbers_from_any_format(item))
+            elif isinstance(data, dict):
+                for value in data.values():
+                    numbers.extend(extract_numbers_from_any_format(value))
+            
+            return numbers
+        
+        # Extract numeric values from input
+        extracted_numbers = []
+        
+        if input_data is not None:
+            extracted_numbers = extract_numbers_from_any_format(input_data)
+        
+        # If no numbers found, try to look in the entire state
+        if not extracted_numbers:
+            extracted_numbers = extract_numbers_from_any_format(state)
+        
+        if not extracted_numbers:
+            processed_data = {
+                'numbers_found': [],
+                'average': None,
+                'is_prime': False,
+                'message': 'No numeric values found in input',
+                'status': 'no_numbers'
+            }
+        else:
+            # Calculate average
+            average = sum(extracted_numbers) / len(extracted_numbers)
+            
+            # Check if average is prime (only for integers or convert to int)
+            # For prime check, we'll use the integer part if it's a float
+            average_int = int(average) if average == int(average) else int(average)
+            is_average_prime = is_prime(average_int) if average == int(average) else False
+            
+            processed_data = {
+                'numbers_found': extracted_numbers,
+                'count': len(extracted_numbers),
+                'sum': sum(extracted_numbers),
+                'average': average,
+                'average_integer': average_int,
+                'is_exact_integer': average == int(average),
+                'is_prime': is_average_prime,
+                'message': f'Found {len(extracted_numbers)} numbers, average is {average}, prime check: {is_average_prime}',
+                'status': 'success'
+            }
+        
+        # STRUCTURED OUTPUT
+        result = {
+            'status': 'success',
+            'data': processed_data,
+            'metadata': {
+                'agent': 'check_average_prime_agent',
+                'execution_time': (datetime.now() - start_time).total_seconds(),
+                'input_type': type(input_data).__name__,
+                'output_type': type(processed_data).__name__,
+                'tools_used': []
+            }
+        }
+        
+        # Update pipeline state
+        state['results']['check_average_prime_agent'] = result
+        state['current_data'] = processed_data
+        state['execution_path'].append('check_average_prime_agent')
+        
+        return state
+        
+    except Exception as e:
+        import traceback
+        error_info = {
+            'agent': 'check_average_prime_agent',
+            'error': str(e),
+            'traceback': traceback.format_exc()
+        }
+        
+        state['errors'].append(error_info)
+        state['results']['check_average_prime_agent'] = {
+            'status': 'error',
+            'error': str(e),
+            'metadata': error_info
+        }
+        
+        return state
+```
+
+--------------------------------------------------------------------------------
+
 ### File: generated/agents/email_extractor_agent.py
 **Path:** `generated/agents/email_extractor_agent.py`
 **Size:** 3,418 bytes
@@ -17909,6 +18801,216 @@ def email_extractor_agent(state):
 
     return state
 
+```
+
+--------------------------------------------------------------------------------
+
+### File: generated/agents/filter_prime_numbers_agent.py
+**Path:** `generated/agents/filter_prime_numbers_agent.py`
+**Size:** 6,964 bytes
+**Modified:** 2025-09-11 09:13:26
+
+```python
+def filter_prime_numbers_agent(state):
+    """
+    Extracts numerical values from the input string and filters out only the prime numbers.
+    
+    Dynamically handles: Pipeline step input - can be any format from previous step or initial data
+    Produces: Processed output for next pipeline step
+    """
+    import sys
+    import os
+    import re
+    import json
+    from datetime import datetime
+    from typing import List, Dict, Any, Union
+    
+    # Add project path
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    
+    # No tools to import
+    
+    # Initialize state
+    if 'results' not in state:
+        state['results'] = {}
+    if 'errors' not in state:
+        state['errors'] = []
+    if 'execution_path' not in state:
+        state['execution_path'] = []
+    
+    try:
+        start_time = datetime.now()
+        
+        # INTELLIGENT INPUT EXTRACTION
+        input_data = None
+        
+        # Priority order for data extraction
+        for key in ['extracted_data', 'current_data', 'data', 'input', 'request']:
+            if key in state and state[key] is not None:
+                input_data = state[key]
+                break
+        
+        # If still no data, try to extract from nested structures
+        if input_data is None:
+            for key in ['results', 'context', 'files']:
+                if key in state and state[key]:
+                    input_data = state[key]
+                    break
+        
+        if input_data is None:
+            raise ValueError("No input data found in state")
+        
+        # HELPER FUNCTION: Check if a number is prime
+        def is_prime(n):
+            """Check if a number is prime"""
+            if n < 2:
+                return False
+            if n == 2:
+                return True
+            if n % 2 == 0:
+                return False
+            
+            # Check odd divisors up to sqrt(n)
+            i = 3
+            while i * i <= n:
+                if n % i == 0:
+                    return False
+                i += 2
+            return True
+        
+        # HELPER FUNCTION: Extract numbers from various data types
+        def extract_numbers(data):
+            """Extract all numbers from various data formats"""
+            numbers = []
+            
+            if isinstance(data, (int, float)):
+                # Direct number
+                if isinstance(data, int):
+                    numbers.append(data)
+                elif data.is_integer():
+                    numbers.append(int(data))
+            
+            elif isinstance(data, str):
+                # Extract numbers from string using regex
+                # Match integers and floats
+                number_pattern = r'-?\d+\.?\d*'
+                matches = re.findall(number_pattern, data)
+                for match in matches:
+                    try:
+                        if '.' in match:
+                            num = float(match)
+                            if num.is_integer():
+                                numbers.append(int(num))
+                        else:
+                            numbers.append(int(match))
+                    except ValueError:
+                        continue
+            
+            elif isinstance(data, list):
+                # Process each element in list
+                for item in data:
+                    numbers.extend(extract_numbers(item))
+            
+            elif isinstance(data, dict):
+                # Process all values in dictionary
+                for value in data.values():
+                    numbers.extend(extract_numbers(value))
+            
+            elif hasattr(data, '__iter__') and not isinstance(data, (str, bytes)):
+                # Handle other iterable types
+                try:
+                    for item in data:
+                        numbers.extend(extract_numbers(item))
+                except:
+                    pass
+            
+            return numbers
+        
+        # MAIN LOGIC: Extract numbers and filter primes
+        
+        # Extract all numbers from input data
+        extracted_numbers = extract_numbers(input_data)
+        
+        # Remove duplicates while preserving order
+        unique_numbers = []
+        seen = set()
+        for num in extracted_numbers:
+            if num not in seen:
+                unique_numbers.append(num)
+                seen.add(num)
+        
+        # Filter for prime numbers only
+        prime_numbers = []
+        non_prime_numbers = []
+        
+        for num in unique_numbers:
+            if is_prime(num):
+                prime_numbers.append(num)
+            else:
+                non_prime_numbers.append(num)
+        
+        # Sort prime numbers for consistent output
+        prime_numbers.sort()
+        
+        # Create comprehensive output
+        processed_data = {
+            'prime_numbers': prime_numbers,
+            'count': len(prime_numbers),
+            'statistics': {
+                'total_numbers_found': len(unique_numbers),
+                'prime_count': len(prime_numbers),
+                'non_prime_count': len(non_prime_numbers),
+                'largest_prime': max(prime_numbers) if prime_numbers else None,
+                'smallest_prime': min(prime_numbers) if prime_numbers else None
+            },
+            'analysis': {
+                'all_numbers_found': unique_numbers,
+                'non_prime_numbers': non_prime_numbers,
+                'input_summary': {
+                    'input_type': type(input_data).__name__,
+                    'contains_numbers': len(unique_numbers) > 0,
+                    'contains_primes': len(prime_numbers) > 0
+                }
+            }
+        }
+        
+        # STRUCTURED OUTPUT
+        result = {
+            'status': 'success',
+            'data': processed_data,
+            'metadata': {
+                'agent': 'filter_prime_numbers',
+                'execution_time': (datetime.now() - start_time).total_seconds(),
+                'input_type': type(input_data).__name__,
+                'output_type': type(processed_data).__name__,
+                'tools_used': [],
+                'processing_summary': f"Found {len(unique_numbers)} numbers, {len(prime_numbers)} are prime"
+            }
+        }
+        
+        # Update pipeline state
+        state['results']['filter_prime_numbers'] = result
+        state['current_data'] = processed_data
+        state['execution_path'].append('filter_prime_numbers')
+        
+        return state
+        
+    except Exception as e:
+        import traceback
+        error_info = {
+            'agent': 'filter_prime_numbers',
+            'error': str(e),
+            'traceback': traceback.format_exc()
+        }
+        
+        state['errors'].append(error_info)
+        state['results']['filter_prime_numbers'] = {
+            'status': 'error',
+            'error': str(e),
+            'metadata': error_info
+        }
+        
+        return state
 ```
 
 --------------------------------------------------------------------------------
@@ -19852,8 +20954,8 @@ if __name__ == "__main__":
 
 ### File: tools.json
 **Path:** `tools.json`
-**Size:** 4,646 bytes
-**Modified:** 2025-09-10 08:08:57
+**Size:** 4,909 bytes
+**Modified:** 2025-09-11 09:14:18
 
 ```json
 {
@@ -19868,7 +20970,10 @@ if __name__ == "__main__":
       "used_by_agents": [],
       "created_by": "system",
       "created_at": "2025-01-01T00:00:00",
-      "tags": ["file", "reader"],
+      "tags": [
+        "file",
+        "reader"
+      ],
       "line_count": 35,
       "status": "active",
       "used_by": [],
@@ -19884,7 +20989,11 @@ if __name__ == "__main__":
       "used_by_agents": [],
       "created_by": "system",
       "created_at": "2025-01-01T00:00:00",
-      "tags": ["file", "reader", "json"],
+      "tags": [
+        "file",
+        "reader",
+        "json"
+      ],
       "line_count": 38,
       "status": "active",
       "used_by": [],
@@ -19900,7 +21009,11 @@ if __name__ == "__main__":
       "used_by_agents": [],
       "created_by": "system",
       "created_at": "2025-01-01T00:00:00",
-      "tags": ["file", "reader", "csv"],
+      "tags": [
+        "file",
+        "reader",
+        "csv"
+      ],
       "line_count": 37,
       "status": "active",
       "used_by": [],
@@ -19916,7 +21029,11 @@ if __name__ == "__main__":
       "used_by_agents": [],
       "created_by": "system",
       "created_at": "2025-01-01T00:00:00",
-      "tags": ["file", "reader", "pdf"],
+      "tags": [
+        "file",
+        "reader",
+        "pdf"
+      ],
       "line_count": 42,
       "status": "active",
       "used_by": [],
@@ -19929,13 +21046,23 @@ if __name__ == "__main__":
       "location": "generated/tools/extract_emails.py",
       "is_prebuilt": false,
       "is_pure_function": true,
-      "used_by_agents": ["email_extractor", "text_analyzer"],
+      "used_by_agents": [
+        "email_extractor",
+        "text_analyzer"
+      ],
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-01-01T00:00:00",
-      "tags": ["extraction", "regex", "email"],
+      "tags": [
+        "extraction",
+        "regex",
+        "email"
+      ],
       "line_count": 28,
       "status": "active",
-      "used_by": ["email_extractor", "text_analyzer"],
+      "used_by": [
+        "email_extractor",
+        "text_analyzer"
+      ],
       "formatted_created_at": "2025-01-01 00:00:00"
     },
     "calculate_mean": {
@@ -19948,7 +21075,11 @@ if __name__ == "__main__":
       "used_by_agents": [],
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-01-01T00:00:00",
-      "tags": ["calculation", "math", "statistics"],
+      "tags": [
+        "calculation",
+        "math",
+        "statistics"
+      ],
       "line_count": 39,
       "status": "active",
       "used_by": [],
@@ -19964,7 +21095,9 @@ if __name__ == "__main__":
       "used_by_agents": [],
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-09-04T23:14:54.570979",
-      "tags": ["extraction"],
+      "tags": [
+        "extraction"
+      ],
       "line_count": 37,
       "status": "active",
       "used_by": [],
@@ -19980,7 +21113,9 @@ if __name__ == "__main__":
       "used_by_agents": [],
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-09-04T23:26:14.815178",
-      "tags": ["analysis"],
+      "tags": [
+        "analysis"
+      ],
       "line_count": 47,
       "status": "active",
       "used_by": [],
@@ -19988,7 +21123,6 @@ if __name__ == "__main__":
     }
   }
 }
-
 ```
 
 --------------------------------------------------------------------------------
