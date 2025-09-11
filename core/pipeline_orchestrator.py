@@ -40,7 +40,9 @@ class PipelineOrchestrator:
     def __init__(self):
         """Initialize the pipeline orchestrator."""
         self.client = openai.OpenAI(api_key=OPENAI_API_KEY)
-        self.registry = RegistryManager()
+        from core.registry_singleton import get_shared_registry
+
+        self.registry = get_shared_registry()  # ← FIX: Use shared instance
         self.compatibility_analyzer = AgentCompatibilityAnalyzer(self.registry)
         self.agent_factory = AgentFactory()
         self.tool_factory = ToolFactory()
@@ -413,6 +415,18 @@ class PipelineOrchestrator:
                     "error": "Failed to create required components",
                 }
 
+        # VERIFY ALL AGENTS EXIST BEFORE EXECUTION
+        required_agents = [
+            step["agent_assigned"]
+            for step in pipeline_plan["steps"]
+            if step.get("agent_assigned")
+        ]
+        if not self._verify_agents_exist(required_agents):
+            return {
+                "status": "error",
+                "error": "Required agents not found in registry after creation",
+            }
+
         # Execute pipeline steps
         execution_result = {
             "status": "in_progress",
@@ -545,8 +559,27 @@ class PipelineOrchestrator:
         # Import and execute the agent
         try:
             from core.workflow_engine import WorkflowEngine
+            from core.registry_singleton import get_shared_registry, force_global_reload
 
-            workflow_engine = WorkflowEngine(self.registry)
+            # COMPREHENSIVE REGISTRY SYNCHRONIZATION
+            force_global_reload()
+            fresh_registry = get_shared_registry()
+
+            # Verify agent exists before proceeding
+            if not fresh_registry.agent_exists(agent_name):
+                print(f"DEBUG: CRITICAL - Agent '{agent_name}' not found in registry")
+                print(
+                    f"DEBUG: Available agents: {list(fresh_registry.agents.get('agents', {}).keys())}"
+                )
+                return {
+                    "status": "error",
+                    "error": f"Agent '{agent_name}' not found in registry",
+                }
+
+            workflow_engine = WorkflowEngine(fresh_registry)
+            print(
+                f"DEBUG: Successfully verified agent '{agent_name}' exists in registry"
+            )
 
             # Create minimal workflow state for single agent execution
             workflow_state = {
@@ -815,3 +848,25 @@ class PipelineOrchestrator:
             step_plan["agent_assigned"] = agent_spec["name"]
 
         return step_plan
+
+    def _verify_agents_exist(self, agent_names: List[str]) -> bool:
+        """Verify all required agents exist in registry"""
+        from core.registry_singleton import get_shared_registry, force_global_reload
+
+        force_global_reload()
+        registry = get_shared_registry()
+
+        available_agents = list(registry.agents.get("agents", {}).keys())
+        print(f"DEBUG: Available agents in registry: {available_agents}")
+
+        missing_agents = []
+        for agent_name in agent_names:
+            if not registry.agent_exists(agent_name):
+                missing_agents.append(agent_name)
+
+        if missing_agents:
+            print(f"DEBUG: Missing agents: {missing_agents}")
+            return False
+
+        print(f"DEBUG: All required agents found: {agent_names}")
+        return True

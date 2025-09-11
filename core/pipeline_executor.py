@@ -338,9 +338,9 @@ class PipelineExecutor:
             except AttributeError:
                 # Try the other pattern
                 fallback_name = (
-                    agent_name
+                    f"{agent_name}_agent"
                     if agent_name.endswith("_agent")
-                    else f"{agent_name}_agent"
+                    else agent_name
                 )
                 if fallback_name != function_name:
                     try:
