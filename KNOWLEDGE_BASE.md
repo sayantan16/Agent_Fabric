@@ -1,6 +1,6 @@
 # AGENTIC FABRIC POC - COMPLETE PROJECT KNOWLEDGE BASE
 ================================================================================
-Generated: 2025-09-14 16:45:39
+Generated: 2025-09-15 09:36:26
 Project Root: /Users/sayantankundu/Documents/Agent Fabric
 
 ## PROJECT OVERVIEW
@@ -16,7 +16,9 @@ Project Root: /Users/sayantankundu/Documents/Agent Fabric
 Agent Fabric/
 ├── core/
 │   ├── __init__.py
+│   ├── agent_designer.py
 │   ├── agent_factory.py
+│   ├── capability_analyzer.py
 │   ├── file_content_reader.py
 │   ├── intelligent_agent_base.py
 │   ├── pipeline_executor.py
@@ -30,6 +32,7 @@ Agent Fabric/
 ├── generated/
 │   ├── agents/
 │   │   ├── email_extractor_agent.py
+│   │   ├── qr_code_generator_agent.py
 │   │   ├── read_csv_agent.py
 │   │   └── read_text_agent.py
 │   ├── tools/
@@ -50,9 +53,8 @@ Agent Fabric/
 ├── config.py
 ├── create_knowledge_base.py
 ├── requirements.txt
-├── test_current_setup.py
-├── test_enhanced_system.py
-├── test_orchestrator.py
+├── test_data_flow_workflow.py
+├── test_dynamic_creation_step2.py
 ├── tools.json
 └── tools.json.lock
 ```
@@ -80,7 +82,7 @@ Agent Fabric/
 ### File: KNOWLEDGE_BASE.md
 **Path:** `KNOWLEDGE_BASE.md`
 **Size:** 0 bytes
-**Modified:** 2025-09-14 16:45:15
+**Modified:** 2025-09-15 09:36:20
 
 ```markdown
 
@@ -120,8 +122,8 @@ POC in active development - implementing dynamic agent creation system.
 
 ### File: agents.json
 **Path:** `agents.json`
-**Size:** 5,057 bytes
-**Modified:** 2025-09-12 18:40:22
+**Size:** 8,286 bytes
+**Modified:** 2025-09-15 09:12:52
 
 ```json
 {
@@ -129,7 +131,9 @@ POC in active development - implementing dynamic agent creation system.
     "email_extractor": {
       "name": "email_extractor",
       "description": "Extracts email addresses from text input",
-      "uses_tools": ["extract_emails"],
+      "uses_tools": [
+        "extract_emails"
+      ],
       "input_schema": {
         "data": "any"
       },
@@ -149,14 +153,21 @@ POC in active development - implementing dynamic agent creation system.
       "version": "1.0.0",
       "execution_count": 4,
       "avg_execution_time": 0.001,
-      "tags": ["extraction", "emails"],
+      "tags": [
+        "extraction",
+        "emails"
+      ],
       "line_count": 98,
       "status": "active",
       "last_executed": "2025-09-08T23:58:52.927352",
       "dependencies": {
-        "tools": ["extract_emails"],
+        "tools": [
+          "extract_emails"
+        ],
         "missing_tools": [],
-        "available_tools": ["extract_emails"]
+        "available_tools": [
+          "extract_emails"
+        ]
       },
       "formatted_created_at": "2025-01-01 00:00:00"
     },
@@ -170,19 +181,34 @@ POC in active development - implementing dynamic agent creation system.
       },
       "output_schema": {
         "type": "object",
-        "required": ["status", "data", "metadata"],
+        "required": [
+          "status",
+          "data",
+          "metadata"
+        ],
         "properties": {
           "status": {
             "type": "string",
-            "enum": ["success", "error", "partial"]
+            "enum": [
+              "success",
+              "error",
+              "partial"
+            ]
           },
           "data": {
-            "type": ["object", "array", "null"],
+            "type": [
+              "object",
+              "array",
+              "null"
+            ],
             "description": "Agent-specific output data"
           },
           "metadata": {
             "type": "object",
-            "required": ["agent", "execution_time"],
+            "required": [
+              "agent",
+              "execution_time"
+            ],
             "properties": {
               "agent": {
                 "type": "string"
@@ -240,19 +266,34 @@ POC in active development - implementing dynamic agent creation system.
       },
       "output_schema": {
         "type": "object",
-        "required": ["status", "data", "metadata"],
+        "required": [
+          "status",
+          "data",
+          "metadata"
+        ],
         "properties": {
           "status": {
             "type": "string",
-            "enum": ["success", "error", "partial"]
+            "enum": [
+              "success",
+              "error",
+              "partial"
+            ]
           },
           "data": {
-            "type": ["object", "array", "null"],
+            "type": [
+              "object",
+              "array",
+              "null"
+            ],
             "description": "Agent-specific output data"
           },
           "metadata": {
             "type": "object",
-            "required": ["agent", "execution_time"],
+            "required": [
+              "agent",
+              "execution_time"
+            ],
             "properties": {
               "agent": {
                 "type": "string"
@@ -299,10 +340,114 @@ POC in active development - implementing dynamic agent creation system.
         "available_tools": []
       },
       "formatted_created_at": "2025-09-04 17:23:07"
+    },
+    "qr_code_generator": {
+      "name": "qr_code_generator",
+      "description": "Generates QR codes from input URLs, ensuring valid format and error handling for malformed inputs.",
+      "uses_tools": [],
+      "input_schema": {
+        "data": "any"
+      },
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "status",
+          "data",
+          "metadata"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "success",
+              "error",
+              "partial"
+            ]
+          },
+          "data": {
+            "type": [
+              "object",
+              "array",
+              "null"
+            ],
+            "description": "Agent-specific output data"
+          },
+          "metadata": {
+            "type": "object",
+            "required": [
+              "agent",
+              "execution_time"
+            ],
+            "properties": {
+              "agent": {
+                "type": "string"
+              },
+              "execution_time": {
+                "type": "number"
+              },
+              "tools_used": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "errors": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "warnings": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "generated_files": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "filename": {
+                  "type": "string"
+                },
+                "path": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "size": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      },
+      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/agents/qr_code_generator_agent.py",
+      "is_prebuilt": false,
+      "created_by": "claude-sonnet-4-20250514",
+      "created_at": "2025-09-15T09:12:52.702451",
+      "version": "1.0.74ebe221",
+      "execution_count": 0,
+      "avg_execution_time": 0.0,
+      "last_executed": null,
+      "tags": [
+        "dynamic",
+        "claude_generated",
+        "transformation"
+      ],
+      "line_count": 239,
+      "status": "active"
     }
   }
 }
-
 ```
 
 --------------------------------------------------------------------------------
@@ -310,7 +455,7 @@ POC in active development - implementing dynamic agent creation system.
 ### File: agents.json.lock
 **Path:** `agents.json.lock`
 **Size:** 0 bytes
-**Modified:** 2025-09-12 14:42:15
+**Modified:** 2025-09-15 09:12:52
 
 *[Binary file or content not included]*
 
@@ -1991,10 +2136,130 @@ PIPELINE_SUCCESS_MESSAGES = {
 
 --------------------------------------------------------------------------------
 
+### File: core/agent_designer.py
+**Path:** `core/agent_designer.py`
+**Size:** 4,295 bytes
+**Modified:** 2025-09-15 06:44:33
+
+```python
+"""
+Intelligent Agent Designer - GPT-4 designs optimal agent architectures
+"""
+
+import json
+import openai
+from typing import Dict, List
+from config import OPENAI_API_KEY, ORCHESTRATOR_MODEL
+
+
+class IntelligentAgentDesigner:
+    """GPT-4 designs complete agent specifications"""
+
+    def __init__(self):
+        self.openai_client = openai.OpenAI(api_key=OPENAI_API_KEY)
+
+    async def design_agent_architecture(
+        self, agent_requirement: Dict, context: Dict
+    ) -> Dict:
+        """GPT-4 creates detailed agent specification"""
+
+        design_prompt = f"""
+        INTELLIGENT AGENT ARCHITECTURE DESIGN
+        
+        AGENT REQUIREMENT:
+        {json.dumps(agent_requirement, indent=2)}
+        
+        SYSTEM CONTEXT:
+        - Available Tools: {context.get('available_tools', [])}
+        - Existing Agents: {context.get('existing_agents', [])}
+        - File Types: {context.get('file_types', [])}
+        - User Request Context: {context.get('user_request', '')}
+        
+        DESIGN SPECIFICATIONS:
+        
+        1. INPUT ANALYSIS:
+           - What data formats will this agent receive?
+           - How should it extract/parse input data?
+           - What edge cases must be handled?
+        
+        2. PROCESSING DESIGN:
+           - What core algorithms/logic are needed?
+           - Which existing tools can be reused?
+           - What new tools need to be created?
+           - How should errors be handled?
+        
+        3. OUTPUT SPECIFICATION:
+           - What format should results be in?
+           - How should output integrate with other agents?
+           - What metadata should be included?
+        
+        4. INTEGRATION STRATEGY:
+           - How does this agent fit in workflows?
+           - What data does it need from previous agents?
+           - What data should it pass to next agents?
+        
+        RESPONSE FORMAT (JSON):
+        {{
+            "agent_specification": {{
+                "name": "precise_descriptive_name",
+                "description": "clear_purpose_statement",
+                "category": "data_processing|analysis|transformation|integration|validation",
+                "complexity": "simple|moderate|complex"
+            }},
+            "input_design": {{
+                "primary_inputs": ["input_type_1", "input_type_2"],
+                "input_sources": ["files", "previous_agents", "user_request"],
+                "parsing_requirements": ["requirement1", "requirement2"],
+                "validation_rules": ["rule1", "rule2"]
+            }},
+            "processing_design": {{
+                "core_algorithms": ["algorithm1", "algorithm2"],
+                "existing_tools_needed": ["tool1", "tool2"],
+                "new_tools_required": [
+                    {{"name": "tool_name", "purpose": "tool_purpose", "complexity": "simple|complex"}}
+                ],
+                "error_handling": ["scenario1", "scenario2"],
+                "performance_requirements": "fast|standard|thorough"
+            }},
+            "output_design": {{
+                "output_format": "json|text|file|structured_data",
+                "output_schema": {{
+                    "field1": "description",
+                    "field2": "description"
+                }},
+                "metadata_included": ["execution_time", "confidence_score", "data_quality"],
+                "next_agent_compatibility": "description"
+            }},
+            "integration_design": {{
+                "workflow_position": "first|middle|last|flexible",
+                "dependencies": ["agent1", "agent2"],
+                "data_flow": "how_data_moves_through_agent",
+                "parallel_execution_safe": true/false
+            }},
+            "claude_prompt_design": {{
+                "analysis_prompt": "prompt for Claude to analyze input",
+                "processing_prompt": "prompt for Claude to process data", 
+                "output_prompt": "prompt for Claude to format results"
+            }}
+        }}
+        """
+
+        response = self.openai_client.chat.completions.create(
+            model=ORCHESTRATOR_MODEL,
+            messages=[{"role": "user", "content": design_prompt}],
+            response_format={"type": "json_object"},
+        )
+
+        return json.loads(response.choices[0].message.content)
+
+```
+
+--------------------------------------------------------------------------------
+
 ### File: core/agent_factory.py
 **Path:** `core/agent_factory.py`
-**Size:** 51,878 bytes
-**Modified:** 2025-09-13 08:15:00
+**Size:** 65,585 bytes
+**Modified:** 2025-09-15 09:03:23
 
 ```python
 """
@@ -2028,6 +2293,8 @@ from typing import Dict, List, Optional, Any, Tuple
 from anthropic import Anthropic
 from core.registry_singleton import get_shared_registry
 from config import PIPELINE_AGENT_TEMPLATE, DYNAMIC_AGENT_SPEC_PROMPT
+from core.agent_designer import IntelligentAgentDesigner
+from config import ANTHROPIC_API_KEY, CLAUDE_MODEL
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -2046,7 +2313,12 @@ class AgentFactory:
             f"DEBUG: ANTHROPIC_API_KEY length: {len(ANTHROPIC_API_KEY) if ANTHROPIC_API_KEY else 0}"
         )
 
-        self.client = Anthropic(api_key=ANTHROPIC_API_KEY)
+        # Add this line to initialize Claude client
+        from anthropic import Anthropic
+
+        self.claude = Anthropic(api_key=ANTHROPIC_API_KEY)
+
+        self.agent_designer = IntelligentAgentDesigner()
         self.registry = get_shared_registry()
         self.generation_history = []
 
@@ -3398,8 +3670,541 @@ class AgentFactory:
         }}
     """
 
+    async def create_agent_from_requirement(self, agent_requirement: Dict) -> Dict:
+        """Create intelligent agent from requirement using GPT-4 design + Claude generation"""
+
+        try:
+            # First get system context
+            from core.registry_singleton import get_shared_registry
+
+            registry = get_shared_registry()
+
+            context = {
+                "available_tools": list(registry.tools.get("tools", {}).keys()),
+                "existing_agents": list(registry.agents.get("agents", {}).keys()),
+                "file_types": ["csv", "pdf", "json", "text", "excel"],
+            }
+
+            print(f"🎯 Designing agent: {agent_requirement['agent_name']}")
+
+            # Step 1: GPT-4 designs the agent architecture
+            if not hasattr(self, "agent_designer"):
+                from core.agent_designer import IntelligentAgentDesigner
+
+                self.agent_designer = IntelligentAgentDesigner()
+
+            agent_design = await self.agent_designer.design_agent_architecture(
+                agent_requirement, context
+            )
+
+            print(
+                f"✅ Agent design completed for: {agent_design['agent_specification']['name']}"
+            )
+
+            # Step 2: Claude generates the agent code
+            agent_code = await self._generate_intelligent_agent_code(agent_design)
+
+            print(f"✅ Agent code generated, length: {len(agent_code)} characters")
+
+            # Step 3: Register the agent
+            spec = agent_design["agent_specification"]
+
+            print(f"🔄 Registering agent: {spec['name']}")
+            print(f"   Description: {spec['description']}")
+            print(
+                f"   Uses tools: {agent_design.get('integration_requirements', {}).get('uses_tools', [])}"
+            )
+
+            registration_result = self.registry.register_agent(
+                name=spec["name"],
+                description=spec["description"],
+                code=agent_code,
+                uses_tools=agent_design.get("integration_requirements", {}).get(
+                    "uses_tools", []
+                ),
+                tags=["dynamic", "claude_generated", spec["category"]],
+                is_prebuilt=False,
+            )
+
+            print(f"📋 Registration result: {registration_result}")
+
+            if registration_result and registration_result.get("status") == "success":
+                print(f"✅ Created agent: {spec['name']}")
+                return {
+                    "status": "success",
+                    "agent_name": spec["name"],
+                    "agent_design": agent_design,
+                }
+            else:
+                error_msg = (
+                    registration_result.get("error")
+                    if registration_result
+                    else "Registration returned None"
+                )
+                print(f"❌ Failed to register agent: {error_msg}")
+                return {"status": "error", "error": error_msg}
+
+        except Exception as e:
+            print(f"❌ Exception creating agent: {str(e)}")
+            import traceback
+
+            traceback.print_exc()
+            return {"status": "error", "error": str(e)}
+
+    async def _generate_intelligent_agent_code(self, agent_design: Dict) -> str:
+        """Claude generates sophisticated agent code with simple package installation"""
+
+        spec = agent_design["agent_specification"]
+
+        generation_prompt = f"""
+        Create a Python function named '{spec['name']}' that integrates with the Agentic Fabric system.
+
+        REQUIREMENTS:
+        - Function name: {spec['name']}
+        - Purpose: {spec['description']}
+        - Must accept parameter: data=None
+        - Must return dict with status, data, metadata
+        - Must handle errors gracefully
+        - Must automatically install required packages
+        - Must use Claude for intelligent processing
+
+        Generate ONLY the Python function code, no markdown formatting, no explanations.
+        Ensure perfect Python syntax.
+
+        Template with package installation:
+    ```python
+        import os
+        import sys
+        import json
+        import subprocess
+        from typing import Dict, Any
+        from datetime import datetime
+        from anthropic import Anthropic
+        from config import CLAUDE_MODEL, ANTHROPIC_API_KEY
+
+        def {spec['name']}(data=None):
+            def install_if_needed(package):
+                try:
+                    # Check if package is already installed
+                    base_package = package.split('[')[0].split('==')[0].split('>=')[0]
+                    __import__(base_package)
+                    return True
+                except ImportError:
+                    try:
+                        print(f"Installing {{package}}...")
+                        subprocess.check_call([sys.executable, "-m", "pip", "install", package, "--quiet"])
+                        print(f"Successfully installed {{package}}")
+                        return True
+                    except subprocess.CalledProcessError as e:
+                        print(f"Failed to install {{package}}: {{e}}")
+                        return False
+
+            try:
+                start_time = datetime.now()
+                
+                if data is None:
+                    return {{
+                        "status": "error",
+                        "error": "No input data provided",
+                        "data": None,
+                        "metadata": {{"agent": "{spec['name']}", "agent_type": "dynamic"}}
+                    }}
+
+                # Install packages based on the agent's purpose
+                description = "{spec['description'].lower()}"
+                packages_needed = []
+                
+                if "qr code" in description or "qr-code" in description:
+                    packages_needed.append("qrcode[pil]")
+                if "image" in description and "qr" not in description:
+                    packages_needed.append("Pillow")
+                if "pdf" in description:
+                    packages_needed.append("pdfplumber")
+                if "excel" in description or "xlsx" in description:
+                    packages_needed.append("openpyxl")
+                if "chart" in description or "plot" in description or "graph" in description:
+                    packages_needed.append("matplotlib")
+                if "xml" in description:
+                    packages_needed.append("lxml")
+                if "web" in description or "scraping" in description:
+                    packages_needed.append("requests")
+                if "json" in description and "xml" in description:
+                    packages_needed.extend(["lxml", "xmltodict"])
+                
+                # Install required packages
+                failed_packages = []
+                for package in packages_needed:
+                    if not install_if_needed(package):
+                        failed_packages.append(package)
+                
+                if failed_packages:
+                    return {{
+                        "status": "error",
+                        "error": f"Failed to install required packages: {{failed_packages}}",
+                        "data": None,
+                        "metadata": {{"agent": "{spec['name']}", "failed_packages": failed_packages}}
+                    }}
+                
+                # Now import packages after successful installation
+                if "qr code" in description or "qr-code" in description:
+                    import qrcode
+                    from io import BytesIO
+                    import base64
+
+                claude = Anthropic(api_key=ANTHROPIC_API_KEY)
+                
+                # Use Claude for intelligent processing
+                prompt = f\"\"\"
+                Task: {spec['description']}
+                Input data: {{json.dumps(data, indent=2) if isinstance(data, (dict, list)) else str(data)}}
+                
+                Process this data according to the task requirements.
+                If this involves QR codes, extract URLs or text that should be converted to QR codes.
+                If this involves other processing, analyze the data and provide appropriate results.
+                
+                Return your analysis and processing instructions in JSON format.
+                \"\"\"
+                
+                response = claude.messages.create(
+                    model=CLAUDE_MODEL,
+                    max_tokens=1500,
+                    messages=[{{"role": "user", "content": prompt}}]
+                )
+                
+                result_text = response.content[0].text
+                
+                # Try to parse Claude's response as JSON, fallback to text
+                try:
+                    claude_result = json.loads(result_text)
+                except:
+                    claude_result = {{"processed_content": result_text}}
+                
+                # Implement specific functionality based on installed packages
+                final_result = claude_result
+                
+                if "qr code" in description or "qr-code" in description:
+                    # Actually generate QR codes if packages were installed successfully
+                    try:
+                        qr_codes = []
+                        # Extract data to encode from Claude's analysis or raw input
+                        data_to_encode = []
+                        
+                        if isinstance(data, str):
+                            data_to_encode = [data]
+                        elif isinstance(data, dict):
+                            # Look for URLs or text in the data
+                            data_to_encode = [str(v) for v in data.values() if isinstance(v, str)]
+                        elif isinstance(data, list):
+                            data_to_encode = [str(item) for item in data]
+                        
+                        for item in data_to_encode:
+                            if item and len(item.strip()) > 0:
+                                qr = qrcode.QRCode(version=1, box_size=10, border=5)
+                                qr.add_data(item.strip())
+                                qr.make(fit=True)
+                                
+                                img = qr.make_image(fill_color="black", back_color="white")
+                                
+                                # Convert to base64 for easy transmission
+                                buffer = BytesIO()
+                                img.save(buffer, format='PNG')
+                                img_str = base64.b64encode(buffer.getvalue()).decode()
+                                
+                                qr_codes.append({{
+                                    "text": item.strip(),
+                                    "qr_code_base64": img_str
+                                }})
+                        
+                        final_result = {{
+                            "qr_codes": qr_codes,
+                            "claude_analysis": claude_result,
+                            "total_codes_generated": len(qr_codes)
+                        }}
+                        
+                    except Exception as e:
+                        final_result = {{
+                            "error": f"QR code generation failed: {{str(e)}}",
+                            "claude_analysis": claude_result
+                        }}
+                
+                return {{
+                    "status": "success",
+                    "data": final_result,
+                    "metadata": {{
+                        "agent": "{spec['name']}",
+                        "category": "{spec['category']}",
+                        "claude_model": CLAUDE_MODEL,
+                        "execution_time": (datetime.now() - start_time).total_seconds(),
+                        "agent_type": "dynamic",
+                        "packages_used": packages_needed
+                    }}
+                }}
+                
+            except Exception as e:
+                return {{
+                    "status": "error",
+                    "error": str(e),
+                    "data": None,
+                    "metadata": {{"agent": "{spec['name']}", "agent_type": "dynamic"}}
+                }}
+    Generate the complete function following this structure for: {spec['description']}
+    Make it work reliably with proper package installation and error handling.
+    """
+
+        response = self.claude.messages.create(
+            model=CLAUDE_MODEL,
+            max_tokens=4000,
+            messages=[{"role": "user", "content": generation_prompt}],
+        )
+
+        generated_code = response.content[0].text
+
+        # Clean up the generated code - remove markdown formatting if present
+        if "```python" in generated_code:
+            # Extract code from markdown blocks
+            start = generated_code.find("```python") + 9
+            end = generated_code.find("```", start)
+            if end != -1:
+                generated_code = generated_code[start:end].strip()
+        elif "```" in generated_code:
+            # Handle generic code blocks
+            start = generated_code.find("```") + 3
+            end = generated_code.find("```", start)
+            if end != -1:
+                generated_code = generated_code[start:end].strip()
+
+        return generated_code
+
 
 # ============= END OF NEW METHODS =============
+
+```
+
+--------------------------------------------------------------------------------
+
+### File: core/capability_analyzer.py
+**Path:** `core/capability_analyzer.py`
+**Size:** 8,565 bytes
+**Modified:** 2025-09-15 07:05:33
+
+```python
+"""
+Enhanced Capability Analyzer with Intelligent Agent Compatibility
+File: core/capability_analyzer.py (ENHANCED VERSION)
+"""
+
+import json
+from typing import Dict, List, Any
+from config import OPENAI_API_KEY, ORCHESTRATOR_MODEL
+import openai
+from core.registry_singleton import get_shared_registry
+
+
+class CapabilityAnalyzer:
+    """GPT-4 analyzes requests and intelligently matches against existing agents"""
+
+    def __init__(self):
+        self.openai_client = openai.OpenAI(api_key=OPENAI_API_KEY)
+
+    async def analyze_agent_compatibility(
+        self, request: str, proposed_plan: Dict, files: List[Dict]
+    ) -> Dict:
+        """
+        Intelligent analysis: Are the proposed agents actually suitable for this request?
+        Returns compatibility analysis with confidence scores.
+        """
+
+        # Get complete agent registry data
+        registry = get_shared_registry()
+        all_agents = registry.agents.get("agents", {})
+
+        # Extract proposed agents and their details
+        proposed_agents = proposed_plan.get("agents", [])
+        agent_details = {}
+
+        for agent_name in proposed_agents:
+            if agent_name in all_agents:
+                agent_info = all_agents[agent_name]
+                agent_details[agent_name] = {
+                    "description": agent_info.get("description", ""),
+                    "uses_tools": agent_info.get("uses_tools", []),
+                    "tags": agent_info.get("tags", []),
+                    "location": agent_info.get("location", ""),
+                }
+
+        # Get file context
+        file_context = []
+        if files:
+            for file_info in files:
+                file_context.append(
+                    {
+                        "type": file_info.get("type", "unknown"),
+                        "structure": file_info.get("structure", {}),
+                        "size": file_info.get("size", 0),
+                    }
+                )
+
+        analysis_prompt = f"""
+        INTELLIGENT AGENT COMPATIBILITY ANALYSIS
+        
+        USER REQUEST: "{request}"
+        FILE CONTEXT: {json.dumps(file_context, indent=2)}
+        
+        PROPOSED WORKFLOW PLAN:
+        {json.dumps(proposed_plan, indent=2)}
+        
+        COMPLETE AGENT REGISTRY:
+        {json.dumps(all_agents, indent=2)}
+        
+        ANALYSIS OBJECTIVES:
+        1. COMPATIBILITY ASSESSMENT: Are the proposed agents actually suitable for this specific request?
+        2. CAPABILITY MATCHING: Do the agents' described capabilities align with request requirements?
+        3. ALTERNATIVE EVALUATION: Are there better-suited agents available in the registry?
+        4. GAP IDENTIFICATION: What capabilities are missing entirely?
+        5. CONFIDENCE SCORING: How confident are we in the current assignment?
+        
+        EVALUATION CRITERIA:
+        - Agent description relevance to request
+        - Tool compatibility with required operations
+        - Input/output format alignment
+        - Specialization vs generic capability match
+        - Past performance indicators (if available)
+        
+        RESPONSE FORMAT (JSON):
+        {{
+            "compatibility_analysis": {{
+                "overall_confidence": 0.0-1.0,
+                "recommendation": "use_proposed|find_alternatives|create_new|hybrid_approach",
+                "reasoning": "detailed explanation of compatibility assessment"
+            }},
+            "agent_evaluations": [
+                {{
+                    "agent_name": "proposed_agent_name",
+                    "compatibility_score": 0.0-1.0,
+                    "strengths": ["strength1", "strength2"],
+                    "limitations": ["limitation1", "limitation2"],
+                    "suitability": "excellent|good|fair|poor|unsuitable"
+                }}
+            ],
+            "better_alternatives": [
+                {{
+                    "agent_name": "alternative_agent_name", 
+                    "compatibility_score": 0.0-1.0,
+                    "why_better": "explanation of why this is more suitable"
+                }}
+            ],
+            "missing_capabilities": [
+                {{
+                    "capability": "missing_capability_name",
+                    "importance": "critical|important|nice_to_have",
+                    "description": "what this capability would provide"
+                }}
+            ],
+            "creation_recommendation": {{
+                "should_create_new": true/false,
+                "rationale": "why creation is/isn't recommended",
+                "suggested_agents": [
+                    {{
+                        "agent_name": "suggested_name",
+                        "purpose": "specific_capability_description",
+                        "priority": "high|medium|low"
+                    }}
+                ]
+            }}
+        }}
+        """
+
+        response = self.openai_client.chat.completions.create(
+            model=ORCHESTRATOR_MODEL,
+            messages=[{"role": "user", "content": analysis_prompt}],
+            response_format={"type": "json_object"},
+        )
+
+        return json.loads(response.choices[0].message.content)
+
+    async def analyze_capability_gaps(
+        self, request: str, current_plan: Dict, files: List[Dict]
+    ) -> Dict:
+        """Legacy method - kept for backward compatibility"""
+
+        # If no agents proposed, do traditional gap analysis
+        if not current_plan.get("agents"):
+            return await self._traditional_gap_analysis(request, current_plan, files)
+
+        # Otherwise, do intelligent compatibility analysis
+        compatibility_result = await self.analyze_agent_compatibility(
+            request, current_plan, files
+        )
+
+        # Convert to legacy format for existing integration
+        return {
+            "creation_required": compatibility_result["creation_recommendation"][
+                "should_create_new"
+            ],
+            "gap_analysis": {
+                "missing_capabilities": [
+                    cap["capability"]
+                    for cap in compatibility_result["missing_capabilities"]
+                ],
+                "capability_importance": {
+                    cap["capability"]: cap["importance"]
+                    for cap in compatibility_result["missing_capabilities"]
+                },
+                "current_limitations": compatibility_result["compatibility_analysis"][
+                    "reasoning"
+                ],
+            },
+            "agent_requirements": compatibility_result["creation_recommendation"][
+                "suggested_agents"
+            ],
+            "rationale": compatibility_result["compatibility_analysis"]["reasoning"],
+            "compatibility_analysis": compatibility_result,  # Include full analysis
+        }
+
+    async def _traditional_gap_analysis(
+        self, request: str, current_plan: Dict, files: List[Dict]
+    ) -> Dict:
+        """Traditional gap analysis when no agents are proposed"""
+
+        registry = get_shared_registry()
+        all_agents = registry.agents.get("agents", {})
+
+        analysis_prompt = f"""
+        CAPABILITY GAP ANALYSIS - NO SUITABLE AGENTS FOUND
+        
+        USER REQUEST: "{request}"
+        AVAILABLE AGENTS: {json.dumps(all_agents, indent=2)}
+        FILE CONTEXT: {json.dumps([f.get("structure") for f in files] if files else [], indent=2)}
+        
+        Since no agents were initially selected, analyze what capabilities are needed
+        and determine if any existing agents could actually handle this request.
+        
+        RESPONSE FORMAT (JSON):
+        {{
+            "creation_required": true/false,
+            "gap_analysis": {{
+                "missing_capabilities": ["capability1", "capability2"],
+                "capability_importance": {{"capability1": "high", "capability2": "medium"}},
+                "current_limitations": "description of what existing agents cannot do"
+            }},
+            "agent_requirements": [
+                {{
+                    "agent_name": "suggested_name",
+                    "purpose": "specific_capability_description",
+                    "priority": "high/medium/low"
+                }}
+            ],
+            "rationale": "detailed explanation"
+        }}
+        """
+
+        response = self.openai_client.chat.completions.create(
+            model=ORCHESTRATOR_MODEL,
+            messages=[{"role": "user", "content": analysis_prompt}],
+            response_format={"type": "json_object"},
+        )
+
+        return json.loads(response.choices[0].message.content)
 
 ```
 
@@ -6523,8 +7328,8 @@ def force_global_reload():
 
 ### File: core/simplified_orchestrator.py
 **Path:** `core/simplified_orchestrator.py`
-**Size:** 27,866 bytes
-**Modified:** 2025-09-14 09:36:01
+**Size:** 36,074 bytes
+**Modified:** 2025-09-15 09:08:34
 
 ```python
 """
@@ -6556,6 +7361,7 @@ from core.agent_factory import AgentFactory
 from core.tool_factory import ToolFactory
 
 from core.workflow_engine import MultiAgentWorkflowEngine, WorkflowPlanner
+from core.capability_analyzer import CapabilityAnalyzer
 from core.specialized_agents import (
     PDFAnalyzerAgent,
     ChartGeneratorAgent,
@@ -6578,6 +7384,7 @@ class SimplifiedOrchestrator:
 
         self.workflow_engine = MultiAgentWorkflowEngine()
         self.workflow_planner = WorkflowPlanner()
+        self.capability_analyzer = CapabilityAnalyzer()
 
         # FIX: Initialize the OpenAI openai_client properly
         self.openai_client = openai.OpenAI(api_key=OPENAI_API_KEY)  # Add this line!
@@ -6589,75 +7396,6 @@ class SimplifiedOrchestrator:
         print(
             f"DEBUG: ANTHROPIC_API_KEY length: {len(ANTHROPIC_API_KEY) if ANTHROPIC_API_KEY else 0}"
         )
-
-    # async def process_request(
-    #     self,
-    #     user_request: str,
-    #     files: Optional[List[Dict]] = None,
-    #     auto_create: bool = True,
-    # ) -> Dict[str, Any]:
-    #     """
-    #     Main entry point - process any request with AI intelligence.
-    #     """
-    #     workflow_id = f"wf_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-    #     start_time = datetime.now()
-
-    #     try:
-    #         # Step 1: Read actual file contents (not just metadata!)
-    #         enriched_files = []
-    #         if files:
-    #             enriched_files = self.file_reader.process_all_files(files)
-    #             for file in enriched_files:
-    #                 if file.get("read_success"):
-    #                     print(
-    #                         f"✓ Read {file['original_name']}: {file.get('structure')} with {file['content'].get('total_rows', 'N/A')} rows"
-    #                     )
-
-    #         # Step 2: AI analyzes request with REAL data
-    #         analysis = await self._analyze_with_ai(user_request, enriched_files)
-
-    #         # Step 3: AI plans workflow based on actual data
-    #         plan = await self._ai_plan_workflow(user_request, enriched_files, analysis)
-
-    #         # Step 4: Create missing components if needed
-    #         if auto_create and plan.get("missing_components"):
-    #             await self._create_missing_components(plan["missing_components"])
-
-    #         # Step 5: Execute workflow with AI-powered agents
-    #         results = await self._execute_ai_workflow(
-    #             plan, user_request, enriched_files
-    #         )
-
-    #         # Step 6: AI synthesizes final response
-    #         response = await self._ai_synthesize_response(user_request, plan, results)
-
-    #         return {
-    #             "status": "success",
-    #             "workflow_id": workflow_id,
-    #             "response": response,
-    #             "execution_time": (datetime.now() - start_time).total_seconds(),
-    #             "workflow": plan,
-    #             "results": results,
-    #             "metadata": {
-    #                 "files_processed": len(enriched_files),
-    #                 "agents_used": len(plan.get("agents", [])),
-    #                 "ai_calls": plan.get("ai_calls", 0),
-    #             },
-    #         }
-
-    #     except Exception as e:
-    #         print(f"❌ Error: {str(e)}")
-    #         import traceback
-
-    #         traceback.print_exc()
-    #         return {
-    #             "status": "error",
-    #             "workflow_id": workflow_id,
-    #             "error": str(e),
-    #             "response": f"An error occurred: {str(e)}",  # Always include response
-    #             "workflow": {},
-    #             "metadata": {},
-    #         }
 
     async def process_request(
         self,
@@ -6679,6 +7417,175 @@ class SimplifiedOrchestrator:
             workflow_plan = self.workflow_planner.plan_workflow(
                 user_request, enriched_files
             )
+
+            # Enhanced: Intelligent agent compatibility analysis
+            if auto_create:
+                print("Analyzing agent compatibility and capability gaps...")
+
+                compatibility_analysis = (
+                    await self.capability_analyzer.analyze_agent_compatibility(
+                        user_request, workflow_plan, enriched_files
+                    )
+                )
+
+                overall_confidence = compatibility_analysis["compatibility_analysis"][
+                    "overall_confidence"
+                ]
+                recommendation = compatibility_analysis["compatibility_analysis"][
+                    "recommendation"
+                ]
+
+                print(f"Agent compatibility confidence: {overall_confidence:.2f}")
+                print(f"AI Recommendation: {recommendation}")
+
+                # Show agent evaluations
+                for evaluation in compatibility_analysis.get("agent_evaluations", []):
+                    agent_name = evaluation["agent_name"]
+                    score = evaluation["compatibility_score"]
+                    suitability = evaluation["suitability"]
+                    print(
+                        f"  {agent_name}: {score:.2f} confidence, {suitability} suitability"
+                    )
+
+                # NEW: Override workflow plan if confidence is too low
+                if overall_confidence < 0.7:
+                    print(
+                        f"Confidence too low ({overall_confidence:.2f}), checking for better alternatives..."
+                    )
+
+                    # Check if better alternatives exist
+                    better_alternatives = compatibility_analysis.get(
+                        "better_alternatives", []
+                    )
+                    if better_alternatives:
+                        # Use the best alternative
+                        best_alternative = max(
+                            better_alternatives,
+                            key=lambda x: x.get("compatibility_score", 0),
+                        )
+                        if best_alternative["compatibility_score"] > overall_confidence:
+                            print(
+                                f"Using better alternative: {best_alternative['agent_name']}"
+                            )
+                            workflow_plan["agents"] = [best_alternative["agent_name"]]
+                            workflow_plan["execution_strategy"] = "sequential"
+
+                    # If still low confidence or no alternatives, mark for creation
+                    if overall_confidence < 0.7 and recommendation in [
+                        "create_new",
+                        "hybrid_approach",
+                    ]:
+                        print("AI recommends creating specialized agents...")
+
+                        # Actually create the required agents
+                        creation_result = await self._create_required_agents(
+                            compatibility_analysis
+                        )
+
+                        if creation_result["status"] == "success":
+                            print(
+                                f"✅ Created {len(creation_result['agents_created'])} agents successfully"
+                            )
+
+                            # Refresh the workflow plan with newly created agents
+                            from core.registry_singleton import force_global_reload
+
+                            force_global_reload()  # Reload registry to see new agents
+
+                            # Re-plan workflow with new agents available
+                            from core.registry_singleton import get_shared_registry
+
+                            updated_registry = get_shared_registry()
+                            print(
+                                f"Registry after creation: {list(updated_registry.agents.get('agents', {}).keys())}"
+                            )
+
+                            workflow_plan = self.workflow_planner.plan_workflow(
+                                user_request, enriched_files
+                            )
+                            print(f"Updated workflow plan: {workflow_plan['agents']}")
+
+                            # If planner still doesn't pick up the new agent, force it
+                            created_agents = creation_result.get("agents_created", [])
+                            if (
+                                created_agents
+                                and workflow_plan.get("agents") != created_agents
+                            ):
+                                print(
+                                    f"🔧 Forcing workflow to use newly created agents: {created_agents}"
+                                )
+                                workflow_plan["agents"] = created_agents
+                                workflow_plan["execution_strategy"] = "sequential"
+                                print(
+                                    f"Forced workflow plan: {workflow_plan['agents']}"
+                                )
+
+                            # Update confidence since we now have suitable agents
+                            overall_confidence = 1.0
+
+                        elif creation_result["status"] == "no_agents_to_create":
+                            print("No agents needed to be created")
+                        else:
+                            print(
+                                f"❌ Agent creation failed: {creation_result.get('errors', [])}"
+                            )
+
+                            # Show what was attempted
+                            suggested_agents = compatibility_analysis.get(
+                                "creation_recommendation", {}
+                            ).get("suggested_agents", [])
+                            if suggested_agents:
+                                print("Attempted to create:")
+                                for suggested in suggested_agents:
+                                    print(
+                                        f"  - {suggested['agent_name']}: {suggested['purpose']}"
+                                    )
+
+                # Show better alternatives if found
+                better_alternatives = compatibility_analysis.get(
+                    "better_alternatives", []
+                )
+                if better_alternatives:
+                    print("Better alternatives found in registry:")
+                    for alt in better_alternatives:
+                        print(f"  - {alt['agent_name']}: {alt['why_better']}")
+
+                # If still using unsuitable agent after analysis, provide helpful response
+                if (
+                    overall_confidence < 0.3
+                    and recommendation == "create_new"
+                    and not better_alternatives
+                ):
+
+                    print(
+                        "No suitable agents available - providing capability explanation"
+                    )
+
+                    # Instead of executing with wrong agent, explain what's needed
+                    suggested_agents = compatibility_analysis.get(
+                        "creation_recommendation", {}
+                    ).get("suggested_agents", [])
+                    if suggested_agents:
+                        explanation = f"This request requires specialized capabilities not currently available. "
+                        explanation += f"Would need: {', '.join([a['agent_name'] for a in suggested_agents])}. "
+                        explanation += "Dynamic agent creation will be available in the next system update."
+
+                        return {
+                            "status": "capability_gap",
+                            "workflow_id": workflow_id,
+                            "response": explanation,
+                            "execution_time": (
+                                datetime.now() - start_time
+                            ).total_seconds(),
+                            "workflow": workflow_plan,
+                            "metadata": {
+                                "workflow_type": "capability_gap_detected",
+                                "missing_capabilities": [
+                                    a["agent_name"] for a in suggested_agents
+                                ],
+                                "confidence": overall_confidence,
+                            },
+                        }
 
             if len(workflow_plan["agents"]) > 1:
                 print(f"Multi-agent workflow detected: {workflow_plan['agents']}")
@@ -6750,6 +7657,68 @@ class SimplifiedOrchestrator:
                 "workflow": {},
                 "metadata": {},
             }
+
+    async def _create_required_agents(self, compatibility_analysis: Dict) -> Dict:
+        """Create all required agents from compatibility analysis"""
+
+        creation_results = {"agents_created": [], "errors": []}
+
+        # Get suggested agents from the compatibility analysis
+        suggested_agents = compatibility_analysis.get(
+            "creation_recommendation", {}
+        ).get("suggested_agents", [])
+
+        if not suggested_agents:
+            return {
+                "status": "no_agents_to_create",
+                "message": "No agents suggested for creation",
+                **creation_results,
+            }
+
+        for agent_requirement in suggested_agents:
+            try:
+                print(f"🎯 Creating agent: {agent_requirement['agent_name']}")
+
+                # Use the enhanced agent factory method
+                result = await self.agent_factory.create_agent_from_requirement(
+                    agent_requirement
+                )
+
+                if result["status"] == "success":
+                    creation_results["agents_created"].append(result["agent_name"])
+                    print(f"✅ Created agent: {result['agent_name']}")
+                else:
+                    creation_results["errors"].append(
+                        result.get("error", "Unknown error")
+                    )
+                    print(
+                        f"❌ Failed to create agent: {agent_requirement['agent_name']}"
+                    )
+
+            except Exception as e:
+                error_msg = (
+                    f"Failed to create {agent_requirement['agent_name']}: {str(e)}"
+                )
+                creation_results["errors"].append(error_msg)
+                print(f"❌ Exception creating agent: {str(e)}")
+
+        return {
+            "status": "success" if creation_results["agents_created"] else "error",
+            **creation_results,
+        }
+
+    def _get_system_context(self) -> Dict:
+        """Provide current system context for agent design"""
+        from core.registry_singleton import get_shared_registry
+
+        registry = get_shared_registry()
+
+        return {
+            "available_tools": list(registry.tools.get("tools", {}).keys()),
+            "existing_agents": list(registry.agents.get("agents", {}).keys()),
+            "file_types": ["csv", "pdf", "json", "text", "excel"],
+            "workflow_patterns": ["sequential", "parallel"],
+        }
 
     async def _analyze_with_ai(self, request: str, files: List[Dict]) -> Dict:
         """Use GPT-4 to analyze request with ACTUAL DATA - works with ANY file type."""
@@ -9072,8 +10041,8 @@ class ToolFactory:
 
 ### File: core/workflow_engine.py
 **Path:** `core/workflow_engine.py`
-**Size:** 20,122 bytes
-**Modified:** 2025-09-14 09:43:56
+**Size:** 18,833 bytes
+**Modified:** 2025-09-15 09:26:56
 
 ```python
 """
@@ -9082,8 +10051,10 @@ Location: core/workflow_engine.py
 """
 
 import asyncio
+import os
 from typing import Dict, List, Any, Optional
 from datetime import datetime
+import importlib.util
 import json
 from core.specialized_agents import (
     PDFAnalyzerAgent,
@@ -9104,6 +10075,7 @@ class MultiAgentWorkflowEngine:
             "data_analyzer": DataAnalysisAgent(),
         }
         self.workflow_state = {}
+        self.dynamic_agents = {}
 
     async def execute_workflow(
         self, workflow_plan: Dict, request: str, files: List[Dict] = None
@@ -9173,100 +10145,6 @@ class MultiAgentWorkflowEngine:
                 "partial_results": self.workflow_state.get("step_results", {}),
                 "data_flow": self.workflow_state.get("data_flow", []),
             }
-
-    # async def _execute_sequential(
-    #     self, agent_sequence: List[str], request: str, files: List[Dict]
-    # ) -> Dict:
-    #     """Execute agents sequentially with data flowing between steps."""
-
-    #     results = {}
-    #     current_data = None
-
-    #     # Start with file data if available
-    #     if files and files[0].get("read_success"):
-    #         current_data = files[0]
-    #         self.workflow_state["current_data"] = current_data
-
-    #     for i, agent_name in enumerate(agent_sequence):
-    #         print(f"🔄 Step {i+1}: Executing {agent_name}")
-
-    #         # Get agent
-    #         agent = self.agents.get(agent_name)
-    #         if not agent:
-    #             print(f"⚠️  Agent {agent_name} not found, skipping")
-    #             continue
-
-    #         # Prepare context for this step
-    #         step_context = {
-    #             "step_number": i + 1,
-    #             "total_steps": len(agent_sequence),
-    #             "previous_results": results,
-    #             "workflow_request": request,
-    #         }
-
-    #         # Execute agent with current data
-    #         step_result = await agent.execute(
-    #             request=request, file_data=current_data, context=step_context
-    #         )
-
-    #         # Store result
-    #         results[agent_name] = step_result
-    #         self.workflow_state["step_results"][agent_name] = step_result
-
-    #         # Update data flow for next step
-    #         if step_result.get("status") == "success":
-    #             # Pass successful data to next agent
-    #             data_output = step_result.get("data", {})
-
-    #             # Create enriched data for next step
-    #             if current_data:
-    #                 # Merge new results with existing data
-    #                 enhanced_data = {
-    #                     **current_data,
-    #                     "previous_analysis": data_output,
-    #                     "step_history": results,
-    #                 }
-    #             else:
-    #                 # Create new data structure
-    #                 enhanced_data = {
-    #                     "content": data_output,
-    #                     "structure": "processed",
-    #                     "previous_analysis": data_output,
-    #                     "step_history": results,
-    #                 }
-
-    #             current_data = enhanced_data
-    #             self.workflow_state["current_data"] = current_data
-
-    #             # Log data flow
-    #             self.workflow_state["data_flow"].append(
-    #                 {
-    #                     "from_step": agent_name,
-    #                     "to_step": (
-    #                         agent_sequence[i + 1]
-    #                         if i + 1 < len(agent_sequence)
-    #                         else "final"
-    #                     ),
-    #                     "data_type": type(data_output).__name__,
-    #                     "data_size": len(str(data_output)) if data_output else 0,
-    #                     "timestamp": datetime.now().isoformat(),
-    #                 }
-    #             )
-
-    #             print(f"✅ {agent_name} completed successfully")
-
-    #         else:
-    #             error_msg = step_result.get("error", "Unknown error")
-    #             print(f"❌ {agent_name} failed: {error_msg}")
-    #             self.workflow_state["errors"].append(
-    #                 {
-    #                     "step": agent_name,
-    #                     "error": error_msg,
-    #                     "timestamp": datetime.now().isoformat(),
-    #                 }
-    #             )
-
-    #     return results
 
     async def _execute_sequential(
         self, agent_sequence: List[str], request: str, files: List[Dict]
@@ -9502,6 +10380,70 @@ class MultiAgentWorkflowEngine:
     def get_workflow_state(self) -> Dict:
         """Get current workflow state for debugging."""
         return self.workflow_state.copy()
+
+    async def load_dynamic_agent(self, agent_name: str) -> Dict:
+        """Load newly created agent into workflow engine"""
+
+        if agent_name in self.dynamic_agents:
+            return {"status": "already_loaded", "agent": agent_name}
+
+        try:
+            from core.registry_singleton import get_shared_registry
+
+            registry = get_shared_registry()
+
+            if not registry.agent_exists(agent_name):
+                return {
+                    "status": "error",
+                    "error": f"Agent {agent_name} not found in registry",
+                }
+
+            agent_info = registry.get_agent(agent_name)
+            agent_file = agent_info["location"]
+
+            if not os.path.exists(agent_file):
+                return {
+                    "status": "error",
+                    "error": f"Agent file not found: {agent_file}",
+                }
+
+            # Load agent module dynamically
+            spec = importlib.util.spec_from_file_location(
+                f"{agent_name}_module", agent_file
+            )
+            agent_module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(agent_module)
+
+            # Find agent function
+            agent_function = getattr(agent_module, agent_name)
+
+            # Create wrapper that matches existing agent interface
+            class DynamicAgentWrapper:
+                def __init__(self, func):
+                    self.func = func
+                    self.name = agent_name
+
+                async def execute(
+                    self, request: str, file_data: Dict = None, context: Dict = None
+                ) -> Dict:
+                    # Convert to format expected by dynamic agents
+                    input_data = {
+                        "request": request,
+                        "file_data": file_data,
+                        "context": context,
+                    }
+                    return self.func(input_data)
+
+            # Cache the wrapped agent
+            self.dynamic_agents[agent_name] = DynamicAgentWrapper(agent_function)
+
+            return {"status": "success", "agent_loaded": agent_name}
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "error": f"Failed to load agent {agent_name}: {str(e)}",
+            }
 
 
 class WorkflowPlanner:
@@ -10070,6 +11012,255 @@ def email_extractor_agent(state):
 
     return state
 
+```
+
+--------------------------------------------------------------------------------
+
+### File: generated/agents/qr_code_generator_agent.py
+**Path:** `generated/agents/qr_code_generator_agent.py`
+**Size:** 9,013 bytes
+**Modified:** 2025-09-15 09:12:52
+
+```python
+import os
+import sys
+import json
+import subprocess
+from typing import Dict, Any
+from datetime import datetime
+import re
+from anthropic import Anthropic
+from config import CLAUDE_MODEL, ANTHROPIC_API_KEY
+
+def qr_code_generator(data=None):
+    def install_if_needed(package):
+        try:
+            # Check if package is already installed
+            base_package = package.split('[')[0].split('==')[0].split('>=')[0]
+            __import__(base_package)
+            return True
+        except ImportError:
+            try:
+                print(f"Installing {package}...")
+                subprocess.check_call([sys.executable, "-m", "pip", "install", package, "--quiet"])
+                print(f"Successfully installed {package}")
+                return True
+            except subprocess.CalledProcessError as e:
+                print(f"Failed to install {package}: {e}")
+                return False
+
+    def validate_url(url):
+        """Validate URL format"""
+        url_pattern = re.compile(
+            r'^https?://'  # http:// or https://
+            r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|'  # domain...
+            r'localhost|'  # localhost...
+            r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
+            r'(?::\d+)?'  # optional port
+            r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+        return url_pattern.match(url) is not None
+
+    def extract_urls_from_data(data):
+        """Extract URLs from various data formats"""
+        urls = []
+        
+        if isinstance(data, str):
+            # Check if it's a single URL
+            if validate_url(data):
+                urls.append(data)
+            else:
+                # Search for URLs within the string
+                url_pattern = r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+                found_urls = re.findall(url_pattern, data)
+                for url in found_urls:
+                    if validate_url(url):
+                        urls.append(url)
+        
+        elif isinstance(data, list):
+            for item in data:
+                if isinstance(item, str) and validate_url(item):
+                    urls.append(item)
+                elif isinstance(item, dict):
+                    urls.extend(extract_urls_from_data(item))
+        
+        elif isinstance(data, dict):
+            for key, value in data.items():
+                if isinstance(value, str) and validate_url(value):
+                    urls.append(value)
+                elif isinstance(value, (dict, list)):
+                    urls.extend(extract_urls_from_data(value))
+        
+        return list(set(urls))  # Remove duplicates
+
+    try:
+        start_time = datetime.now()
+        
+        if data is None:
+            return {
+                "status": "error",
+                "error": "No input data provided",
+                "data": None,
+                "metadata": {"agent": "qr_code_generator", "agent_type": "dynamic"}
+            }
+
+        # Install required packages for QR code generation
+        packages_needed = ["qrcode[pil]", "Pillow"]
+        
+        failed_packages = []
+        for package in packages_needed:
+            if not install_if_needed(package):
+                failed_packages.append(package)
+        
+        if failed_packages:
+            return {
+                "status": "error",
+                "error": f"Failed to install required packages: {failed_packages}",
+                "data": None,
+                "metadata": {"agent": "qr_code_generator", "failed_packages": failed_packages}
+            }
+        
+        # Import packages after successful installation
+        import qrcode
+        from PIL import Image
+        from io import BytesIO
+        import base64
+
+        claude = Anthropic(api_key=ANTHROPIC_API_KEY)
+        
+        # Use Claude for intelligent processing and URL validation
+        prompt = f"""
+        Task: Analyze the input data and extract valid URLs for QR code generation.
+        Input data: {json.dumps(data, indent=2) if isinstance(data, (dict, list)) else str(data)}
+        
+        Please:
+        1. Identify all URLs in the input data
+        2. Validate that they are properly formatted URLs
+        3. Categorize them if possible (website, social media, etc.)
+        4. Flag any malformed URLs and suggest corrections if possible
+        5. Provide recommendations for QR code generation
+        
+        Return your analysis in JSON format with:
+        - valid_urls: array of valid URLs found
+        - invalid_urls: array of malformed URLs with suggested corrections
+        - recommendations: suggestions for QR code generation
+        """
+        
+        response = claude.messages.create(
+            model=CLAUDE_MODEL,
+            max_tokens=1500,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        
+        result_text = response.content[0].text
+        
+        # Try to parse Claude's response as JSON
+        try:
+            claude_result = json.loads(result_text)
+        except:
+            claude_result = {"processed_content": result_text}
+        
+        # Extract URLs from data using both Claude analysis and local validation
+        extracted_urls = extract_urls_from_data(data)
+        
+        # Combine URLs from Claude analysis if available
+        if "valid_urls" in claude_result:
+            for url in claude_result["valid_urls"]:
+                if validate_url(url) and url not in extracted_urls:
+                    extracted_urls.append(url)
+        
+        if not extracted_urls:
+            return {
+                "status": "error",
+                "error": "No valid URLs found in the input data",
+                "data": {
+                    "claude_analysis": claude_result,
+                    "extracted_urls": extracted_urls,
+                    "input_data": data
+                },
+                "metadata": {"agent": "qr_code_generator", "agent_type": "dynamic"}
+            }
+        
+        # Generate QR codes for valid URLs
+        qr_codes = []
+        generation_errors = []
+        
+        for url in extracted_urls:
+            try:
+                # Create QR code with error correction
+                qr = qrcode.QRCode(
+                    version=1,  # Auto-adjust size
+                    error_correction=qrcode.constants.ERROR_CORRECT_M,  # ~15% error correction
+                    box_size=10,
+                    border=4,
+                )
+                
+                qr.add_data(url)
+                qr.make(fit=True)
+                
+                # Generate image
+                img = qr.make_image(fill_color="black", back_color="white")
+                
+                # Convert to base64 for transmission
+                buffer = BytesIO()
+                img.save(buffer, format='PNG')
+                img_base64 = base64.b64encode(buffer.getvalue()).decode()
+                
+                qr_codes.append({
+                    "url": url,
+                    "qr_code_base64": img_base64,
+                    "qr_version": qr.version,
+                    "format": "PNG",
+                    "size": f"{img.width}x{img.height}",
+                    "error_correction": "Medium (15%)"
+                })
+                
+            except Exception as e:
+                generation_errors.append({
+                    "url": url,
+                    "error": str(e)
+                })
+        
+        # Prepare final result
+        final_result = {
+            "qr_codes": qr_codes,
+            "total_generated": len(qr_codes),
+            "urls_processed": len(extracted_urls),
+            "generation_errors": generation_errors,
+            "claude_analysis": claude_result,
+            "validation_summary": {
+                "valid_urls": extracted_urls,
+                "total_valid": len(extracted_urls),
+                "successful_generations": len(qr_codes),
+                "failed_generations": len(generation_errors)
+            }
+        }
+        
+        status = "success" if qr_codes else "error"
+        error_msg = "No QR codes could be generated" if not qr_codes and status == "error" else None
+        
+        return {
+            "status": status,
+            "error": error_msg,
+            "data": final_result,
+            "metadata": {
+                "agent": "qr_code_generator",
+                "category": "transformation",
+                "claude_model": CLAUDE_MODEL,
+                "execution_time": (datetime.now() - start_time).total_seconds(),
+                "agent_type": "dynamic",
+                "packages_used": packages_needed,
+                "urls_found": len(extracted_urls),
+                "qr_codes_generated": len(qr_codes)
+            }
+        }
+        
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": f"QR code generation failed: {str(e)}",
+            "data": None,
+            "metadata": {"agent": "qr_code_generator", "agent_type": "dynamic"}
+        }
 ```
 
 --------------------------------------------------------------------------------
@@ -10682,222 +11873,311 @@ ujson>=5.0.0  # Faster JSON processing for large pipeline data
 
 --------------------------------------------------------------------------------
 
-### File: test_current_setup.py
-**Path:** `test_current_setup.py`
-**Size:** 848 bytes
-**Modified:** 2025-09-13 13:06:12
+### File: test_data_flow_workflow.py
+**Path:** `test_data_flow_workflow.py`
+**Size:** 9,902 bytes
+**Modified:** 2025-09-15 09:25:56
 
 ```python
-# test_current_setup.py
-import asyncio
-from core.simplified_orchestrator import SimplifiedOrchestrator
-
-
-async def test():
-    orchestrator = SimplifiedOrchestrator()
-
-    # Create a simple test CSV first
-    import pandas as pd
-
-    test_df = pd.DataFrame(
-        {
-            "Date": ["2024-01-01", "2024-01-02"],
-            "Region": ["North", "South"],
-            "Sales": [1000, 1500],
-        }
-    )
-    test_df.to_csv("test_sales.csv", index=False)
-
-    files = [
-        {
-            "path": "test_sales.csv",
-            "original_name": "test_sales.csv",
-            "type": "text/csv",
-        }
-    ]
-
-    result = await orchestrator.process_request(
-        user_request="Analyze this sales data and find the highest sales region",
-        files=files,
-    )
-
-    print("RESPONSE:", result.get("response"))
-
-
-asyncio.run(test())
-
-```
-
---------------------------------------------------------------------------------
-
-### File: test_enhanced_system.py
-**Path:** `test_enhanced_system.py`
-**Size:** 5,923 bytes
-**Modified:** 2025-09-14 09:18:16
-
-```python
-# test_enhanced_system.py
 """
-Test script for enhanced multi-agent system
-Save this as test_enhanced_system.py in your root directory
+Multi-Agent Data Flow Test: CSV Analysis to PDF Summary
+File: test_data_flow_workflow.py
+
+This test validates that data flows correctly between agents in a multi-step workflow.
+Workflow: CSV Data Analysis → Statistical Summary → PDF Report Generation
 """
 
 import asyncio
+import csv
 import os
+import sys
+from datetime import datetime, timedelta
+import random
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from core.simplified_orchestrator import SimplifiedOrchestrator
+from core.registry_singleton import get_shared_registry
 
 
-async def test_specialized_agents():
-    """Test individual specialized agents"""
-    print("=" * 60)
-    print("TESTING SPECIALIZED AGENTS")
-    print("=" * 60)
+def create_sample_sales_csv():
+    """Create a sample sales CSV file for testing"""
 
-    orchestrator = SimplifiedOrchestrator()
+    filename = "test_sales_data.csv"
 
-    # Test 1: Text Processing
-    print("\n🔍 Test 1: Text Processing Agent")
-    result = await orchestrator.process_request(
-        "Extract all email addresses from this text: Contact support@company.com or sales@business.org for help"
-    )
-    print(f"Status: {result.get('status')}")
-    print(f"Response: {result.get('response', 'No response')[:200]}...")
-    print(f"Workflow Type: {result.get('metadata', {}).get('workflow_type')}")
-
-    # Test 2: Data Analysis (if you have test_sales.csv)
-    if os.path.exists("test_sales.csv"):
-        print("\n📊 Test 2: Data Analysis Agent")
-        files = [
-            {
-                "path": "test_sales.csv",
-                "original_name": "test_sales.csv",
-                "type": "text/csv",
-            }
-        ]
-
-        result = await orchestrator.process_request(
-            "Analyze the sales data and show trends", files=files
-        )
-        print(f"Status: {result.get('status')}")
-        print(f"Response: {result.get('response', 'No response')[:200]}...")
-        print(f"Workflow Type: {result.get('metadata', {}).get('workflow_type')}")
-
-    print("\n" + "=" * 60)
-
-
-async def test_multi_agent_workflows():
-    """Test multi-agent workflows"""
-    print("TESTING MULTI-AGENT WORKFLOWS")
-    print("=" * 60)
-
-    orchestrator = SimplifiedOrchestrator()
-
-    # Test 1: Sequential Multi-Agent Workflow
-    print("\n🔄 Test 1: Multi-Agent Sequential Workflow")
-
-    if os.path.exists("test_sales.csv"):
-        files = [
-            {
-                "path": "test_sales.csv",
-                "original_name": "test_sales.csv",
-                "type": "text/csv",
-            }
-        ]
-
-        result = await orchestrator.process_request(
-            "Analyze the sales data and create a visualization chart showing the trends",
-            files=files,
-        )
-
-        print(f"Status: {result.get('status')}")
-        print(f"Response: {result.get('response', 'No response')[:300]}...")
-        print(f"Workflow Type: {result.get('metadata', {}).get('workflow_type')}")
-        print(f"Agents Used: {result.get('metadata', {}).get('agents_used', 0)}")
-        print(
-            f"Execution Strategy: {result.get('metadata', {}).get('execution_strategy')}"
-        )
-
-        if result.get("workflow_summary"):
-            print(f"Workflow Summary: {result['workflow_summary']}")
-
-    # Test 2: Complex Request Requiring Multiple Steps
-    print("\n🔄 Test 2: Complex Multi-Step Request")
-    result = await orchestrator.process_request(
-        "Process this text to extract key information, analyze sentiment, and generate insights: 'Our Q4 sales exceeded expectations with strong growth in the North region. Customer feedback has been overwhelmingly positive, particularly for our new product line. However, we need to address supply chain challenges in the South region to maintain momentum.'"
-    )
-
-    print(f"Status: {result.get('status')}")
-    print(f"Response: {result.get('response', 'No response')[:300]}...")
-    print(f"Workflow Type: {result.get('metadata', {}).get('workflow_type')}")
-
-    print("\n" + "=" * 60)
-
-
-async def test_workflow_intelligence():
-    """Test intelligent workflow planning"""
-    print("TESTING WORKFLOW INTELLIGENCE")
-    print("=" * 60)
-
-    orchestrator = SimplifiedOrchestrator()
-
-    # Test different request types to see how the planner responds
-    test_cases = [
-        "What is 2+2?",  # Should use simple workflow
-        "Extract emails from: contact@company.com, support@help.org",  # Should use text_processor
-        "Analyze sales data and create charts",  # Should use multi-agent workflow
-        "Process document and extract key insights",  # Should determine based on file type
+    # Generate realistic sales data
+    products = ["Widget A", "Widget B", "Gadget Pro", "Super Tool", "Premium Kit"]
+    regions = ["North", "South", "East", "West", "Central"]
+    sales_reps = [
+        "Alice Johnson",
+        "Bob Smith",
+        "Carol Davis",
+        "David Wilson",
+        "Eva Brown",
     ]
 
-    for i, request in enumerate(test_cases, 1):
-        print(f"\n🧠 Test Case {i}: '{request}'")
+    data = []
+    start_date = datetime(2024, 1, 1)
 
-        # Test with CSV file if available
-        files = None
-        if "data" in request.lower() and os.path.exists("test_sales.csv"):
-            files = [
-                {
-                    "path": "test_sales.csv",
-                    "original_name": "test_sales.csv",
-                    "type": "text/csv",
-                }
-            ]
-
-        result = await orchestrator.process_request(request, files=files)
-
-        workflow_plan = result.get("workflow", {})
-        agents = (
-            workflow_plan.get("agents", []) if isinstance(workflow_plan, dict) else []
+    for i in range(150):  # Generate 150 sales records
+        record = {
+            "Date": (start_date + timedelta(days=random.randint(0, 365))).strftime(
+                "%Y-%m-%d"
+            ),
+            "Product": random.choice(products),
+            "Region": random.choice(regions),
+            "Sales_Rep": random.choice(sales_reps),
+            "Units_Sold": random.randint(1, 50),
+            "Unit_Price": round(random.uniform(25.0, 500.0), 2),
+            "Customer_Type": random.choice(["Enterprise", "SMB", "Individual"]),
+            "Discount_Applied": round(random.uniform(0, 0.25), 2),
+        }
+        record["Total_Revenue"] = round(
+            record["Units_Sold"]
+            * record["Unit_Price"]
+            * (1 - record["Discount_Applied"]),
+            2,
         )
+        data.append(record)
 
-        print(f"   Agents Selected: {agents}")
-        print(
-            f"   Workflow Type: {result.get('metadata', {}).get('workflow_type', 'unknown')}"
-        )
-        print(f"   Status: {result.get('status')}")
-        print(f"   Response Preview: {result.get('response', 'No response')[:100]}...")
+    # Write CSV file
+    with open(filename, "w", newline="", encoding="utf-8") as file:
+        fieldnames = [
+            "Date",
+            "Product",
+            "Region",
+            "Sales_Rep",
+            "Units_Sold",
+            "Unit_Price",
+            "Customer_Type",
+            "Discount_Applied",
+            "Total_Revenue",
+        ]
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(data)
 
-    print("\n" + "=" * 60)
+    print(f"Created sample sales data: {filename}")
+    print(f"Records: {len(data)}")
+    print(f"Sample record: {data[0]}")
+    return filename
 
 
-async def main():
-    """Run all tests"""
+async def test_multi_agent_data_flow():
+    """Test complete data flow: CSV → Analysis → PDF Summary"""
+
+    print("MULTI-AGENT DATA FLOW TEST")
+    print("=" * 60)
+    print("Workflow: CSV Analysis → Statistical Summary → PDF Report")
+    print()
+
+    # Step 1: Create test data
+    csv_file = create_sample_sales_csv()
+
+    # Step 2: Initialize orchestrator
+    orchestrator = SimplifiedOrchestrator()
+
+    # Step 3: Check available agents
+    registry = get_shared_registry()
+    available_agents = list(registry.agents.get("agents", {}).keys())
+    print(f"Available agents: {available_agents}")
+    print()
+
+    # Step 4: Execute multi-agent workflow
+    request = """Analyze this sales data CSV file and create a comprehensive summary PDF report. 
+    
+    The report should include:
+    1. Total sales figures and trends
+    2. Performance by region and product
+    3. Top performing sales representatives
+    4. Customer type analysis
+    5. Revenue insights and patterns
+    
+    Please process the data thoroughly and generate a professional PDF summary."""
+
+    files = [{"path": csv_file, "original_name": "sales_data.csv", "type": "text/csv"}]
+
+    print(f"Request: {request[:100]}...")
+    print(f"File: {csv_file}")
+    print()
+
+    start_time = datetime.now()
+
     try:
-        await test_specialized_agents()
-        await test_multi_agent_workflows()
-        await test_workflow_intelligence()
+        result = await orchestrator.process_request(
+            request, files=files, auto_create=True
+        )
 
-        print("✅ ALL TESTS COMPLETED")
-        print("\nKey capabilities demonstrated:")
-        print("- Specialized agents for different data types")
-        print("- Multi-agent workflows with sequential processing")
-        print("- Intelligent workflow planning based on request analysis")
-        print("- Data flow between agents in complex workflows")
+        execution_time = (datetime.now() - start_time).total_seconds()
+
+        print("RESULTS:")
+        print("=" * 40)
+        print(f"Status: {result['status']}")
+        print(f"Execution Time: {execution_time:.2f} seconds")
+        print(
+            f"Workflow Type: {result.get('metadata', {}).get('workflow_type', 'unknown')}"
+        )
+
+        # Check if multi-agent workflow was used
+        workflow_info = result.get("workflow", {})
+        if isinstance(workflow_info, dict):
+            agents_used = workflow_info.get("agents", [])
+            print(f"Agents Used: {agents_used}")
+            print(f"Agent Count: {len(agents_used)}")
+
+            if len(agents_used) > 1:
+                print("✅ MULTI-AGENT WORKFLOW DETECTED")
+            else:
+                print("ℹ️  Single agent workflow")
+
+        # Check for workflow results and data flow
+        if "results" in result:
+            print(f"\nWorkflow Results Available: {len(result['results'])} steps")
+            for step_name, step_result in result["results"].items():
+                if isinstance(step_result, dict):
+                    status = step_result.get("status", "unknown")
+                    print(f"  {step_name}: {status}")
+
+                    # Check for data flow between steps
+                    if "data" in step_result and step_result["data"]:
+                        data_keys = (
+                            list(step_result["data"].keys())
+                            if isinstance(step_result["data"], dict)
+                            else ["data_present"]
+                        )
+                        print(f"    Data passed: {data_keys}")
+
+        # Display response preview
+        response = result.get("response", "")
+        if response:
+            print(f"\nResponse Preview:")
+            print(f"{response[:300]}...")
+
+            # Check if PDF was mentioned/created
+            if "pdf" in response.lower():
+                print("✅ PDF generation mentioned in response")
+            else:
+                print("⚠️ No PDF generation detected")
+
+        # Workflow summary
+        if "workflow_summary" in result:
+            print(f"\nWorkflow Summary: {result['workflow_summary']}")
+
+        return result
 
     except Exception as e:
-        print(f"❌ Test failed: {e}")
+        print(f"❌ Test failed with error: {str(e)}")
         import traceback
 
         traceback.print_exc()
+        return None
+
+
+async def validate_data_flow_quality(result):
+    """Validate the quality of data flow between agents"""
+
+    if not result or result.get("status") != "success":
+        print("\n❌ Cannot validate data flow - workflow failed")
+        return False
+
+    print("\nDATA FLOW VALIDATION:")
+    print("=" * 40)
+
+    validation_checks = {
+        "multi_agent_workflow": False,
+        "data_enrichment": False,
+        "sequential_processing": False,
+        "proper_output_format": False,
+    }
+
+    # Check 1: Multi-agent workflow
+    workflow_info = result.get("workflow", {})
+    if isinstance(workflow_info, dict):
+        agents_used = workflow_info.get("agents", [])
+        if len(agents_used) > 1:
+            validation_checks["multi_agent_workflow"] = True
+            print(f"✅ Multi-agent workflow: {len(agents_used)} agents")
+        else:
+            print(f"⚠️ Single agent workflow: {agents_used}")
+
+    # Check 2: Data enrichment between steps
+    if "results" in result and len(result["results"]) > 1:
+        step_names = list(result["results"].keys())
+        for i, step_name in enumerate(step_names[1:], 1):
+            step_result = result["results"][step_name]
+            if isinstance(step_result, dict) and "data" in step_result:
+                validation_checks["data_enrichment"] = True
+                print(f"✅ Data enrichment detected in step: {step_name}")
+                break
+
+        validation_checks["sequential_processing"] = True
+        print(f"✅ Sequential processing: {len(step_names)} steps")
+
+    # Check 3: Proper output format
+    response = result.get("response", "")
+    if response and len(response) > 100:
+        validation_checks["proper_output_format"] = True
+        print("✅ Comprehensive output generated")
+
+    # Summary
+    passed_checks = sum(validation_checks.values())
+    total_checks = len(validation_checks)
+
+    print(f"\nValidation Summary: {passed_checks}/{total_checks} checks passed")
+
+    if passed_checks >= 3:
+        print("✅ DATA FLOW VALIDATION: PASSED")
+        return True
+    else:
+        print("⚠️ DATA FLOW VALIDATION: NEEDS IMPROVEMENT")
+        return False
+
+
+async def cleanup_test_files():
+    """Clean up test files"""
+    test_files = ["test_sales_data.csv"]
+
+    for file in test_files:
+        if os.path.exists(file):
+            os.remove(file)
+            print(f"Cleaned up: {file}")
+
+
+async def main():
+    """Run complete data flow test"""
+
+    print("Starting Multi-Agent Data Flow Test...")
+    print("This test validates data passing between agents in sequential workflows")
+    print()
+
+    try:
+        # Run the main test
+        result = await test_multi_agent_data_flow()
+
+        if result:
+            # Validate data flow quality
+            flow_valid = await validate_data_flow_quality(result)
+
+            print("\n" + "=" * 60)
+            print("TEST SUMMARY:")
+            print("=" * 60)
+
+            if flow_valid:
+                print("✅ OVERALL RESULT: PASSED")
+                print("   Data flow between agents is working correctly")
+                print("   Multi-agent coordination is functional")
+            else:
+                print("⚠️ OVERALL RESULT: NEEDS WORK")
+                print("   Data flow validation found issues")
+                print("   Multi-agent coordination needs improvement")
+
+        else:
+            print("\n❌ OVERALL RESULT: FAILED")
+            print("   Workflow execution failed")
+
+    finally:
+        # Clean up
+        await cleanup_test_files()
 
 
 if __name__ == "__main__":
@@ -10907,38 +12187,81 @@ if __name__ == "__main__":
 
 --------------------------------------------------------------------------------
 
-### File: test_orchestrator.py
-**Path:** `test_orchestrator.py`
-**Size:** 635 bytes
-**Modified:** 2025-09-13 13:26:54
+### File: test_dynamic_creation_step2.py
+**Path:** `test_dynamic_creation_step2.py`
+**Size:** 2,014 bytes
+**Modified:** 2025-09-15 07:52:08
 
 ```python
-# test_fix.py
+"""
+Test dynamic agent creation and immediate usage
+File: test_dynamic_creation_step2.py
+"""
+
 import asyncio
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from core.simplified_orchestrator import SimplifiedOrchestrator
+from core.registry_singleton import get_shared_registry
 
 
-async def test():
-    try:
-        orchestrator = SimplifiedOrchestrator()
-        print("✓ Orchestrator initialized successfully")
+async def test_dynamic_creation():
+    print("TESTING DYNAMIC AGENT CREATION - STEP 2")
+    print("=" * 60)
 
-        # Test simple request
-        result = await orchestrator.process_request(
-            user_request="What is 2+2?", files=None
-        )
+    # Check initial agent count
+    registry = get_shared_registry()
+    initial_count = len(registry.agents.get("agents", {}))
+    print(f"Initial agent count: {initial_count}")
 
-        print(f"Result status: {result.get('status')}")
-        print(f"Response: {result.get('response', 'No response')}")
+    orchestrator = SimplifiedOrchestrator()
 
-    except Exception as e:
-        print(f"Error: {e}")
-        import traceback
+    # Test case that should create a new agent
+    test_request = (
+        "Generate QR codes for these URLs: https://example.com, https://test.org"
+    )
 
-        traceback.print_exc()
+    print(f"\nTest Request: {test_request}")
+    print("-" * 50)
+
+    result = await orchestrator.process_request(test_request, auto_create=True)
+
+    print(f"\nResults:")
+    print(f"Status: {result['status']}")
+    print(f"Workflow Type: {result.get('metadata', {}).get('workflow_type')}")
+
+    if result["status"] == "success":
+        print(f"Response: {result['response'][:200]}...")
+    else:
+        print(f"Error: {result.get('error')}")
+
+    # Check if new agents were created
+    from core.registry_singleton import force_global_reload
+
+    force_global_reload()
+    registry = get_shared_registry()
+    final_count = len(registry.agents.get("agents", {}))
+
+    print(f"\nAgent Count Changes:")
+    print(f"Initial: {initial_count}")
+    print(f"Final: {final_count}")
+    print(f"New agents created: {final_count - initial_count}")
+
+    if final_count > initial_count:
+        print("✅ SUCCESS: New agents were created!")
+
+        # List the new agents
+        all_agents = list(registry.agents.get("agents", {}).keys())
+        print(f"All agents now: {all_agents}")
+    else:
+        print("❌ No new agents were created")
 
 
-asyncio.run(test())
+if __name__ == "__main__":
+    asyncio.run(test_dynamic_creation())
 
 ```
 
