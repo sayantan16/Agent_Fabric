@@ -350,33 +350,6 @@
           </svg>
         </button>
       </div>
-
-      <!-- Settings -->
-      <div class="flex items-center justify-between text-sm">
-        <div class="flex items-center space-x-4">
-          <label class="flex items-center">
-            <input
-              type="checkbox"
-              x-model="settings.auto_create"
-              class="mr-2"
-            />
-            <span class="text-gray-600">Auto-create missing agents</span>
-          </label>
-          <select
-            x-model="settings.workflow_type"
-            class="text-sm border border-gray-300 rounded px-2 py-1"
-          >
-            <option value="sequential">Sequential</option>
-            <option value="parallel">Parallel</option>
-          </select>
-        </div>
-      </div>
-    </form>
-
-    <!-- Help Text -->
-    <div class="mt-2 text-xs text-gray-500">
-      💡 Try: "Extract emails from text" or "Analyze this data"
-    </div>
   </div>
 </div>
 

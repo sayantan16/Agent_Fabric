@@ -23,7 +23,7 @@ project_root = os.path.dirname(
 sys.path.append(project_root)
 
 try:
-    from core.orchestrator import Orchestrator
+    from core.simplified_orchestrator import Orchestrator
     from core.registry_singleton import get_shared_registry
     from core.pipeline_orchestrator import PipelineOrchestrator
     from core.workflow_intelligence import WorkflowIntelligence
@@ -449,48 +449,6 @@ class OrchestratorService:
         )
         return successful / len(self.workflow_history)
 
-    def create_sample_workflows(self):
-        """Create sample workflow data for demonstration."""
-        if not self.workflow_history:  # Only create if empty
-            sample_workflows = [
-                {
-                    "workflow_id": "wf_demo_001",
-                    "request": "Extract emails from uploaded document",
-                    "status": "success",
-                    "started_at": (datetime.now() - timedelta(hours=2)).isoformat(),
-                    "completed_at": (
-                        datetime.now() - timedelta(hours=2) + timedelta(minutes=5)
-                    ).isoformat(),
-                    "execution_time": 4.2,
-                    "files": 1,
-                },
-                {
-                    "workflow_id": "wf_demo_002",
-                    "request": "Analyze CSV data and create statistical report",
-                    "status": "success",
-                    "started_at": (datetime.now() - timedelta(hours=1)).isoformat(),
-                    "completed_at": (
-                        datetime.now() - timedelta(hours=1) + timedelta(minutes=8)
-                    ).isoformat(),
-                    "execution_time": 7.8,
-                    "files": 1,
-                },
-                {
-                    "workflow_id": "wf_demo_003",
-                    "request": "Extract phone numbers and URLs from text",
-                    "status": "partial",
-                    "started_at": (datetime.now() - timedelta(minutes=30)).isoformat(),
-                    "completed_at": (
-                        datetime.now() - timedelta(minutes=25)
-                    ).isoformat(),
-                    "execution_time": 3.1,
-                    "files": 0,
-                },
-            ]
-            self.workflow_history.extend(sample_workflows)
-
-    # ADD THESE NEW METHODS to the OrchestratorService class:
-
     async def process_pipeline_request(
         self,
         request_text: str,
@@ -826,99 +784,6 @@ class OrchestratorService:
             return f"processed text ({len(data)} characters)"
 
         return "completed successfully"
-
-    def _calculate_performance_grade(self, execution_result: Dict) -> str:
-        """Calculate performance grade for pipeline execution."""
-
-        steps_completed = execution_result.get("steps_completed", 0)
-        total_steps = execution_result.get("total_steps", 1)
-        execution_time = execution_result.get("execution_time", 0)
-        errors = len(execution_result.get("errors", []))
-        adaptations = len(execution_result.get("adaptations", []))
-
-        # Calculate completion rate
-        completion_rate = steps_completed / total_steps if total_steps > 0 else 0
-
-        # Calculate average time per step
-        avg_time_per_step = (
-            execution_time / steps_completed if steps_completed > 0 else execution_time
-        )
-
-        # Assign grade
-        if completion_rate == 1.0 and errors == 0 and avg_time_per_step < 10:
-            return "excellent"
-        elif completion_rate >= 0.8 and errors <= 1 and avg_time_per_step < 20:
-            return "good"
-        elif completion_rate >= 0.6 and errors <= 2:
-            return "acceptable"
-        else:
-            return "needs_improvement"
-
-    def get_pipeline_analytics(self) -> Dict[str, Any]:
-        """Get analytics for pipeline processing."""
-
-        # Filter pipeline workflows
-        pipeline_workflows = [
-            w for w in self.workflow_history if w.get("type") == "pipeline"
-        ]
-
-        if not pipeline_workflows:
-            return {
-                "total_pipelines": 0,
-                "success_rate": 0,
-                "average_steps": 0,
-                "average_execution_time": 0,
-            }
-
-        # Calculate metrics
-        total_pipelines = len(pipeline_workflows)
-        successful_pipelines = len(
-            [w for w in pipeline_workflows if w.get("status") == "success"]
-        )
-
-        total_steps = sum(w.get("total_steps", 0) for w in pipeline_workflows)
-        completed_steps = sum(w.get("steps_completed", 0) for w in pipeline_workflows)
-
-        total_time = sum(w.get("execution_time", 0) for w in pipeline_workflows)
-
-        analytics = {
-            "total_pipelines": total_pipelines,
-            "success_rate": successful_pipelines / total_pipelines,
-            "average_steps": total_steps / total_pipelines,
-            "step_completion_rate": (
-                completed_steps / total_steps if total_steps > 0 else 0
-            ),
-            "average_execution_time": total_time / total_pipelines,
-            "recent_performance": self._get_recent_pipeline_performance(),
-        }
-
-        return analytics
-
-    def _get_recent_pipeline_performance(self) -> Dict[str, Any]:
-        """Get performance metrics for recent pipelines."""
-
-        # Get last 10 pipeline workflows
-        recent_pipelines = [
-            w for w in self.workflow_history[-10:] if w.get("type") == "pipeline"
-        ]
-
-        if not recent_pipelines:
-            return {"trend": "no_data"}
-
-        success_count = len(
-            [w for w in recent_pipelines if w.get("status") == "success"]
-        )
-        avg_time = sum(w.get("execution_time", 0) for w in recent_pipelines) / len(
-            recent_pipelines
-        )
-
-        return {
-            "recent_success_rate": success_count / len(recent_pipelines),
-            "recent_average_time": avg_time,
-            "trend": (
-                "improving" if success_count > len(recent_pipelines) * 0.7 else "stable"
-            ),
-        }
 
 
 # Global service instance

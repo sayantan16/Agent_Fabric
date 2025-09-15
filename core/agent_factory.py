@@ -29,6 +29,8 @@ from typing import Dict, List, Optional, Any, Tuple
 from anthropic import Anthropic
 from core.registry_singleton import get_shared_registry
 from config import PIPELINE_AGENT_TEMPLATE, DYNAMIC_AGENT_SPEC_PROMPT
+from core.agent_designer import IntelligentAgentDesigner
+from config import ANTHROPIC_API_KEY, CLAUDE_MODEL
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -47,7 +49,12 @@ class AgentFactory:
             f"DEBUG: ANTHROPIC_API_KEY length: {len(ANTHROPIC_API_KEY) if ANTHROPIC_API_KEY else 0}"
         )
 
-        self.client = Anthropic(api_key=ANTHROPIC_API_KEY)
+        # Add this line to initialize Claude client
+        from anthropic import Anthropic
+
+        self.claude = Anthropic(api_key=ANTHROPIC_API_KEY)
+
+        self.agent_designer = IntelligentAgentDesigner()
         self.registry = get_shared_registry()
         self.generation_history = []
 
@@ -729,8 +736,6 @@ class AgentFactory:
             auto_create_tools=True,  # CRITICAL: Enable auto tool creation
         )
 
-    # ADD THESE NEW METHODS to the AgentFactory class:
-
     def create_pipeline_agent(self, spec: Dict) -> Dict[str, Any]:
         """Create agent specifically designed for pipeline execution."""
 
@@ -1400,6 +1405,311 @@ class AgentFactory:
             "recovery_note": "This is a safe fallback result to maintain pipeline flow"
         }}
     """
+
+    async def create_agent_from_requirement(self, agent_requirement: Dict) -> Dict:
+        """Create intelligent agent from requirement using GPT-4 design + Claude generation"""
+
+        try:
+            # First get system context
+            from core.registry_singleton import get_shared_registry
+
+            registry = get_shared_registry()
+
+            context = {
+                "available_tools": list(registry.tools.get("tools", {}).keys()),
+                "existing_agents": list(registry.agents.get("agents", {}).keys()),
+                "file_types": ["csv", "pdf", "json", "text", "excel"],
+            }
+
+            print(f"🎯 Designing agent: {agent_requirement['agent_name']}")
+
+            # Step 1: GPT-4 designs the agent architecture
+            if not hasattr(self, "agent_designer"):
+                from core.agent_designer import IntelligentAgentDesigner
+
+                self.agent_designer = IntelligentAgentDesigner()
+
+            agent_design = await self.agent_designer.design_agent_architecture(
+                agent_requirement, context
+            )
+
+            print(
+                f"✅ Agent design completed for: {agent_design['agent_specification']['name']}"
+            )
+
+            # Step 2: Claude generates the agent code
+            agent_code = await self._generate_intelligent_agent_code(agent_design)
+
+            print(f"✅ Agent code generated, length: {len(agent_code)} characters")
+
+            # Step 3: Register the agent
+            spec = agent_design["agent_specification"]
+
+            print(f"🔄 Registering agent: {spec['name']}")
+            print(f"   Description: {spec['description']}")
+            print(
+                f"   Uses tools: {agent_design.get('integration_requirements', {}).get('uses_tools', [])}"
+            )
+
+            registration_result = self.registry.register_agent(
+                name=spec["name"],
+                description=spec["description"],
+                code=agent_code,
+                uses_tools=agent_design.get("integration_requirements", {}).get(
+                    "uses_tools", []
+                ),
+                tags=["dynamic", "claude_generated", spec["category"]],
+                is_prebuilt=False,
+            )
+
+            print(f"📋 Registration result: {registration_result}")
+
+            if registration_result and registration_result.get("status") == "success":
+                print(f"✅ Created agent: {spec['name']}")
+                return {
+                    "status": "success",
+                    "agent_name": spec["name"],
+                    "agent_design": agent_design,
+                }
+            else:
+                error_msg = (
+                    registration_result.get("error")
+                    if registration_result
+                    else "Registration returned None"
+                )
+                print(f"❌ Failed to register agent: {error_msg}")
+                return {"status": "error", "error": error_msg}
+
+        except Exception as e:
+            print(f"❌ Exception creating agent: {str(e)}")
+            import traceback
+
+            traceback.print_exc()
+            return {"status": "error", "error": str(e)}
+
+    async def _generate_intelligent_agent_code(self, agent_design: Dict) -> str:
+        """Claude generates sophisticated agent code with simple package installation"""
+
+        spec = agent_design["agent_specification"]
+
+        generation_prompt = f"""
+        Create a Python function named '{spec['name']}' that integrates with the Agentic Fabric system.
+
+        REQUIREMENTS:
+        - Function name: {spec['name']}
+        - Purpose: {spec['description']}
+        - Must accept parameter: data=None
+        - Must return dict with status, data, metadata
+        - Must handle errors gracefully
+        - Must automatically install required packages
+        - Must use Claude for intelligent processing
+
+        Generate ONLY the Python function code, no markdown formatting, no explanations.
+        Ensure perfect Python syntax.
+
+        Template with package installation:
+    ```python
+        import os
+        import sys
+        import json
+        import subprocess
+        from typing import Dict, Any
+        from datetime import datetime
+        from anthropic import Anthropic
+        from config import CLAUDE_MODEL, ANTHROPIC_API_KEY
+
+        def {spec['name']}(data=None):
+            def install_if_needed(package):
+                try:
+                    # Check if package is already installed
+                    base_package = package.split('[')[0].split('==')[0].split('>=')[0]
+                    __import__(base_package)
+                    return True
+                except ImportError:
+                    try:
+                        print(f"Installing {{package}}...")
+                        subprocess.check_call([sys.executable, "-m", "pip", "install", package, "--quiet"])
+                        print(f"Successfully installed {{package}}")
+                        return True
+                    except subprocess.CalledProcessError as e:
+                        print(f"Failed to install {{package}}: {{e}}")
+                        return False
+
+            try:
+                start_time = datetime.now()
+                
+                if data is None:
+                    return {{
+                        "status": "error",
+                        "error": "No input data provided",
+                        "data": None,
+                        "metadata": {{"agent": "{spec['name']}", "agent_type": "dynamic"}}
+                    }}
+
+                # Install packages based on the agent's purpose
+                description = "{spec['description'].lower()}"
+                packages_needed = []
+                
+                if "qr code" in description or "qr-code" in description:
+                    packages_needed.append("qrcode[pil]")
+                if "image" in description and "qr" not in description:
+                    packages_needed.append("Pillow")
+                if "pdf" in description:
+                    packages_needed.append("pdfplumber")
+                if "excel" in description or "xlsx" in description:
+                    packages_needed.append("openpyxl")
+                if "chart" in description or "plot" in description or "graph" in description:
+                    packages_needed.append("matplotlib")
+                if "xml" in description:
+                    packages_needed.append("lxml")
+                if "web" in description or "scraping" in description:
+                    packages_needed.append("requests")
+                if "json" in description and "xml" in description:
+                    packages_needed.extend(["lxml", "xmltodict"])
+                
+                # Install required packages
+                failed_packages = []
+                for package in packages_needed:
+                    if not install_if_needed(package):
+                        failed_packages.append(package)
+                
+                if failed_packages:
+                    return {{
+                        "status": "error",
+                        "error": f"Failed to install required packages: {{failed_packages}}",
+                        "data": None,
+                        "metadata": {{"agent": "{spec['name']}", "failed_packages": failed_packages}}
+                    }}
+                
+                # Now import packages after successful installation
+                if "qr code" in description or "qr-code" in description:
+                    import qrcode
+                    from io import BytesIO
+                    import base64
+
+                claude = Anthropic(api_key=ANTHROPIC_API_KEY)
+                
+                # Use Claude for intelligent processing
+                prompt = f\"\"\"
+                Task: {spec['description']}
+                Input data: {{json.dumps(data, indent=2) if isinstance(data, (dict, list)) else str(data)}}
+                
+                Process this data according to the task requirements.
+                If this involves QR codes, extract URLs or text that should be converted to QR codes.
+                If this involves other processing, analyze the data and provide appropriate results.
+                
+                Return your analysis and processing instructions in JSON format.
+                \"\"\"
+                
+                response = claude.messages.create(
+                    model=CLAUDE_MODEL,
+                    max_tokens=1500,
+                    messages=[{{"role": "user", "content": prompt}}]
+                )
+                
+                result_text = response.content[0].text
+                
+                # Try to parse Claude's response as JSON, fallback to text
+                try:
+                    claude_result = json.loads(result_text)
+                except:
+                    claude_result = {{"processed_content": result_text}}
+                
+                # Implement specific functionality based on installed packages
+                final_result = claude_result
+                
+                if "qr code" in description or "qr-code" in description:
+                    # Actually generate QR codes if packages were installed successfully
+                    try:
+                        qr_codes = []
+                        # Extract data to encode from Claude's analysis or raw input
+                        data_to_encode = []
+                        
+                        if isinstance(data, str):
+                            data_to_encode = [data]
+                        elif isinstance(data, dict):
+                            # Look for URLs or text in the data
+                            data_to_encode = [str(v) for v in data.values() if isinstance(v, str)]
+                        elif isinstance(data, list):
+                            data_to_encode = [str(item) for item in data]
+                        
+                        for item in data_to_encode:
+                            if item and len(item.strip()) > 0:
+                                qr = qrcode.QRCode(version=1, box_size=10, border=5)
+                                qr.add_data(item.strip())
+                                qr.make(fit=True)
+                                
+                                img = qr.make_image(fill_color="black", back_color="white")
+                                
+                                # Convert to base64 for easy transmission
+                                buffer = BytesIO()
+                                img.save(buffer, format='PNG')
+                                img_str = base64.b64encode(buffer.getvalue()).decode()
+                                
+                                qr_codes.append({{
+                                    "text": item.strip(),
+                                    "qr_code_base64": img_str
+                                }})
+                        
+                        final_result = {{
+                            "qr_codes": qr_codes,
+                            "claude_analysis": claude_result,
+                            "total_codes_generated": len(qr_codes)
+                        }}
+                        
+                    except Exception as e:
+                        final_result = {{
+                            "error": f"QR code generation failed: {{str(e)}}",
+                            "claude_analysis": claude_result
+                        }}
+                
+                return {{
+                    "status": "success",
+                    "data": final_result,
+                    "metadata": {{
+                        "agent": "{spec['name']}",
+                        "category": "{spec['category']}",
+                        "claude_model": CLAUDE_MODEL,
+                        "execution_time": (datetime.now() - start_time).total_seconds(),
+                        "agent_type": "dynamic",
+                        "packages_used": packages_needed
+                    }}
+                }}
+                
+            except Exception as e:
+                return {{
+                    "status": "error",
+                    "error": str(e),
+                    "data": None,
+                    "metadata": {{"agent": "{spec['name']}", "agent_type": "dynamic"}}
+                }}
+    Generate the complete function following this structure for: {spec['description']}
+    Make it work reliably with proper package installation and error handling.
+    """
+
+        response = self.claude.messages.create(
+            model=CLAUDE_MODEL,
+            max_tokens=4000,
+            messages=[{"role": "user", "content": generation_prompt}],
+        )
+
+        generated_code = response.content[0].text
+
+        # Clean up the generated code - remove markdown formatting if present
+        if "```python" in generated_code:
+            # Extract code from markdown blocks
+            start = generated_code.find("```python") + 9
+            end = generated_code.find("```", start)
+            if end != -1:
+                generated_code = generated_code[start:end].strip()
+        elif "```" in generated_code:
+            # Handle generic code blocks
+            start = generated_code.find("```") + 3
+            end = generated_code.find("```", start)
+            if end != -1:
+                generated_code = generated_code[start:end].strip()
+
+        return generated_code
 
 
 # ============= END OF NEW METHODS =============

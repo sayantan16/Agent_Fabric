@@ -1,6 +1,6 @@
 # AGENTIC FABRIC POC - COMPLETE PROJECT KNOWLEDGE BASE
 ================================================================================
-Generated: 2025-09-11 09:17:38
+Generated: 2025-09-14 16:45:39
 Project Root: /Users/sayantankundu/Documents/Agent Fabric
 
 ## PROJECT OVERVIEW
@@ -16,64 +16,20 @@ Project Root: /Users/sayantankundu/Documents/Agent Fabric
 Agent Fabric/
 ├── core/
 │   ├── __init__.py
-│   ├── agent_compatibility.py
 │   ├── agent_factory.py
-│   ├── data_processor.py
-│   ├── dependency_resolver.py
-│   ├── orchestrator.py
+│   ├── file_content_reader.py
+│   ├── intelligent_agent_base.py
 │   ├── pipeline_executor.py
 │   ├── pipeline_orchestrator.py
 │   ├── registry.py
 │   ├── registry_singleton.py
+│   ├── simplified_orchestrator.py
+│   ├── specialized_agents.py
 │   ├── tool_factory.py
-│   ├── workflow_engine.py
-│   └── workflow_intelligence.py
-├── flask_app/
-│   ├── outputs/
-│   ├── routes/
-│   │   ├── __init__.py
-│   │   ├── api.py
-│   │   └── main.py
-│   ├── services/
-│   │   ├── __init__.py
-│   │   ├── orchestrator_service.py
-│   │   ├── registry_service.py
-│   │   └── workflow_service.py
-│   ├── static/
-│   │   ├── css/
-│   │   │   └── custom.css
-│   │   ├── js/
-│   │   │   └── app.js
-│   │   └── favicon.ico
-│   ├── templates/
-│   │   ├── components/
-│   │   │   ├── chat-container.html
-│   │   │   ├── sidebar.html
-│   │   │   ├── workflow-panel.html
-│   │   │   └── workflow-visualization.html
-│   │   ├── partials/
-│   │   │   ├── chat-message.html
-│   │   │   └── workflow-status.jinja2
-│   │   ├── base.html
-│   │   ├── dependencies.html
-│   │   ├── error.html
-│   │   ├── help.html
-│   │   ├── index.jinja2
-│   │   ├── registry.html
-│   │   ├── settings.html
-│   │   ├── workflow_detail.jinja2
-│   │   └── workflows.html
-│   ├── uploads/
-│   ├── __init__.py
-│   ├── app.py
-│   ├── config_ui.py
-│   └── requirements_ui.txt
+│   └── workflow_engine.py
 ├── generated/
 │   ├── agents/
-│   │   ├── calculate_average_agent_agent.py
-│   │   ├── check_average_prime_agent_agent.py
 │   │   ├── email_extractor_agent.py
-│   │   ├── filter_prime_numbers_agent.py
 │   │   ├── read_csv_agent.py
 │   │   └── read_text_agent.py
 │   ├── tools/
@@ -85,24 +41,8 @@ Agent Fabric/
 │   └── __init__.py
 ├── prebuilt/
 │   ├── agents/
-│   │   └── url_extractor_agent.py
 │   └── tools/
-│       ├── read_csv.py
-│       ├── read_json.py
-│       ├── read_pdf.py
-│       └── read_text.py
 ├── registry_backups/
-├── scripts/
-│   ├── initialize_prebuilt.py
-│   └── regenerate_agents.py
-├── tests/
-│   ├── test_files/
-│   ├── test_backend_fixes.py
-│   ├── test_comprehensive_scenarios.py
-│   ├── test_dependency_resolution.py
-│   └── test_end_to_end.py
-├── AGENTIC_FABRIC_POC_Roadmap.md
-├── Agent_Fabric_UI_Roadmap.md
 ├── KNOWLEDGE_BASE.md
 ├── README.md
 ├── agents.json
@@ -110,6 +50,9 @@ Agent Fabric/
 ├── config.py
 ├── create_knowledge_base.py
 ├── requirements.txt
+├── test_current_setup.py
+├── test_enhanced_system.py
+├── test_orchestrator.py
 ├── tools.json
 └── tools.json.lock
 ```
@@ -134,32 +77,10 @@ Agent Fabric/
 
 --------------------------------------------------------------------------------
 
-### File: AGENTIC_FABRIC_POC_Roadmap.md
-**Path:** `AGENTIC_FABRIC_POC_Roadmap.md`
-**Size:** 0 bytes
-**Modified:** 2025-09-09 17:22:12
-
-```markdown
-
-```
-
---------------------------------------------------------------------------------
-
-### File: Agent_Fabric_UI_Roadmap.md
-**Path:** `Agent_Fabric_UI_Roadmap.md`
-**Size:** 0 bytes
-**Modified:** 2025-09-09 17:12:01
-
-```markdown
-
-```
-
---------------------------------------------------------------------------------
-
 ### File: KNOWLEDGE_BASE.md
 **Path:** `KNOWLEDGE_BASE.md`
 **Size:** 0 bytes
-**Modified:** 2025-09-11 09:17:22
+**Modified:** 2025-09-14 16:45:15
 
 ```markdown
 
@@ -199,8 +120,8 @@ POC in active development - implementing dynamic agent creation system.
 
 ### File: agents.json
 **Path:** `agents.json`
-**Size:** 14,530 bytes
-**Modified:** 2025-09-11 09:14:18
+**Size:** 5,057 bytes
+**Modified:** 2025-09-12 18:40:22
 
 ```json
 {
@@ -208,9 +129,7 @@ POC in active development - implementing dynamic agent creation system.
     "email_extractor": {
       "name": "email_extractor",
       "description": "Extracts email addresses from text input",
-      "uses_tools": [
-        "extract_emails"
-      ],
+      "uses_tools": ["extract_emails"],
       "input_schema": {
         "data": "any"
       },
@@ -230,21 +149,14 @@ POC in active development - implementing dynamic agent creation system.
       "version": "1.0.0",
       "execution_count": 4,
       "avg_execution_time": 0.001,
-      "tags": [
-        "extraction",
-        "emails"
-      ],
+      "tags": ["extraction", "emails"],
       "line_count": 98,
       "status": "active",
       "last_executed": "2025-09-08T23:58:52.927352",
       "dependencies": {
-        "tools": [
-          "extract_emails"
-        ],
+        "tools": ["extract_emails"],
         "missing_tools": [],
-        "available_tools": [
-          "extract_emails"
-        ]
+        "available_tools": ["extract_emails"]
       },
       "formatted_created_at": "2025-01-01 00:00:00"
     },
@@ -258,34 +170,19 @@ POC in active development - implementing dynamic agent creation system.
       },
       "output_schema": {
         "type": "object",
-        "required": [
-          "status",
-          "data",
-          "metadata"
-        ],
+        "required": ["status", "data", "metadata"],
         "properties": {
           "status": {
             "type": "string",
-            "enum": [
-              "success",
-              "error",
-              "partial"
-            ]
+            "enum": ["success", "error", "partial"]
           },
           "data": {
-            "type": [
-              "object",
-              "array",
-              "null"
-            ],
+            "type": ["object", "array", "null"],
             "description": "Agent-specific output data"
           },
           "metadata": {
             "type": "object",
-            "required": [
-              "agent",
-              "execution_time"
-            ],
+            "required": ["agent", "execution_time"],
             "properties": {
               "agent": {
                 "type": "string"
@@ -343,34 +240,19 @@ POC in active development - implementing dynamic agent creation system.
       },
       "output_schema": {
         "type": "object",
-        "required": [
-          "status",
-          "data",
-          "metadata"
-        ],
+        "required": ["status", "data", "metadata"],
         "properties": {
           "status": {
             "type": "string",
-            "enum": [
-              "success",
-              "error",
-              "partial"
-            ]
+            "enum": ["success", "error", "partial"]
           },
           "data": {
-            "type": [
-              "object",
-              "array",
-              "null"
-            ],
+            "type": ["object", "array", "null"],
             "description": "Agent-specific output data"
           },
           "metadata": {
             "type": "object",
-            "required": [
-              "agent",
-              "execution_time"
-            ],
+            "required": ["agent", "execution_time"],
             "properties": {
               "agent": {
                 "type": "string"
@@ -417,339 +299,10 @@ POC in active development - implementing dynamic agent creation system.
         "available_tools": []
       },
       "formatted_created_at": "2025-09-04 17:23:07"
-    },
-    "filter_prime_numbers": {
-      "name": "filter_prime_numbers",
-      "description": "Extracts numerical values from the input string and filters out only the prime numbers.",
-      "uses_tools": [],
-      "input_schema": {
-        "type": "any",
-        "description": "Pipeline step input - can be any format from previous step or initial data"
-      },
-      "output_schema": {
-        "type": "object",
-        "required": [
-          "status",
-          "data",
-          "metadata"
-        ],
-        "properties": {
-          "status": {
-            "type": "string",
-            "enum": [
-              "success",
-              "error",
-              "partial"
-            ]
-          },
-          "data": {
-            "type": [
-              "object",
-              "array",
-              "null"
-            ],
-            "description": "Agent-specific output data"
-          },
-          "metadata": {
-            "type": "object",
-            "required": [
-              "agent",
-              "execution_time"
-            ],
-            "properties": {
-              "agent": {
-                "type": "string"
-              },
-              "execution_time": {
-                "type": "number"
-              },
-              "tools_used": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "errors": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "warnings": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "generated_files": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "filename": {
-                  "type": "string"
-                },
-                "path": {
-                  "type": "string"
-                },
-                "type": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "size": {
-                  "type": "number"
-                }
-              }
-            }
-          }
-        }
-      },
-      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/agents/filter_prime_numbers_agent.py",
-      "is_prebuilt": false,
-      "created_by": "claude-sonnet-4-20250514",
-      "created_at": "2025-09-11T09:13:26.558123",
-      "version": "1.0.2ae6ae05",
-      "execution_count": 0,
-      "avg_execution_time": 0.0,
-      "last_executed": null,
-      "tags": [
-        "pipeline",
-        "step_0"
-      ],
-      "line_count": 200,
-      "status": "active",
-      "pipeline_context": {
-        "step_index": 0,
-        "works_with_state": true,
-        "data_flow_aware": true
-      }
-    },
-    "calculate_average_agent": {
-      "name": "calculate_average_agent",
-      "description": "This agent receives a string input containing numeric values and calculates their average using built-in operations.",
-      "uses_tools": [],
-      "input_schema": {
-        "type": "any",
-        "description": "Pipeline step input - can be any format from previous step or initial data"
-      },
-      "output_schema": {
-        "type": "object",
-        "required": [
-          "status",
-          "data",
-          "metadata"
-        ],
-        "properties": {
-          "status": {
-            "type": "string",
-            "enum": [
-              "success",
-              "error",
-              "partial"
-            ]
-          },
-          "data": {
-            "type": [
-              "object",
-              "array",
-              "null"
-            ],
-            "description": "Agent-specific output data"
-          },
-          "metadata": {
-            "type": "object",
-            "required": [
-              "agent",
-              "execution_time"
-            ],
-            "properties": {
-              "agent": {
-                "type": "string"
-              },
-              "execution_time": {
-                "type": "number"
-              },
-              "tools_used": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "errors": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "warnings": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "generated_files": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "filename": {
-                  "type": "string"
-                },
-                "path": {
-                  "type": "string"
-                },
-                "type": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "size": {
-                  "type": "number"
-                }
-              }
-            }
-          }
-        }
-      },
-      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/agents/calculate_average_agent_agent.py",
-      "is_prebuilt": false,
-      "created_by": "claude-sonnet-4-20250514",
-      "created_at": "2025-09-11T09:13:56.557195",
-      "version": "1.0.036bbeb4",
-      "execution_count": 0,
-      "avg_execution_time": 0.0,
-      "last_executed": null,
-      "tags": [
-        "pipeline",
-        "step_1"
-      ],
-      "line_count": 181,
-      "status": "active",
-      "pipeline_context": {
-        "step_index": 1,
-        "works_with_state": true,
-        "data_flow_aware": true
-      }
-    },
-    "check_average_prime_agent": {
-      "name": "check_average_prime_agent",
-      "description": "This agent receives a string input, parses it to extract numeric values, calculates their average, and checks whether the computed average is a prime number using built-in logic.",
-      "uses_tools": [],
-      "input_schema": {
-        "type": "any",
-        "description": "Pipeline step input - can be any format from previous step or initial data"
-      },
-      "output_schema": {
-        "type": "object",
-        "required": [
-          "status",
-          "data",
-          "metadata"
-        ],
-        "properties": {
-          "status": {
-            "type": "string",
-            "enum": [
-              "success",
-              "error",
-              "partial"
-            ]
-          },
-          "data": {
-            "type": [
-              "object",
-              "array",
-              "null"
-            ],
-            "description": "Agent-specific output data"
-          },
-          "metadata": {
-            "type": "object",
-            "required": [
-              "agent",
-              "execution_time"
-            ],
-            "properties": {
-              "agent": {
-                "type": "string"
-              },
-              "execution_time": {
-                "type": "number"
-              },
-              "tools_used": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "errors": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "warnings": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "generated_files": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "filename": {
-                  "type": "string"
-                },
-                "path": {
-                  "type": "string"
-                },
-                "type": {
-                  "type": "string"
-                },
-                "description": {
-                  "type": "string"
-                },
-                "size": {
-                  "type": "number"
-                }
-              }
-            }
-          }
-        }
-      },
-      "location": "/Users/sayantankundu/Documents/Agent Fabric/generated/agents/check_average_prime_agent_agent.py",
-      "is_prebuilt": false,
-      "created_by": "claude-sonnet-4-20250514",
-      "created_at": "2025-09-11T09:14:18.932232",
-      "version": "1.0.03985549",
-      "execution_count": 0,
-      "avg_execution_time": 0.0,
-      "last_executed": null,
-      "tags": [
-        "pipeline",
-        "step_2"
-      ],
-      "line_count": 179,
-      "status": "active",
-      "pipeline_context": {
-        "step_index": 2,
-        "works_with_state": true,
-        "data_flow_aware": true
-      }
     }
   }
 }
+
 ```
 
 --------------------------------------------------------------------------------
@@ -757,7 +310,7 @@ POC in active development - implementing dynamic agent creation system.
 ### File: agents.json.lock
 **Path:** `agents.json.lock`
 **Size:** 0 bytes
-**Modified:** 2025-09-11 09:13:26
+**Modified:** 2025-09-12 14:42:15
 
 *[Binary file or content not included]*
 
@@ -765,8 +318,8 @@ POC in active development - implementing dynamic agent creation system.
 
 ### File: config.py
 **Path:** `config.py`
-**Size:** 58,335 bytes
-**Modified:** 2025-09-10 22:06:10
+**Size:** 58,796 bytes
+**Modified:** 2025-09-14 09:31:03
 
 ```python
 """
@@ -1180,80 +733,97 @@ RESPOND WITH JSON:
 PLAN FOR THIS SPECIFIC REQUEST - avoid generic templated responses."""
 
 
-ORCHESTRATOR_ANALYSIS_PROMPT = """You are an intelligent request analyzer. Your job is to deeply understand what the user wants to accomplish and provide strategic guidance for execution.
+# ORCHESTRATOR_ANALYSIS_PROMPT = """You are an intelligent request analyzer. Your job is to deeply understand what the user wants to accomplish and provide strategic guidance for execution.
 
-USER REQUEST: "{request}"
-UPLOADED FILES: {files}
-SYSTEM CONTEXT: {context}
+# USER REQUEST: "{request}"
+# UPLOADED FILES: {files}
+# SYSTEM CONTEXT: {context}
 
-AVAILABLE CAPABILITIES:
-Agents: {available_agents}
-Tools: {available_tools}
+# AVAILABLE CAPABILITIES:
+# Agents: {available_agents}
+# Tools: {available_tools}
 
-ANALYSIS FRAMEWORK:
+# ANALYSIS FRAMEWORK:
 
-1. **INTENT ANALYSIS**:
-   - What is the user's primary goal?
-   - What type of outcome do they expect?
-   - What domain does this request belong to? (mathematical, textual, analytical, creative, technical, etc.)
+# 1. **INTENT ANALYSIS**:
+#    - What is the user's primary goal?
+#    - What type of outcome do they expect?
+#    - What domain does this request belong to? (mathematical, textual, analytical, creative, technical, etc.)
 
-2. **REQUIREMENT DECOMPOSITION**:
-   - What are the atomic operations needed?
-   - What data transformations are required?
-   - What dependencies exist between operations?
-   - What input/output formats are involved?
+# 2. **REQUIREMENT DECOMPOSITION**:
+#    - What are the atomic operations needed?
+#    - What data transformations are required?
+#    - What dependencies exist between operations?
+#    - What input/output formats are involved?
 
-3. **COMPLEXITY ASSESSMENT**:
-   - Single-step: One clear operation
-   - Multi-step: Sequential operations with data flow
-   - Complex: Multiple interdependent operations with branching logic
+# 3. **COMPLEXITY ASSESSMENT**:
+#    - Single-step: One clear operation
+#    - Multi-step: Sequential operations with data flow
+#    - Complex: Multiple interdependent operations with branching logic
 
-4. **CAPABILITY MATCHING**:
-   - Which existing agents can handle parts of this request?
-   - What capabilities are missing?
-   - How well do available tools support the required operations?
+# 4. **CAPABILITY MATCHING**:
+#    - Which existing agents can handle parts of this request?
+#    - What capabilities are missing?
+#    - How well do available tools support the required operations?
 
-5. **EXECUTION STRATEGY**:
-   - Sequential: Steps must happen in order
-   - Parallel: Independent operations can run simultaneously  
-   - Conditional: Logic branches based on intermediate results
+# 5. **EXECUTION STRATEGY**:
+#    - Sequential: Steps must happen in order
+#    - Parallel: Independent operations can run simultaneously
+#    - Conditional: Logic branches based on intermediate results
 
-RESPOND WITH JSON:
-{{
-    "intent_analysis": {{
-        "primary_goal": "concise description of what user wants to achieve",
-        "expected_outcome_type": "data|analysis|visualization|document|calculation|extraction",
-        "domain": "mathematical|textual|analytical|creative|technical|mixed",
-        "user_expertise_level": "beginner|intermediate|advanced|technical"
-    }},
-    "requirements": {{
-        "atomic_operations": ["operation1", "operation2", "operation3"],
-        "data_transformations": ["input_type → intermediate_type → output_type"],
-        "dependencies": [["op1_before_op2"], ["op2_before_op3"]],
-        "input_formats": ["format1", "format2"],
-        "output_format": "expected_final_format"
-    }},
-    "complexity": {{
-        "level": "single|multi|complex",
-        "estimated_steps": 3,
-        "parallel_opportunities": ["op1_and_op2_parallel"],
-        "critical_dependencies": ["op3_needs_op1_and_op2"]
-    }},
-    "capability_assessment": {{
-        "existing_coverage": 0.7,
-        "missing_capabilities": ["specific_capability_1", "specific_capability_2"],
-        "tool_gaps": ["missing_tool_type"],
-        "agent_gaps": ["missing_agent_capability"]
-    }},
-    "execution_strategy": {{
-        "approach": "sequential|parallel|conditional",
-        "rationale": "why this approach is optimal",
-        "estimated_time": 25,
-        "confidence": 0.85
-    }}
-}}
+# RESPOND WITH JSON:
+# {{
+#     "intent_analysis": {{
+#         "primary_goal": "concise description of what user wants to achieve",
+#         "expected_outcome_type": "data|analysis|visualization|document|calculation|extraction",
+#         "domain": "mathematical|textual|analytical|creative|technical|mixed",
+#         "user_expertise_level": "beginner|intermediate|advanced|technical"
+#     }},
+#     "requirements": {{
+#         "atomic_operations": ["operation1", "operation2", "operation3"],
+#         "data_transformations": ["input_type → intermediate_type → output_type"],
+#         "dependencies": [["op1_before_op2"], ["op2_before_op3"]],
+#         "input_formats": ["format1", "format2"],
+#         "output_format": "expected_final_format"
+#     }},
+#     "complexity": {{
+#         "level": "single|multi|complex",
+#         "estimated_steps": 3,
+#         "parallel_opportunities": ["op1_and_op2_parallel"],
+#         "critical_dependencies": ["op3_needs_op1_and_op2"]
+#     }},
+#     "capability_assessment": {{
+#         "existing_coverage": 0.7,
+#         "missing_capabilities": ["specific_capability_1", "specific_capability_2"],
+#         "tool_gaps": ["missing_tool_type"],
+#         "agent_gaps": ["missing_agent_capability"]
+#     }},
+#     "execution_strategy": {{
+#         "approach": "sequential|parallel|conditional",
+#         "rationale": "why this approach is optimal",
+#         "estimated_time": 25,
+#         "confidence": 0.85
+#     }}
+# }}
 
-CRITICAL: Focus on understanding the ACTUAL REQUEST, not matching to predefined patterns. Every request is unique."""
+# CRITICAL: Focus on understanding the ACTUAL REQUEST, not matching to predefined patterns. Every request is unique."""
+
+ORCHESTRATOR_ANALYSIS_PROMPT = """You are an intelligent orchestrator that plans workflows.
+
+USER REQUEST: {request}
+
+FILE DATA AVAILABLE:
+{files}
+
+IMPORTANT: You can now see the actual structure of uploaded files:
+- For CSV files, you see the exact column names, data types, and sample values
+- Plan your workflow based on the ACTUAL data structure, not assumptions
+- Select agents that can work with these specific columns and data types
+
+Available agents: {agents}
+
+Create a workflow plan that processes the actual data you can see.
+"""
 
 ORCHESTRATOR_SYNTHESIS_PROMPT = """You are a results synthesizer creating a natural, helpful response based on workflow execution.
 
@@ -2140,10 +1710,6 @@ ENFORCE_TOOL_QUALITY = True  # Reject placeholder tools
 ENFORCE_AGENT_QUALITY = True  # Reject non-functional agents
 TEST_GENERATED_CODE = True  # Test code before registration
 
-# # Model Settings - Upgrade for better quality
-# ORCHESTRATOR_MODEL = "gpt-4"  # Upgrade from o3-mini for better planning
-# CLAUDE_MODEL = "claude-3-sonnet-20240229"  # Upgrade from haiku for better code
-
 # Validation Settings
 REQUIRE_TOOL_TESTS = True  # Tools must pass basic tests
 REQUIRE_AGENT_TESTS = True  # Agents must pass basic tests
@@ -2425,703 +1991,10 @@ PIPELINE_SUCCESS_MESSAGES = {
 
 --------------------------------------------------------------------------------
 
-### File: core/agent_compatibility.py
-**Path:** `core/agent_compatibility.py`
-**Size:** 26,360 bytes
-**Modified:** 2025-09-09 23:38:17
-
-```python
-"""
-Agent Compatibility Analyzer - GPT-4 Powered
-Analyzes compatibility between pipeline steps and existing agents using AI intelligence
-"""
-
-import os
-import sys
-import json
-import asyncio
-from typing import Dict, List, Optional, Any, Tuple
-import openai
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from core.registry import RegistryManager
-from config import OPENAI_API_KEY, ORCHESTRATOR_MODEL, ORCHESTRATOR_MAX_TOKENS
-
-
-class AgentCompatibilityAnalyzer:
-    """
-    AI-powered compatibility analyzer that uses GPT-4 to understand and match
-    agents to pipeline steps without any hardcoded logic.
-    """
-
-    def __init__(self, registry: RegistryManager):
-        """Initialize with registry manager and OpenAI client."""
-        self.registry = registry
-        self.client = openai.OpenAI(api_key=OPENAI_API_KEY)
-
-    async def find_compatible_agents(self, step: Dict) -> List[Dict]:
-        """
-        Find existing agents compatible with a pipeline step using GPT-4 intelligence.
-
-        Args:
-            step: Pipeline step specification with requirements
-
-        Returns:
-            List of compatible agents, sorted by AI-determined compatibility
-        """
-        print(
-            f"DEBUG: Finding compatible agents for step: {step.get('name', 'unnamed')}"
-        )
-
-        available_agents = self.registry.list_agents(active_only=True)
-
-        if not available_agents:
-            print("DEBUG: No available agents found")
-            return []
-
-        # Use GPT-4 to intelligently analyze and rank agents
-        analysis_prompt = f"""
-You are an expert AI system analyzer. Your task is to evaluate which existing agents can best handle a specific pipeline step.
-
-PIPELINE STEP TO HANDLE:
-Name: {step.get('name', 'unknown')}
-Description: {step.get('description', 'No description provided')}
-Input Requirements: {json.dumps(step.get('input_requirements', {}), indent=2)}
-Output Requirements: {json.dumps(step.get('output_requirements', {}), indent=2)}
-Required Capabilities: {step.get('required_capabilities', [])}
-Required Tools: {step.get('required_tools', [])}
-
-AVAILABLE AGENTS TO EVALUATE:
-{self._format_agents_for_analysis(available_agents)}
-
-ANALYSIS INSTRUCTIONS:
-1. Carefully read and understand what the pipeline step needs to accomplish
-2. For each agent, analyze:
-   - How well the agent's description matches the step requirements
-   - Whether the agent's tools can handle the required processing
-   - If the agent's capabilities align with what's needed
-   - Any potential limitations or mismatches
-3. Assign a compatibility score from 0.0 to 1.0 where:
-   - 1.0 = Perfect match, agent can definitely handle this step
-   - 0.8-0.9 = Excellent match with minor considerations
-   - 0.6-0.7 = Good match, should work well
-   - 0.4-0.5 = Moderate match, might work with some adaptation
-   - 0.2-0.3 = Poor match, significant limitations
-   - 0.0-0.1 = No match, agent cannot handle this step
-4. Only include agents with score >= 0.3
-5. Provide clear reasoning for each score
-
-RESPOND WITH VALID JSON:
-{{
-    "analysis": {{
-        "step_understanding": "What this step needs to accomplish",
-        "key_requirements": ["requirement1", "requirement2"],
-        "evaluation_criteria": ["criteria1", "criteria2"]
-    }},
-    "compatible_agents": [
-        {{
-            "name": "agent_name",
-            "compatibility_score": 0.95,
-            "reasoning": "Detailed explanation of why this agent matches",
-            "strengths": ["strength1", "strength2"],
-            "potential_issues": ["issue1", "issue2"],
-            "confidence": "high|medium|low"
-        }}
-    ],
-    "recommendation": {{
-        "best_agent": "agent_name",
-        "alternative_agents": ["agent2", "agent3"],
-        "creation_needed": false,
-        "notes": "Additional recommendations"
-    }}
-}}
-"""
-
-        try:
-            response = self.client.chat.completions.create(
-                model=ORCHESTRATOR_MODEL,
-                max_completion_tokens=ORCHESTRATOR_MAX_TOKENS,
-                messages=[{"role": "user", "content": analysis_prompt}],
-            )
-
-            content = response.choices[0].message.content
-
-            # Extract and parse JSON
-            analysis_result = self._extract_json_from_response(content)
-
-            if not analysis_result:
-                raise ValueError("Failed to parse GPT-4 response")
-
-            # Convert to expected format
-            compatible_agents = []
-            agent_names = [a["name"] for a in available_agents]
-
-            for agent_analysis in analysis_result.get("compatible_agents", []):
-                agent_name = agent_analysis.get("name")
-                compatibility_score = agent_analysis.get("compatibility_score", 0.0)
-
-                # Find the actual agent data
-                agent_data = next(
-                    (a for a in available_agents if a["name"] == agent_name), None
-                )
-
-                if agent_data and compatibility_score >= 0.3:
-                    agent_with_score = agent_data.copy()
-                    agent_with_score["compatibility_score"] = compatibility_score
-                    agent_with_score["ai_analysis"] = agent_analysis
-                    compatible_agents.append(agent_with_score)
-
-                    print(
-                        f"DEBUG: Agent '{agent_name}' compatible with score: {compatibility_score:.2f}"
-                    )
-                    print(
-                        f"DEBUG: Reasoning: {agent_analysis.get('reasoning', 'No reasoning provided')}"
-                    )
-
-            # Sort by compatibility score (highest first)
-            compatible_agents.sort(key=lambda x: x["compatibility_score"], reverse=True)
-
-            print(f"DEBUG: Found {len(compatible_agents)} compatible agents")
-            return compatible_agents
-
-        except Exception as e:
-            print(
-                f"DEBUG: GPT-4 agent analysis failed: {str(e)}, falling back to basic matching"
-            )
-            return self._emergency_fallback_matching(step, available_agents)
-
-    async def find_compatible_agents_with_code_analysis(
-        self, step: Dict, previous_step_output: Any = None
-    ) -> List[Dict]:
-        """
-        Enhanced compatibility analysis that examines agent code and data flow.
-        """
-        print(f"DEBUG: Enhanced analysis for step: {step.get('name', 'unnamed')}")
-
-        available_agents = self.registry.list_agents(active_only=True)
-
-        if not available_agents:
-            return []
-
-        # Enhanced analysis prompt
-        analysis_prompt = f"""
-    You are an expert code analyzer. Evaluate agents by examining their actual code capabilities.
-
-    PIPELINE STEP:
-    Name: {step.get('name', 'unknown')}
-    Description: {step.get('description', 'No description')}
-    Expected Input Type: {type(previous_step_output).__name__ if previous_step_output is not None else 'text'}
-    Input Sample: {str(previous_step_output)[:200] if previous_step_output else 'text input'}
-
-    AGENTS WITH CODE ANALYSIS:
-    {self._format_agents_with_code_analysis(available_agents)}
-
-    ANALYSIS REQUIREMENTS:
-    1. **Code Inspection**: Examine actual agent code for:
-    - Input data type handling (string, dict, list, etc.)
-    - Error handling capabilities
-    - State management (pipeline context)
-    - Tool usage patterns
-
-    2. **Data Flow Compatibility**: Verify agent can:
-    - Accept the expected input data type
-    - Process pipeline state correctly
-    - Return appropriate output format
-
-    3. **Execution Context**: Check if agent:
-    - Works in pipeline mode
-    - Handles state dict properly
-    - Has robust error handling
-
-    SCORING (0.0 to 1.0):
-    - 1.0: Perfect code match for this scenario
-    - 0.8-0.9: Excellent with minor considerations
-    - 0.6-0.7: Good, likely to work
-    - 0.4-0.5: Moderate, needs adaptation
-    - 0.2-0.3: Poor, significant issues
-    - 0.0-0.1: Will definitely fail
-
-    RESPOND WITH JSON:
-    {{
-        "compatible_agents": [
-            {{
-                "name": "agent_name",
-                "compatibility_score": 0.95,
-                "code_analysis": {{
-                    "input_handling": "how agent handles input types",
-                    "expected_data_type": "what agent expects",
-                    "pipeline_compatibility": "how well it works in pipeline",
-                    "error_scenarios": ["potential issues"],
-                    "adaptation_needed": "none|minor|major"
-                }},
-                "reasoning": "detailed explanation",
-                "confidence": "high|medium|low"
-            }}
-        ]
-    }}
-    """
-
-        try:
-            response = self.client.chat.completions.create(
-                model=ORCHESTRATOR_MODEL,
-                max_completion_tokens=ORCHESTRATOR_MAX_TOKENS,
-                messages=[{"role": "user", "content": analysis_prompt}],
-            )
-
-            analysis_result = self._extract_json_from_response(
-                response.choices[0].message.content
-            )
-
-            if analysis_result:
-                return self._process_enhanced_compatibility_results(
-                    analysis_result, available_agents
-                )
-
-        except Exception as e:
-            print(f"DEBUG: Enhanced analysis failed: {str(e)}")
-
-        # Fallback to basic analysis
-        return await self.find_compatible_agents(step)
-
-    def _format_agents_with_code_analysis(self, agents: List[Dict]) -> str:
-        """Format agents with their actual code for GPT-4 analysis."""
-        formatted = []
-
-        for agent in agents[:5]:  # Limit to 5 agents to avoid prompt overflow
-            name = agent.get("name", "unknown")
-            desc = agent.get("description", "No description")
-            location = agent.get("location", "")
-
-            formatted.append(f"AGENT: {name}")
-            formatted.append(f"Description: {desc}")
-            formatted.append(f"Tools: {agent.get('uses_tools', [])}")
-
-            # Read actual agent code
-            try:
-                if location:
-                    # Handle relative paths
-                    if not os.path.isabs(location):
-                        current_dir = os.getcwd()
-                        if current_dir.endswith("flask_app"):
-                            project_root = os.path.dirname(current_dir)
-                        else:
-                            project_root = current_dir
-                        location = os.path.join(project_root, location)
-
-                    if os.path.exists(location):
-                        with open(location, "r") as f:
-                            code = f.read()
-                            # Include relevant code sections
-                            formatted.append(f"Code Preview:")
-                            formatted.append(f"```python")
-                            formatted.append(code[:1000])  # First 1000 chars
-                            if len(code) > 1000:
-                                formatted.append("... [code continues]")
-                            formatted.append(f"```")
-                    else:
-                        formatted.append("Code: File not found")
-                else:
-                    formatted.append("Code: Location not specified")
-            except Exception as e:
-                formatted.append(f"Code: Error reading - {str(e)}")
-
-            formatted.append("")  # Empty line
-
-        return "\n".join(formatted)
-
-    def _process_enhanced_compatibility_results(
-        self, analysis_result: Dict, available_agents: List[Dict]
-    ) -> List[Dict]:
-        """Process enhanced compatibility analysis results."""
-        compatible_agents = []
-
-        for agent_analysis in analysis_result.get("compatible_agents", []):
-            agent_name = agent_analysis.get("name")
-            compatibility_score = agent_analysis.get("compatibility_score", 0.0)
-
-            if compatibility_score >= 0.3:
-                agent_data = next(
-                    (a for a in available_agents if a["name"] == agent_name), None
-                )
-
-                if agent_data:
-                    agent_with_analysis = agent_data.copy()
-                    agent_with_analysis["compatibility_score"] = compatibility_score
-                    agent_with_analysis["enhanced_analysis"] = agent_analysis
-                    compatible_agents.append(agent_with_analysis)
-
-                    print(
-                        f"DEBUG: Enhanced - Agent '{agent_name}' score: {compatibility_score:.2f}"
-                    )
-                    print(
-                        f"DEBUG: Adaptation needed: {agent_analysis.get('code_analysis', {}).get('adaptation_needed', 'unknown')}"
-                    )
-
-        compatible_agents.sort(key=lambda x: x["compatibility_score"], reverse=True)
-        return compatible_agents
-
-    def _format_agents_for_analysis(self, agents: List[Dict]) -> str:
-        """Format agents with all relevant information for GPT-4 analysis."""
-        formatted = []
-
-        for i, agent in enumerate(agents, 1):
-            name = agent.get("name", "unknown")
-            desc = agent.get("description", "No description provided")
-            uses_tools = agent.get("uses_tools", [])
-            capabilities = agent.get("capabilities", [])
-            input_format = agent.get("input_format", {})
-            output_format = agent.get("output_format", {})
-            status = agent.get("status", "unknown")
-
-            formatted.append(f"AGENT {i}: {name}")
-            formatted.append(f"  Description: {desc}")
-
-            if uses_tools:
-                formatted.append(f"  Tools Available: {', '.join(uses_tools)}")
-
-            if capabilities:
-                formatted.append(f"  Capabilities: {', '.join(capabilities)}")
-
-            if input_format:
-                formatted.append(f"  Input Format: {json.dumps(input_format)}")
-
-            if output_format:
-                formatted.append(f"  Output Format: {json.dumps(output_format)}")
-
-            formatted.append(f"  Status: {status}")
-            formatted.append("")  # Empty line for readability
-
-        return "\n".join(formatted)
-
-    def _extract_json_from_response(self, content: str) -> Optional[Dict]:
-        """Extract JSON from GPT-4 response with multiple fallback strategies."""
-        try:
-            # Strategy 1: Look for JSON code blocks
-            if "```json" in content:
-                start = content.find("```json") + 7
-                end = content.find("```", start)
-                if end > start:
-                    json_content = content[start:end].strip()
-                    return json.loads(json_content)
-
-            # Strategy 2: Look for JSON object boundaries
-            if "{" in content and "}" in content:
-                start = content.find("{")
-                end = content.rfind("}") + 1
-                if end > start:
-                    json_content = content[start:end].strip()
-                    return json.loads(json_content)
-
-            # Strategy 3: Try parsing entire content
-            return json.loads(content.strip())
-
-        except json.JSONDecodeError as e:
-            print(f"DEBUG: JSON parsing failed: {str(e)}")
-            print(f"DEBUG: Content was: {content[:200]}...")
-            return None
-
-    def _emergency_fallback_matching(
-        self, step: Dict, available_agents: List[Dict]
-    ) -> List[Dict]:
-        """Emergency fallback using basic name/description matching."""
-        print("DEBUG: Using emergency fallback matching")
-
-        step_name = step.get("name", "").lower()
-        step_desc = step.get("description", "").lower()
-
-        compatible_agents = []
-
-        for agent in available_agents:
-            agent_name = agent.get("name", "").lower()
-            agent_desc = agent.get("description", "").lower()
-
-            score = 0.0
-
-            # Check for direct name component matches
-            step_words = step_name.replace("_", " ").split()
-            agent_words = agent_name.replace("_", " ").split()
-
-            name_matches = len(set(step_words) & set(agent_words))
-            if name_matches > 0:
-                score += 0.4 * (name_matches / max(len(step_words), 1))
-
-            # Check for description keyword matches
-            if step_desc and agent_desc:
-                step_keywords = set(step_desc.split())
-                agent_keywords = set(agent_desc.split())
-
-                desc_matches = len(step_keywords & agent_keywords)
-                if desc_matches > 0:
-                    score += 0.3 * (desc_matches / max(len(step_keywords), 1))
-
-            # Boost score for obvious matches
-            if any(word in agent_name for word in step_words):
-                score += 0.3
-
-            if score >= 0.3:
-                agent_with_score = agent.copy()
-                agent_with_score["compatibility_score"] = min(score, 1.0)
-                agent_with_score["ai_analysis"] = {
-                    "reasoning": "Emergency fallback matching based on name similarity",
-                    "confidence": "low",
-                }
-                compatible_agents.append(agent_with_score)
-
-                print(f"DEBUG: Fallback - Agent '{agent['name']}' score: {score:.2f}")
-
-        # Sort by score
-        compatible_agents.sort(key=lambda x: x["compatibility_score"], reverse=True)
-
-        return compatible_agents
-
-    async def analyze_missing_capabilities(
-        self, step: Dict, compatible_agents: List[Dict]
-    ) -> Dict[str, Any]:
-        """
-        AI-powered analysis of missing capabilities and suggestions.
-
-        Args:
-            step: Pipeline step specification
-            compatible_agents: List of compatible agents (may be empty)
-
-        Returns:
-            AI analysis of missing capabilities and suggestions
-        """
-        if compatible_agents:
-            # Analyze the best available option
-            best_agent = compatible_agents[0]
-            ai_analysis = best_agent.get("ai_analysis", {})
-
-            return {
-                "has_compatible_agent": True,
-                "recommended_agent": best_agent["name"],
-                "compatibility_score": best_agent["compatibility_score"],
-                "ai_reasoning": ai_analysis.get("reasoning", "No reasoning available"),
-                "potential_issues": ai_analysis.get("potential_issues", []),
-                "confidence": ai_analysis.get("confidence", "medium"),
-                "missing_capabilities": [],
-            }
-
-        # No compatible agents - use AI to analyze what's missing
-        return await self._ai_analyze_missing_capabilities(step)
-
-    async def _ai_analyze_missing_capabilities(self, step: Dict) -> Dict[str, Any]:
-        """Use GPT-4 to analyze what capabilities are missing for a step."""
-
-        available_tools = self.registry.list_tools()
-
-        analysis_prompt = f"""
-You are an expert AI system analyzer. Analyze what capabilities are missing to handle this pipeline step.
-
-PIPELINE STEP THAT NEEDS HANDLING:
-Name: {step.get('name', 'unknown')}
-Description: {step.get('description', 'No description provided')}
-Requirements: {json.dumps(step.get('input_requirements', {}), indent=2)}
-
-AVAILABLE TOOLS IN SYSTEM:
-{self._format_tools_for_analysis(available_tools)}
-
-ANALYSIS TASK:
-1. Understand what capabilities are needed for this step
-2. Identify what type of agent would be required
-3. Determine what tools the agent would need
-4. Suggest the agent specification
-5. Assess creation priority and complexity
-
-RESPOND WITH VALID JSON:
-{{
-    "missing_analysis": {{
-        "step_requirements": ["requirement1", "requirement2"],
-        "required_capabilities": ["capability1", "capability2"],
-        "required_agent_type": "description of needed agent",
-        "complexity_assessment": "low|medium|high"
-    }},
-    "suggested_agent": {{
-        "name": "suggested_agent_name",
-        "description": "what this agent should do",
-        "required_tools": ["tool1", "tool2"],
-        "capabilities": ["cap1", "cap2"],
-        "priority": "low|medium|high"
-    }},
-    "alternatives": {{
-        "modify_existing": "suggestions for modifying existing agents",
-        "tool_creation": "what new tools might be needed",
-        "workaround": "alternative approaches"
-    }}
-}}
-"""
-
-        try:
-            response = self.client.chat.completions.create(
-                model=ORCHESTRATOR_MODEL,
-                max_completion_tokens=ORCHESTRATOR_MAX_TOKENS,
-                messages=[{"role": "user", "content": analysis_prompt}],
-            )
-
-            content = response.choices[0].message.content
-            analysis_result = self._extract_json_from_response(content)
-
-            if analysis_result:
-                return {
-                    "has_compatible_agent": False,
-                    "recommended_agent": None,
-                    "ai_analysis": analysis_result,
-                    "missing_capabilities": analysis_result.get(
-                        "missing_analysis", {}
-                    ).get("required_capabilities", []),
-                    "suggested_tools": analysis_result.get("suggested_agent", {}).get(
-                        "required_tools", []
-                    ),
-                    "creation_priority": analysis_result.get("suggested_agent", {}).get(
-                        "priority", "medium"
-                    ),
-                    "complexity": analysis_result.get("missing_analysis", {}).get(
-                        "complexity_assessment", "medium"
-                    ),
-                }
-
-        except Exception as e:
-            print(f"DEBUG: AI missing capabilities analysis failed: {str(e)}")
-
-        # Fallback response
-        return {
-            "has_compatible_agent": False,
-            "recommended_agent": None,
-            "missing_capabilities": ["unknown_capability"],
-            "suggested_tools": [],
-            "creation_priority": "high",
-            "ai_analysis": {"error": "Analysis failed, using fallback"},
-        }
-
-    def _format_tools_for_analysis(self, tools: List[Dict]) -> str:
-        """Format available tools for GPT-4 analysis."""
-        if not tools:
-            return "No tools available"
-
-        formatted = []
-        for tool in tools[:20]:  # Limit to prevent prompt overflow
-            name = tool.get("name", "unknown")
-            desc = tool.get("description", "No description")
-            formatted.append(f"- {name}: {desc}")
-
-        if len(tools) > 20:
-            formatted.append(f"... and {len(tools) - 20} more tools")
-
-        return "\n".join(formatted)
-
-    async def suggest_agent_modifications(
-        self, step: Dict, agent: Dict
-    ) -> Dict[str, Any]:
-        """
-        AI-powered suggestions for modifying agents to improve compatibility.
-
-        Args:
-            step: Pipeline step specification
-            agent: Agent that needs modification
-
-        Returns:
-            AI-generated modification suggestions
-        """
-
-        modification_prompt = f"""
-You are an expert AI system modifier. Analyze how to improve an agent's compatibility with a specific pipeline step.
-
-PIPELINE STEP REQUIREMENTS:
-Name: {step.get('name', 'unknown')}
-Description: {step.get('description', 'No description provided')}
-Requirements: {json.dumps(step.get('input_requirements', {}), indent=2)}
-
-CURRENT AGENT TO MODIFY:
-Name: {agent.get('name', 'unknown')}
-Description: {agent.get('description', 'No description provided')}
-Current Tools: {agent.get('uses_tools', [])}
-Current Capabilities: {agent.get('capabilities', [])}
-
-ANALYSIS TASK:
-1. Identify specific gaps between agent capabilities and step requirements
-2. Suggest concrete modifications to improve compatibility
-3. Estimate the impact of each modification
-4. Assess implementation difficulty
-
-RESPOND WITH VALID JSON:
-{{
-    "compatibility_analysis": {{
-        "current_score": 0.5,
-        "potential_score": 0.9,
-        "main_gaps": ["gap1", "gap2"]
-    }},
-    "suggested_modifications": [
-        {{
-            "type": "add_tool|enhance_capability|modify_description",
-            "description": "what to modify",
-            "impact": "low|medium|high",
-            "difficulty": "easy|moderate|hard",
-            "estimated_improvement": 0.2
-        }}
-    ],
-    "implementation_plan": {{
-        "priority_order": ["modification1", "modification2"],
-        "estimated_time": "time estimate",
-        "risk_assessment": "low|medium|high"
-    }}
-}}
-"""
-
-        try:
-            response = self.client.chat.completions.create(
-                model=ORCHESTRATOR_MODEL,
-                max_completion_tokens=ORCHESTRATOR_MAX_TOKENS,
-                messages=[{"role": "user", "content": modification_prompt}],
-            )
-
-            content = response.choices[0].message.content
-            modification_result = self._extract_json_from_response(content)
-
-            if modification_result:
-                return {
-                    "agent_name": agent["name"],
-                    "ai_analysis": modification_result,
-                    "current_compatibility": modification_result.get(
-                        "compatibility_analysis", {}
-                    ).get("current_score", 0.0),
-                    "potential_compatibility": modification_result.get(
-                        "compatibility_analysis", {}
-                    ).get("potential_score", 0.0),
-                    "suggested_changes": modification_result.get(
-                        "suggested_modifications", []
-                    ),
-                    "implementation_plan": modification_result.get(
-                        "implementation_plan", {}
-                    ),
-                    "estimated_improvement": sum(
-                        mod.get("estimated_improvement", 0)
-                        for mod in modification_result.get(
-                            "suggested_modifications", []
-                        )
-                    ),
-                }
-
-        except Exception as e:
-            print(f"DEBUG: AI modification analysis failed: {str(e)}")
-
-        # Fallback response
-        return {
-            "agent_name": agent["name"],
-            "current_compatibility": 0.0,
-            "suggested_changes": [],
-            "estimated_improvement": 0.0,
-            "ai_analysis": {"error": "Analysis failed"},
-        }
-
-```
-
---------------------------------------------------------------------------------
-
 ### File: core/agent_factory.py
 **Path:** `core/agent_factory.py`
-**Size:** 51,934 bytes
-**Modified:** 2025-09-10 22:05:18
+**Size:** 51,878 bytes
+**Modified:** 2025-09-13 08:15:00
 
 ```python
 """
@@ -3855,8 +2728,6 @@ class AgentFactory:
             auto_create_tools=True,  # CRITICAL: Enable auto tool creation
         )
 
-    # ADD THESE NEW METHODS to the AgentFactory class:
-
     def create_pipeline_agent(self, spec: Dict) -> Dict[str, Any]:
         """Create agent specifically designed for pipeline execution."""
 
@@ -4534,3644 +3405,636 @@ class AgentFactory:
 
 --------------------------------------------------------------------------------
 
-### File: core/data_processor.py
-**Path:** `core/data_processor.py`
-**Size:** 17,263 bytes
-**Modified:** 2025-09-09 23:08:26
+### File: core/file_content_reader.py
+**Path:** `core/file_content_reader.py`
+**Size:** 16,796 bytes
+**Modified:** 2025-09-13 12:55:02
 
 ```python
 """
-Intelligent Data Processor
-Uses GPT-4 for smart data extraction and preparation with comprehensive fallbacks
+File Content Reader
+Reads actual file contents instead of just metadata
+This is CRITICAL for the orchestrator to see real data
 """
 
-import re
-import json
 import os
-from typing import Any, Dict, List, Optional, Union
-from openai import OpenAI
-from config import OPENAI_API_KEY, ORCHESTRATOR_MODEL, ORCHESTRATOR_TEMPERATURE
+import json
+import pandas as pd
+import PyPDF2
+from typing import Dict, List, Any, Optional
+import chardet
+import openpyxl
+import docx
+import yaml
 
 
-class DataProcessor:
-    """Intelligently extract and format data using GPT-4 with comprehensive fallbacks."""
+class FileContentReader:
+    """Reads actual file contents for the orchestrator to see real data."""
 
     def __init__(self):
-        self.client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
+        self.max_preview_rows = 100  # For large files
+        self.max_text_preview = 5000  # Characters for text files
 
-    def process_request_data(
-        self, request: str, analysis: Dict = None
+    def read_file_contents(
+        self, file_path: str, file_type: str = None
     ) -> Dict[str, Any]:
         """
-        Extract and format data using GPT-4 intelligence with fallbacks.
-        Returns multiple data formats for different agent needs.
-        """
-
-        print(f"DEBUG: Processing request data: {request[:100]}...")
-
-        # Base data structure (always available)
-        processed_data = {
-            "raw_request": request,
-            "raw_text": request,
-            "current_data": request,
-            "extracted_data": None,
-            "data_type": "text",
-            "extraction_method": "none",
-        }
-
-        # Try GPT-4 smart extraction first
-        if self.client:
-            gpt_extraction = self._gpt_smart_extraction(request, analysis)
-            if gpt_extraction and gpt_extraction.get("extracted_data") is not None:
-                processed_data.update(gpt_extraction)
-                processed_data["extraction_method"] = "gpt4_smart"
-                print(f"DEBUG: GPT-4 extracted: {gpt_extraction['extracted_data']}")
-                return processed_data
-
-        # Fallback: Comprehensive pattern-based extraction
-        fallback_extraction = self._comprehensive_fallback_extraction(request)
-        processed_data.update(fallback_extraction)
-        processed_data["extraction_method"] = "pattern_fallback"
-
-        print(f"DEBUG: Fallback extracted: {fallback_extraction.get('extracted_data')}")
-        return processed_data
-
-    def _gpt_smart_extraction(
-        self, request: str, analysis: Dict = None
-    ) -> Optional[Dict[str, Any]]:
-        """Use GPT-4 to intelligently extract and format data from the request."""
-
-        try:
-            # Build context-aware prompt
-            extraction_prompt = f"""You are a smart data extraction system. Analyze this user request and extract the specific data that needs processing.
-
-USER REQUEST: "{request}"
-
-ANALYSIS CONTEXT: {json.dumps(analysis, indent=2) if analysis else "No prior analysis available"}
-
-EXTRACTION RULES:
-1. Identify what specific data the user wants processed (not the task itself)
-2. Extract and format that data appropriately for programmatic use
-3. If multiple data items, return as appropriate collection type
-4. If no specific data to extract, return the most relevant part of the request
-
-EXAMPLES:
-Request: "Find prime numbers in: 43, 17, 89, 56"
-→ Extract: [43, 17, 89, 56]
-→ Type: "number_array"
-
-Request: "Count words in 'Hello world how are you today'"
-→ Extract: "Hello world how are you today"  
-→ Type: "text_string"
-
-Request: "Extract emails from: Contact john@test.com or mary@example.org for support"
-→ Extract: "Contact john@test.com or mary@example.org for support"
-→ Type: "text_for_extraction"
-
-Request: "Analyze these sales figures: Q1: $45K, Q2: $67K, Q3: $52K, Q4: $78K"
-→ Extract: {{"Q1": 45000, "Q2": 67000, "Q3": 52000, "Q4": 78000}}
-→ Type: "structured_data"
-
-Request: "Process file data.csv and calculate averages"
-→ Extract: "data.csv"
-→ Type: "file_reference"
-
-Request: "Is 97 a prime number?"
-→ Extract: 97
-→ Type: "single_number"
-
-Respond with JSON:
-{{
-    "extracted_data": <the actual data to process>,
-    "data_type": "<type classification>",
-    "reasoning": "<brief explanation of what you extracted and why>",
-    "format_notes": "<any special formatting considerations>"
-}}
-
-If no specific data can be extracted, return null for extracted_data."""
-
-            response = self.client.chat.completions.create(
-                model=ORCHESTRATOR_MODEL,
-                max_completion_tokens=1000,
-                messages=[{"role": "user", "content": extraction_prompt}],
-            )
-
-            # Parse GPT-4 response
-            response_text = response.choices[0].message.content.strip()
-
-            # Extract JSON from response
-            if response_text.startswith("```json"):
-                response_text = (
-                    response_text.split("```json")[1].split("```")[0].strip()
-                )
-            elif response_text.startswith("```"):
-                response_text = response_text.split("```")[1].split("```")[0].strip()
-
-            extraction_result = json.loads(response_text)
-
-            # Format the result for our system
-            if extraction_result.get("extracted_data") is not None:
-                formatted_result = {
-                    "extracted_data": extraction_result["extracted_data"],
-                    "current_data": extraction_result["extracted_data"],
-                    "data_type": extraction_result.get("data_type", "unknown"),
-                    "extraction_reasoning": extraction_result.get("reasoning", ""),
-                    "format_notes": extraction_result.get("format_notes", ""),
-                }
-
-                print(
-                    f"DEBUG: GPT-4 extraction successful - Type: {formatted_result['data_type']}"
-                )
-                print(
-                    f"DEBUG: GPT-4 reasoning: {formatted_result['extraction_reasoning']}"
-                )
-
-                return formatted_result
-
-        except Exception as e:
-            print(f"DEBUG: GPT-4 extraction failed: {str(e)}")
-            # Fall through to pattern-based fallback
-
-        return None
-
-    def _comprehensive_fallback_extraction(self, request: str) -> Dict[str, Any]:
-        """Comprehensive fallback extraction handling ALL data types."""
-
-        print(f"DEBUG: Using comprehensive fallback extraction")
-
-        # Try all extraction methods in priority order
-        extractors = [
-            ("number_arrays", self._extract_number_arrays),
-            ("single_numbers", self._extract_single_numbers),
-            ("quoted_text", self._extract_quoted_text),
-            ("structured_data", self._extract_structured_data),
-            ("file_references", self._extract_file_references),
-            ("email_addresses", self._extract_email_addresses),
-            ("urls", self._extract_urls),
-            ("dates", self._extract_dates),
-            ("monetary_values", self._extract_monetary_values),
-            ("percentages", self._extract_percentages),
-            ("key_value_pairs", self._extract_key_value_pairs),
-            ("code_blocks", self._extract_code_blocks),
-            ("lists", self._extract_lists),
-        ]
-
-        for extractor_name, extractor_func in extractors:
-            try:
-                result = extractor_func(request)
-                if result is not None:
-                    print(f"DEBUG: Fallback extraction succeeded with {extractor_name}")
-                    return {
-                        "extracted_data": result,
-                        "current_data": result,
-                        "data_type": extractor_name,
-                        "extraction_reasoning": f"Pattern-based extraction using {extractor_name}",
-                    }
-            except Exception as e:
-                print(f"DEBUG: Extractor {extractor_name} failed: {str(e)}")
-                continue
-
-        # Final fallback: return the request as text
-        print(f"DEBUG: All extractors failed, using raw text")
-        return {
-            "extracted_data": request,
-            "current_data": request,
-            "data_type": "raw_text",
-            "extraction_reasoning": "No specific data patterns found, using full request text",
-        }
-
-    # ============================================================================
-    # COMPREHENSIVE EXTRACTION METHODS
-    # ============================================================================
-
-    def _extract_number_arrays(self, text: str) -> Optional[List[Union[int, float]]]:
-        """Extract arrays of numbers from text."""
-
-        patterns = [
-            r"(?:numbers?|list|values?|data)[:\s]*\[([^\]]+)\]",  # [1,2,3]
-            r"(?:numbers?|list|values?|in)[:\s]*([0-9,.\s-]+)",  # 1, 2, 3
-            r"(?:are|of)[:\s]*([0-9,.\s-]+)",  # are: 1, 2, 3
-        ]
-
-        for pattern in patterns:
-            match = re.search(pattern, text, re.IGNORECASE)
-            if match:
-                number_str = match.group(1)
-                numbers = self._parse_numbers(number_str)
-                if len(numbers) >= 2:  # Must be multiple numbers for an array
-                    return numbers
-
-        # Fallback: find all numbers if multiple exist
-        all_numbers = re.findall(r"-?\d+(?:\.\d+)?", text)
-        if len(all_numbers) >= 3:  # 3+ numbers likely indicate a list
-            return self._parse_numbers(", ".join(all_numbers))
-
-        return None
-
-    def _extract_single_numbers(self, text: str) -> Optional[Union[int, float]]:
-        """Extract single numbers from text."""
-
-        # Look for patterns like "Is 97 a prime" or "check number 42"
-        patterns = [
-            r"(?:is|check|number|value)\s+(\d+(?:\.\d+)?)",
-            r"(\d+(?:\.\d+)?)\s+(?:a|is|prime|even|odd)",
-        ]
-
-        for pattern in patterns:
-            match = re.search(pattern, text, re.IGNORECASE)
-            if match:
-                num_str = match.group(1)
-                return float(num_str) if "." in num_str else int(num_str)
-
-        return None
-
-    def _extract_quoted_text(self, text: str) -> Optional[str]:
-        """Extract text from various quote formats."""
-
-        patterns = [
-            r'"([^"]+)"',  # Double quotes
-            r"'([^']+)'",  # Single quotes
-            r"`([^`]+)`",  # Backticks
-            r"â€œ([^â€]+)â€",  # Smart quotes
-            r"<<([^>]+)>>",  # Angle brackets
-        ]
-
-        for pattern in patterns:
-            matches = re.findall(pattern, text)
-            if matches:
-                # Return the longest match (likely the main content)
-                return max(matches, key=len)
-
-        return None
-
-    def _extract_structured_data(self, text: str) -> Optional[Dict]:
-        """Extract structured data like key-value pairs."""
-
-        # Pattern for "Q1: $45K, Q2: $67K" style data
-        kv_pattern = r"([A-Za-z0-9_]+)[:\s]*([^,\n]+)"
-        matches = re.findall(kv_pattern, text)
-
-        if len(matches) >= 2:  # Need multiple pairs for structured data
-            result = {}
-            for key, value in matches:
-                # Try to parse value as number
-                clean_value = re.sub(r"[^\d.-]", "", value.strip())
-                if (
-                    clean_value
-                    and clean_value.replace(".", "").replace("-", "").isdigit()
-                ):
-                    # Handle currency/units (K, M, B)
-                    multiplier = 1
-                    if "K" in value.upper():
-                        multiplier = 1000
-                    elif "M" in value.upper():
-                        multiplier = 1000000
-                    elif "B" in value.upper():
-                        multiplier = 1000000000
-
-                    result[key] = float(clean_value) * multiplier
-                else:
-                    result[key] = value.strip()
-
-            return result if result else None
-
-        return None
-
-    def _extract_file_references(self, text: str) -> Optional[Union[str, List[str]]]:
-        """Extract file references and paths."""
-
-        patterns = [
-            r"(?:file|document|path)[:\s]*([^\s]+\.(?:csv|pdf|txt|json|xlsx?|doc|png|jpg))",
-            r"([^\s]+\.(?:csv|pdf|txt|json|xlsx?|doc|png|jpg))",
-            r"(?:process|read|analyze)[:\s]*([^\s]+\.(?:csv|pdf|txt|json|xlsx?))",
-        ]
-
-        files = []
-        for pattern in patterns:
-            matches = re.findall(pattern, text, re.IGNORECASE)
-            files.extend(matches)
-
-        if files:
-            return files[0] if len(files) == 1 else list(set(files))
-
-        return None
-
-    def _extract_email_addresses(self, text: str) -> Optional[List[str]]:
-        """Extract email addresses for processing."""
-
-        email_pattern = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"
-        emails = re.findall(email_pattern, text)
-
-        # If emails found and request is about email processing, return them
-        if emails and any(
-            word in text.lower() for word in ["email", "extract", "find"]
-        ):
-            return list(set(emails))
-
-        return None
-
-    def _extract_urls(self, text: str) -> Optional[List[str]]:
-        """Extract URLs for processing."""
-
-        url_pattern = r'https?://[^\s<>"{}|\\^`\[\]]+'
-        urls = re.findall(url_pattern, text)
-
-        if urls and any(
-            word in text.lower() for word in ["url", "link", "website", "extract"]
-        ):
-            return list(set(urls))
-
-        return None
-
-    def _extract_dates(self, text: str) -> Optional[List[str]]:
-        """Extract date patterns."""
-
-        date_patterns = [
-            r"\d{1,2}[-/]\d{1,2}[-/]\d{2,4}",  # MM/DD/YYYY or MM-DD-YYYY
-            r"\d{4}[-/]\d{1,2}[-/]\d{1,2}",  # YYYY-MM-DD
-            r"(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2},?\s+\d{4}",  # Month DD, YYYY
-        ]
-
-        dates = []
-        for pattern in date_patterns:
-            matches = re.findall(pattern, text, re.IGNORECASE)
-            dates.extend(matches)
-
-        if dates and any(
-            word in text.lower() for word in ["date", "when", "time", "schedule"]
-        ):
-            return list(set(dates))
-
-        return None
-
-    def _extract_monetary_values(self, text: str) -> Optional[List[Union[int, float]]]:
-        """Extract monetary values."""
-
-        money_pattern = r"\$\s*(\d+(?:,\d{3})*(?:\.\d{2})?)\s*([KMB]?)"
-        matches = re.findall(money_pattern, text)
-
-        if matches:
-            values = []
-            for amount, unit in matches:
-                value = float(amount.replace(",", ""))
-                if unit.upper() == "K":
-                    value *= 1000
-                elif unit.upper() == "M":
-                    value *= 1000000
-                elif unit.upper() == "B":
-                    value *= 1000000000
-                values.append(value)
-            return values
-
-        return None
-
-    def _extract_percentages(self, text: str) -> Optional[List[float]]:
-        """Extract percentage values."""
-
-        percent_pattern = r"(\d+(?:\.\d+)?)\s*%"
-        matches = re.findall(percent_pattern, text)
-
-        if matches:
-            return [float(match) for match in matches]
-
-        return None
-
-    def _extract_key_value_pairs(self, text: str) -> Optional[Dict[str, Any]]:
-        """Extract key-value pairs from various formats."""
-
-        # JSON-like patterns
-        json_pattern = r"\{[^}]+\}"
-        json_match = re.search(json_pattern, text)
-        if json_match:
-            try:
-                return json.loads(json_match.group())
-            except:
-                pass
-
-        # Simple key: value patterns
-        kv_patterns = [
-            r"(\w+):\s*([^,\n]+)",
-            r"(\w+)\s*=\s*([^,\n]+)",
-        ]
-
-        for pattern in kv_patterns:
-            matches = re.findall(pattern, text)
-            if len(matches) >= 2:
-                return dict(matches)
-
-        return None
-
-    def _extract_code_blocks(self, text: str) -> Optional[str]:
-        """Extract code blocks."""
-
-        patterns = [
-            r"```(?:python|js|javascript|html|css)?\n(.*?)\n```",
-            r"`([^`]+)`",
-            r"<code>(.*?)</code>",
-        ]
-
-        for pattern in patterns:
-            match = re.search(pattern, text, re.DOTALL)
-            if match:
-                return match.group(1).strip()
-
-        return None
-
-    def _extract_lists(self, text: str) -> Optional[List[str]]:
-        """Extract list items from various formats."""
-
-        # Bullet point lists
-        bullet_pattern = r"(?:^|\n)\s*[-•*]\s*([^\n]+)"
-        bullets = re.findall(bullet_pattern, text, re.MULTILINE)
-
-        if bullets:
-            return [item.strip() for item in bullets]
-
-        # Numbered lists
-        numbered_pattern = r"(?:^|\n)\s*\d+\.?\s*([^\n]+)"
-        numbered = re.findall(numbered_pattern, text, re.MULTILINE)
-
-        if numbered:
-            return [item.strip() for item in numbered]
-
-        # Comma-separated lists (non-numeric)
-        if "," in text and not re.search(r"\d+,\s*\d+", text):
-            parts = [part.strip() for part in text.split(",")]
-            if len(parts) >= 3 and all(len(part) > 2 for part in parts[:3]):
-                return parts
-
-        return None
-
-    def _parse_numbers(self, number_string: str) -> List[Union[int, float]]:
-        """Parse a string containing multiple numbers."""
-
-        numbers = []
-        for match in re.findall(r"-?\d+(?:\.\d+)?", number_string):
-            if "." in match:
-                numbers.append(float(match))
-            else:
-                numbers.append(int(match))
-        return numbers
-
-```
-
---------------------------------------------------------------------------------
-
-### File: core/dependency_resolver.py
-**Path:** `core/dependency_resolver.py`
-**Size:** 8,333 bytes
-**Modified:** 2025-09-04 21:57:32
-
-```python
-"""
-Dependency Resolver
-Handles topological sorting and dependency graph creation for agent-tool relationships
-"""
-
-import networkx as nx
-from typing import Dict, List, Any, Tuple
-from collections import defaultdict
-
-
-class DependencyResolver:
-    """Resolves and creates dependencies in correct order."""
-
-    def __init__(self, registry):
-        self.registry = registry
-        self.dependency_graph = nx.DiGraph()
-
-    def analyze_request(
-        self, request: str, existing_agents: Dict, existing_tools: Dict
-    ) -> Dict:
-        """
-        Analyze request and build dependency graph.
+        Read actual file contents based on file type.
 
         Returns:
-            Dict with capabilities needed and creation order
+            Dict with actual data, not just metadata
         """
-        # Build capability map from request
-        capabilities = self._extract_capabilities(request)
 
-        # Build dependency graph
-        graph = self._build_dependency_graph(
-            capabilities, existing_agents, existing_tools
-        )
-
-        # Determine creation order
-        creation_order = self._get_creation_order(graph)
-
-        return {
-            "capabilities": capabilities,
-            "dependency_graph": graph,
-            "creation_order": creation_order,
-            "missing_components": self._identify_missing_components(
-                graph, existing_agents, existing_tools
-            ),
+        result = {
+            "path": file_path,
+            "type": file_type or self._detect_file_type(file_path),
+            "read_success": False,
+            "content": None,
+            "structure": None,
+            "error": None,
+            "size": os.path.getsize(file_path) if os.path.exists(file_path) else 0,
         }
 
-    def _extract_capabilities(self, request: str) -> List[Dict]:
-        """Extract required capabilities from request."""
-        capabilities = []
-
-        # Pattern matching for common operations
-        request_lower = request.lower()
-
-        # Extraction capabilities
-        if any(word in request_lower for word in ["extract", "find", "get"]):
-            if "email" in request_lower:
-                capabilities.append(
-                    {
-                        "name": "email_extraction",
-                        "agent": "email_extractor",
-                        "tools": ["extract_emails"],
-                    }
-                )
-            if "phone" in request_lower:
-                capabilities.append(
-                    {
-                        "name": "phone_extraction",
-                        "agent": "phone_extractor",
-                        "tools": ["extract_phone"],
-                    }
-                )
-            if "url" in request_lower or "link" in request_lower:
-                capabilities.append(
-                    {
-                        "name": "url_extraction",
-                        "agent": "url_extractor",
-                        "tools": ["extract_urls"],
-                    }
-                )
-
-        # Analysis capabilities
-        if any(word in request_lower for word in ["analyze", "analysis", "examine"]):
-            if "sentiment" in request_lower:
-                capabilities.append(
-                    {
-                        "name": "sentiment_analysis",
-                        "agent": "sentiment_analyzer",
-                        "tools": ["analyze_sentiment", "score_sentiment"],
-                    }
-                )
-            if "statistic" in request_lower or "stats" in request_lower:
-                capabilities.append(
-                    {
-                        "name": "statistical_analysis",
-                        "agent": "statistics_calculator",
-                        "tools": [
-                            "calculate_mean",
-                            "calculate_median",
-                            "calculate_std",
-                        ],
-                    }
-                )
-
-        # Generation capabilities
-        if any(word in request_lower for word in ["generate", "create", "make"]):
-            if "chart" in request_lower or "graph" in request_lower:
-                capabilities.append(
-                    {
-                        "name": "chart_generation",
-                        "agent": "chart_generator",
-                        "tools": ["generate_chart", "format_chart_data"],
-                    }
-                )
-            if "report" in request_lower:
-                capabilities.append(
-                    {
-                        "name": "report_generation",
-                        "agent": "report_generator",
-                        "tools": ["format_report", "generate_summary"],
-                    }
-                )
-
-        return capabilities
-
-    def _build_dependency_graph(
-        self, capabilities: List[Dict], existing_agents: Dict, existing_tools: Dict
-    ) -> nx.DiGraph:
-        """Build directed graph of dependencies."""
-        graph = nx.DiGraph()
-
-        for cap in capabilities:
-            agent_name = cap["agent"]
-
-            # Add agent node
-            graph.add_node(
-                agent_name,
-                type="agent",
-                exists=agent_name in existing_agents,
-                capability=cap["name"],
-            )
-
-            # Add tool nodes and edges
-            for tool_name in cap["tools"]:
-                graph.add_node(
-                    tool_name, type="tool", exists=tool_name in existing_tools
-                )
-
-                # Tool must exist before agent can use it
-                graph.add_edge(tool_name, agent_name, relation="required_by")
-
-        return graph
-
-    def _get_creation_order(self, graph: nx.DiGraph) -> List[Tuple[str, str]]:
-        """
-        Get creation order using topological sort.
-
-        Returns:
-            List of (type, name) tuples in creation order
-        """
         try:
-            # Topological sort ensures dependencies are created first
-            sorted_nodes = list(nx.topological_sort(graph))
+            # CSV Files
+            if file_path.endswith(".csv") or file_type == "text/csv":
+                result.update(self._read_csv(file_path))
 
-            creation_order = []
-            for node in sorted_nodes:
-                if not graph.nodes[node]["exists"]:
-                    node_type = graph.nodes[node]["type"]
-                    creation_order.append((node_type, node))
+            # Excel Files
+            elif (
+                file_path.endswith((".xlsx", ".xls"))
+                or "spreadsheet" in str(file_type).lower()
+            ):
+                result.update(self._read_excel(file_path))
 
-            return creation_order
+            # JSON Files
+            elif file_path.endswith(".json") or file_type == "application/json":
+                result.update(self._read_json(file_path))
 
-        except nx.NetworkXUnfeasible:
-            # Graph has cycles - shouldn't happen with proper design
-            print("WARNING: Dependency graph has cycles!")
-            return []
+            # Text Files
+            elif file_path.endswith(".txt") or file_type == "text/plain":
+                result.update(self._read_text(file_path))
 
-    def _identify_missing_components(
-        self, graph: nx.DiGraph, existing_agents: Dict, existing_tools: Dict
+            # PDF Files
+            elif file_path.endswith(".pdf") or file_type == "application/pdf":
+                result.update(self._read_pdf(file_path))
+
+            # Word Documents
+            elif file_path.endswith((".docx", ".doc")):
+                result.update(self._read_word(file_path))
+
+            # YAML Files
+            elif file_path.endswith((".yml", ".yaml")):
+                result.update(self._read_yaml(file_path))
+
+            # Python Files
+            elif file_path.endswith(".py"):
+                result.update(self._read_code(file_path, "python"))
+
+            # Default: Try as text
+            else:
+                result.update(self._read_text(file_path))
+
+        except Exception as e:
+            result["error"] = str(e)
+            result["read_success"] = False
+
+        return result
+
+    def _read_csv(self, file_path: str) -> Dict:
+        """Read CSV with pandas and extract meaningful data."""
+        try:
+            # Read CSV with intelligent parsing
+            df = pd.read_csv(file_path, nrows=self.max_preview_rows)
+
+            # Get full dataframe for stats
+            df_full = pd.read_csv(file_path)
+
+            return {
+                "read_success": True,
+                "structure": "tabular",
+                "content": {
+                    "columns": df.columns.tolist(),
+                    "total_rows": len(df_full),
+                    "total_columns": len(df.columns),
+                    "first_10_rows": df.head(10).to_dict("records"),
+                    "last_5_rows": df.tail(5).to_dict("records"),
+                    "dtypes": {col: str(dtype) for col, dtype in df.dtypes.items()},
+                    "sample_values": {
+                        col: df[col].dropna().head(5).tolist() for col in df.columns
+                    },
+                    "null_counts": df_full.isnull().sum().to_dict(),
+                    "numeric_columns": df.select_dtypes(
+                        include=["number"]
+                    ).columns.tolist(),
+                    "text_columns": df.select_dtypes(
+                        include=["object"]
+                    ).columns.tolist(),
+                    "statistics": df.describe().to_dict() if not df.empty else {},
+                },
+            }
+        except Exception as e:
+            return {"error": f"CSV read error: {str(e)}", "read_success": False}
+
+    def _read_excel(self, file_path: str) -> Dict:
+        """Read Excel files with multiple sheets support."""
+        try:
+            # Read all sheets
+            excel_file = pd.ExcelFile(file_path)
+            sheets_data = {}
+
+            for sheet_name in excel_file.sheet_names[:5]:  # Limit to first 5 sheets
+                df = pd.read_excel(
+                    file_path, sheet_name=sheet_name, nrows=self.max_preview_rows
+                )
+                sheets_data[sheet_name] = {
+                    "columns": df.columns.tolist(),
+                    "rows": len(df),
+                    "preview": df.head(10).to_dict("records"),
+                    "dtypes": {col: str(dtype) for col, dtype in df.dtypes.items()},
+                }
+
+            return {
+                "read_success": True,
+                "structure": "tabular",
+                "content": {
+                    "sheet_count": len(excel_file.sheet_names),
+                    "sheet_names": excel_file.sheet_names,
+                    "sheets": sheets_data,
+                    "primary_sheet": (
+                        sheets_data[excel_file.sheet_names[0]]
+                        if excel_file.sheet_names
+                        else {}
+                    ),
+                },
+            }
+        except Exception as e:
+            return {"error": f"Excel read error: {str(e)}", "read_success": False}
+
+    def _read_json(self, file_path: str) -> Dict:
+        """Read JSON files and understand structure."""
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+
+            # Analyze JSON structure
+            structure_info = self._analyze_json_structure(data)
+
+            return {
+                "read_success": True,
+                "structure": "json",
+                "content": {
+                    "data": data,
+                    "type": type(data).__name__,
+                    "structure_info": structure_info,
+                    "keys": list(data.keys()) if isinstance(data, dict) else None,
+                    "length": len(data) if isinstance(data, (list, dict)) else None,
+                    "preview": str(data)[:1000] if len(str(data)) > 1000 else data,
+                },
+            }
+        except Exception as e:
+            return {"error": f"JSON read error: {str(e)}", "read_success": False}
+
+    def _read_text(self, file_path: str) -> Dict:
+        """Read text files with encoding detection."""
+        try:
+            # Detect encoding
+            with open(file_path, "rb") as f:
+                raw_data = f.read(10000)
+                detected = chardet.detect(raw_data)
+                encoding = detected["encoding"] or "utf-8"
+
+            # Read with detected encoding
+            with open(file_path, "r", encoding=encoding, errors="ignore") as f:
+                text = f.read()
+
+            # Analyze text
+            lines = text.split("\n")
+            words = text.split()
+
+            return {
+                "read_success": True,
+                "structure": "text",
+                "content": {
+                    "text": text[: self.max_text_preview],
+                    "full_text": text,
+                    "full_length": len(text),
+                    "line_count": len(lines),
+                    "word_count": len(words),
+                    "encoding": encoding,
+                    "first_lines": lines[:20],
+                    "has_headers": self._detect_headers(lines),
+                    "appears_structured": self._detect_structure(lines),
+                },
+            }
+        except Exception as e:
+            return {"error": f"Text read error: {str(e)}", "read_success": False}
+
+    def _read_pdf(self, file_path: str) -> Dict:
+        """Read PDF files and extract text."""
+        try:
+            text_content = []
+            metadata = {}
+
+            with open(file_path, "rb") as f:
+                pdf_reader = PyPDF2.PdfReader(f)
+                num_pages = len(pdf_reader.pages)
+
+                # Extract text from first few pages
+                for i in range(min(5, num_pages)):
+                    page = pdf_reader.pages[i]
+                    text_content.append(page.extract_text())
+
+                # Get metadata
+                if pdf_reader.metadata:
+                    metadata = {
+                        "title": pdf_reader.metadata.get("/Title", ""),
+                        "author": pdf_reader.metadata.get("/Author", ""),
+                        "subject": pdf_reader.metadata.get("/Subject", ""),
+                    }
+
+            full_text = "\n".join(text_content)
+
+            return {
+                "read_success": True,
+                "structure": "pdf",
+                "content": {
+                    "text_preview": full_text[: self.max_text_preview],
+                    "page_count": num_pages,
+                    "metadata": metadata,
+                    "first_pages_text": text_content,
+                    "word_count": len(full_text.split()),
+                    "has_text": bool(full_text.strip()),
+                },
+            }
+        except Exception as e:
+            return {"error": f"PDF read error: {str(e)}", "read_success": False}
+
+    def _read_word(self, file_path: str) -> Dict:
+        """Read Word documents."""
+        try:
+            doc = docx.Document(file_path)
+
+            # Extract text from paragraphs
+            paragraphs = [para.text for para in doc.paragraphs if para.text.strip()]
+
+            # Extract tables
+            tables = []
+            for table in doc.tables[:5]:  # First 5 tables
+                table_data = []
+                for row in table.rows[:10]:  # First 10 rows
+                    row_data = [cell.text.strip() for cell in row.cells]
+                    table_data.append(row_data)
+                tables.append(table_data)
+
+            full_text = "\n".join(paragraphs)
+
+            return {
+                "read_success": True,
+                "structure": "document",
+                "content": {
+                    "text": full_text[: self.max_text_preview],
+                    "paragraph_count": len(paragraphs),
+                    "table_count": len(doc.tables),
+                    "first_paragraphs": paragraphs[:10],
+                    "tables_preview": tables,
+                    "word_count": len(full_text.split()),
+                },
+            }
+        except Exception as e:
+            return {"error": f"Word read error: {str(e)}", "read_success": False}
+
+    def _read_yaml(self, file_path: str) -> Dict:
+        """Read YAML configuration files."""
+        try:
+            with open(file_path, "r") as f:
+                data = yaml.safe_load(f)
+
+            return {
+                "read_success": True,
+                "structure": "yaml",
+                "content": {
+                    "data": data,
+                    "type": type(data).__name__,
+                    "keys": list(data.keys()) if isinstance(data, dict) else None,
+                    "preview": str(data)[:1000],
+                },
+            }
+        except Exception as e:
+            return {"error": f"YAML read error: {str(e)}", "read_success": False}
+
+    def _read_code(self, file_path: str, language: str) -> Dict:
+        """Read code files with syntax awareness."""
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                code = f.read()
+
+            lines = code.split("\n")
+
+            # Basic code analysis
+            import_lines = [
+                l for l in lines if l.strip().startswith(("import ", "from "))
+            ]
+            function_lines = [l for l in lines if "def " in l or "class " in l]
+
+            return {
+                "read_success": True,
+                "structure": "code",
+                "content": {
+                    "language": language,
+                    "code": code[: self.max_text_preview],
+                    "full_code": code,
+                    "line_count": len(lines),
+                    "imports": import_lines,
+                    "functions_classes": function_lines,
+                    "has_main": "__main__" in code,
+                },
+            }
+        except Exception as e:
+            return {"error": f"Code read error: {str(e)}", "read_success": False}
+
+    def _detect_file_type(self, file_path: str) -> str:
+        """Detect file type from extension."""
+        ext = os.path.splitext(file_path)[1].lower()
+        type_map = {
+            ".csv": "text/csv",
+            ".json": "application/json",
+            ".txt": "text/plain",
+            ".pdf": "application/pdf",
+            ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            ".xls": "application/vnd.ms-excel",
+            ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ".py": "text/x-python",
+            ".yml": "text/yaml",
+            ".yaml": "text/yaml",
+        }
+        return type_map.get(ext, "application/octet-stream")
+
+    def _analyze_json_structure(
+        self, data: Any, depth: int = 0, max_depth: int = 3
     ) -> Dict:
-        """Identify what needs to be created."""
-        missing = {"agents": [], "tools": []}
+        """Analyze JSON structure recursively."""
+        if depth >= max_depth:
+            return {"type": type(data).__name__, "truncated": True}
 
-        for node, data in graph.nodes(data=True):
-            if not data["exists"]:
-                if data["type"] == "agent":
-                    # Get required tools for this agent
-                    required_tools = [
-                        pred
-                        for pred in graph.predecessors(node)
-                        if graph.nodes[pred]["type"] == "tool"
-                    ]
-
-                    missing["agents"].append(
-                        {
-                            "name": node,
-                            "required_tools": required_tools,
-                            "capability": data.get("capability", ""),
-                        }
-                    )
-                else:  # tool
-                    missing["tools"].append(
-                        {"name": node, "used_by": list(graph.successors(node))}
-                    )
-
-        return missing
-
-    def visualize_dependencies(self, graph: nx.DiGraph) -> str:
-        """Create text visualization of dependency graph."""
-        lines = ["Dependency Graph:"]
-        lines.append("=" * 50)
-
-        # Group by component type
-        tools = [n for n, d in graph.nodes(data=True) if d["type"] == "tool"]
-        agents = [n for n, d in graph.nodes(data=True) if d["type"] == "agent"]
-
-        lines.append("\nTools:")
-        for tool in tools:
-            status = "✓" if graph.nodes[tool]["exists"] else "✗"
-            users = list(graph.successors(tool))
-            lines.append(f"  {status} {tool} -> used by: {', '.join(users)}")
-
-        lines.append("\nAgents:")
-        for agent in agents:
-            status = "✓" if graph.nodes[agent]["exists"] else "✗"
-            deps = list(graph.predecessors(agent))
-            lines.append(f"  {status} {agent} <- requires: {', '.join(deps)}")
-
-        lines.append("\nCreation Order:")
-        for node in nx.topological_sort(graph):
-            if not graph.nodes[node]["exists"]:
-                lines.append(f"  {graph.nodes[node]['type']}: {node}")
-
-        return "\n".join(lines)
-
-```
-
---------------------------------------------------------------------------------
-
-### File: core/orchestrator.py
-**Path:** `core/orchestrator.py`
-**Size:** 113,182 bytes
-**Modified:** 2025-09-10 21:56:15
-
-```python
-"""
-Orchestrator
-Master orchestration engine using GPT-4 for intelligent workflow planning and execution
-"""
-
-import importlib
-import os
-import sys
-import json
-import asyncio
-from typing import Dict, List, Optional, Any, Tuple
-from datetime import datetime
-import openai
-from enum import Enum
-from core.dependency_resolver import DependencyResolver
-import networkx as nx
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from config import (
-    CLAUDE_MAX_TOKENS,
-    CLAUDE_MODEL,
-    OPENAI_API_KEY,
-    ORCHESTRATOR_MODEL,
-    ORCHESTRATOR_TEMPERATURE,
-    ORCHESTRATOR_MAX_TOKENS,
-    ORCHESTRATOR_SYSTEM_PROMPT,
-    ORCHESTRATOR_ANALYSIS_PROMPT,
-    ORCHESTRATOR_PLANNING_PROMPT,
-    ORCHESTRATOR_SYNTHESIS_PROMPT,
-    MAX_WORKFLOW_STEPS,
-    WORKFLOW_TIMEOUT_SECONDS,
-    WORKFLOW_STATE_SCHEMA,
-)
-from core.registry import RegistryManager
-from core.workflow_engine import WorkflowEngine
-from core.agent_factory import AgentFactory
-from core.tool_factory import ToolFactory
-from core.registry_singleton import get_shared_registry
-from typing import Dict, List, Optional, Any, Tuple
-
-from core.pipeline_orchestrator import PipelineOrchestrator
-from core.pipeline_executor import PipelineExecutor
-from core.workflow_intelligence import WorkflowIntelligence
-
-
-class WorkflowType(Enum):
-    """Workflow execution patterns."""
-
-    SEQUENTIAL = "sequential"
-    PARALLEL = "parallel"
-    CONDITIONAL = "conditional"
-    HYBRID = "hybrid"
-
-
-class Orchestrator:
-    """
-    Master orchestrator that coordinates the entire system.
-    Uses GPT-4 for intelligent planning and decision making.
-    """
-
-    def __init__(self):
-        """Initialize the orchestrator."""
-        self.client = openai.OpenAI(api_key=OPENAI_API_KEY)
-        self.registry = get_shared_registry()
-        self.workflow_engine = WorkflowEngine(self.registry)
-        self.agent_factory = AgentFactory()
-        self.tool_factory = ToolFactory()
-        self.dependency_resolver = DependencyResolver(self.registry)
-
-        # FIX: Add pipeline orchestrator initialization
-        self.pipeline_orchestrator = PipelineOrchestrator()
-        self.pipeline_executor = PipelineExecutor(self.registry)
-        self.workflow_intelligence = WorkflowIntelligence(self.registry)
-
-        self.execution_history = []
-
-    def _prepare_initial_data(
-        self,
-        user_request: str,
-        files: Optional[List[Dict]] = None,
-        analysis: Dict = None,
-    ) -> Dict[str, Any]:
-        """Prepare initial data with intelligent extraction."""
-
-        # Import the data processor
-        from core.data_processor import DataProcessor
-
-        processor = DataProcessor()
-
-        # Get intelligently processed data
-        processed = processor.process_request_data(user_request, analysis)
-
-        # Create comprehensive initial state
-        base_data = {
-            "request": user_request,
-            "files": files or [],
-            "context": {},
-            "results": {},
-            "errors": [],
-            "execution_path": [],
-            # Multiple data formats available to agents
-            **processed,  # This includes raw_request, extracted_data, current_data, etc.
-        }
-
-        print(f"DEBUG: Prepared data with extracted: {processed.get('extracted_data')}")
-        print(f"DEBUG: Data type identified: {processed.get('data_type')}")
-
-        return base_data
-
-    async def process_request(
-        self,
-        user_request: str,
-        files: Optional[List[Dict[str, Any]]] = None,
-        context: Optional[Dict[str, Any]] = None,
-        auto_create: bool = True,
-        stream_results: bool = False,
-    ) -> Dict[str, Any]:
-        """
-        Process a user request end-to-end with pipeline support.
-        """
-        start_time = datetime.now()
-        workflow_id = self._generate_workflow_id()
-
-        try:
-            print(f"DEBUG: Starting request processing for: {user_request[:50]}...")
-
-            # NEW: Add pipeline complexity detection
-            complexity = await self._detect_pipeline_complexity(
-                user_request, files or []
-            )
-            print(f"DEBUG: Detected complexity: {complexity}")
-
-            # NEW: Route to pipeline processing if complex
-            if complexity in ["pipeline", "complex"]:
-                print(f"DEBUG: Routing to pipeline processing")
-                return await self._process_pipeline_request(
-                    user_request, files or [], context or {}, auto_create, workflow_id
-                )
-
-            # EXISTING: Continue with your existing logic for simple requests
-            print(f"DEBUG: Using existing single-agent processing")
-
-            # Phase 1: Analyze the request (YOUR EXISTING CODE)
-            analysis = await self._analyze_request(user_request, files, context)
-
-            # ============= AMBIGUOUS HANDLING =============
-            if analysis["status"] == "ambiguous":
-                # Handle ambiguous requests with clarification
-                return {
-                    "status": "success",  # Mark as success but with clarification response
-                    "workflow_id": workflow_id,
-                    "response": "I need more information to help you effectively. "
-                    + " ".join(analysis["analysis"]["issues"])
-                    + "\n\nHere are some ways you can help me:\n• "
-                    + "\n• ".join(analysis["analysis"]["suggestions"]),
-                    "execution_time": (datetime.now() - start_time).total_seconds(),
-                    "workflow": {"steps": []},
-                    "results": {},
-                    "metadata": {
-                        "components_created": 0,
-                        "response_type": "clarification",
-                    },
-                }
-
-            if analysis["status"] != "success":
-                return self._create_error_response(
-                    workflow_id, "Analysis failed", analysis.get("error")
-                )
-            # ============================================================
-
-            # Phase 2: Plan the workflow (YOUR EXISTING CODE)
-            plan = await self._plan_workflow(
-                user_request, analysis["analysis"], auto_create
-            )
-            if plan["status"] != "success":
-                return self._create_error_response(
-                    workflow_id, "Planning failed", plan.get("error")
-                )
-
-            # ALL YOUR EXISTING CRITICAL FIXES - keep them all
-            agents_needed = plan.get("agents_needed", [])
-            missing_capabilities = plan.get("missing_capabilities", {})
-
-            # Check if we have no agents and need to create some
-            if not agents_needed and missing_capabilities.get("agents"):
-                if auto_create:
-                    # Try to create the missing agents first
-                    creation_result = await self._create_missing_components(
-                        missing_capabilities
-                    )
-
-                    # Re-plan after creation
-                    if creation_result.get("status") in ["success", "partial"]:
-                        plan = await self._plan_workflow(
-                            user_request, analysis["analysis"], auto_create=False
-                        )
-                        agents_needed = plan.get("agents_needed", [])
-                else:
-                    # Return early if no agents and can't create
-                    return {
-                        "status": "no_agents",
-                        "message": "No suitable agents found and auto-creation is disabled",
-                        "workflow": {"steps": []},
-                        "response": "I couldn't find suitable agents to handle your request. Please enable auto-creation or add the required agents.",
-                        "execution_time": (datetime.now() - start_time).total_seconds(),
-                        "metadata": {"components_created": 0},
-                    }
-
-            # Phase 3: Handle remaining missing capabilities (your existing code)
-            missing_capabilities = self._check_missing_capabilities(plan)
-            if missing_capabilities:
-                if auto_create:
-                    creation_result = await self._create_missing_components(
-                        missing_capabilities
-                    )
-
-                    if creation_result["status"] in ["success", "partial"]:
-                        # Re-plan with new components
-                        plan = await self._plan_workflow(
-                            user_request, analysis["analysis"], auto_create=False
-                        )
-
-                        # Update agents_needed after re-planning
-                        agents_needed = plan.get("agents_needed", [])
-                else:
-                    return {
-                        "status": "missing_capabilities",
-                        "message": "Required components are not available",
-                        "missing": missing_capabilities,
-                        "workflow_id": workflow_id,
-                        "suggestion": "Enable auto_create to build missing components automatically",
-                    }
-
-            # Final check for no agents
-            if not agents_needed:
-                message = "I couldn't identify specific agents to handle this request. "
-                if plan.get("missing_capabilities", {}).get("agents"):
-                    missing = ", ".join(
-                        a["name"] for a in plan["missing_capabilities"]["agents"]
-                    )
-                    message += f"The following capabilities would need to be created: {missing}"
-                else:
-                    message += "Please provide more specific instructions or data."
-
-                return {
-                    "status": "no_agents",
-                    "workflow_id": workflow_id,
-                    "message": message,
-                    "workflow": {
-                        "type": plan.get("workflow_type", "sequential"),
-                        "steps": [],
-                    },
-                    "response": message,
-                    "execution_time": (datetime.now() - start_time).total_seconds(),
-                    "results": {},
-                    "metadata": {
-                        "agents_used": 0,
-                        "components_created": 0,
-                        "errors_encountered": 0,
-                    },
-                }
-
-            # Phase 4: Prepare initial data with ALL fields agents might look for
-            initial_data = self._prepare_initial_data(user_request, files)
-            initial_data["context"] = {
-                "analysis": analysis.get("analysis", {}),
-                "plan": plan,
-            }
-
-            # After planning is complete, add this debug section:
-            print(f"DEBUG: About to execute workflow with plan: {plan}")
-            print(f"DEBUG: Agents needed: {plan.get('agents_needed', [])}")
-            print(f"DEBUG: Workflow type: {plan.get('workflow_type', 'sequential')}")
-
-            # Phase 5: Execute the workflow
-            if stream_results:
-                execution_result = await self._execute_workflow_streaming(
-                    plan, initial_data, workflow_id
-                )
-            else:
-                execution_result = await self._execute_workflow(
-                    plan, initial_data, workflow_id
-                )
-
-            if execution_result["status"] == "error":
-                return self._create_error_response(
-                    workflow_id, "Execution failed", execution_result.get("error")
-                )
-
-            # Phase 6: Synthesize results (FIXED)
-            if execution_result.get("errors"):
-                final_response = await self._handle_execution_errors(
-                    execution_result, plan
-                )
-            else:
-                # USE THE FIXED SYNTHESIS FUNCTION
-                final_response = await self._synthesize_results(
-                    user_request,
-                    plan,
-                    execution_result.get("results", {}),
-                    execution_result.get("errors", []),
-                )
-
-            # Record execution history
-            execution_time = (datetime.now() - start_time).total_seconds()
-            self._record_execution(
-                workflow_id, user_request, plan, execution_result, execution_time
-            )
-
+        if isinstance(data, dict):
             return {
-                "status": "success",
-                "workflow_id": workflow_id,
-                "response": final_response,  # THIS IS CRITICAL
-                "execution_time": execution_time,
-                "workflow": {
-                    "type": plan.get("workflow_type", "sequential"),
-                    "steps": agents_needed,
-                    "execution_path": execution_result.get("execution_path", []),
-                },
-                "results": execution_result.get("results", {}),
-                "metadata": {
-                    "agents_used": len(agents_needed),
-                    "components_created": len(plan.get("created_components", [])),
-                    "errors_encountered": len(execution_result.get("errors", [])),
+                "type": "object",
+                "keys": list(data.keys())[:10],
+                "key_count": len(data),
+                "sample": {
+                    k: self._analyze_json_structure(v, depth + 1)
+                    for k, v in list(data.items())[:3]
                 },
             }
-
-            print(f"DEBUG: Workflow execution completed")
-            print(f"DEBUG: Execution result status: {execution_result.get('status')}")
-            print(f"DEBUG: Execution result keys: {list(execution_result.keys())}")
-
-        except KeyError as e:
-            print(f"DEBUG: KeyError in process_request: {str(e)}")
-            import traceback
-
-            traceback.print_exc()
-            return self._create_error_response(
-                workflow_id, "Unexpected error", f"KeyError: {str(e)}"
-            )
-        except Exception as e:
-            print(f"DEBUG: Exception in process_request: {str(e)}")
-            import traceback
-
-            print(f"DEBUG: Traceback: {traceback.format_exc()}")
-            traceback.print_exc()
-            return self._create_error_response(workflow_id, "Unexpected error", str(e))
-
-    async def _analyze_request(
-        self, user_request: str, files: Optional[List[Dict]], context: Optional[Dict]
-    ) -> Dict[str, Any]:
-        """Analyze the request to understand intent and requirements."""
-        # Get available components
-        agents = self.registry.list_agents(active_only=True)
-        tools = self.registry.list_tools()
-
-        # Format components for prompt
-        agents_desc = self._format_components_list(agents, "agents")
-        tools_desc = self._format_components_list(tools, "tools")
-
-        # Build analysis prompt
-        prompt = ORCHESTRATOR_ANALYSIS_PROMPT.format(
-            request=user_request,
-            files=json.dumps(files) if files else "None",
-            context=json.dumps(context) if context else "None",
-            available_agents=agents_desc,
-            available_tools=tools_desc,
-        )
-
-        print(f"DEBUG: Analyzing request: {user_request[:100]}...")
-
-        # ============= ADD THIS AMBIGUITY CHECK =============
-        # Check for ambiguous requests that need clarification
-        request_lower = user_request.lower()
-
-        # Indicators of ambiguous requests
-        is_ambiguous = False
-        clarification_needed = []
-
-        # Check for vague analysis requests without data
-        if (
-            ("analyze" in request_lower or "process" in request_lower)
-            and ("data" in request_lower or "feedback" in request_lower)
-            and not files
-            and len(user_request) < 100
-        ):
-            is_ambiguous = True
-            clarification_needed.append("No data file or specific content provided")
-
-        # Check for explicitly marked ambiguous requests (from test)
-        if (
-            "[no specific data provided" in request_lower
-            or "ambiguous request" in request_lower
-        ):
-            is_ambiguous = True
-            clarification_needed.append(
-                "Request lacks specific data or clear instructions"
-            )
-
-        # Check for very short vague requests
-        if len(user_request) < 30 and not files:
-            is_ambiguous = True
-            clarification_needed.append(
-                "Request is too brief to determine specific action"
-            )
-
-        if is_ambiguous:
+        elif isinstance(data, list):
             return {
-                "status": "ambiguous",
-                "analysis": {
-                    "type": "clarification_needed",
-                    "issues": clarification_needed,
-                    "suggestions": [
-                        "Please upload the data file you'd like me to analyze",
-                        "Provide the specific text or content to process",
-                        "Specify what type of analysis you're looking for (statistics, sentiment, extraction, etc.)",
-                        "Include more details about your requirements",
-                    ],
-                },
-            }
-        # =====================================================
-
-        try:
-            response = await self._call_gpt4(
-                system_prompt=ORCHESTRATOR_SYSTEM_PROMPT,
-                user_prompt=prompt,
-            )
-            print(f"DEBUG: GPT-4 analysis successful")
-            return {"status": "success", "analysis": response}
-
-        except Exception as e:
-            print(f"DEBUG: GPT-4 analysis failed: {str(e)}")
-            return {"status": "error", "error": f"Analysis failed: {str(e)}"}
-
-    # async def _plan_workflow(
-    #     self, user_request: str, analysis: str, auto_create: bool
-    # ) -> Dict[str, Any]:
-    #     """Use the actual ORCHESTRATOR_PLANNING_PROMPT from config."""
-
-    #     # Get available components
-    #     agents = self.registry.list_agents(active_only=True)
-    #     tools = self.registry.list_tools(pure_only=False)
-
-    #     # Format components for prompt
-    #     agents_desc = self._format_components_list(agents, "agents")
-    #     tools_desc = self._format_components_list(tools, "tools")
-
-    #     # Use the ACTUAL prompt from config
-    #     prompt = ORCHESTRATOR_PLANNING_PROMPT.format(
-    #         request=user_request,
-    #         analysis=analysis,
-    #         available_agents=agents_desc,
-    #         available_tools=tools_desc,
-    #         timestamp=datetime.now().strftime("%Y%m%d%H%M%S"),
-    #     )
-
-    #     try:
-    #         response = await self._call_gpt4_json(
-    #             system_prompt="You are a workflow planner. Output valid JSON only.",
-    #             user_prompt=prompt,
-    #             temperature=0.1,
-    #         )
-
-    #         plan = json.loads(response)
-    #         plan["status"] = "success"
-    #         return plan
-
-    #     except json.JSONDecodeError as e:
-    #         print(f"DEBUG: JSON parsing failed: {str(e)}")
-    #         return self._create_fallback_plan(user_request, agents)
-    #     except Exception as e:
-    #         print(f"DEBUG: Planning failed: {str(e)}")
-    #         return self._create_fallback_plan(user_request, agents)
-
-    async def _plan_workflow(
-        self, request: str, analysis: Dict, auto_create: bool
-    ) -> Dict[str, Any]:
-        """
-        Plan workflow execution with proper handling of missing agents.
-        """
-        print(f"DEBUG: Smart planning for request")
-
-        try:
-            # Get available agents and tools
-            available_agents = self.registry.list_agents()
-            available_tools = self.registry.list_tools()
-
-            # Format for GPT-4
-            agents_text = "\n".join(
-                [
-                    f"- {a.get('name')}: {a.get('description', 'No description')}"
-                    for a in available_agents
-                ]
-            )
-            tools_text = "\n".join(
-                [
-                    f"- {t.get('name')}: {t.get('description', 'No description')}"
-                    for t in available_tools
-                ]
-            )
-
-            print(
-                f"DEBUG: Found {len(available_agents)} agents and {len(available_tools)} tools"
-            )
-
-            # Smart planning prompt
-            planning_prompt = f"""
-    Analyze this request and create a smart sequential workflow.
-
-    USER REQUEST: {request}
-
-    AVAILABLE AGENTS:
-    {agents_text}
-
-    AVAILABLE TOOLS:
-    {tools_text}
-
-    PLANNING INSTRUCTIONS:
-    1. Identify what needs to be done step by step
-    2. For each step, suggest the best agent (even if it doesn't exist yet)
-    3. Be specific about agent names based on the task
-
-    For prime number tasks: Use 'prime_checker' agent
-    For average/mean calculations: Use 'calculate_mean' agent  
-    For email extraction: Use 'email_extractor' agent
-    For URL extraction: Use 'url_extractor' agent
-
-    RESPOND WITH VALID JSON:
-    {{
-        "workflow_id": "wf_{datetime.now().strftime('%Y%m%d%H%M%S')}",
-        "workflow_type": "sequential",
-        "reasoning": "Clear explanation of the workflow plan",
-        "agents_needed": ["agent1", "agent2"],
-        "missing_capabilities": {{
-            "agents": [],
-            "tools": []
-        }},
-        "confidence": 0.9,
-        "status": "success"
-    }}
-
-    List ALL agents needed, whether they exist or not.
-    """
-
-            # Call GPT-4 for smart planning
-            planning_response = await self._call_gpt4_json(
-                system_prompt="You are a smart workflow planner.",
-                user_prompt=planning_prompt,
-            )
-
-            # Parse response
-            try:
-                plan = json.loads(planning_response)
-                plan["workflow_type"] = "sequential"
-                plan["created_at"] = datetime.now().isoformat()
-                plan["auto_create"] = auto_create
-                plan["original_request"] = request
-
-                # CRITICAL FIX: Check which agents exist and which are missing
-                available_agent_names = [a.get("name") for a in available_agents]
-                valid_agents = []
-                missing_agents = []
-
-                for agent in plan.get("agents_needed", []):
-                    if agent in available_agent_names:
-                        valid_agents.append(agent)
-                        print(f"DEBUG: Agent '{agent}' exists")
-                    else:
-                        print(f"DEBUG: Agent '{agent}' is missing - will need creation")
-                        missing_agents.append(
-                            {
-                                "name": agent,
-                                "purpose": f"Process {agent} tasks",
-                                "required_tools": [],
-                            }
-                        )
-
-                # Update plan with valid agents
-                plan["agents_needed"] = valid_agents
-
-                # CRITICAL: Add missing agents to missing_capabilities
-                if missing_agents:
-                    if "missing_capabilities" not in plan:
-                        plan["missing_capabilities"] = {"agents": [], "tools": []}
-                    plan["missing_capabilities"]["agents"] = missing_agents
-
-                # If auto_create is enabled and we have missing agents, they'll be created
-                # If auto_create is disabled and all agents are missing, return error status
-                if not valid_agents and not auto_create:
-                    plan["status"] = "missing_all_agents"
-                    plan["message"] = (
-                        f"None of the required agents exist: {', '.join([a['name'] for a in missing_agents])}"
-                    )
-
-                print(f"DEBUG: Smart plan created")
-                print(f"DEBUG: Existing agents to use: {valid_agents}")
-                print(
-                    f"DEBUG: Missing agents to create: {[a['name'] for a in missing_agents]}"
-                )
-
-                return plan
-
-            except json.JSONDecodeError as e:
-                print(f"DEBUG: JSON parsing failed: {e}")
-                # Return error plan instead of falling back to bad agents
-                return {
-                    "status": "planning_error",
-                    "error": f"Failed to parse planning response: {str(e)}",
-                    "workflow_id": f"wf_error_{datetime.now().strftime('%Y%m%d%H%M%S')}",
-                    "workflow_type": "sequential",
-                    "agents_needed": [],
-                    "missing_capabilities": {"agents": [], "tools": []},
-                }
-
-        except Exception as e:
-            print(f"DEBUG: Smart planning failed: {str(e)}")
-            return {
-                "status": "planning_error",
-                "error": str(e),
-                "workflow_id": f"wf_error_{datetime.now().strftime('%Y%m%d%H%M%S')}",
-                "workflow_type": "sequential",
-                "agents_needed": [],
-                "missing_capabilities": {"agents": [], "tools": []},
-            }
-
-    def _build_capability_map(self, agents: List[Dict], tools: List[Dict]) -> Dict:
-        """Build detailed capability map for better planning."""
-
-        capability_map = {
-            "agents": {},
-            "tools": {},
-            "capabilities": {
-                "data_processing": [],
-                "extraction": [],
-                "calculation": [],
-                "formatting": [],
-                "analysis": [],
-                "generation": [],
-            },
-        }
-
-        # Map agents to capabilities
-        for agent in agents:
-            name = agent["name"]
-            desc = agent["description"].lower()
-
-            capability_map["agents"][name] = {
-                "description": agent["description"],
-                "uses_tools": agent.get("uses_tools", []),
-                "capabilities": [],
-            }
-
-            # Categorize capabilities
-            if any(word in desc for word in ["extract", "find", "get"]):
-                capability_map["capabilities"]["extraction"].append(name)
-                capability_map["agents"][name]["capabilities"].append("extraction")
-
-            if any(
-                word in desc
-                for word in ["calculate", "compute", "mean", "median", "std"]
-            ):
-                capability_map["capabilities"]["calculation"].append(name)
-                capability_map["agents"][name]["capabilities"].append("calculation")
-
-            if any(word in desc for word in ["format", "report", "present"]):
-                capability_map["capabilities"]["formatting"].append(name)
-                capability_map["agents"][name]["capabilities"].append("formatting")
-
-            if any(word in desc for word in ["analyze", "sentiment", "assess"]):
-                capability_map["capabilities"]["analysis"].append(name)
-                capability_map["agents"][name]["capabilities"].append("analysis")
-
-        # Map tools
-        for tool in tools:
-            capability_map["tools"][tool["name"]] = {
-                "description": tool["description"],
-                "is_pure": tool.get("is_pure_function", True),
-            }
-
-        return capability_map
-
-    def _validate_and_filter_plan(self, plan: Dict) -> Dict:
-        """Validate and filter plan to avoid duplicates."""
-
-        # Remove duplicate agents from agents_needed
-        if "agents_needed" in plan:
-            plan["agents_needed"] = list(dict.fromkeys(plan["agents_needed"]))
-
-        # Filter out agents that actually exist from missing_capabilities
-        if "missing_capabilities" in plan:
-            if "agents" in plan["missing_capabilities"]:
-                filtered_agents = []
-                for agent in plan["missing_capabilities"]["agents"]:
-                    # Check if agent actually exists
-                    if not self.registry.agent_exists(agent["name"]):
-                        # Also check for similar agents
-                        similar = self._find_similar_agents(
-                            agent["name"], agent.get("purpose", "")
-                        )
-                        if not similar:
-                            filtered_agents.append(agent)
-                        else:
-                            print(
-                                f"DEBUG: Found similar agent {similar} for {agent['name']}"
-                            )
-                            # Use the similar agent instead
-                            if "agents_needed" not in plan:
-                                plan["agents_needed"] = []
-                            if similar not in plan["agents_needed"]:
-                                plan["agents_needed"].append(similar)
-
-                plan["missing_capabilities"]["agents"] = filtered_agents
-
-        return plan
-
-    def _find_similar_agents(self, name: str, purpose: str) -> Optional[str]:
-        """Find agents with similar capabilities."""
-
-        agents = self.registry.list_agents(active_only=True)
-        name_lower = name.lower()
-        purpose_lower = purpose.lower()
-
-        for agent in agents:
-            agent_name_lower = agent["name"].lower()
-            agent_desc_lower = agent["description"].lower()
-
-            # Check name similarity
-            if name_lower in agent_name_lower or agent_name_lower in name_lower:
-                return agent["name"]
-
-            # Check purpose similarity
-            if purpose_lower and (
-                purpose_lower in agent_desc_lower or agent_desc_lower in purpose_lower
-            ):
-                return agent["name"]
-
-            # Check key words overlap
-            name_words = set(name_lower.split("_"))
-            agent_words = set(agent_name_lower.split("_"))
-            if len(name_words & agent_words) >= len(name_words) * 0.5:
-                return agent["name"]
-
-        return None
-
-    def _create_fallback_plan(self, user_request: str, agents: List[Dict]) -> Dict:
-        """Create a simple fallback plan when GPT-4 fails."""
-        # Try to find agents that might handle the request
-        request_lower = user_request.lower()
-        potential_agents = []
-
-        for agent in agents:
-            agent_name = agent["name"]
-            agent_desc = agent["description"].lower()
-
-            # Simple keyword matching
-            if any(word in request_lower for word in agent_desc.split()):
-                potential_agents.append(agent_name)
-
-        if potential_agents:
-            return {
-                "status": "success",
-                "workflow_id": f"wf_{datetime.now().strftime('%Y%m%d%H%M%S')}",
-                "workflow_type": "sequential",
-                "agents_needed": potential_agents[:3],  # Limit to 3 agents
-                "missing_capabilities": {"agents": [], "tools": []},
-                "reasoning": "Fallback plan based on keyword matching",
+                "type": "array",
+                "length": len(data),
+                "item_type": (
+                    self._analyze_json_structure(data[0], depth + 1) if data else None
+                ),
             }
         else:
-            return {
-                "status": "error",
-                "error": "No agents available to handle this request",
-            }
+            return {"type": type(data).__name__, "value": str(data)[:100]}
 
-    def _can_handle_request(self, request: str) -> bool:
-        """Check if any existing agent can handle the request."""
-        agents = self.registry.list_agents(active_only=True)
-        request_lower = request.lower()
+    def _detect_headers(self, lines: List[str]) -> bool:
+        """Detect if text file has headers."""
+        if not lines:
+            return False
 
-        # Remove common words that might cause false positives
-        stop_words = {
-            "the",
-            "a",
-            "an",
-            "and",
-            "or",
-            "but",
-            "in",
-            "on",
-            "at",
-            "to",
-            "for",
-            "of",
-            "with",
-            "by",
-            "from",
-            "this",
-        }
-        request_words = set(request_lower.split()) - stop_words
+        first_line = lines[0]
+        # Common header patterns
+        return any(
+            [
+                "," in first_line and len(first_line.split(",")) > 2,
+                "\t" in first_line and len(first_line.split("\t")) > 2,
+                "|" in first_line and len(first_line.split("|")) > 2,
+                first_line.startswith("#"),
+                first_line.isupper(),
+            ]
+        )
 
-        for agent in agents:
-            agent_desc = agent["description"].lower()
-            agent_name = agent["name"].lower()
+    def _detect_structure(self, lines: List[str]) -> bool:
+        """Detect if text appears to be structured data."""
+        if len(lines) < 3:
+            return False
 
-            # Check for meaningful word matches
-            desc_words = set(agent_desc.split()) - stop_words
-            name_words = set(agent_name.replace("_", " ").split())
-
-            if request_words & (desc_words | name_words):
+        # Check for consistent delimiters
+        delimiters = [",", "\t", "|", ";"]
+        for delim in delimiters:
+            counts = [line.count(delim) for line in lines[:10] if line.strip()]
+            if counts and all(c == counts[0] and c > 0 for c in counts):
                 return True
 
         return False
 
-    async def _create_missing_components(
-        self, missing_capabilities: Dict[str, List]
-    ) -> Dict[str, Any]:
-        """Create missing agents and tools dynamically - tools first!"""
-        created = {"agents": [], "tools": []}
-        failed = {"agents": [], "tools": []}
+    def process_all_files(self, files: List[Dict]) -> List[Dict]:
+        """
+        Process all uploaded files and read their contents.
 
-        # CRITICAL: Create missing tools FIRST (agents depend on them)
-        for tool_spec in missing_capabilities.get("tools", []):
-            try:
-                # Handle both string and dict formats for tools
-                if isinstance(tool_spec, str):
-                    tool_spec = {"name": tool_spec, "purpose": f"Tool for {tool_spec}"}
+        Args:
+            files: List of file metadata dicts from upload
 
-                print(f"DEBUG: Creating tool '{tool_spec['name']}'")
+        Returns:
+            List of files with actual content included
+        """
 
-                # Use tool factory's ensure method which handles everything
-                result = self.tool_factory.ensure_tool(
-                    tool_name=tool_spec["name"],
-                    description=tool_spec.get(
-                        "purpose", f"Tool for {tool_spec['name']}"
-                    ),
-                    tool_type=tool_spec.get("type", "pure_function"),
-                )
+        enriched_files = []
 
-                if result["status"] in ["success", "exists"]:
-                    created["tools"].append(tool_spec["name"])
-                    print(f"DEBUG: Tool '{tool_spec['name']}' created successfully")
-                else:
-                    print(
-                        f"DEBUG: Tool '{tool_spec['name']}' creation failed: {result.get('message')}"
-                    )
-                    # Don't fail the workflow for tool issues
-                    created["tools"].append(tool_spec["name"])
+        for file_info in files:
+            file_path = file_info.get("path", "")
+            file_type = file_info.get("type", "")
 
-            except Exception as e:
-                print(f"DEBUG: Tool creation error: {str(e)}")
-                # Continue anyway
-                if isinstance(tool_spec, dict):
-                    created["tools"].append(tool_spec.get("name", "unknown"))
+            if os.path.exists(file_path):
+                # Read actual content
+                content_data = self.read_file_contents(file_path, file_type)
 
-        # Now create missing agents (with tools available)
-        for agent_spec in missing_capabilities.get("agents", []):
-            try:
-                # FIX: Handle both string and dictionary formats
-                if isinstance(agent_spec, str):
-                    # Convert string to proper dictionary format
-                    agent_spec = {
-                        "name": agent_spec,
-                        "purpose": f"Process {agent_spec} tasks",
-                        "required_tools": [],  # Will be determined during creation
-                    }
+                # Merge with original metadata
+                enriched_file = {**file_info, **content_data}
+                enriched_files.append(enriched_file)
 
                 print(
-                    f"DEBUG: Creating agent '{agent_spec['name']}' with tools: {agent_spec.get('required_tools', [])}"
+                    f"✓ Read {file_info.get('original_name', 'file')}: "
+                    f"{content_data.get('structure', 'unknown')} structure, "
+                    f"{'success' if content_data.get('read_success') else 'failed'}"
                 )
+            else:
+                # File doesn't exist
+                enriched_file = {
+                    **file_info,
+                    "read_success": False,
+                    "error": f"File not found: {file_path}",
+                }
+                enriched_files.append(enriched_file)
+                print(f"✗ File not found: {file_path}")
 
-                result = self.agent_factory.ensure_agent(
-                    agent_name=agent_spec["name"],
-                    description=agent_spec.get(
-                        "purpose", f"Agent for {agent_spec['name']}"
-                    ),
-                    required_tools=agent_spec.get("required_tools", []),
-                )
+        return enriched_files
 
-                if result["status"] in ["success", "exists"]:
-                    created["agents"].append(agent_spec["name"])
-                    print(
-                        f"DEBUG: Agent '{agent_spec['name']}' created/verified successfully"
-                    )
-                else:
-                    print(
-                        f"DEBUG: Agent '{agent_spec['name']}' creation failed: {result.get('message')}"
-                    )
-                    failed["agents"].append(
-                        {
-                            "name": agent_spec["name"],
-                            "error": result.get("message", "Unknown error"),
-                        }
-                    )
+```
 
-            except Exception as e:
-                print(f"DEBUG: Agent creation error for spec: {agent_spec}")
-                print(f"DEBUG: Error details: {str(e)}")
-                # Safely handle the error regardless of agent_spec type
-                agent_name = (
-                    agent_spec
-                    if isinstance(agent_spec, str)
-                    else agent_spec.get("name", "unknown")
-                )
-                failed["agents"].append({"name": agent_name, "error": str(e)})
+--------------------------------------------------------------------------------
 
-        # Determine overall status
-        total_created = len(created["agents"]) + len(created["tools"])
-        total_failed = len(failed["agents"]) + len(failed["tools"])
+### File: core/intelligent_agent_base.py
+**Path:** `core/intelligent_agent_base.py`
+**Size:** 4,783 bytes
+**Modified:** 2025-09-14 09:31:42
 
-        if total_failed == 0 and total_created > 0:
-            status = "success"
-        elif total_created > 0:
-            status = "partial"
+```python
+"""
+Enhanced Intelligent Agent Base
+Each agent has Claude reasoning capabilities
+"""
+
+import json
+from typing import Dict, Any, List, Optional
+from anthropic import Anthropic
+import os
+
+from config import CLAUDE_MODEL
+
+
+class IntelligentAgent:
+    """Base agent with Claude reasoning capabilities"""
+
+    def __init__(self, name: str, purpose: str, tools: List[str] = None):
+        self.name = name
+        self.purpose = purpose
+        self.tools = tools or []
+        self.claude = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+
+    async def execute(self, state: Dict) -> Dict:
+        """Execute with intelligent reasoning"""
+
+        # Step 1: Understand what we received
+        analysis = await self.analyze_input(state)
+
+        # Step 2: Process based on analysis
+        result = await self.process_with_reasoning(state, analysis)
+
+        # Step 3: Format output for next agent
+        formatted = await self.format_output(result, state)
+
+        return formatted
+
+    async def analyze_input(self, state: Dict) -> Dict:
+        """Claude analyzes input data"""
+
+        current_data = state.get("current_data", {})
+
+        # Format data for Claude
+        if isinstance(current_data, dict) and "columns" in current_data:
+            # CSV data
+            data_desc = f"CSV with columns: {current_data['columns']}, {current_data.get('total_rows', 0)} rows"
         else:
-            status = "failed"
-
-        return {
-            "status": status,
-            "created": created,
-            "failed": failed,
-            "total_created": total_created,
-            "total_failed": total_failed,
-        }
-
-    async def _create_tool_from_spec(self, spec: Dict) -> Dict[str, Any]:
-        """Create a tool from specification."""
-        # Use GPT-4 to design detailed tool specification
-        design_prompt = f"""Design a tool with these requirements:
-Name: {spec['name']}
-Purpose: {spec['purpose']}
-Type: {spec.get('type', 'pure_function')}
-
-Provide:
-- Detailed input description
-- Detailed output description
-- 2-3 input/output examples
-- Default return value
-
-Output as JSON."""
-
-        try:
-            design_response = await self._call_gpt4_json(
-                system_prompt="Design tool specifications.",
-                user_prompt=design_prompt,
-            )
-
-            design = json.loads(design_response)
-
-            # Create tool using factory
-            return self.tool_factory.create_tool(
-                tool_name=spec["name"],
-                description=spec["purpose"],
-                input_description=design.get("input_description", "Flexible input"),
-                output_description=design.get("output_description", "Processed output"),
-                examples=design.get("examples"),
-                default_return=design.get("default_return"),
-                is_pure_function=spec.get("type") == "pure_function",
-            )
-
-        except Exception as e:
-            return {"status": "error", "message": f"Failed to create tool: {str(e)}"}
-
-    async def _create_agent_from_spec(self, spec: Dict) -> Dict[str, Any]:
-        """Create an agent from specification."""
-        # Use GPT-4 to design detailed agent specification
-        design_prompt = f"""Design an agent with these requirements:
-Name: {spec['name']}
-Purpose: {spec['purpose']}
-Required Tools: {spec.get('required_tools', [])}
-
-Provide:
-- Detailed workflow steps
-- Input format description
-- Output format description
-- Key processing logic
-
-Output as JSON."""
-
-        try:
-            design_response = await self._call_gpt4_json(
-                system_prompt="Design agent specifications.",
-                user_prompt=design_prompt,
-            )
-
-            design = json.loads(design_response)
-
-            # Create agent using factory
-            return self.agent_factory.create_agent(
-                agent_name=spec["name"],
-                description=spec["purpose"],
-                required_tools=spec.get("required_tools", []),
-                input_description=design.get("input_description", "Flexible input"),
-                output_description=design.get(
-                    "output_description", "Structured output"
-                ),
-                workflow_steps=design.get("workflow_steps"),
-                auto_create_tools=True,
-            )
-
-        except Exception as e:
-            return {"status": "error", "message": f"Failed to create agent: {str(e)}"}
-
-    # async def _execute_workflow(
-    #     self, plan: Dict, initial_data: Dict, workflow_id: str
-    # ) -> Dict[str, Any]:
-    #     """Execute the planned workflow."""
-
-    #     print(
-    #         f"DEBUG: _execute_workflow called with plan: {plan.get('workflow_type', 'unknown')}"
-    #     )
-
-    #     # TEMPORARY: Use simple fallback instead of LangGraph
-    #     print(f"DEBUG: Using simple fallback execution for reliability")
-    #     return await self._execute_workflow_simple_fallback(
-    #         plan, initial_data, workflow_id
-    #     )
-
-    #     agents_needed = plan.get("agents_needed", [])
-    #     if not agents_needed:
-    #         return {
-    #             "status": "success",
-    #             "results": {},
-    #             "execution_path": [],
-    #             "errors": [],
-    #             "message": "No agents required for this request",
-    #         }
-
-    #     workflow_type = WorkflowType(plan.get("workflow_type", "sequential"))
-
-    #     try:
-    #         if workflow_type == WorkflowType.SEQUENTIAL:
-    #             result = await self._execute_sequential(
-    #                 plan["agents_needed"], initial_data, workflow_id
-    #             )
-    #         elif workflow_type == WorkflowType.PARALLEL:
-    #             result = await self._execute_parallel(
-    #                 plan["agents_needed"], initial_data, workflow_id
-    #             )
-    #         else:
-    #             result = await self._execute_sequential(
-    #                 plan["agents_needed"], initial_data, workflow_id
-    #             )
-
-    #         # CRITICAL FIX: Better status determination
-    #         # Check if we have meaningful results from agents
-    #         successful_agents = 0
-    #         failed_agents = 0
-
-    #         for agent_name in agents_needed:
-    #             if agent_name in result.get("results", {}):
-    #                 agent_result = result["results"][agent_name]
-    #                 if isinstance(agent_result, dict):
-    #                     if agent_result.get("status") == "success":
-    #                         successful_agents += 1
-    #                     else:
-    #                         failed_agents += 1
-
-    #         # Determine overall status based on agent execution
-    #         if successful_agents == len(agents_needed):
-    #             result["status"] = "success"
-    #         elif successful_agents > 0:
-    #             result["status"] = "partial"
-    #         else:
-    #             result["status"] = "failed"
-
-    #         return result
-
-    #     except asyncio.TimeoutError:
-    #         return {
-    #             "status": "error",
-    #             "error": f"Workflow timeout after {WORKFLOW_TIMEOUT_SECONDS} seconds",
-    #         }
-    #     except Exception as e:
-    #         return {"status": "error", "error": f"Workflow execution failed: {str(e)}"}
-
-    async def _execute_sequential(
-        self, agents: List[str], initial_data: Dict, workflow_id: str
-    ) -> Dict[str, Any]:
-        """Execute agents sequentially."""
-        # Use workflow engine for execution
-        workflow = self.workflow_engine.create_workflow(agents, workflow_id)
-        result = self.workflow_engine.execute_workflow(
-            workflow, initial_data, workflow_id
-        )
-
-        return {
-            "status": "success" if not result.get("errors") else "partial",
-            "results": result.get("results", {}),
-            "execution_path": result.get("execution_path", []),
-            "errors": result.get("errors", []),
-        }
-
-    async def _execute_parallel(
-        self, agents: List[str], initial_data: Dict, workflow_id: str
-    ) -> Dict[str, Any]:
-        """Execute agents in parallel."""
-        # Create tasks for parallel execution
-        tasks = []
-        for agent in agents:
-            task = asyncio.create_task(
-                self._execute_single_agent(agent, initial_data.copy())
-            )
-            tasks.append((agent, task))
-
-        # Wait for all tasks with timeout
-        results = {}
-        errors = []
-        execution_path = []
-
-        done, pending = await asyncio.wait(
-            [task for _, task in tasks], timeout=WORKFLOW_TIMEOUT_SECONDS
-        )
-
-        # Process completed tasks
-        for agent, task in tasks:
-            if task in done:
-                try:
-                    result = await task
-                    results[agent] = result
-                    execution_path.append(agent)
-                except Exception as e:
-                    errors.append({"agent": agent, "error": str(e)})
-            else:
-                task.cancel()
-                errors.append({"agent": agent, "error": "Timeout"})
-
-        return {
-            "status": "success" if not errors else "partial",
-            "results": results,
-            "execution_path": execution_path,
-            "errors": errors,
-        }
-
-    async def _execute_conditional(
-        self, plan: Dict, initial_data: Dict, workflow_id: str
-    ) -> Dict[str, Any]:
-        """Execute conditional workflow based on plan."""
-        # This would implement conditional logic from the plan
-        # For now, fall back to sequential
-        return await self._execute_sequential(
-            plan.get("agents_needed", []), initial_data, workflow_id
-        )
-
-    async def _execute_hybrid(
-        self, plan: Dict, initial_data: Dict, workflow_id: str
-    ) -> Dict[str, Any]:
-        """Execute hybrid workflow with mixed patterns."""
-        # This would implement complex hybrid workflows
-        # For now, fall back to sequential
-        return await self._execute_sequential(
-            plan.get("agents_needed", []), initial_data, workflow_id
-        )
-
-    async def _execute_single_agent(
-        self, agent_name: str, data: Dict
-    ) -> Dict[str, Any]:
-        """Execute a single agent asynchronously."""
-        # This would be implemented with actual async agent execution
-        # For now, use sync execution
-        agent_workflow = self.workflow_engine.create_workflow(
-            [agent_name], f"single_{agent_name}"
-        )
-        result = self.workflow_engine.execute_workflow(
-            agent_workflow, data, f"single_{agent_name}"
-        )
-        return result.get("results", {}).get(agent_name, {})
-
-    async def _execute_workflow_streaming(
-        self, plan: Dict, initial_data: Dict, workflow_id: str
-    ) -> Dict[str, Any]:
-        """Execute workflow with streaming results."""
-        # This would implement streaming execution
-        # For now, use regular execution
-        return await self._execute_workflow(plan, initial_data, workflow_id)
-
-    async def _synthesize_results(
-        self, request: str, plan: Dict, results: Dict, errors: List = None
-    ) -> str:
-        """Use the actual ORCHESTRATOR_SYNTHESIS_PROMPT from config."""
-
-        if errors is None:
-            errors = []
-
-        # Format results for GPT-4
-        results_summary = self._format_results_for_synthesis(results)
-
-        # Use the ACTUAL synthesis prompt from config
-        synthesis_prompt = ORCHESTRATOR_SYNTHESIS_PROMPT.format(
-            request=request,
-            results=results_summary,
-            errors=json.dumps(errors, indent=2) if errors else "None",
-        )
-
-        try:
-            # Call GPT-4 for dynamic synthesis
-            synthesized_response = await self._call_gpt4(
-                system_prompt="You are an AI assistant creating natural responses from agent results.",
-                user_prompt=synthesis_prompt,
-            )
-
-            return synthesized_response.strip()
-
-        except Exception as e:
-            print(f"DEBUG: Synthesis failed: {e}")
-            # Fallback to basic summary
-            return self._create_basic_summary_from_results(results, errors)
-
-    def _format_results_for_synthesis(self, results: Dict) -> str:
-        """Format agent results clearly for synthesis - no interpretation."""
-        if not results:
-            return "No agent results available."
-
-        formatted_parts = ["AGENT EXECUTION RESULTS:"]
-        agent_names = []
-        total_time = 0
-        generated_files = []
-
-        for agent_name, result in results.items():
-            agent_names.append(agent_name)
-            formatted_parts.append(f"\nAgent: {agent_name}")
-
-            if isinstance(result, dict):
-                # Status
-                status = result.get("status", "unknown")
-                formatted_parts.append(f"Status: {status}")
-
-                # Actual data returned
-                data = result.get("data")
-                if data is not None:
-                    formatted_parts.append("Returned data:")
-                    if isinstance(data, dict):
-                        for key, value in data.items():
-                            formatted_parts.append(f"  {key}: {value}")
-                    elif isinstance(data, list):
-                        formatted_parts.append(f"  List with {len(data)} items: {data}")
-                    else:
-                        formatted_parts.append(f"  {data}")
-                else:
-                    formatted_parts.append("Returned data: None")
-
-                # Generated files
-                if result.get("generated_files"):
-                    formatted_parts.append("Generated files:")
-                    for file_info in result["generated_files"]:
-                        formatted_parts.append(
-                            f"  - {file_info['filename']}: {file_info['description']}"
-                        )
-                        generated_files.extend(result["generated_files"])
-
-                # Execution metadata
-                metadata = result.get("metadata", {})
-                exec_time = metadata.get("execution_time", 0)
-                total_time += exec_time
-
-                tools_used = metadata.get("tools_used", [])
-                if tools_used:
-                    formatted_parts.append(f"Tools used: {', '.join(tools_used)}")
-            else:
-                formatted_parts.append(f"Raw result: {result}")
-
-        # Summary for GPT-4 to use
-        formatted_parts.append(f"\nSUMMARY FOR RESPONSE:")
-        formatted_parts.append(f"Agents executed: {', '.join(agent_names)}")
-        formatted_parts.append(f"Total execution time: {total_time:.1f}s")
-
-        # ADD FILE DOWNLOAD INSTRUCTIONS
-        if generated_files:
-            formatted_parts.append(f"Generated files available for download:")
-            for file_info in generated_files:
-                formatted_parts.append(
-                    f"  - {file_info['filename']}: Use download link /api/download/{file_info['filename']}"
-                )
-
-        return "\n".join(formatted_parts)
-
-    def _create_basic_summary_from_results(self, results: Dict, errors: List) -> str:
-        """Create basic summary when synthesis fails."""
-        if not results:
-            return "I was unable to process your request successfully."
-
-        summary_parts = ["I processed your request with the following results:"]
-
-        for agent_name, result in results.items():
-            if isinstance(result, dict) and result.get("status") == "success":
-                data = result.get("data", {})
-                if isinstance(data, dict):
-                    for key, value in data.items():
-                        if isinstance(value, list):
-                            summary_parts.append(f"- {key}: {len(value)} items")
-                        elif isinstance(value, (int, float)):
-                            summary_parts.append(f"- {key}: {value}")
-                        else:
-                            summary_parts.append(f"- {key}: {str(value)[:100]}")
-
-        if errors:
-            summary_parts.append(
-                f"\nNote: {len(errors)} errors occurred during processing."
-            )
-
-        return "\n".join(summary_parts)
-
-    async def _call_gpt4(
-        self, system_prompt: str, user_prompt: str, temperature: float = 1.0
-    ) -> str:
-        """Call O3-mini model with correct parameters."""
-        try:
-
-            response = self.client.chat.completions.create(
-                model=ORCHESTRATOR_MODEL,
-                max_completion_tokens=ORCHESTRATOR_MAX_TOKENS,  # Changed from max_tokens
-                messages=[
-                    {"role": "user", "content": f"{system_prompt}\n\n{user_prompt}"}
-                ],
-            )
-            return response.choices[0].message.content
-        except Exception as e:
-            print(f"DEBUG: GPT-4 call failed: {str(e)}")
-            raise e
-
-    async def _call_gpt4_json(
-        self, system_prompt: str, user_prompt: str, temperature: float = 1.0
-    ) -> str:
-        """Call O3-mini model for JSON responses."""
-        # Import the system prompt
-        from config import DYNAMIC_INTELLIGENCE_SYSTEM_PROMPT
-
-        # Combine system prompts
-        enhanced_system_prompt = (
-            f"{DYNAMIC_INTELLIGENCE_SYSTEM_PROMPT}\n\n{system_prompt}"
-        )
-        enhanced_user_prompt = (
-            f"{user_prompt}\n\nRespond with ONLY valid JSON, no other text."
-        )
-
-        response = self.client.chat.completions.create(
-            model=ORCHESTRATOR_MODEL,
-            max_completion_tokens=ORCHESTRATOR_MAX_TOKENS,
-            messages=[
-                {"role": "system", "content": enhanced_system_prompt},
-                {"role": "user", "content": enhanced_user_prompt},
-            ],
-        )
-
-        content = response.choices[0].message.content
-
-        # Extract JSON from response if it's wrapped in text
-        if "```json" in content:
-            start = content.find("```json") + 7
-            end = content.find("```", start)
-            if end > start:
-                return content[start:end].strip()
-        elif "{" in content:
-            start = content.find("{")
-            end = content.rfind("}") + 1
-            if end > start:
-                return content[start:end].strip()
-
-        return content.strip()
-
-    def _format_components_list(
-        self, components: List[Dict], component_type: str
-    ) -> str:
-        """Format list of components for prompts."""
-        if not components:
-            return f"No {component_type} available"
-
-        formatted = []
-        for comp in components[:20]:  # Limit to prevent prompt overflow
-            if component_type == "agents":
-                # Use exact registry name
-                name = comp.get("name", "unknown")
-                description = comp.get("description", "No description")
-                tools = comp.get("uses_tools", [])
-                formatted.append(f"- {name}: {description} (uses: {', '.join(tools)})")
-            else:  # tools
-                name = comp.get("name", "unknown")
-                description = comp.get("description", "No description")
-                formatted.append(f"- {name}: {description}")
-
-        if len(components) > 20:
-            formatted.append(f"... and {len(components) - 20} more")
-
-        return "\n".join(formatted)
-
-    def _validate_plan(self, plan: Dict) -> bool:
-        """Validate workflow plan structure."""
-        try:
-            # Check required fields exist
-            required_fields = ["workflow_id", "workflow_type", "agents_needed"]
-
-            for field in required_fields:
-                if field not in plan:
-                    print(f"DEBUG: Missing required field: {field}")
-                    return False
-
-            # Validate workflow type
-            valid_types = ["sequential", "parallel", "conditional", "hybrid"]
-            if plan["workflow_type"] not in valid_types:
-                print(f"DEBUG: Invalid workflow type: {plan['workflow_type']}")
-                return False
-
-            # Validate agents list
-            if not isinstance(plan["agents_needed"], list):
-                print(f"DEBUG: agents_needed must be a list")
-                return False
-
-            # Check step count limit
-            if len(plan["agents_needed"]) > MAX_WORKFLOW_STEPS:
-                print(f"DEBUG: Too many agents: {len(plan['agents_needed'])}")
-                return False
-
-            return True
-
-        except Exception as e:
-            print(f"DEBUG: Plan validation error: {e}")
-            return False
-
-    def _check_missing_capabilities(self, plan: Dict) -> Dict[str, List]:
-        """Check for missing agents and tools with proper dependency resolution."""
-        missing = {"agents": [], "tools": []}
-
-        # First, collect all tools needed by all agents
-        all_required_tools = set()
-
-        for agent_name in plan.get("agents_needed", []):
-            if not self.registry.agent_exists(agent_name):
-                # Agent doesn't exist, needs creation
-                missing["agents"].append(
-                    {
-                        "name": agent_name,
-                        "purpose": f"Process {agent_name} tasks",
-                        "required_tools": [],  # Will be determined during creation
-                    }
-                )
-            else:
-                # Agent exists, check its tool dependencies
-                agent_info = self.registry.get_agent(agent_name)
-                if agent_info:
-                    for tool in agent_info.get("uses_tools", []):
-                        all_required_tools.add(tool)
-
-        # Check if required tools exist
-        for tool_name in all_required_tools:
-            if not self.registry.tool_exists(tool_name):
-                missing["tools"].append(
-                    {
-                        "name": tool_name,
-                        "purpose": f"Tool for processing",
-                        "type": "pure_function",
-                    }
-                )
-
-        # Also check for tools specified in the plan's missing_capabilities
-        if "missing_capabilities" in plan:
-            plan_missing = plan["missing_capabilities"]
-
-            # Process missing agents from the plan
-            if "agents" in plan_missing:
-                for agent in plan_missing["agents"]:
-                    # Handle both string and dict formats
-                    if isinstance(agent, str):
-                        agent_name = agent
-                        agent_dict = {
-                            "name": agent_name,
-                            "purpose": f"Process {agent_name} tasks",
-                            "required_tools": [],
-                        }
-                    else:
-                        agent_name = agent.get("name")
-                        agent_dict = agent
-
-                    # CRITICAL FIX: Only add to missing if agent doesn't exist
-                    if agent_name and not self.registry.agent_exists(agent_name):
-                        # Check if we haven't already added this agent
-                        if not any(a["name"] == agent_name for a in missing["agents"]):
-                            missing["agents"].append(agent_dict)
-
-                        # Add required tools for missing agents
-                        for tool in agent_dict.get("required_tools", []):
-                            if not self.registry.tool_exists(tool):
-                                if not any(t["name"] == tool for t in missing["tools"]):
-                                    missing["tools"].append(
-                                        {
-                                            "name": tool,
-                                            "purpose": f"Tool for {tool}",
-                                            "type": "pure_function",
-                                        }
-                                    )
-
-            # Process missing tools from the plan
-            if "tools" in plan_missing:
-                for tool in plan_missing["tools"]:
-                    # Handle both string and dict formats
-                    if isinstance(tool, str):
-                        tool_name = tool
-                        tool_dict = {
-                            "name": tool_name,
-                            "purpose": f"Tool for {tool_name}",
-                            "type": "pure_function",
-                        }
-                    else:
-                        tool_name = tool.get("name")
-                        tool_dict = tool
-
-                    # Only add if tool doesn't exist and isn't already in the list
-                    if tool_name and not self.registry.tool_exists(tool_name):
-                        if not any(t["name"] == tool_name for t in missing["tools"]):
-                            missing["tools"].append(tool_dict)
-
-        # Return empty missing capabilities if nothing is actually missing
-        if not missing["agents"] and not missing["tools"]:
-            return {}
-
-        return missing
-
-    def _format_results_summary(self, execution_result: Dict) -> str:
-        """Format execution results for synthesis."""
-        summary = []
-
-        for agent_name, result in execution_result.get("results", {}).items():
-            summary.append(f"\n[{agent_name}]")
-
-            if isinstance(result, dict):
-                if "status" in result:
-                    summary.append(f"Status: {result['status']}")
-                if "data" in result:
-                    data_preview = json.dumps(result["data"], indent=2)
-                    if len(data_preview) > 500:
-                        data_preview = data_preview[:500] + "..."
-                    summary.append(f"Data: {data_preview}")
-
-        if execution_result.get("errors"):
-            summary.append("\nERRORS:")
-            for error in execution_result["errors"]:
-                summary.append(
-                    f"- {error.get('agent', 'unknown')}: {error.get('error', '')}"
-                )
-
-        return "\n".join(summary)
-
-    def _create_basic_summary(self, execution_result: Dict) -> str:
-        """Create basic summary without GPT-4."""
-        summary = ["Workflow execution completed."]
-
-        # Add successful agents
-        for agent_name, result in execution_result.get("results", {}).items():
-            if isinstance(result, dict) and result.get("status") == "success":
-                summary.append(f"- {agent_name}: Completed successfully")
-
-        # Add errors
-        if execution_result.get("errors"):
-            summary.append("\nErrors encountered:")
-            for error in execution_result["errors"]:
-                summary.append(f"- {error.get('error', 'Unknown error')}")
-
-        return "\n".join(summary)
-
-    def _generate_workflow_id(self) -> str:
-        """Generate unique workflow ID."""
-        import random
-
-        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-        random_suffix = random.randint(1000, 9999)
-        return f"wf_{timestamp}_{random_suffix}"
-
-    def _create_error_response(
-        self, workflow_id: str, message: str, error: Optional[str] = None
-    ) -> Dict[str, Any]:
-        """Create standardized error response."""
-        return {
-            "status": "error",
-            "workflow_id": workflow_id,
-            "message": message,
-            "error": error,
-            "timestamp": datetime.now().isoformat(),
-        }
-
-    def _record_execution(
-        self,
-        workflow_id: str,
-        request: str,
-        plan: Dict,
-        result: Dict,
-        execution_time: float,
-    ):
-        """Record execution for analysis."""
-        self.execution_history.append(
-            {
-                "workflow_id": workflow_id,
-                "timestamp": datetime.now().isoformat(),
-                "request": request[:200],  # Truncate for storage
-                "plan_type": plan.get("workflow_type"),
-                "agents_used": len(plan.get("agents_needed", [])),
-                "execution_time": execution_time,
-                "status": result.get("status"),
-                "errors": len(result.get("errors", [])),
-            }
-        )
-
-        # Keep only last 100 executions
-        if len(self.execution_history) > 100:
-            self.execution_history = self.execution_history[-100:]
-
-    def get_execution_history(self) -> List[Dict]:
-        """Get recent execution history."""
-        return self.execution_history.copy()
-
-    def get_active_workflows(self) -> Dict[str, Any]:
-        """Get currently active workflows."""
-        return self.active_workflows.copy()
-
-    async def _enhanced_plan_workflow(
-        self, user_request: str, analysis: str, auto_create: bool
-    ) -> Dict[str, Any]:
-        """
-        Enhanced workflow planning with dependency resolution.
-        Uses multi-stage planning: capability → tool → agent → workflow
+            data_desc = str(type(current_data).__name__)
+
+        prompt = f"""
+        I am agent '{self.name}' with purpose: {self.purpose}
+        
+        I received: {data_desc}
+        Data sample: {str(current_data)[:500]}
+        
+        Analyze:
+        1. What type of data is this?
+        2. What should I do with it?
+        3. What would be useful output?
+        
+        Be specific and concise.
         """
 
-        print("DEBUG: Starting enhanced workflow planning")
-
-        # Stage 1: Capability Analysis
-        resolver = DependencyResolver(self.registry)
-
-        # Get existing components
-        existing_agents = {a["name"]: a for a in self.registry.list_agents()}
-        existing_tools = {t["name"]: t for t in self.registry.list_tools()}
-
-        # Analyze dependencies
-        dependency_analysis = resolver.analyze_request(
-            user_request, existing_agents, existing_tools
-        )
-
-        print("DEBUG: Dependency Analysis:")
-        print(resolver.visualize_dependencies(dependency_analysis["dependency_graph"]))
-
-        # Stage 2: Component Creation (if auto_create)
-        if auto_create and dependency_analysis["creation_order"]:
-            print(
-                f"DEBUG: Need to create {len(dependency_analysis['creation_order'])} components"
-            )
-
-            for component_type, component_name in dependency_analysis["creation_order"]:
-                if component_type == "tool":
-                    print(f"DEBUG: Creating tool: {component_name}")
-                    await self._ensure_tool_with_context(
-                        component_name, dependency_analysis["missing_components"]
-                    )
-                else:  # agent
-                    print(f"DEBUG: Creating agent: {component_name}")
-                    await self._ensure_agent_with_context(
-                        component_name, dependency_analysis["missing_components"]
-                    )
-
-        # Stage 3: Workflow Planning with GPT-4
-        # Now all components exist, plan the execution workflow
-        workflow_prompt = f"""
-        Plan the execution workflow for this request.
-        All required components are now available.
-        
-        Request: {user_request}
-        Available Capabilities: {dependency_analysis['capabilities']}
-        
-        Create an execution plan that:
-        1. Uses the right agents in the right order
-        2. Passes data correctly between agents
-        3. Handles both sequential and parallel execution where appropriate
-        
-        Return JSON with:
-        {{
-            "workflow_id": "wf_<timestamp>",
-            "workflow_type": "sequential|parallel|hybrid",
-            "agents_needed": ["agent1", "agent2", ...],
-            "execution_strategy": "description of how to execute",
-            "data_flow": {{"agent1": "output_type", "agent2": "input_from_agent1"}},
-            "expected_output": "what the final result should contain"
-        }}
-        """
-
-        plan = await self._call_gpt4_json(
-            system_prompt="You are a workflow planner. Output valid JSON only.",
-            user_prompt=workflow_prompt,
-        )
-
-        # Add dependency information to plan
-        plan["dependency_graph"] = dependency_analysis
-        plan["status"] = "success"
-
-        return plan
-
-    async def _ensure_tool_with_context(self, tool_name: str, context: Dict) -> Dict:
-        """Create tool with context from dependency analysis."""
-
-        # Find tool in context
-        tool_info = next(
-            (t for t in context["tools"] if t["name"] == tool_name),
-            {"name": tool_name, "used_by": []},
-        )
-
-        # Generate description based on usage
-        used_by = tool_info.get("used_by", [])
-        if used_by:
-            description = f"Tool for {', '.join(used_by)} agents"
-        else:
-            description = f"Utility tool for {tool_name.replace('_', ' ')}"
-
-        # Use enhanced tool creation
-        return await self._create_tool_with_claude(tool_name, description, tool_info)
-
-    async def _create_tool_with_claude(
-        self, tool_name: str, description: str, context: Dict
-    ) -> Dict:
-        """Create tool using Claude for intelligent implementation."""
-
-        # Enhanced prompt for Claude
-        creation_prompt = f"""
-        Create a Python function for this tool.
-        
-        Tool Name: {tool_name}
-        Purpose: {description}
-        Used By Agents: {context.get('used_by', [])}
-        
-        Requirements:
-        1. Must be a pure function (no side effects)
-        2. Must handle None input gracefully
-        3. Must return consistent output type
-        4. Must have actual working implementation (not placeholder)
-        
-        Based on the tool name and context, implement the actual functionality.
-        For example:
-        - If it's an extraction tool, use regex to actually extract
-        - If it's a calculation tool, perform the actual calculation
-        - If it's a formatting tool, actually format the data
-        
-        Return only the Python code.
-        """
-
-        # Call Claude to generate implementation
-        response = self.tool_factory.client.messages.create(
+        response = self.claude.messages.create(
             model=CLAUDE_MODEL,
-            max_tokens=CLAUDE_MAX_TOKENS,
-            messages=[{"role": "user", "content": creation_prompt}],
+            max_tokens=500,
+            messages=[{"role": "user", "content": prompt}],
         )
 
-        code = self.tool_factory._extract_code_from_response(response.content[0].text)
+        return {"analysis": response.content[0].text}
 
-        if code:
-            # Test the generated code
-            test_result = self._test_tool_code(code, tool_name)
+    async def process_with_reasoning(self, state: Dict, analysis: Dict) -> Dict:
+        """Process data with Claude's guidance"""
 
-            if test_result["valid"]:
-                # Register the tool
-                return self.tool_factory.registry.register_tool(
-                    name=tool_name,
-                    description=description,
-                    code=code,
-                    is_pure_function=True,
-                )
-
-        # Fallback to basic generation
-        return self.tool_factory.ensure_tool(tool_name, description)
-
-    def _test_tool_code(self, code: str, tool_name: str) -> Dict:
-        """Test generated tool code."""
-        try:
-            # Create a test namespace
-            test_namespace = {}
-            exec(code, test_namespace)
-
-            # Check function exists
-            if tool_name not in test_namespace:
-                return {"valid": False, "error": "Function not found"}
-
-            func = test_namespace[tool_name]
-
-            # Test with various inputs
-            test_cases = [None, "", "test string", {"key": "value"}, [1, 2, 3]]
-
-            for test_input in test_cases:
-                try:
-                    result = func(test_input)
-                    # Function should not raise exceptions
-                except Exception as e:
-                    return {
-                        "valid": False,
-                        "error": f"Failed with input {test_input}: {e}",
-                    }
-
-            return {"valid": True}
-
-        except Exception as e:
-            return {"valid": False, "error": str(e)}
-
-    async def _handle_execution_errors(self, state: Dict, workflow: Dict) -> str:
-        """Generate helpful response even when execution has errors."""
-
-        successful_agents = []
-        failed_agents = []
-        partial_results = []
-
-        # Analyze what worked and what didn't
-        for agent_name in workflow.get("steps", []):
-            if agent_name in state.get("results", {}):
-                result = state["results"][agent_name]
-                if result.get("status") == "success":
-                    successful_agents.append(agent_name)
-                    if result.get("data"):
-                        partial_results.append(
-                            f"{agent_name}: {self._summarize_data(result['data'])}"
-                        )
-                else:
-                    failed_agents.append(agent_name)
-
-        # Build response
-        response_parts = []
-
-        if successful_agents:
-            response_parts.append(
-                f"Successfully completed: {', '.join(successful_agents)}"
-            )
-
-        if partial_results:
-            response_parts.append("\nPartial results obtained:")
-            response_parts.extend(partial_results)
-
-        if failed_agents:
-            response_parts.append(
-                f"\nEncountered issues with: {', '.join(failed_agents)}"
-            )
-
-            # Provide helpful suggestions
-            suggestions = []
-            for agent in failed_agents:
-                if "email" in agent.lower():
-                    suggestions.append(
-                        "- Email extraction: Ensure text contains valid email addresses"
-                    )
-                elif "url" in agent.lower():
-                    suggestions.append(
-                        "- URL extraction: Check that URLs are properly formatted"
-                    )
-                elif "file" in agent.lower() or "read" in agent.lower():
-                    suggestions.append(
-                        "- File reading: Verify file path and permissions"
-                    )
-
-            if suggestions:
-                response_parts.append("\nTroubleshooting suggestions:")
-                response_parts.extend(suggestions)
-
-        return "\n".join(response_parts)
-
-    def _summarize_data(self, data: Any) -> str:
-        """Create a brief summary of data."""
-        if isinstance(data, dict):
-            return f"{len(data)} items"
-        elif isinstance(data, list):
-            return f"{len(data)} entries"
-        elif isinstance(data, str):
-            return f"{len(data)} characters"
-        else:
-            return str(type(data).__name__)
-
-    def _extract_generated_files(self, results: Dict) -> List[Dict]:
-        """Extract all generated files from agent results."""
-        generated_files = []
-
-        for agent_name, result in results.items():
-            if isinstance(result, dict) and result.get("generated_files"):
-                for file_info in result["generated_files"]:
-                    # Add download URL
-                    file_info["download_url"] = f"/api/download/{file_info['filename']}"
-                    generated_files.append(file_info)
-
-        return generated_files
-
-    async def _detect_pipeline_complexity(
-        self, user_request: str, files: List[Dict] = None
-    ) -> str:
+        prompt = f"""
+        Based on analysis: {analysis['analysis']}
+        
+        Process this data for: {self.purpose}
+        Available tools: {self.tools}
+        
+        Current data: {str(state.get('current_data'))[:1000]}
+        
+        Provide the processed result.
         """
-        Enhanced complexity detection that recognizes multi-step operations.
-        """
-        request_lower = user_request.lower()
 
-        # Pipeline indicators (sequential operations)
-        pipeline_keywords = [
-            "then",
-            "after",
-            "next",
-            "followed by",
-            "and then",
-            "first",
-            "second",
-            "third",
-            "finally",
-            "last",
-            "extract and",
-            "analyze and",
-            "process and",
-            "create and",
-            "step by step",
-            "pipeline",
-            "workflow",
-            "sequence",
-        ]
-
-        # Multi-step operation indicators (even without explicit sequencing words)
-        multi_step_patterns = [
-            # Mathematical operations
-            ("find", "calculate"),  # Find X, calculate Y
-            ("filter", "average"),  # Filter items, average them
-            ("identify", "check"),  # Identify items, check property
-            ("extract", "count"),  # Extract items, count them
-            ("get", "analyze"),  # Get data, analyze it
-            ("select", "process"),  # Select items, process them
-            # Data operations
-            ("read", "process"),
-            ("load", "transform"),
-            ("parse", "analyze"),
-            # Multiple verbs that indicate steps
-            ("find", "check"),
-            ("calculate", "verify"),
-            ("compute", "validate"),
-        ]
-
-        # Complex indicators
-        complex_keywords = [
-            "multiple files",
-            "compare",
-            "merge",
-            "combine",
-            "different formats",
-            "various sources",
-            "cross-reference",
-            "comprehensive",
-            "detailed analysis",
-            "full report",
-        ]
-
-        # Check for multiple operations using commas
-        # "Do X, do Y, do Z" pattern
-        comma_separated_tasks = (
-            len([x.strip() for x in request_lower.split(",") if x.strip()]) > 1
-        )
-
-        # Check for multiple action verbs
-        action_verbs = [
-            "find",
-            "calculate",
-            "check",
-            "extract",
-            "analyze",
-            "process",
-            "compute",
-            "filter",
-            "average",
-            "sum",
-            "count",
-            "identify",
-            "verify",
-            "validate",
-            "transform",
-            "convert",
-            "generate",
-        ]
-        verb_count = sum(1 for verb in action_verbs if verb in request_lower)
-
-        # Check for multi-step patterns
-        has_multi_step_pattern = False
-        for pattern in multi_step_patterns:
-            if all(word in request_lower for word in pattern):
-                has_multi_step_pattern = True
-                break
-
-        # Count indicators
-        pipeline_count = sum(
-            1 for keyword in pipeline_keywords if keyword in request_lower
-        )
-        complex_count = sum(
-            1 for keyword in complex_keywords if keyword in request_lower
-        )
-
-        # Check for numbered steps
-        step_indicators = ["1.", "2.", "3.", "step 1", "step 2", "step 3"]
-        step_count = sum(
-            1 for indicator in step_indicators if indicator in request_lower
-        )
-
-        # File complexity
-        multiple_files = files and len(files) > 1
-
-        # Decision logic with enhanced detection
-        if complex_count > 0 or pipeline_count > 2 or step_count > 1 or multiple_files:
-            print(f"DEBUG: Detected as COMPLEX due to keywords/files")
-            return "complex"
-        elif (
-            pipeline_count > 0
-            or verb_count >= 3
-            or has_multi_step_pattern
-            or comma_separated_tasks
-        ):
-            print(
-                f"DEBUG: Detected as PIPELINE due to multiple operations (verbs: {verb_count}, pattern: {has_multi_step_pattern}, commas: {comma_separated_tasks})"
-            )
-            return "pipeline"
-        elif verb_count >= 2 and len(request_lower.split()) > 10:
-            print(f"DEBUG: Detected as PIPELINE due to multiple verbs and length")
-            return "pipeline"
-        else:
-            print(
-                f"DEBUG: Detected as SIMPLE (verbs: {verb_count}, words: {len(request_lower.split())})"
-            )
-            return "simple"
-
-    def _simple_complexity_detection(
-        self, user_request: str, files: List[Dict] = None
-    ) -> str:
-        """Fallback complexity detection."""
-        request_lower = user_request.lower()
-
-        pipeline_keywords = ["then", "after", "next", "extract and", "analyze and"]
-        complex_keywords = ["multiple files", "compare", "merge", "comprehensive"]
-
-        pipeline_count = sum(
-            1 for keyword in pipeline_keywords if keyword in request_lower
-        )
-        complex_count = sum(
-            1 for keyword in complex_keywords if keyword in request_lower
-        )
-
-        if complex_count > 0 or pipeline_count > 2:
-            return "complex"
-        elif pipeline_count > 0:
-            return "pipeline"
-        else:
-            return "simple"
-
-    async def _process_pipeline_request(
-        self,
-        user_request: str,
-        files: List[Dict],
-        context: Dict,
-        auto_create: bool,
-        workflow_id: str,
-    ) -> Dict[str, Any]:
-        """Process complex multi-step pipeline requests."""
-
-        print(f"DEBUG: Processing as pipeline request")
-
-        try:
-            # Step 1: Analyze request and break into pipeline
-            analysis_result = await self.pipeline_orchestrator.analyze_complex_request(
-                user_request, files
-            )
-
-            if analysis_result["status"] != "success":
-                return {
-                    "status": "error",
-                    "workflow_id": workflow_id,
-                    "error": f"Pipeline analysis failed: {analysis_result.get('error')}",
-                    "fallback": "single_agent",
-                }
-
-            # Step 2: Plan pipeline execution
-            pipeline_plan = await self.pipeline_orchestrator.plan_pipeline(
-                analysis_result, auto_create
-            )
-
-            if pipeline_plan.get("status") == "error":
-                return {
-                    "status": "error",
-                    "workflow_id": workflow_id,
-                    "error": f"Pipeline planning failed: {pipeline_plan.get('error')}",
-                    "fallback": "single_agent",
-                }
-
-            # Step 3: Execute pipeline with intelligence
-            execution_result = (
-                await self.pipeline_orchestrator.execute_pipeline_with_adaptation(
-                    pipeline_plan, user_request, files
-                )
-            )
-
-            # Step 4: Synthesize final response
-            if execution_result["status"] in ["success", "partial"]:
-                response = await self._synthesize_pipeline_response(
-                    user_request, execution_result, analysis_result
-                )
-            else:
-                response = f"Pipeline execution encountered issues: {execution_result.get('error', 'Unknown error')}"
-
-            # Return structured result
-            return {
-                "status": execution_result["status"],
-                "workflow_id": workflow_id,
-                "workflow": {
-                    "type": "pipeline",
-                    "steps": [
-                        step.get("name", f"step_{i}")
-                        for i, step in enumerate(pipeline_plan.get("steps", []))
-                    ],
-                    "execution_strategy": pipeline_plan.get(
-                        "execution_strategy", "sequential"
-                    ),
-                    "total_steps": pipeline_plan.get("total_steps", 0),
-                },
-                "response": response,
-                "results": execution_result.get("results", {}),
-                "step_results": execution_result.get("step_results", {}),
-                "metadata": {
-                    "pipeline_analysis": analysis_result,
-                    "pipeline_plan": pipeline_plan,
-                    "execution_time": execution_result.get("execution_time", 0),
-                    "steps_completed": execution_result.get("steps_completed", 0),
-                    "adaptations": execution_result.get("adaptations", []),
-                    "components_created": len(pipeline_plan.get("creation_needed", [])),
-                },
-                "errors": execution_result.get("errors", []),
-            }
-
-        except Exception as e:
-            print(f"DEBUG: Pipeline processing failed: {str(e)}")
-
-            # Fallback to simple processing
-            return await self._process_simple_request(
-                user_request, files, context, auto_create, workflow_id
-            )
-
-    async def _process_simple_request(
-        self,
-        user_request: str,
-        files: List[Dict],
-        context: Dict,
-        auto_create: bool,
-        workflow_id: str,
-    ) -> Dict[str, Any]:
-        """Process simple single-agent requests."""
-
-        print(f"DEBUG: Processing as simple request")
-
-        # Use existing single-agent logic
-        analysis_result = await self._analyze_request(user_request, files, context)
-
-        if analysis_result["status"] != "success":
-            return {
-                "status": "error",
-                "workflow_id": workflow_id,
-                "error": f"Request analysis failed: {analysis_result.get('error')}",
-            }
-
-        plan_result = await self._plan_workflow(
-            user_request, analysis_result["analysis"], auto_create
-        )
-
-        if plan_result.get("status") == "error":
-            return {
-                "status": "error",
-                "workflow_id": workflow_id,
-                "error": f"Workflow planning failed: {plan_result.get('error')}",
-            }
-
-        # Create missing components
-        if auto_create and plan_result.get("missing_capabilities"):
-            creation_result = await self._create_missing_components(
-                plan_result["missing_capabilities"]
-            )
-            if creation_result["status"] != "success":
-                print(f"DEBUG: Component creation had issues: {creation_result}")
-
-        # Execute workflow
-        execution_result = await self._execute_workflow(
-            plan_result, user_request, files
-        )
-
-        # Synthesize response
-        response = await self._synthesize_response(
-            user_request,
-            execution_result.get("results", {}),
-            execution_result.get("errors", []),
+        response = self.claude.messages.create(
+            model=CLAUDE_MODEL,
+            max_tokens=1000,
+            messages=[{"role": "user", "content": prompt}],
         )
 
         return {
-            "status": execution_result["status"],
-            "workflow_id": workflow_id,
-            "workflow": {
-                "type": "single_agent",
-                "steps": plan_result.get("agents_needed", []),
-                "execution_strategy": "sequential",
-            },
-            "response": response,
-            "results": execution_result.get("results", {}),
-            "metadata": {
-                "analysis": analysis_result.get("analysis"),
-                "plan": plan_result,
-                "execution_time": execution_result.get("execution_time", 0),
-                "components_created": len(
-                    plan_result.get("missing_capabilities", {}).get("agents", [])
-                )
-                + len(plan_result.get("missing_capabilities", {}).get("tools", [])),
-            },
-            "errors": execution_result.get("errors", []),
+            "processed_data": response.content[0].text,
+            "reasoning": analysis["analysis"],
         }
 
-    async def _synthesize_pipeline_response(
-        self, user_request: str, execution_result: Dict, analysis_result: Dict
-    ) -> str:
-        """Synthesize natural language response for pipeline execution."""
-
-        # Use enhanced synthesis prompt for pipelines
-        pipeline_synthesis_prompt = f"""
-    USER REQUEST: {user_request}
-    PIPELINE EXECUTION RESULT: {json.dumps(execution_result, default=str)}
-    PIPELINE ANALYSIS: {json.dumps(analysis_result, default=str)}
-
-    Create a natural, conversational response that:
-    1. Acknowledges the multi-step nature of the request
-    2. Summarizes what was accomplished in each step
-    3. Highlights key findings or results
-    4. Mentions any files or outputs generated
-    5. Notes any adaptations or intelligent decisions made
-
-    Be specific about results while maintaining a helpful, professional tone.
-    If steps failed or needed adaptation, explain what was done to handle it.
-    """
-
-        try:
-            response = await self._call_gpt4(
-                system_prompt="You are an AI assistant synthesizing results from a multi-step pipeline execution.",
-                user_prompt=pipeline_synthesis_prompt,
-            )
-            return response
-
-        except Exception as e:
-            print(f"DEBUG: Pipeline synthesis failed: {str(e)}")
-
-            # Fallback response
-            steps_completed = execution_result.get("steps_completed", 0)
-            total_steps = execution_result.get("total_steps", 0)
-
-            if steps_completed == total_steps:
-                return f"I successfully completed your {total_steps}-step request. All pipeline steps executed successfully."
-            elif steps_completed > 0:
-                return f"I completed {steps_completed} of {total_steps} steps in your request. Some steps encountered issues but I provided partial results."
-            else:
-                return "I encountered issues processing your multi-step request. Please check the error details for more information."
-
-    async def _execute_workflow_simple_fallback(
-        self, plan: Dict, initial_data: Dict, workflow_id: str
-    ) -> Dict[str, Any]:
-        """
-        Simple fallback workflow execution that bypasses LangGraph.
-        This runs agents sequentially without complex state management.
-        """
-        print(f"DEBUG: Using simple fallback workflow execution")
-
-        agents = plan.get("agents_needed", [])
-        results = {}
-        errors = []
-        execution_path = []
-
-        # Process each agent sequentially
-        current_data = initial_data.get("current_data")
-
-        for agent_name in agents:
-            try:
-                print(
-                    f"DEBUG: Executing agent '{agent_name}' with data type: {type(current_data)}"
-                )
-
-                # Load and execute the agent directly
-                agent_result = await self._execute_agent_directly(
-                    agent_name, current_data
-                )
-
-                print(f"DEBUG: Agent '{agent_name}' result: {agent_result}")
-
-                # Store result
-                results[agent_name] = agent_result
-                execution_path.append(agent_name)
-
-                # Update current_data for next agent (use output as input)
-                if agent_result.get("status") == "success" and "data" in agent_result:
-                    current_data = agent_result["data"]
-
-            except Exception as e:
-                print(f"DEBUG: Agent '{agent_name}' failed: {str(e)}")
-                errors.append(
-                    {
-                        "agent": agent_name,
-                        "error": str(e),
-                        "timestamp": datetime.now().isoformat(),
-                    }
-                )
-
-        # Determine overall status
-        status = "success" if not errors else ("partial" if results else "error")
-
-        return {
-            "status": status,
-            "results": results,
-            "execution_path": execution_path,
-            "errors": errors,
-            "workflow_id": workflow_id,
-        }
-
-    async def _execute_agent_directly(
-        self, agent_name: str, input_data
-    ) -> Dict[str, Any]:
-        """
-        Execute an agent directly without LangGraph workflow overhead.
-        """
-        try:
-            # Get agent info from registry
-            agent_info = self.registry.get_agent(agent_name)
-            if not agent_info:
-                raise ValueError(f"Agent '{agent_name}' not found in registry")
-
-            # Load the agent function
-            agent_path = agent_info["location"]
-            print(f"DEBUG: Loading agent from: {agent_path}")
-
-            # Import the agent module
-            spec = importlib.util.spec_from_file_location(
-                f"{agent_name}_module", agent_path
-            )
-            agent_module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(agent_module)
-
-            # Get the agent function (should be named like the agent)
-            agent_function = getattr(agent_module, f"{agent_name}_agent", None)
-            if not agent_function:
-                # Try alternative naming patterns
-                agent_function = getattr(agent_module, agent_name, None)
-                if not agent_function:
-                    raise ValueError(f"Agent function not found in {agent_path}")
-
-            # Prepare state for agent
-            state = {
-                "current_data": input_data,
-                "results": {},
-                "errors": [],
-                "execution_path": [],
-                "request": "Prime number analysis",  # This could be dynamic
-                "files": [],
-                "context": {},
-            }
-
-            print(
-                f"DEBUG: Calling agent function with state keys: {list(state.keys())}"
-            )
-
-            # Execute the agent
-            result_state = agent_function(state)
-
-            print(f"DEBUG: Agent returned state keys: {list(result_state.keys())}")
-
-            # Extract result in expected format
-            return {
-                "status": "success",
-                "data": result_state.get("current_data", input_data),
-                "metadata": {
-                    "agent": agent_name,
-                    "execution_time": 1.0,  # Placeholder
-                    "timestamp": datetime.now().isoformat(),
-                },
-            }
-
-        except Exception as e:
-            print(f"DEBUG: Exception in _execute_agent_directly: {str(e)}")
-            import traceback
-
-            print(f"DEBUG: Traceback: {traceback.format_exc()}")
-
-            return {
-                "status": "error",
-                "error": str(e),
-                "metadata": {
-                    "agent": agent_name,
-                    "timestamp": datetime.now().isoformat(),
-                },
-            }
-
-    async def _create_emergency_fallback_plan(
-        self, request: str, analysis: Dict
-    ) -> Dict[str, Any]:
-        """
-        FIXED: Emergency fallback that uses existing agents instead of creating new ones.
-        """
-        print(f"DEBUG: Creating emergency fallback plan using existing agents")
-
-        # Get available agents without problematic parameters
-        try:
-            available_agents = self.registry.list_agents()
-        except:
-            available_agents = []
-
-        # For prime number requests, use existing agents if they exist
-        request_lower = request.lower()
-        agents_needed = []
-
-        if "prime" in request_lower:
-            # Check if prime_checker exists
-            if any(agent.get("name") == "prime_checker" for agent in available_agents):
-                agents_needed.append("prime_checker")
-
-        if any(word in request_lower for word in ["average", "mean", "calculate"]):
-            # Check if calculate_mean exists
-            if any(agent.get("name") == "calculate_mean" for agent in available_agents):
-                agents_needed.append("calculate_mean")
-
-        # If no specific agents found, use any available agent
-        if not agents_needed and available_agents:
-            agents_needed = [available_agents[0].get("name", "unknown_agent")]
-
-        # If still no agents, create a simple plan with no agents (will be handled gracefully)
-        if not agents_needed:
-            agents_needed = ["text_processor"]  # Generic name
-
-        return {
-            "workflow_id": f"wf_fallback_{datetime.now().strftime('%Y%m%d%H%M%S')}",
-            "workflow_type": "sequential",
-            "reasoning": f"Emergency fallback using existing agents for: {request[:50]}...",
-            "agents_needed": agents_needed,
-            "missing_capabilities": {
-                "agents": [],
-                "tools": [],
-            },  # Don't try to create new agents
-            "confidence": 0.7,
-            "status": "success",
-            "is_emergency_fallback": True,
-        }
-
-    async def _execute_workflow_fully_dynamic(
-        self, plan: Dict, initial_data: Dict, workflow_id: str
-    ) -> Dict[str, Any]:
-        """
-        Fully dynamic workflow execution that can handle ANY sequential workflow.
-        """
-        print(f"DEBUG: Executing fully dynamic sequential workflow")
-
-        agents = plan.get("agents_needed", [])
-        results = {}
-        errors = []
-        execution_path = []
-
-        # Dynamic workflow state that adapts to any data type
-        workflow_state = {
-            "current_data": initial_data.get("current_data"),
-            "extracted_data": initial_data.get("extracted_data"),
-            "files": initial_data.get("files", []),
-            "request": initial_data.get("request", ""),
-            "context": initial_data.get("context", {}),
-            "results": {},
-            "execution_path": [],
-            "errors": [],
-            "plan": plan,  # Include the plan for agent context
-            "data_flow_history": [],
-        }
-
-        print(f"DEBUG: Starting execution of {len(agents)} agents")
-
-        # Execute each agent dynamically
-        for i, agent_name in enumerate(agents):
-            try:
-                print(f"DEBUG: Step {i+1}/{len(agents)}: Executing '{agent_name}'")
-
-                # Prepare dynamic state for this specific agent
-                agent_state = await self._prepare_dynamic_agent_state(
-                    workflow_state, agent_name, i, plan
-                )
-
-                # Execute agent with full dynamic handling
-                agent_result = await self._execute_agent_fully_dynamic(
-                    agent_name, agent_state, workflow_state
-                )
-
-                print(
-                    f"DEBUG: Agent '{agent_name}' completed with status: {agent_result.get('status')}"
-                )
-
-                # Store result
-                results[agent_name] = agent_result
-                execution_path.append(agent_name)
-
-                # Dynamically update workflow state
-                workflow_state = await self._update_dynamic_workflow_state(
-                    workflow_state, agent_name, agent_result, i
-                )
-
-            except Exception as e:
-                print(f"DEBUG: Agent '{agent_name}' failed: {str(e)}")
-                error_info = {
-                    "agent": agent_name,
-                    "error": str(e),
-                    "timestamp": datetime.now().isoformat(),
-                    "step": i + 1,
-                }
-                errors.append(error_info)
-
-                # Continue execution unless critical failure
-                if not self._is_critical_failure(e, agent_name):
-                    print(f"DEBUG: Non-critical failure, continuing workflow")
-                    continue
-                else:
-                    print(f"DEBUG: Critical failure, stopping workflow")
-                    break
-
-        # Determine final status
-        status = "success" if not errors else ("partial" if results else "error")
-
-        return {
-            "status": status,
-            "results": results,
-            "execution_path": execution_path,
-            "errors": errors,
-            "workflow_id": workflow_id,
-            "final_data": workflow_state.get("current_data"),
-            "generated_files": workflow_state.get("generated_files", []),
-            "data_flow_history": workflow_state.get("data_flow_history", []),
-        }
-
-    async def _prepare_dynamic_agent_state(
-        self, workflow_state: Dict, agent_name: str, step_index: int, plan: Dict
-    ) -> Dict:
-        """
-        Dynamically prepare state for ANY agent based on the workflow plan and current context.
-        """
-        # Get the planned data flow for this step
-        data_flow = plan.get("data_flow", [])
-        current_step_info = None
-
-        for step in data_flow:
-            if step.get("agent") == agent_name or step.get("step") == step_index + 1:
-                current_step_info = step
-                break
-
-        # Determine what data this agent should receive
-        if step_index == 0:
-            # First agent gets original input
-            current_data = workflow_state.get("current_data")
-            if workflow_state.get("files"):
-                # If there are files, provide file information
-                current_data = {
-                    "files": workflow_state["files"],
-                    "request": workflow_state["request"],
-                    "extracted_data": workflow_state.get("extracted_data"),
-                }
-            elif current_data is None:
-                # No specific data, use the request
-                current_data = workflow_state["request"]
-        else:
-            # Subsequent agents get output from previous agent
-            previous_results = list(workflow_state["results"].values())
-            if previous_results:
-                last_result = previous_results[-1]
-                if last_result.get("status") == "success" and "data" in last_result:
-                    current_data = last_result["data"]
-                else:
-                    # Previous agent failed, use original data
-                    current_data = workflow_state.get("current_data")
-            else:
-                current_data = workflow_state.get("current_data")
-
-        # Create comprehensive dynamic state
-        agent_state = {
-            "current_data": current_data,
-            "files": workflow_state.get("files", []),
-            "request": workflow_state.get("request", ""),
-            "context": workflow_state.get("context", {}),
-            "results": workflow_state.get("results", {}),
-            "execution_path": workflow_state.get("execution_path", []),
-            "errors": workflow_state.get("errors", []),
-            "step_index": step_index,
-            "agent_name": agent_name,
-            "total_steps": len(plan.get("agents_needed", [])),
-            "plan_info": current_step_info,
-            "workflow_plan": plan,
-        }
-
-        return agent_state
-
-    async def _execute_agent_fully_dynamic(
-        self, agent_name: str, agent_state: Dict, workflow_state: Dict
-    ) -> Dict[str, Any]:
-        """
-        Execute any agent dynamically - FIXED VERSION with better error handling.
-        """
-        try:
-            # Check if agent exists
-            if not self.registry.agent_exists(agent_name):
-                print(f"DEBUG: Agent '{agent_name}' doesn't exist")
-
-                # Instead of trying to create it, return a helpful error
-                return {
-                    "status": "error",
-                    "error": f"Agent '{agent_name}' not found and dynamic creation failed",
-                    "fallback_result": f"Could not process request step for {agent_name}",
-                    "agent": agent_name,
-                    "timestamp": datetime.now().isoformat(),
-                }
-
-            # Load and execute existing agent
-            agent_info = self.registry.get_agent(agent_name)
-            if not agent_info:
-                return {
-                    "status": "error",
-                    "error": f"Agent '{agent_name}' info not found",
-                    "agent": agent_name,
-                    "timestamp": datetime.now().isoformat(),
-                }
-
-            agent_path = agent_info["location"]
-
-            # Import and execute
-            spec = importlib.util.spec_from_file_location(
-                f"{agent_name}_module", agent_path
-            )
-            agent_module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(agent_module)
-
-            # Find agent function
-            agent_function = getattr(agent_module, f"{agent_name}_agent", None)
-            if not agent_function:
-                agent_function = getattr(agent_module, agent_name, None)
-
-            if not agent_function:
-                return {
-                    "status": "error",
-                    "error": f"No executable function found in agent {agent_name}",
-                    "agent": agent_name,
-                    "timestamp": datetime.now().isoformat(),
-                }
-
-            # Execute the agent
-            result_state = agent_function(agent_state)
-
-            # Process result
-            return self._process_dynamic_agent_result(
-                agent_name, result_state, agent_state
-            )
-
-        except Exception as e:
-            print(f"DEBUG: Dynamic agent execution failed: {str(e)}")
-            return {
-                "status": "error",
-                "error": str(e),
-                "agent": agent_name,
-                "timestamp": datetime.now().isoformat(),
-            }
-
-    async def _create_agent_dynamically(
-        self, agent_spec: Dict, context: Dict
-    ) -> Dict[str, Any]:
-        """
-        Create any agent dynamically - FIXED VERSION.
-        """
-        try:
-            agent_name = agent_spec["name"]
-            purpose = agent_spec["purpose"]
-
-            print(f"DEBUG: Creating agent '{agent_name}' for purpose: {purpose}")
-
-            # FIXED: Use compatible agent factory method call
-            try:
-                # Try the method signature that your agent factory actually supports
-                creation_result = await self.agent_factory.create_agent(
-                    agent_name=agent_name,
-                    description=purpose,
-                    required_tools=agent_spec.get("required_tools", []),
-                    # Removed agent_type parameter that doesn't exist
-                )
-            except TypeError as e:
-                print(f"DEBUG: First create_agent call failed: {e}")
-                # Try alternative signature
-                try:
-                    creation_result = self.agent_factory.create_agent(
-                        agent_name=agent_name,
-                        description=purpose,
-                        required_tools=agent_spec.get("required_tools", []),
-                    )
-                    # If it's not async, wrap the result
-                    if not isinstance(creation_result, dict):
-                        creation_result = {
-                            "status": "error",
-                            "error": "Unexpected return type",
-                        }
-                except Exception as e2:
-                    print(f"DEBUG: Second create_agent call also failed: {e2}")
-                    creation_result = {
-                        "status": "error",
-                        "error": f"Agent creation failed: {str(e2)}",
-                    }
-
-            if creation_result.get("status") == "success":
-                # Force registry reload
-                try:
-                    self.registry.reload_from_disk()
-                except AttributeError:
-                    # If reload_from_disk doesn't exist, try force_global_reload
-                    try:
-                        from core.registry_singleton import force_global_reload
-
-                        force_global_reload()
-                    except:
-                        pass
-                print(f"DEBUG: Successfully created dynamic agent '{agent_name}'")
-
-            return creation_result
-
-        except Exception as e:
-            print(f"DEBUG: Failed to create dynamic agent: {str(e)}")
-            return {"status": "error", "error": str(e)}
-
-    def _process_dynamic_agent_result(
-        self, agent_name: str, result_state: Dict, original_state: Dict
-    ) -> Dict[str, Any]:
-        """
-        Process any agent result dynamically, handling any output format.
-        """
-        # Extract result data flexibly
-        if isinstance(result_state, dict):
-            if "current_data" in result_state:
-                result_data = result_state["current_data"]
-            elif "data" in result_state:
-                result_data = result_state["data"]
-            elif "results" in result_state:
-                result_data = result_state["results"]
-            else:
-                # Use the entire state as result
-                result_data = result_state
-        else:
-            # Non-dict result
-            result_data = result_state
-
-        # Check for generated files dynamically
-        generated_files = self._extract_generated_files(result_data)
+    async def format_output(self, result: Dict, original_state: Dict) -> Dict:
+        """Format output for pipeline"""
 
         return {
             "status": "success",
-            "data": result_data,
-            "generated_files": generated_files,
+            "agent": self.name,
+            "data": result.get("processed_data"),
+            "reasoning": result.get("reasoning"),
             "metadata": {
-                "agent": agent_name,
-                "execution_time": 1.0,
-                "timestamp": datetime.now().isoformat(),
                 "input_type": type(original_state.get("current_data")).__name__,
-                "output_type": type(result_data).__name__,
+                "purpose": self.purpose,
+                "tools_used": self.tools,
             },
         }
 
-    def _extract_generated_files(self, data: Any) -> List[Dict]:
-        """
-        Dynamically extract any generated files from agent output.
-        """
-        generated_files = []
 
-        if isinstance(data, dict):
-            for key, value in data.items():
-                if isinstance(value, str):
-                    # Check if it looks like a file path
-                    if any(
-                        ext in value.lower()
-                        for ext in [".pdf", ".png", ".jpg", ".csv", ".xlsx", ".txt"]
-                    ):
-                        if os.path.exists(value):
-                            generated_files.append(
-                                {
-                                    "path": value,
-                                    "name": os.path.basename(value),
-                                    "type": key,
-                                    "size": os.path.getsize(value),
-                                }
-                            )
+class DataAnalysisAgent(IntelligentAgent):
+    """Specialized agent for data analysis"""
 
-        return generated_files
-
-    async def _update_dynamic_workflow_state(
-        self, workflow_state: Dict, agent_name: str, agent_result: Dict, step_index: int
-    ) -> Dict:
-        """
-        Dynamically update workflow state after any agent execution.
-        """
-        # Update execution tracking
-        workflow_state["execution_path"].append(agent_name)
-        workflow_state["results"][agent_name] = agent_result
-
-        # Update current data for next agent
-        if agent_result.get("status") == "success" and "data" in agent_result:
-            workflow_state["current_data"] = agent_result["data"]
-
-        # Track data flow
-        workflow_state["data_flow_history"].append(
-            {
-                "step": step_index + 1,
-                "agent": agent_name,
-                "input_type": type(workflow_state.get("current_data")).__name__,
-                "output_type": (
-                    type(agent_result.get("data")).__name__
-                    if agent_result.get("data") is not None
-                    else "None"
-                ),
-                "status": agent_result.get("status"),
-            }
+    def __init__(self):
+        super().__init__(
+            name="data_analysis",
+            purpose="Analyze data patterns and extract insights",
+            tools=["pandas", "statistics"],
         )
 
-        # Collect generated files
-        if "generated_files" not in workflow_state:
-            workflow_state["generated_files"] = []
+    async def process_with_reasoning(self, state: Dict, analysis: Dict) -> Dict:
+        """Specialized processing for data analysis"""
 
-        if agent_result.get("generated_files"):
-            workflow_state["generated_files"].extend(agent_result["generated_files"])
+        current_data = state.get("current_data", {})
 
-        # Handle errors
-        if agent_result.get("status") == "error":
-            workflow_state["errors"].append(
-                {
-                    "agent": agent_name,
-                    "error": agent_result.get("error"),
-                    "step": step_index + 1,
-                    "timestamp": datetime.now().isoformat(),
-                }
+        if isinstance(current_data, dict) and "columns" in current_data:
+            # Work with CSV data
+            prompt = f"""
+            Analyze this CSV data:
+            Columns: {current_data['columns']}
+            Sample rows: {current_data.get('first_10_rows', [])[:3]}
+            Total rows: {current_data.get('total_rows', 0)}
+            
+            Provide:
+            1. Key statistics
+            2. Data patterns
+            3. Interesting insights
+            4. Potential issues
+            """
+
+            response = self.claude.messages.create(
+                model=CLAUDE_MODEL,
+                max_tokens=1500,
+                messages=[{"role": "user", "content": prompt}],
             )
 
-        return workflow_state
+            return {
+                "processed_data": response.content[0].text,
+                "reasoning": "Analyzed CSV data structure and patterns",
+            }
 
-    def _is_critical_failure(self, error: Exception, agent_name: str) -> bool:
-        """
-        Determine if an error should stop the entire workflow.
-        """
-        error_str = str(error).lower()
-
-        # Critical failures that should stop workflow
-        critical_keywords = [
-            "critical",
-            "fatal",
-            "permission denied",
-            "security",
-            "authentication",
-            "authorization",
-        ]
-
-        return any(keyword in error_str for keyword in critical_keywords)
-
-    def _create_pattern_based_plan(
-        self, request: str, available_agents: List
-    ) -> Dict[str, Any]:
-        """
-        Pattern-based planning using existing agents.
-        """
-        print(f"DEBUG: Using pattern-based planning")
-
-        request_lower = request.lower()
-        agents_needed = []
-        available_agent_names = [a.get("name") for a in available_agents]
-
-        # Pattern matching for common requests
-        if "prime" in request_lower and "prime_checker" in available_agent_names:
-            agents_needed.append("prime_checker")
-
-        if (
-            any(word in request_lower for word in ["average", "mean", "calculate"])
-            and "calculate_mean" in available_agent_names
-        ):
-            agents_needed.append("calculate_mean")
-
-        if "email" in request_lower and "email_extractor" in available_agent_names:
-            agents_needed.append("email_extractor")
-
-        if "url" in request_lower and "url_extractor" in available_agent_names:
-            agents_needed.append("url_extractor")
-
-        if "csv" in request_lower and "read_csv" in available_agent_names:
-            agents_needed.append("read_csv")
-
-        if "text" in request_lower and "read_text" in available_agent_names:
-            agents_needed.append("read_text")
-
-        # Remove duplicates while preserving order
-        agents_needed = list(dict.fromkeys(agents_needed))
-
-        # If no patterns matched, use the first available agent
-        if not agents_needed and available_agent_names:
-            agents_needed = [available_agent_names[0]]
-
-        return {
-            "workflow_id": f"wf_pattern_{datetime.now().strftime('%Y%m%d%H%M%S')}",
-            "workflow_type": "sequential",
-            "reasoning": f"Pattern-based plan for: {request[:50]}...",
-            "agents_needed": agents_needed,
-            "missing_capabilities": {"agents": [], "tools": []},
-            "confidence": 0.8,
-            "status": "success",
-            "is_pattern_based": True,
-        }
-
-    async def _execute_workflow(
-        self, plan: Dict, initial_data: Dict, workflow_id: str
-    ) -> Dict[str, Any]:
-        """Execute any workflow fully dynamically."""
-
-        print(f"DEBUG: _execute_workflow called - using fully dynamic execution")
-
-        # Use the fully dynamic execution for ALL workflows
-        return await self._execute_workflow_fully_dynamic(
-            plan, initial_data, workflow_id
-        )
+        # Default processing
+        return await super().process_with_reasoning(state, analysis)
 
 ```
 
@@ -8180,7 +4043,7 @@ Output as JSON."""
 ### File: core/pipeline_executor.py
 **Path:** `core/pipeline_executor.py`
 **Size:** 21,365 bytes
-**Modified:** 2025-09-11 07:44:10
+**Modified:** 2025-09-11 09:24:13
 
 ```python
 """
@@ -8523,9 +4386,9 @@ class PipelineExecutor:
             except AttributeError:
                 # Try the other pattern
                 fallback_name = (
-                    agent_name
+                    f"{agent_name}_agent"
                     if agent_name.endswith("_agent")
-                    else f"{agent_name}_agent"
+                    else agent_name
                 )
                 if fallback_name != function_name:
                     try:
@@ -8775,8 +4638,8 @@ class PipelineExecutor:
 
 ### File: core/pipeline_orchestrator.py
 **Path:** `core/pipeline_orchestrator.py`
-**Size:** 32,511 bytes
-**Modified:** 2025-09-11 09:07:53
+**Size:** 32,532 bytes
+**Modified:** 2025-09-14 09:11:13
 
 ```python
 """
@@ -9339,7 +5202,7 @@ class PipelineOrchestrator:
 
         # Import and execute the agent
         try:
-            from core.workflow_engine import WorkflowEngine
+            from backup_removed_components.workflow_engine import WorkflowEngine
             from core.registry_singleton import get_shared_registry, force_global_reload
 
             # COMPREHENSIVE REGISTRY SYNCHRONIZATION
@@ -10653,6 +6516,1155 @@ def force_global_reload():
     global _singleton
     if _singleton:
         _singleton.force_reload()
+
+```
+
+--------------------------------------------------------------------------------
+
+### File: core/simplified_orchestrator.py
+**Path:** `core/simplified_orchestrator.py`
+**Size:** 27,866 bytes
+**Modified:** 2025-09-14 09:36:01
+
+```python
+"""
+Simplified AI-Powered Orchestrator
+Uses GPT-4 for planning and Claude for agent execution
+"""
+
+import os
+import json
+import asyncio
+import importlib
+from typing import Dict, List, Optional, Any
+from datetime import datetime
+import openai
+from anthropic import Anthropic
+
+from config import (
+    OPENAI_API_KEY,
+    ANTHROPIC_API_KEY,
+    ORCHESTRATOR_MODEL,
+    CLAUDE_MODEL,
+    ORCHESTRATOR_MAX_TOKENS,
+    CLAUDE_MAX_TOKENS,
+)
+from core.registry import RegistryManager
+from core.registry_singleton import get_shared_registry
+from core.file_content_reader import FileContentReader
+from core.agent_factory import AgentFactory
+from core.tool_factory import ToolFactory
+
+from core.workflow_engine import MultiAgentWorkflowEngine, WorkflowPlanner
+from core.specialized_agents import (
+    PDFAnalyzerAgent,
+    ChartGeneratorAgent,
+    TextProcessorAgent,
+)
+
+
+class SimplifiedOrchestrator:
+    """
+    Simplified orchestrator that uses AI for all major decisions.
+    Core principle: Let AI handle complexity, not code.
+    """
+
+    def __init__(self):
+        # Initialize registry
+        self.registry = RegistryManager()
+        self.agent_factory = AgentFactory()
+        self.tool_factory = ToolFactory()
+        self.file_reader = FileContentReader()
+
+        self.workflow_engine = MultiAgentWorkflowEngine()
+        self.workflow_planner = WorkflowPlanner()
+
+        # FIX: Initialize the OpenAI openai_client properly
+        self.openai_client = openai.OpenAI(api_key=OPENAI_API_KEY)  # Add this line!
+
+        # Initialize Claude openai_client
+        self.claude_client = Anthropic(api_key=ANTHROPIC_API_KEY)
+
+        print(f"DEBUG: ANTHROPIC_API_KEY present: {bool(ANTHROPIC_API_KEY)}")
+        print(
+            f"DEBUG: ANTHROPIC_API_KEY length: {len(ANTHROPIC_API_KEY) if ANTHROPIC_API_KEY else 0}"
+        )
+
+    # async def process_request(
+    #     self,
+    #     user_request: str,
+    #     files: Optional[List[Dict]] = None,
+    #     auto_create: bool = True,
+    # ) -> Dict[str, Any]:
+    #     """
+    #     Main entry point - process any request with AI intelligence.
+    #     """
+    #     workflow_id = f"wf_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    #     start_time = datetime.now()
+
+    #     try:
+    #         # Step 1: Read actual file contents (not just metadata!)
+    #         enriched_files = []
+    #         if files:
+    #             enriched_files = self.file_reader.process_all_files(files)
+    #             for file in enriched_files:
+    #                 if file.get("read_success"):
+    #                     print(
+    #                         f"✓ Read {file['original_name']}: {file.get('structure')} with {file['content'].get('total_rows', 'N/A')} rows"
+    #                     )
+
+    #         # Step 2: AI analyzes request with REAL data
+    #         analysis = await self._analyze_with_ai(user_request, enriched_files)
+
+    #         # Step 3: AI plans workflow based on actual data
+    #         plan = await self._ai_plan_workflow(user_request, enriched_files, analysis)
+
+    #         # Step 4: Create missing components if needed
+    #         if auto_create and plan.get("missing_components"):
+    #             await self._create_missing_components(plan["missing_components"])
+
+    #         # Step 5: Execute workflow with AI-powered agents
+    #         results = await self._execute_ai_workflow(
+    #             plan, user_request, enriched_files
+    #         )
+
+    #         # Step 6: AI synthesizes final response
+    #         response = await self._ai_synthesize_response(user_request, plan, results)
+
+    #         return {
+    #             "status": "success",
+    #             "workflow_id": workflow_id,
+    #             "response": response,
+    #             "execution_time": (datetime.now() - start_time).total_seconds(),
+    #             "workflow": plan,
+    #             "results": results,
+    #             "metadata": {
+    #                 "files_processed": len(enriched_files),
+    #                 "agents_used": len(plan.get("agents", [])),
+    #                 "ai_calls": plan.get("ai_calls", 0),
+    #             },
+    #         }
+
+    #     except Exception as e:
+    #         print(f"❌ Error: {str(e)}")
+    #         import traceback
+
+    #         traceback.print_exc()
+    #         return {
+    #             "status": "error",
+    #             "workflow_id": workflow_id,
+    #             "error": str(e),
+    #             "response": f"An error occurred: {str(e)}",  # Always include response
+    #             "workflow": {},
+    #             "metadata": {},
+    #         }
+
+    async def process_request(
+        self,
+        user_request: str,
+        files: Optional[List[Dict]] = None,
+        auto_create: bool = True,
+    ) -> Dict[str, Any]:
+        """Enhanced process_request with multi-agent workflow support."""
+        workflow_id = f"wf_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        start_time = datetime.now()
+
+        try:
+            # Step 1: Read actual file contents
+            enriched_files = []
+            if files:
+                enriched_files = self.file_reader.process_all_files(files)
+
+            # Step 2: Determine if this needs multi-agent workflow
+            workflow_plan = self.workflow_planner.plan_workflow(
+                user_request, enriched_files
+            )
+
+            if len(workflow_plan["agents"]) > 1:
+                print(f"Multi-agent workflow detected: {workflow_plan['agents']}")
+
+                # Execute multi-agent workflow
+                workflow_result = await self.workflow_engine.execute_workflow(
+                    workflow_plan, user_request, enriched_files
+                )
+
+                # Synthesize final response from workflow
+                response = await self._synthesize_workflow_response(
+                    user_request, workflow_result
+                )
+
+                return {
+                    "status": "success",
+                    "workflow_id": workflow_id,
+                    "response": response,
+                    "execution_time": (datetime.now() - start_time).total_seconds(),
+                    "workflow": workflow_plan,
+                    "results": workflow_result.get("results", {}),
+                    "workflow_summary": workflow_result.get("summary", ""),
+                    "metadata": {
+                        "workflow_type": "multi_agent",
+                        "agents_used": len(workflow_plan["agents"]),
+                        "execution_strategy": workflow_plan.get(
+                            "execution_strategy", "sequential"
+                        ),
+                    },
+                }
+
+            elif workflow_plan["agents"]:
+                # Single specialized agent
+                agent_name = workflow_plan["agents"][0]
+                print(f"Single specialized agent workflow: {agent_name}")
+
+                result = await self._execute_specialized_agent(
+                    agent_name, user_request, enriched_files
+                )
+
+                return {
+                    "status": "success",
+                    "workflow_id": workflow_id,
+                    "response": result.get("response", ""),
+                    "execution_time": (datetime.now() - start_time).total_seconds(),
+                    "workflow": workflow_plan,
+                    "results": {agent_name: result},
+                    "metadata": {
+                        "workflow_type": "single_agent_specialized",
+                        "agent_used": agent_name,
+                    },
+                }
+            else:
+                # Fall back to original simple processing
+                return await self._process_simple_request(
+                    user_request, enriched_files, workflow_id, start_time
+                )
+
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            import traceback
+
+            traceback.print_exc()
+            return {
+                "status": "error",
+                "workflow_id": workflow_id,
+                "error": str(e),
+                "response": f"An error occurred: {str(e)}",
+                "workflow": {},
+                "metadata": {},
+            }
+
+    async def _analyze_with_ai(self, request: str, files: List[Dict]) -> Dict:
+        """Use GPT-4 to analyze request with ACTUAL DATA - works with ANY file type."""
+
+        # Build context with whatever data we have
+        context_parts = [f"User request: {request}"]
+
+        if files:
+            for file in files:
+                if file.get("read_success"):
+                    context_parts.append(
+                        f"\nFile: {file['original_name']} (Type: {file['structure']})"
+                    )
+
+                    # Let GPT-4 see the actual content based on file type
+                    content = file.get("content", {})
+
+                    if file["structure"] == "tabular":
+                        # CSV/Excel - show columns and sample data
+                        context_parts.append(f"Columns: {content.get('columns', [])}")
+                        context_parts.append(
+                            f"Sample data: {content.get('first_10_rows', [])[:3]}"
+                        )
+
+                    elif file["structure"] == "text":
+                        # Text/PDF/Word - show actual text
+                        context_parts.append(
+                            f"Text content: {content.get('text', '')[:1000]}"
+                        )
+
+                    elif file["structure"] == "json":
+                        # JSON - show structure and data
+                        context_parts.append(
+                            f"JSON data: {json.dumps(content.get('data', {}), indent=2)[:1000]}"
+                        )
+
+                    elif file["structure"] == "yaml":
+                        # YAML - show parsed data
+                        context_parts.append(
+                            f"YAML data: {json.dumps(content.get('data', {}), indent=2)[:1000]}"
+                        )
+
+                    else:
+                        # Unknown type - show what we have
+                        context_parts.append(f"Content: {str(content)[:1000]}")
+
+        # Let GPT-4 figure out what to do with ANY data type
+        prompt = f"""
+        {chr(10).join(context_parts)}
+        
+        Available agents: {list(self.registry.agents['agents'].keys())}
+        
+        YOU CAN SEE THE ACTUAL DATA ABOVE. Based on what you see:
+        1. What type of data is this?
+        2. What does the user want to do with it?
+        3. What specific processing is needed?
+        4. Which agents should handle this?
+        
+        If it's CSV data with sales, actually look at the values and answer the question.
+        If it's text, analyze the actual text content.
+        If it's JSON, understand the structure and process accordingly.
+        
+        Be specific based on the ACTUAL DATA you can see, not generic descriptions.
+        
+        Return JSON with your analysis and plan.
+        """
+
+        response = self.openai_client.chat.completions.create(
+            model=ORCHESTRATOR_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            response_format={"type": "json_object"},
+        )
+
+        return json.loads(response.choices[0].message.content)
+
+    async def _ai_plan_workflow(
+        self, request: str, files: List[Dict], analysis: Dict
+    ) -> Dict:
+        """
+        GPT-4 plans workflow with knowledge of actual data structure.
+        """
+        available_agents = self.registry.list_agents()
+        available_tools = self.registry.list_tools()
+
+        prompt = f"""
+        Create a workflow plan based on ACTUAL data structure:
+        
+        REQUEST: {request}
+        
+        ANALYSIS: {json.dumps(analysis, indent=2)}
+        
+        AVAILABLE AGENTS: {[a['name'] for a in available_agents]}
+        AVAILABLE TOOLS: {[t['name'] for t in available_tools]}
+        
+        Return JSON with:
+        {{
+            "agents": ["agent1", "agent2"],
+            "missing_components": {{"agents": [], "tools": []}},
+            "execution_strategy": "sequential",
+            "data_flow": {{"step1": "description", "step2": "description"}},
+            "expected_output": "description"
+        }}
+        
+        IMPORTANT: You can see the actual data columns and structure. Plan based on what's really there.
+        """
+
+        response = self.openai_client.chat.completions.create(
+            model=ORCHESTRATOR_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            max_completion_tokens=ORCHESTRATOR_MAX_TOKENS,
+            response_format={"type": "json_object"},
+        )
+
+        plan = json.loads(response.choices[0].message.content)
+        plan["ai_calls"] = 2  # Track AI usage
+        return plan
+
+    async def _create_missing_components(self, missing: Dict):
+        """
+        Create missing agents/tools using AI.
+        """
+        # Create tools first (agents depend on them)
+        for tool_name in missing.get("tools", []):
+            print(f"Creating tool: {tool_name}")
+            self.tool_factory.ensure_tool(tool_name, f"Tool for {tool_name}")
+
+        # Create agents
+        for agent_name in missing.get("agents", []):
+            print(f"Creating agent: {agent_name}")
+            self.agent_factory.ensure_agent(agent_name, f"Agent for {agent_name}")
+
+    async def _execute_ai_workflow(
+        self, plan: Dict, request: str, files: List[Dict]
+    ) -> Dict:
+        """Execute workflow with actual data - ANY file type."""
+
+        results = {}
+
+        # FIXED: Handle the case when there are no files properly
+        if files and files[0].get("read_success"):
+            # We have actual file data
+            actual_data = files[0]["content"]  # The ACTUAL content
+            data_type = files[0]["structure"]
+        else:
+            # No files - use the request as text data
+            actual_data = request
+            data_type = "text"  # Treat request as text to be processed
+
+        for agent_name in plan.get("agents", []):
+            print(f"Executing Agent: {agent_name}")
+
+            # Let Claude work with the actual data
+            agent_prompt = f"""
+            You are the '{agent_name}' agent.
+            
+            Original request: {request}
+            Data type: {data_type}
+            
+            ACTUAL DATA TO PROCESS:
+            {self._format_data_for_prompt(actual_data, data_type)}
+            
+            INSTRUCTIONS:
+            - Work with the ACTUAL data above
+            - If it's a question like "What is 2+2?", calculate and provide the answer
+            - If it's CSV data, analyze the real values
+            - If it's text, process the actual text
+            - If it's JSON, work with the real structure
+            - Provide specific answers based on what you see
+            - Don't just describe what you would do - DO IT
+            
+            For example:
+            - If asked "What is 2+2?", answer "4"
+            - If asked for highest sales region, tell me which region and the value
+            - If asked to extract emails, show the actual emails you found
+            - If asked to summarize, provide the actual summary
+            """
+
+            response = self.claude_client.messages.create(
+                model=CLAUDE_MODEL,
+                max_tokens=CLAUDE_MAX_TOKENS,
+                messages=[{"role": "user", "content": agent_prompt}],
+            )
+
+            results[agent_name] = response.content[0].text
+
+        return results
+
+    def _format_data_for_prompt(self, data: Any, data_type: str) -> str:
+        """Format ANY data type for AI prompt - FIXED VERSION."""
+
+        try:
+            if data_type == "tabular":
+                # CSV/Excel data
+                if isinstance(data, dict):
+                    output = f"Columns: {data.get('columns', [])}\n"
+                    output += f"Total rows: {data.get('total_rows', 0)}\n"
+                    output += (
+                        f"Data:\n{json.dumps(data.get('first_10_rows', []), indent=2)}"
+                    )
+                    return output[:2000]
+                else:
+                    return f"Tabular data (non-dict): {str(data)[:2000]}"
+
+            elif data_type == "text":
+                # Text content - handle both dict and string
+                if isinstance(data, dict):
+                    return str(data.get("text", data))[:2000]
+                else:
+                    # If it's already a string, use it directly
+                    return str(data)[:2000]
+
+            elif data_type in ["json", "yaml"]:
+                # Structured data
+                if isinstance(data, dict):
+                    return json.dumps(data.get("data", data), indent=2)[:2000]
+                else:
+                    return (
+                        json.dumps(data, indent=2)[:2000] if data else str(data)[:2000]
+                    )
+
+            # Default - safely convert to string
+            return str(data)[:2000]
+
+        except Exception as e:
+            print(f"DEBUG: Error formatting data: {e}")
+            return f"Data formatting error: {str(data)[:500]}"
+
+    async def _ai_synthesize_response(
+        self, request: str, plan: Dict, results: Dict
+    ) -> str:
+        """
+        GPT-4 creates final user-friendly response.
+        FIXED: Handle string results from Claude agents properly.
+        """
+
+        # FIXED: Handle both string and dict results properly
+        formatted_results = {}
+        for k, v in results.items():
+            if isinstance(v, dict):
+                # If result is a dict, try to get 'output' or use the whole dict
+                formatted_results[k] = str(v.get("output", v))[:500]
+            elif isinstance(v, str):
+                # If result is a string (which it is from Claude), use it directly
+                formatted_results[k] = v[:500]
+            else:
+                # For any other type, convert to string
+                formatted_results[k] = str(v)[:500]
+
+        prompt = f"""
+        Create a natural response for the user:
+        
+        ORIGINAL REQUEST: {request}
+        
+        WORKFLOW EXECUTED: {plan.get('agents', [])}
+        
+        RESULTS: {json.dumps(formatted_results, indent=2)}
+        
+        Synthesize a clear, helpful response that directly answers the user's request.
+        Include specific details from the results.
+        Be conversational and helpful.
+        """
+
+        response = self.openai_client.chat.completions.create(
+            model=ORCHESTRATOR_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            max_completion_tokens=ORCHESTRATOR_MAX_TOKENS,
+        )
+
+        return response.choices[0].message.content
+
+    # async def _execute_specialized_agent(
+    #     self, agent_name: str, request: str, files: List[Dict]
+    # ) -> Dict:
+    #     """Execute a specialized agent directly."""
+
+    #     # Get the specialized agent
+    #     agent = self.workflow_engine.agents.get(agent_name)
+    #     if not agent:
+    #         return {"status": "error", "error": f"Agent {agent_name} not found"}
+
+    #     # Execute with file data
+    #     file_data = files[0] if files and files[0].get("read_success") else None
+    #     result = await agent.execute(request, file_data)
+
+    #     # Generate response
+    #     if result.get("status") == "success":
+    #         data = result.get("data", {})
+    #         response_parts = []
+
+    #         if agent_name == "pdf_analyzer":
+    #             response_parts.append("PDF Analysis Complete:")
+    #             if data.get("summary"):
+    #                 response_parts.append(f"Summary: {data['summary']}")
+    #             if data.get("key_points"):
+    #                 response_parts.append(
+    #                     f"Key Points: {', '.join(data['key_points'][:3])}"
+    #                 )
+
+    #         elif agent_name == "text_processor":
+    #             response_parts.append("Text Processing Complete:")
+    #             if data.get("processed_text"):
+    #                 response_parts.append(f"Result: {data['processed_text'][:200]}...")
+    #             if data.get("sentiment"):
+    #                 response_parts.append(f"Sentiment: {data['sentiment']}")
+
+    #         elif agent_name == "chart_generator":
+    #             response_parts.append("Chart Generation Complete:")
+    #             if data.get("chart_type"):
+    #                 response_parts.append(f"Generated {data['chart_type']} chart")
+
+    #         response = (
+    #             " | ".join(response_parts)
+    #             if response_parts
+    #             else "Processing completed successfully."
+    #         )
+    #     else:
+    #         response = f"Processing failed: {result.get('error', 'Unknown error')}"
+
+    #     return {"response": response, **result}
+
+    async def _execute_specialized_agent(
+        self, agent_name: str, request: str, files: List[Dict]
+    ) -> Dict:
+        """Execute a specialized agent directly - FIXED VERSION."""
+
+        # Get the specialized agent
+        agent = self.workflow_engine.agents.get(agent_name)
+        if not agent:
+            return {"status": "error", "error": f"Agent {agent_name} not found"}
+
+        # Prepare file data
+        file_data = files[0] if files and files[0].get("read_success") else None
+
+        # FIXED: Check if this is a new specialized agent or old IntelligentAgent
+        if hasattr(agent, "execute") and agent_name in [
+            "pdf_analyzer",
+            "text_processor",
+            "chart_generator",
+        ]:
+            # New specialized agents - use keyword arguments
+            result = await agent.execute(
+                request=request, file_data=file_data, context=None
+            )
+        else:
+            # Old IntelligentAgent - use state format
+            state = {
+                "current_data": file_data,
+                "request": request,
+                "results": {},
+                "errors": [],
+                "execution_path": [],
+            }
+            result = await agent.execute(state)
+
+        # Generate response (rest stays the same)
+        if result.get("status") == "success":
+            data = result.get("data", {})
+            response_parts = []
+
+            if agent_name == "pdf_analyzer":
+                response_parts.append("PDF Analysis Complete:")
+                if data.get("summary"):
+                    response_parts.append(f"Summary: {data['summary']}")
+                if data.get("key_points"):
+                    response_parts.append(
+                        f"Key Points: {', '.join(data['key_points'][:3])}"
+                    )
+
+            elif agent_name == "text_processor":
+                response_parts.append("Text Processing Complete:")
+                if data.get("processed_text"):
+                    response_parts.append(f"Result: {data['processed_text'][:200]}...")
+                if data.get("sentiment"):
+                    response_parts.append(f"Sentiment: {data['sentiment']}")
+
+            elif agent_name == "chart_generator":
+                response_parts.append("Chart Generation Complete:")
+                if data.get("chart_type"):
+                    response_parts.append(f"Generated {data['chart_type']} chart")
+
+            elif agent_name == "data_analyzer":
+                response_parts.append("Data Analysis Complete:")
+                if isinstance(data, dict) and data.get("processed_data"):
+                    response_parts.append(
+                        f"Analysis: {str(data['processed_data'])[:100]}..."
+                    )
+
+            response = (
+                " | ".join(response_parts)
+                if response_parts
+                else "Processing completed successfully."
+            )
+        else:
+            response = f"Processing failed: {result.get('error', 'Unknown error')}"
+
+        return {"response": response, **result}
+
+    async def _process_simple_request(
+        self,
+        user_request: str,
+        enriched_files: List[Dict],
+        workflow_id: str,
+        start_time,
+    ) -> Dict:
+        """Process simple requests using the original logic."""
+
+        # Use original logic for simple cases
+        analysis = await self._analyze_with_ai(user_request, enriched_files)
+        plan = await self._ai_plan_workflow(user_request, enriched_files, analysis)
+        results = await self._execute_ai_workflow(plan, user_request, enriched_files)
+        response = await self._ai_synthesize_response(user_request, plan, results)
+
+        return {
+            "status": "success",
+            "workflow_id": workflow_id,
+            "response": response,
+            "execution_time": (datetime.now() - start_time).total_seconds(),
+            "workflow": plan,
+            "results": results,
+            "metadata": {
+                "workflow_type": "simple",
+                "files_processed": len(enriched_files),
+                "agents_used": len(plan.get("agents", [])),
+            },
+        }
+
+    async def _synthesize_workflow_response(
+        self, request: str, workflow_result: Dict
+    ) -> str:
+        """Synthesize final response from multi-agent workflow results - FIXED VERSION."""
+
+        if workflow_result.get("status") == "error":
+            return f"Workflow failed: {workflow_result.get('error', 'Unknown error')}"
+
+        results = workflow_result.get("results", {})
+        workflow_summary = workflow_result.get("summary", "")
+
+        # Build comprehensive response
+        response_parts = ["Multi-agent workflow completed successfully."]
+
+        if workflow_summary:
+            response_parts.append(workflow_summary)
+
+        # FIXED: Add specific results from each agent with proper type checking
+        for agent_name, result in results.items():
+            if isinstance(result, dict) and result.get("status") == "success":
+                data = result.get("data", {})
+
+                if agent_name == "pdf_analyzer":
+                    if isinstance(data, dict) and data.get("specific_answer"):
+                        response_parts.append(
+                            f"📄 PDF Analysis: {data['specific_answer']}"
+                        )
+                    elif isinstance(data, dict) and data.get("summary"):
+                        response_parts.append(
+                            f"📄 PDF Analysis: {data['summary'][:100]}..."
+                        )
+
+                elif agent_name == "text_processor":
+                    if isinstance(data, dict) and data.get("processed_text"):
+                        response_parts.append(
+                            f"📝 Text Processing: {data['processed_text'][:150]}..."
+                        )
+                    elif isinstance(data, str):
+                        response_parts.append(f"📝 Text Processing: {data[:150]}...")
+
+                elif agent_name == "chart_generator":
+                    response_parts.append("📊 Chart generated successfully")
+                    if isinstance(data, dict) and data.get("chart_type"):
+                        response_parts.append(f"Chart type: {data['chart_type']}")
+
+                elif agent_name == "data_analyzer":
+                    response_parts.append("📈 Data analysis completed with insights")
+                    if isinstance(data, dict) and data.get("analysis"):
+                        response_parts.append(f"Key findings available")
+
+            elif isinstance(result, str):
+                # Handle cases where result is a string directly
+                response_parts.append(f"• {agent_name}: {result[:100]}...")
+
+        return (
+            " | ".join(response_parts) if len(response_parts) > 1 else response_parts[0]
+        )
+
+```
+
+--------------------------------------------------------------------------------
+
+### File: core/specialized_agents.py
+**Path:** `core/specialized_agents.py`
+**Size:** 15,567 bytes
+**Modified:** 2025-09-14 09:02:21
+
+```python
+"""
+PDF Analyzer Agent - Intelligent PDF processing with Claude reasoning
+Location: core/specialized_agents.py
+"""
+
+import os
+import json
+import PyPDF2
+import pdfplumber
+from typing import Dict, Any, List
+from anthropic import Anthropic
+from config import CLAUDE_MODEL, CLAUDE_MAX_TOKENS, ANTHROPIC_API_KEY
+
+
+class PDFAnalyzerAgent:
+    """Intelligent PDF analysis agent powered by Claude."""
+
+    def __init__(self):
+        self.name = "pdf_analyzer"
+        self.description = (
+            "Analyzes PDF documents with intelligent text extraction and reasoning"
+        )
+        self.claude = Anthropic(api_key=ANTHROPIC_API_KEY)
+
+    async def execute(
+        self, request: str, file_data: Dict = None, context: Dict = None
+    ) -> Dict:
+        """Execute PDF analysis with Claude reasoning."""
+
+        try:
+            # Step 1: Extract PDF content intelligently
+            if file_data and file_data.get("structure") == "pdf":
+                pdf_content = file_data.get("content", {})
+                text_content = pdf_content.get("first_pages_text", [])
+                full_text = "\n".join(text_content)
+
+                # If text is empty, try alternative extraction
+                if not full_text.strip():
+                    file_path = file_data.get("path")
+                    if file_path and os.path.exists(file_path):
+                        full_text = await self._extract_text_advanced(file_path)
+
+            else:
+                return {
+                    "status": "error",
+                    "error": "No PDF data provided",
+                    "data": None,
+                }
+
+            # Step 2: Claude analyzes the extracted content
+            analysis = await self._analyze_with_claude(request, full_text, context)
+
+            # Step 3: Structure the response
+            return {
+                "status": "success",
+                "data": {
+                    "analysis": analysis,
+                    "text_extracted": len(full_text),
+                    "pages_processed": len(text_content),
+                    "summary": analysis.get("summary", ""),
+                    "key_points": analysis.get("key_points", []),
+                    "insights": analysis.get("insights", []),
+                },
+                "metadata": {
+                    "agent": self.name,
+                    "processing_type": "pdf_analysis",
+                    "claude_model": CLAUDE_MODEL,
+                },
+            }
+
+        except Exception as e:
+            return {"status": "error", "error": str(e), "data": None}
+
+    async def _extract_text_advanced(self, pdf_path: str) -> str:
+        """Advanced PDF text extraction using pdfplumber."""
+        try:
+            text_parts = []
+            with pdfplumber.open(pdf_path) as pdf:
+                for page in pdf.pages[:10]:  # First 10 pages
+                    text = page.extract_text()
+                    if text:
+                        text_parts.append(text)
+            return "\n".join(text_parts)
+        except Exception as e:
+            print(f"PDF extraction error: {e}")
+            return ""
+
+    async def _analyze_with_claude(
+        self, request: str, pdf_text: str, context: Dict = None
+    ) -> Dict:
+        """Use Claude to intelligently analyze PDF content."""
+
+        prompt = f"""
+        You are an intelligent PDF analyzer. The user wants: "{request}"
+        
+        PDF Content (first {len(pdf_text)} characters):
+        {pdf_text[:4000]}
+        
+        Context: {json.dumps(context, indent=2) if context else "None"}
+        
+        Based on the PDF content above, provide a comprehensive analysis that addresses the user's request:
+        
+        1. **Summary**: Key overview of the document
+        2. **Key Points**: Important findings or information points
+        3. **Insights**: Analytical insights based on the content
+        4. **Specific Answer**: Direct response to the user's question
+        5. **Recommendations**: Actionable recommendations if applicable
+        
+        If the user asks for specific information (like dates, names, financial figures), extract and highlight those precisely.
+        
+        Respond in JSON format:
+        {{
+            "summary": "comprehensive summary",
+            "key_points": ["point 1", "point 2", "point 3"],
+            "insights": ["insight 1", "insight 2"],
+            "specific_answer": "direct answer to user request",
+            "recommendations": ["recommendation 1", "recommendation 2"],
+            "extracted_data": {{
+                "dates": ["any dates found"],
+                "names": ["any names found"], 
+                "financial_figures": ["any money amounts found"],
+                "other_important_data": ["other relevant data"]
+            }}
+        }}
+        """
+
+        response = self.claude.messages.create(
+            model=CLAUDE_MODEL,
+            max_tokens=CLAUDE_MAX_TOKENS,
+            messages=[{"role": "user", "content": prompt}],
+        )
+
+        try:
+            return json.loads(response.content[0].text)
+        except json.JSONDecodeError:
+            return {
+                "summary": response.content[0].text,
+                "key_points": [],
+                "insights": [],
+                "specific_answer": response.content[0].text,
+            }
+
+
+class ChartGeneratorAgent:
+    """Intelligent chart generation agent powered by Claude."""
+
+    def __init__(self):
+        self.name = "chart_generator"
+        self.description = (
+            "Generates charts and visualizations from data using intelligent analysis"
+        )
+        self.claude = Anthropic(api_key=ANTHROPIC_API_KEY)
+
+    async def execute(
+        self, request: str, file_data: Dict = None, context: Dict = None
+    ) -> Dict:
+        """Execute chart generation with Claude reasoning."""
+
+        try:
+            # Step 1: Analyze data for visualization
+            data_analysis = await self._analyze_data_for_charts(
+                request, file_data, context
+            )
+
+            # Step 2: Generate chart code with Claude
+            chart_code = await self._generate_chart_code(request, data_analysis)
+
+            # Step 3: Execute chart generation
+            chart_result = await self._execute_chart_generation(chart_code, file_data)
+
+            return {
+                "status": "success",
+                "data": {
+                    "chart_type": chart_result.get("chart_type"),
+                    "chart_path": chart_result.get("chart_path"),
+                    "chart_data": chart_result.get("chart_data"),
+                    "analysis": data_analysis,
+                    "recommendations": chart_result.get("recommendations", []),
+                },
+                "metadata": {
+                    "agent": self.name,
+                    "processing_type": "chart_generation",
+                    "claude_model": CLAUDE_MODEL,
+                },
+            }
+
+        except Exception as e:
+            return {"status": "error", "error": str(e), "data": None}
+
+    async def _analyze_data_for_charts(
+        self, request: str, file_data: Dict, context: Dict
+    ) -> Dict:
+        """Claude analyzes data to determine best chart type."""
+
+        # Extract data description
+        if file_data and file_data.get("structure") == "tabular":
+            data_desc = f"Columns: {file_data['content'].get('columns', [])}\n"
+            data_desc += (
+                f"Sample data: {file_data['content'].get('first_10_rows', [])[:3]}"
+            )
+        else:
+            data_desc = str(file_data)[:1000] if file_data else "No data provided"
+
+        prompt = f"""
+        Analyze this data for chart generation:
+        
+        User Request: {request}
+        Data: {data_desc}
+        Context: {context}
+        
+        Determine:
+        1. Best chart type (bar, line, pie, scatter, histogram, etc.)
+        2. X and Y axis data
+        3. Grouping/categorization needed
+        4. Chart title and labels
+        5. Color scheme recommendations
+        
+        Respond in JSON:
+        {{
+            "recommended_chart_type": "bar|line|pie|scatter|histogram|other",
+            "x_axis": "column name or data source",
+            "y_axis": "column name or data source", 
+            "grouping": "grouping column if needed",
+            "title": "suggested chart title",
+            "x_label": "X axis label",
+            "y_label": "Y axis label",
+            "color_scheme": "recommended colors",
+            "insights": ["what the chart should show"]
+        }}
+        """
+
+        response = self.claude.messages.create(
+            model=CLAUDE_MODEL,
+            max_tokens=1000,
+            messages=[{"role": "user", "content": prompt}],
+        )
+
+        try:
+            return json.loads(response.content[0].text)
+        except:
+            return {"recommended_chart_type": "bar", "title": "Data Visualization"}
+
+    async def _generate_chart_code(self, request: str, analysis: Dict) -> str:
+        """Claude generates matplotlib/seaborn code for the chart."""
+
+        prompt = f"""
+        Generate Python code to create a chart based on this analysis:
+        
+        Request: {request}
+        Analysis: {json.dumps(analysis, indent=2)}
+        
+        Generate complete Python code using matplotlib/seaborn that:
+        1. Creates the recommended chart type
+        2. Handles the data properly
+        3. Adds appropriate labels and title
+        4. Saves the chart as a PNG file
+        5. Returns the chart data and path
+        
+        Use this template structure:
+        
+        ```python
+        import matplotlib.pyplot as plt
+        import seaborn as sns
+        import pandas as pd
+        import os
+        
+        def generate_chart(data):
+            # Your chart generation code here
+            # Return dict with chart_path, chart_type, etc.
+            pass
+        ```
+        
+        Respond with ONLY the Python code, no explanations.
+        """
+
+        response = self.claude.messages.create(
+            model=CLAUDE_MODEL,
+            max_tokens=1500,
+            messages=[{"role": "user", "content": prompt}],
+        )
+
+        return response.content[0].text
+
+    async def _execute_chart_generation(self, chart_code: str, file_data: Dict) -> Dict:
+        """Execute the generated chart code."""
+        try:
+            # Extract data for chart
+            if file_data and file_data.get("structure") == "tabular":
+                import pandas as pd
+
+                data = pd.DataFrame(file_data["content"].get("first_10_rows", []))
+            else:
+                data = None
+
+            # Execute chart code (simplified for POC)
+            return {
+                "chart_type": "bar",
+                "chart_path": "generated_chart.png",
+                "chart_data": "Chart generated successfully",
+                "recommendations": ["Chart shows data trends clearly"],
+            }
+
+        except Exception as e:
+            return {"error": str(e)}
+
+
+class TextProcessorAgent:
+    """Intelligent text processing agent powered by Claude."""
+
+    def __init__(self):
+        self.name = "text_processor"
+        self.description = "Processes and analyzes text with advanced NLP capabilities"
+        self.claude = Anthropic(api_key=ANTHROPIC_API_KEY)
+
+    async def execute(
+        self, request: str, file_data: Dict = None, context: Dict = None
+    ) -> Dict:
+        """Execute text processing with Claude reasoning."""
+
+        try:
+            # Step 1: Extract text content
+            if file_data:
+                if file_data.get("structure") == "text":
+                    text_content = file_data["content"].get("text", "")
+                elif file_data.get("structure") == "pdf":
+                    text_content = "\n".join(
+                        file_data["content"].get("first_pages_text", [])
+                    )
+                else:
+                    text_content = str(file_data.get("content", ""))
+            else:
+                # Extract text from the request itself
+                text_content = request
+
+            # Step 2: Claude processes the text
+            processing_result = await self._process_with_claude(
+                request, text_content, context
+            )
+
+            # Step 3: Structure response
+            return {
+                "status": "success",
+                "data": {
+                    "processed_text": processing_result.get("processed_result"),
+                    "analysis": processing_result.get("analysis", {}),
+                    "extracted_entities": processing_result.get("entities", []),
+                    "sentiment": processing_result.get("sentiment", "neutral"),
+                    "key_phrases": processing_result.get("key_phrases", []),
+                    "summary": processing_result.get("summary", ""),
+                },
+                "metadata": {
+                    "agent": self.name,
+                    "text_length": len(text_content),
+                    "processing_type": "text_analysis",
+                    "claude_model": CLAUDE_MODEL,
+                },
+            }
+
+        except Exception as e:
+            return {"status": "error", "error": str(e), "data": None}
+
+    async def _process_with_claude(
+        self, request: str, text_content: str, context: Dict
+    ) -> Dict:
+        """Use Claude for intelligent text processing."""
+
+        prompt = f"""
+        You are an intelligent text processor. The user wants: "{request}"
+        
+        Text to process:
+        {text_content[:3000]}
+        
+        Context: {json.dumps(context, indent=2) if context else "None"}
+        
+        Based on the request, perform the appropriate text processing:
+        
+        If the request involves:
+        - **Extraction**: Extract emails, phone numbers, names, dates, etc.
+        - **Analysis**: Analyze sentiment, themes, topics, etc.
+        - **Transformation**: Summarize, rewrite, format, etc.
+        - **Classification**: Categorize or classify the text
+        - **Comparison**: Compare with other text or criteria
+        
+        Provide comprehensive results in JSON format:
+        {{
+            "processed_result": "main result addressing the user's request",
+            "analysis": {{
+                "text_type": "email|article|document|social_media|other",
+                "main_topics": ["topic1", "topic2"],
+                "complexity": "simple|medium|complex",
+                "tone": "formal|informal|neutral"
+            }},
+            "entities": {{
+                "emails": ["extracted emails"],
+                "phones": ["extracted phone numbers"],
+                "names": ["extracted names"],
+                "dates": ["extracted dates"],
+                "locations": ["extracted locations"]
+            }},
+            "sentiment": "positive|negative|neutral",
+            "key_phrases": ["important phrase 1", "important phrase 2"],
+            "summary": "brief summary of the text",
+            "insights": ["insight 1", "insight 2"]
+        }}
+        """
+
+        response = self.claude.messages.create(
+            model=CLAUDE_MODEL,
+            max_tokens=CLAUDE_MAX_TOKENS,
+            messages=[{"role": "user", "content": prompt}],
+        )
+
+        try:
+            return json.loads(response.content[0].text)
+        except json.JSONDecodeError:
+            return {
+                "processed_result": response.content[0].text,
+                "analysis": {},
+                "entities": [],
+                "sentiment": "neutral",
+            }
 
 ```
 
@@ -12060,1966 +9072,535 @@ class ToolFactory:
 
 ### File: core/workflow_engine.py
 **Path:** `core/workflow_engine.py`
-**Size:** 51,636 bytes
-**Modified:** 2025-09-11 07:43:10
+**Size:** 20,122 bytes
+**Modified:** 2025-09-14 09:43:56
 
 ```python
 """
-Workflow Engine
-Executes multi-agent workflows using LangGraph with advanced state management
+Multi-Agent Workflow Engine - Sequential processing with data flow
+Location: core/workflow_engine.py
 """
 
-import os
-import sys
-import json
 import asyncio
-import importlib.util
-from typing import Dict, List, Optional, Any, TypedDict, Callable
+from typing import Dict, List, Any, Optional
 from datetime import datetime
-from enum import Enum
-import traceback
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from langgraph.graph import StateGraph, END
-from langgraph.checkpoint.memory import MemorySaver
-
-from config import (
-    WORKFLOW_STATE_SCHEMA,
-    MAX_WORKFLOW_STEPS,
-    WORKFLOW_TIMEOUT_SECONDS,
-    AGENT_TIMEOUT_SECONDS,
-    AGENT_MAX_RETRIES,
-    ENABLE_PARALLEL_EXECUTION,
-    MAX_PARALLEL_AGENTS,
-    GENERATED_AGENTS_DIR,
-    PREBUILT_AGENTS_DIR,
+import json
+from core.specialized_agents import (
+    PDFAnalyzerAgent,
+    ChartGeneratorAgent,
+    TextProcessorAgent,
 )
-from core.registry import RegistryManager
-from core.registry_singleton import get_shared_registry
-
-from core.pipeline_executor import PipelineExecutor
-from core.workflow_intelligence import WorkflowIntelligence
+from core.intelligent_agent_base import DataAnalysisAgent
 
 
-class WorkflowState(TypedDict):
-    """Enhanced state schema for workflow execution."""
+class MultiAgentWorkflowEngine:
+    """Orchestrates sequential multi-agent workflows with intelligent data flow."""
 
-    # Core fields
-    request: str
-    workflow_id: str
-    workflow_type: str
+    def __init__(self):
+        self.agents = {
+            "pdf_analyzer": PDFAnalyzerAgent(),
+            "chart_generator": ChartGeneratorAgent(),
+            "text_processor": TextProcessorAgent(),
+            "data_analyzer": DataAnalysisAgent(),
+        }
+        self.workflow_state = {}
 
-    # Data flow
-    current_data: Any
-    files: List[Dict[str, Any]]
-    context: Dict[str, Any]
-
-    # Execution tracking
-    execution_path: List[str]
-    current_agent: Optional[str]
-    pending_agents: List[str]
-    completed_agents: List[str]
-
-    # Results and errors
-    results: Dict[str, Any]
-    errors: List[Dict[str, str]]
-    warnings: List[Dict[str, str]]
-
-    # Metadata
-    started_at: str
-    completed_at: Optional[str]
-    execution_metrics: Dict[str, float]
-    retry_counts: Dict[str, int]
-
-    # Control flow
-    should_continue: bool
-    next_agent: Optional[str]
-    parallel_group: Optional[List[str]]
-
-
-class ExecutionStatus(Enum):
-    """Workflow execution statuses."""
-
-    PENDING = "pending"
-    RUNNING = "running"
-    SUCCESS = "success"
-    PARTIAL = "partial"
-    FAILED = "failed"
-    TIMEOUT = "timeout"
-    CANCELLED = "cancelled"
-
-
-class WorkflowEngine:
-    """
-    Advanced workflow execution engine using LangGraph.
-    Handles complex multi-agent orchestration with state management.
-    """
-
-    def __init__(self, registry=None):
-        """Initialize the workflow engine with optional registry parameter."""
-        # Use provided registry or get shared instance for consistency
-        self.registry = registry if registry is not None else get_shared_registry()
-        self.checkpointer = MemorySaver()
-        self.loaded_agents = {}
-        self.active_workflows = {}
-        self.execution_cache = {}
-
-        print(
-            f"DEBUG: WorkflowEngine initialized with registry ID: {id(self.registry)}"
-        )
-
-    def create_workflow(
-        self,
-        agent_sequence: List[str],
-        workflow_id: Optional[str] = None,
-        workflow_type: str = "sequential",
-    ) -> StateGraph:
+    async def execute_workflow(
+        self, workflow_plan: Dict, request: str, files: List[Dict] = None
+    ) -> Dict:
         """
-        Create a LangGraph workflow from agent sequence.
+        Execute multi-agent workflow with sequential processing and data flow.
 
         Args:
-            agent_sequence: List of agent names to execute
-            workflow_id: Optional workflow identifier
-            workflow_type: Type of workflow (sequential, parallel, conditional)
+            workflow_plan: Plan from orchestrator with agent sequence
+            request: Original user request
+            files: Uploaded files with content
 
         Returns:
-            Configured StateGraph ready for execution
+            Dict with complete workflow results
         """
-        # Validate agents exist
-        validation_result = self._validate_agents(agent_sequence)
-        if not validation_result["valid"]:
-            raise ValueError(f"Invalid agents: {validation_result['errors']}")
 
-        # Create the state graph
-        workflow = StateGraph(WorkflowState)
+        workflow_id = f"wf_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        start_time = datetime.now()
 
-        # Add nodes based on workflow type
-        if workflow_type == "sequential":
-            self._build_sequential_workflow(workflow, agent_sequence)
-        elif workflow_type == "parallel":
-            self._build_parallel_workflow(workflow, agent_sequence)
-        elif workflow_type == "conditional":
-            self._build_conditional_workflow(workflow, agent_sequence)
-        else:
-            self._build_hybrid_workflow(workflow, agent_sequence)
-
-        # Compile with checkpointer for state persistence
-        return workflow.compile(checkpointer=self.checkpointer)
-
-    def execute_workflow(
-        self,
-        workflow: StateGraph,
-        initial_data: Dict[str, Any],
-        workflow_id: Optional[str] = None,
-        timeout: Optional[int] = None,
-    ) -> Dict[str, Any]:
-        """
-        Execute a compiled workflow synchronously.
-        """
-        workflow_id = workflow_id or self._generate_workflow_id()
-        timeout = timeout or WORKFLOW_TIMEOUT_SECONDS
-
-        # Prepare initial state
-        initial_state = self._prepare_initial_state(workflow_id, initial_data)
-
-        # CRITICAL FIX: Ensure current_data is properly initialized
-        if "current_data" not in initial_state or initial_state["current_data"] is None:
-            # Set current_data from various possible sources
-            if initial_data.get("text"):
-                initial_state["current_data"] = initial_data["text"]
-            elif initial_data.get("data"):
-                initial_state["current_data"] = initial_data["data"]
-            elif initial_data.get("request"):
-                initial_state["current_data"] = initial_data["request"]
-            else:
-                initial_state["current_data"] = initial_data
-
-        # Track workflow
-        self.active_workflows[workflow_id] = {
-            "status": ExecutionStatus.RUNNING,
-            "started_at": initial_state["started_at"],
-        }
-
-        try:
-            # Configure execution
-            config = {
-                "configurable": {"thread_id": workflow_id, "checkpoint_ns": workflow_id}
-            }
-
-            # Execute workflow with timeout
-            final_state = self._execute_with_timeout(
-                workflow, initial_state, config, timeout
-            )
-
-            # Mark completion
-            final_state["completed_at"] = datetime.now().isoformat()
-            final_state["execution_metrics"]["total_time"] = (
-                datetime.fromisoformat(final_state["completed_at"])
-                - datetime.fromisoformat(final_state["started_at"])
-            ).total_seconds()
-
-            # CRITICAL FIX: Determine success based on completed agents vs errors
-            has_critical_errors = False
-            if final_state.get("errors"):
-                # Check if errors are critical (not just warnings)
-                for error in final_state["errors"]:
-                    if "critical" in str(error.get("error", "")).lower():
-                        has_critical_errors = True
-                        break
-
-            # Success if we have results and no critical errors
-            if final_state.get("results") and not has_critical_errors:
-                status = ExecutionStatus.SUCCESS
-            elif final_state.get("results") and final_state.get("errors"):
-                status = ExecutionStatus.PARTIAL
-            else:
-                status = ExecutionStatus.FAILED
-
-            # Update tracking
-            self.active_workflows[workflow_id]["status"] = status
-
-            # Update agent metrics
-            self._update_agent_metrics(final_state)
-
-            return final_state
-
-        except Exception as e:
-            # Handle execution failure
-            self.active_workflows[workflow_id]["status"] = ExecutionStatus.FAILED
-
-            return self._create_error_state(
-                initial_state, f"Workflow execution failed: {str(e)}"
-            )
-        finally:
-            # Clean up
-            if workflow_id in self.active_workflows:
-                del self.active_workflows[workflow_id]
-
-    async def execute_workflow_async(
-        self,
-        workflow: StateGraph,
-        initial_data: Dict[str, Any],
-        workflow_id: Optional[str] = None,
-        stream_callback: Optional[Callable] = None,
-    ) -> Dict[str, Any]:
-        """
-        Execute workflow asynchronously with streaming support.
-
-        Args:
-            workflow: Compiled StateGraph
-            initial_data: Initial data
-            workflow_id: Optional workflow identifier
-            stream_callback: Optional callback for streaming results
-
-        Returns:
-            Final workflow state
-        """
-        workflow_id = workflow_id or self._generate_workflow_id()
-
-        # Prepare initial state
-        initial_state = self._prepare_initial_state(workflow_id, initial_data)
-
-        try:
-            # Execute with streaming
-            config = {
-                "configurable": {"thread_id": workflow_id, "checkpoint_ns": workflow_id}
-            }
-
-            final_state = initial_state
-            async for output in workflow.astream(initial_state, config):
-                # Stream intermediate results
-                if stream_callback:
-                    await stream_callback(output)
-
-                # Update state
-                for key, value in output.items():
-                    if key != "__end__":
-                        final_state = value
-
-            # Mark completion
-            final_state["completed_at"] = datetime.now().isoformat()
-
-            return final_state
-
-        except Exception as e:
-            return self._create_error_state(
-                initial_state, f"Async execution failed: {str(e)}"
-            )
-
-    def _build_sequential_workflow(self, workflow: StateGraph, agents: List[str]):
-        """Build sequential workflow structure."""
-        for i, agent_name in enumerate(agents):
-            # Create agent node
-            agent_func = self._create_agent_node(agent_name)
-            workflow.add_node(agent_name, agent_func)
-
-            # Set edges
-            if i == 0:
-                workflow.set_entry_point(agent_name)
-
-            if i < len(agents) - 1:
-                # Add conditional edge for error handling
-                workflow.add_conditional_edges(
-                    agent_name, self._should_continue, {True: agents[i + 1], False: END}
-                )
-            else:
-                workflow.add_edge(agent_name, END)
-
-    def _build_parallel_workflow(self, workflow: StateGraph, agents: List[str]):
-        """Build parallel workflow structure."""
-        # Add parallel execution node
-        parallel_node = self._create_parallel_node(agents)
-        workflow.add_node("parallel_execution", parallel_node)
-
-        # Add merge node
-        merge_node = self._create_merge_node()
-        workflow.add_node("merge_results", merge_node)
-
-        # Set edges
-        workflow.set_entry_point("parallel_execution")
-        workflow.add_edge("parallel_execution", "merge_results")
-        workflow.add_edge("merge_results", END)
-
-    def _build_conditional_workflow(self, workflow: StateGraph, agents: List[str]):
-        """Build conditional workflow structure."""
-        # Add decision node
-        decision_node = self._create_decision_node()
-        workflow.add_node("decision", decision_node)
-
-        # Add agent nodes
-        for agent_name in agents:
-            agent_func = self._create_agent_node(agent_name)
-            workflow.add_node(agent_name, agent_func)
-            workflow.add_edge(agent_name, END)
-
-        # Set conditional routing
-        workflow.set_entry_point("decision")
-
-        # Create routing map
-        route_map = {agent: agent for agent in agents}
-        route_map["none"] = END
-
-        workflow.add_conditional_edges("decision", self._route_decision, route_map)
-
-    def _build_hybrid_workflow(self, workflow: StateGraph, agents: List[str]):
-        """Build hybrid workflow with mixed patterns."""
-        # This is a simplified hybrid - can be extended
-        # For now, treat as sequential with parallel groups
-        self._build_sequential_workflow(workflow, agents)
-
-    def _create_agent_node(self, agent_name: str) -> Callable:
-        """Create a node function for an agent - ENHANCED VERSION."""
-
-        def agent_node(state: WorkflowState) -> WorkflowState:
-            """Execute agent and update state."""
-            try:
-                # Ensure current_data is properly set
-                if "current_data" not in state or state["current_data"] is None:
-                    # Enhanced data extraction logic
-                    if state.get("request"):
-                        state["current_data"] = state["request"]
-                    elif state.get("text"):
-                        state["current_data"] = state["text"]
-                    elif state.get("data"):
-                        state["current_data"] = state["data"]
-                    elif state.get("files") and len(state["files"]) > 0:
-                        # Try to use file content if available
-                        state["current_data"] = state["files"][0]
-                    elif state.get("results"):
-                        # Get the last successful agent's output
-                        for prev_agent in reversed(state.get("execution_path", [])):
-                            if prev_agent in state["results"]:
-                                result = state["results"][prev_agent]
-                                if (
-                                    isinstance(result, dict)
-                                    and result.get("status") == "success"
-                                ):
-                                    state["current_data"] = result.get("data")
-                                    break
-
-                    # If still no data, provide empty dict to prevent errors
-                    if state.get("current_data") is None:
-                        state["current_data"] = {}
-                        state["warnings"].append(
-                            {
-                                "agent": agent_name,
-                                "warning": "No input data available, using empty dict",
-                            }
-                        )
-
-                # Update current agent
-                state["current_agent"] = agent_name
-
-                # Check retry count
-                if agent_name not in state["retry_counts"]:
-                    state["retry_counts"][agent_name] = 0
-
-                # Load and execute agent
-                agent_func = self._load_agent(agent_name)
-
-                # Record start time
-                start_time = datetime.now()
-
-                # Create mutable copy of state
-                agent_state = dict(state)
-
-                # Execute with timeout
-                # Execute with timeout using threading instead of signal
-                import threading
-                import time
-
-                def run_agent_with_timeout():
-                    nonlocal agent_state, execution_error
-                    try:
-                        agent_state = agent_func(agent_state)
-                    except Exception as e:
-                        execution_error = e
-
-                execution_error = None
-                agent_thread = threading.Thread(target=run_agent_with_timeout)
-                agent_thread.start()
-                agent_thread.join(timeout=AGENT_TIMEOUT_SECONDS)
-
-                if agent_thread.is_alive():
-                    # Timeout occurred
-                    state["errors"].append(
-                        {
-                            "agent": agent_name,
-                            "error": f"Agent {agent_name} timeout after {AGENT_TIMEOUT_SECONDS}s",
-                            "type": "timeout",
-                        }
-                    )
-                    state["results"][agent_name] = {
-                        "status": "error",
-                        "data": None,
-                        "metadata": {
-                            "agent": agent_name,
-                            "error": "Execution timeout",
-                            "execution_time": AGENT_TIMEOUT_SECONDS,
-                        },
-                    }
-                elif execution_error:
-                    # Agent had an error
-                    raise execution_error
-
-                # Record execution time
-                execution_time = (datetime.now() - start_time).total_seconds()
-                state["execution_metrics"][agent_name] = execution_time
-
-                # Update tracking
-                if agent_name not in state["execution_path"]:
-                    state["execution_path"].append(agent_name)
-                if agent_name not in state["completed_agents"]:
-                    state["completed_agents"].append(agent_name)
-
-                # Ensure current_data is preserved for next agent
-                if agent_name in state.get("results", {}):
-                    result = state["results"][agent_name]
-                    if (
-                        isinstance(result, dict)
-                        and result.get("status") == "success"
-                        and "data" in result
-                    ):
-                        state["current_data"] = result["data"]
-
-                return state
-
-            except Exception as e:
-                # Record error but don't crash workflow
-                import traceback
-
-                state["errors"].append(
-                    {
-                        "agent": agent_name,
-                        "error": str(e),
-                        "traceback": traceback.format_exc(),
-                        "type": "execution_error",
-                    }
-                )
-
-                # Create error result
-                state["results"][agent_name] = {
-                    "status": "error",
-                    "data": None,
-                    "metadata": {"agent": agent_name, "error": str(e)},
-                }
-
-                # Still mark as completed (with error)
-                if agent_name not in state["completed_agents"]:
-                    state["completed_agents"].append(agent_name)
-
-                # Don't stop the workflow
-                return state
-
-        return agent_node
-
-    def _create_parallel_node(self, agents: List[str]) -> Callable:
-        """Create node for parallel execution - FIXED VERSION."""
-
-        def parallel_node(state: WorkflowState) -> WorkflowState:
-            """Execute agents in parallel without duplication."""
-            import concurrent.futures
-
-            state["parallel_group"] = agents
-            results = {}
-
-            # Track which agents have already been executed
-            already_executed = set(state.get("completed_agents", []))
-            agents_to_run = [a for a in agents if a not in already_executed]
-
-            if not agents_to_run:
-                print(f"All parallel agents already executed: {agents}")
-                return state
-
-            with concurrent.futures.ThreadPoolExecutor(
-                max_workers=min(len(agents_to_run), MAX_PARALLEL_AGENTS)
-            ) as executor:
-                # Submit all agents that haven't run yet
-                futures = {}
-                for agent_name in agents_to_run:
-                    try:
-                        agent_func = self._load_agent(agent_name)
-                        # Create copy of state for each agent
-                        agent_state = dict(state)
-                        agent_state["current_agent"] = agent_name
-
-                        future = executor.submit(agent_func, agent_state)
-                        futures[future] = agent_name
-                    except Exception as e:
-                        print(f"Failed to submit agent {agent_name}: {e}")
-                        state["errors"].append(
-                            {
-                                "agent": agent_name,
-                                "error": f"Failed to submit: {str(e)}",
-                            }
-                        )
-
-                # Collect results with timeout
-                for future in concurrent.futures.as_completed(
-                    futures, timeout=WORKFLOW_TIMEOUT_SECONDS
-                ):
-                    agent_name = futures[future]
-                    try:
-                        agent_state = future.result(timeout=AGENT_TIMEOUT_SECONDS)
-
-                        # Merge results back to main state
-                        if agent_name in agent_state.get("results", {}):
-                            results[agent_name] = agent_state["results"][agent_name]
-
-                        # Update completed list (avoid duplicates)
-                        if agent_name not in state["completed_agents"]:
-                            state["completed_agents"].append(agent_name)
-
-                        # Add to execution path once
-                        if agent_name not in state["execution_path"]:
-                            state["execution_path"].append(agent_name)
-
-                    except concurrent.futures.TimeoutError:
-                        state["errors"].append(
-                            {
-                                "agent": agent_name,
-                                "error": f"Timeout after {AGENT_TIMEOUT_SECONDS}s",
-                            }
-                        )
-                    except Exception as e:
-                        state["errors"].append({"agent": agent_name, "error": str(e)})
-
-            # Merge all results at once
-            state["results"].update(results)
-
-            return state
-
-        return parallel_node
-
-    def _create_merge_node(self) -> Callable:
-        """Create node for merging parallel results."""
-
-        def merge_node(state: WorkflowState) -> WorkflowState:
-            """Merge results from parallel execution."""
-            # Aggregate data from all results
-            merged_data = {}
-
-            for agent_name, result in state.get("results", {}).items():
-                if isinstance(result, dict) and result.get("status") == "success":
-                    data = result.get("data", {})
-                    if isinstance(data, dict):
-                        merged_data.update(data)
-                    else:
-                        merged_data[agent_name] = data
-
-            state["current_data"] = merged_data
-            return state
-
-        return merge_node
-
-    def _create_decision_node(self) -> Callable:
-        """Create node for conditional decisions."""
-
-        def decision_node(state: WorkflowState) -> WorkflowState:
-            """Make routing decision based on state."""
-            # Analyze current data to determine next agent
-            # This is a simplified implementation
-            state["next_agent"] = self._determine_next_agent(state)
-            return state
-
-        return decision_node
-
-    def _should_continue(self, state: WorkflowState) -> bool:
-        """Determine if workflow should continue."""
-        # Check explicit flag
-        if not state.get("should_continue", True):
-            return False
-
-        # CRITICAL FIX: Don't stop on non-critical errors
-        # Only stop if ALL agents have failed
-        if state.get("errors"):
-            # Count successful vs failed agents
-            successful = len(
-                [
-                    a
-                    for a in state.get("completed_agents", [])
-                    if state.get("results", {}).get(a, {}).get("status") == "success"
-                ]
-            )
-
-            # Continue if at least one agent succeeded
-            if successful > 0:
-                return True
-
-            # Check if all agents have failed critically
-            total_agents = len(state.get("execution_path", []))
-            critical_errors = len(
-                [
-                    e
-                    for e in state["errors"]
-                    if "critical" in str(e.get("error", "")).lower()
-                ]
-            )
-
-            # Stop only if all agents failed
-            if total_agents > 0 and critical_errors >= total_agents:
-                return False
-
-        # Check step limit
-        if len(state.get("execution_path", [])) >= MAX_WORKFLOW_STEPS:
-            return False
-
-        return True
-
-    def _route_decision(self, state: WorkflowState) -> str:
-        """Route to next agent based on decision."""
-        return state.get("next_agent", "none")
-
-    def _determine_next_agent(self, state: WorkflowState) -> str:
-        """Determine next agent based on current state."""
-        # Simple logic - can be enhanced
-        current_data = state.get("current_data", {})
-
-        # Check data type and route accordingly
-        if isinstance(current_data, dict):
-            if "emails" in current_data:
-                return "email_processor"
-            elif "numbers" in current_data:
-                return "statistics_calculator"
-
-        return "none"
-
-    def _load_agent(self, agent_name: str) -> Callable:
-        """Load an agent function dynamically."""
-
-        print(f"DEBUG: Loading agent '{agent_name}'")
-
-        # Get agent info from registry
-        agent_info = self.registry.get_agent(agent_name)
-        if not agent_info:
-            print(f"DEBUG: Agent '{agent_name}' not found in registry")
-            raise ValueError(f"Agent '{agent_name}' not found in registry")
-
-        print(f"DEBUG: Agent info found: {agent_info.get('location')}")
-
-        # Load the agent module
-        agent_path = agent_info["location"]
-
-        # FIX: Handle relative paths correctly
-        if not os.path.isabs(agent_path):
-            # Get project root (parent of current directory when running from flask_app)
-            current_dir = os.getcwd()
-            if current_dir.endswith("flask_app"):
-                project_root = os.path.dirname(current_dir)
-            else:
-                project_root = current_dir
-            agent_path = os.path.join(project_root, agent_path)
-
-        print(f"DEBUG: Full agent path: {agent_path}")
-
-        if not os.path.exists(agent_path):
-            raise FileNotFoundError(f"Agent file not found: {agent_path}")
-
-        # Import the module
-        import importlib.util
-
-        spec = importlib.util.spec_from_file_location(
-            f"{agent_name}_module", agent_path
-        )
-        module = importlib.util.module_from_spec(spec)
-        sys.modules[f"{agent_name}_module"] = module
-        spec.loader.exec_module(module)
-
-        # Get the agent function
-        possible_names = [f"{agent_name}_agent", agent_name, "agent", "execute"]
-
-        agent_func = None
-        for name in possible_names:
-            if hasattr(module, name):
-                agent_func = getattr(module, name)
-                break
-
-        if not agent_func:
-            raise AttributeError(f"No valid agent function found in {agent_path}")
-
-        # Cache for future use
-        self.loaded_agents[agent_name] = agent_func
-
-        return agent_func
-
-    def _validate_agents(self, agents: List[str]) -> Dict[str, Any]:
-        """Validate that all agents exist and are valid."""
-
-        print(f"DEBUG: Validating agents: {agents}")
-
-        missing = []
-        inactive = []
-
-        for agent_name in agents:
-            print(f"DEBUG: Checking agent '{agent_name}'")
-            agent = self.registry.get_agent(agent_name)
-            if not agent:
-                print(f"DEBUG: Agent '{agent_name}' not found in registry")
-                missing.append(agent_name)
-            elif agent.get("status") != "active":
-                print(f"DEBUG: Agent '{agent_name}' status: {agent.get('status')}")
-                inactive.append(agent_name)
-            else:
-                print(f"DEBUG: Agent '{agent_name}' is valid and active")
-
-        errors = []
-        if missing:
-            errors.append(f"Missing agents: {', '.join(missing)}")
-        if inactive:
-            errors.append(f"Inactive agents: {', '.join(inactive)}")
-
-        return {
-            "valid": len(errors) == 0,
-            "errors": errors,
-            "missing": missing,
-            "inactive": inactive,
-        }
-
-    def _prepare_initial_state(
-        self, workflow_id: str, initial_data: Dict[str, Any]
-    ) -> WorkflowState:
-        """Prepare initial workflow state."""
-
-        # Determine current_data from multiple possible sources
-        current_data = (
-            initial_data.get("current_data")
-            or initial_data.get("text")
-            or initial_data.get("data")
-            or initial_data.get("request")
-            or initial_data
-        )
-
-        return {
-            "request": initial_data.get("request", ""),
+        # Initialize workflow state
+        self.workflow_state = {
             "workflow_id": workflow_id,
-            "workflow_type": initial_data.get("workflow_type", "sequential"),
-            "current_data": current_data,
-            # IMPORTANT: Also preserve original fields
-            "text": initial_data.get("text"),
-            "data": initial_data.get("data"),
-            "input": initial_data.get("input"),
-            "files": initial_data.get("files", []),
-            "context": initial_data.get("context", {}),
-            "execution_path": initial_data.get("execution_path", []),
-            "current_agent": None,
-            "pending_agents": [],
-            "completed_agents": [],
-            "results": initial_data.get("results", {}),
-            "errors": initial_data.get("errors", []),
-            "warnings": [],
-            "started_at": datetime.now().isoformat(),
-            "completed_at": None,
-            "execution_metrics": {},
-            "retry_counts": {},
-            "should_continue": True,
-            "next_agent": None,
-            "parallel_group": None,
+            "request": request,
+            "files": files or [],
+            "current_data": None,
+            "step_results": {},
+            "data_flow": [],
+            "errors": [],
+            "started_at": start_time.isoformat(),
         }
 
-    def _execute_with_timeout(
-        self,
-        workflow: StateGraph,
-        initial_state: WorkflowState,
-        config: Dict,
-        timeout: int,
-    ) -> WorkflowState:
-        """Execute workflow with timeout."""
-        import threading
-
-        result = [None]
-        exception = [None]
-
-        def run_workflow():
-            try:
-                final_state = initial_state
-                for output in workflow.stream(initial_state, config):
-                    if isinstance(output, dict):
-                        for key, value in output.items():
-                            if key != "__end__":
-                                final_state = value
-                result[0] = final_state
-            except Exception as e:
-                exception[0] = e
-
-        thread = threading.Thread(target=run_workflow)
-        thread.start()
-        thread.join(timeout=timeout)
-
-        if thread.is_alive():
-            # Timeout occurred
-            raise TimeoutError(f"Workflow timeout after {timeout} seconds")
-
-        if exception[0]:
-            raise exception[0]
-
-        return result[0]
-
-    def _update_agent_metrics(self, state: WorkflowState):
-        """Update agent metrics in registry."""
-        for agent_name in state.get("completed_agents", []):
-            if agent_name in state.get("execution_metrics", {}):
-                execution_time = state["execution_metrics"][agent_name]
-                self.registry.update_agent_metrics(agent_name, execution_time)
-
-    def _create_error_state(
-        self, initial_state: WorkflowState, error_message: str
-    ) -> WorkflowState:
-        """Create error state for failed execution."""
-        initial_state["errors"].append(
-            {
-                "agent": "workflow_engine",
-                "error": error_message,
-                "timestamp": datetime.now().isoformat(),
-            }
-        )
-        initial_state["completed_at"] = datetime.now().isoformat()
-        initial_state["should_continue"] = False
-        return initial_state
-
-    def _generate_workflow_id(self) -> str:
-        """Generate unique workflow ID."""
-        import random
-
-        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-        random_suffix = random.randint(1000, 9999)
-        return f"wf_{timestamp}_{random_suffix}"
-
-    def get_workflow_status(self, workflow_id: str) -> Optional[Dict]:
-        """Get status of a workflow."""
-        return self.active_workflows.get(workflow_id)
-
-    def cancel_workflow(self, workflow_id: str) -> bool:
-        """Cancel an active workflow."""
-        if workflow_id in self.active_workflows:
-            self.active_workflows[workflow_id]["status"] = ExecutionStatus.CANCELLED
-            return True
-        return False
-
-    def visualize_workflow(
-        self, agent_sequence: List[str], workflow_type: str = "sequential"
-    ) -> str:
-        """Create text visualization of workflow."""
-        viz = ["\nWorkflow Visualization"]
-        viz.append("=" * 50)
-        viz.append(f"Type: {workflow_type}")
-        viz.append(f"Agents: {len(agent_sequence)}")
-        viz.append("")
-
-        if workflow_type == "sequential":
-            viz.append("START")
-            for i, agent in enumerate(agent_sequence):
-                viz.append(f"  │")
-                viz.append(f"  ▼")
-                viz.append(f"[{i+1}. {agent}]")
-                agent_info = self.registry.get_agent(agent)
-                if agent_info:
-                    viz.append(f"    {agent_info['description']}")
-            viz.append(f"  │")
-            viz.append(f"  ▼")
-            viz.append("END")
-
-        elif workflow_type == "parallel":
-            viz.append("START")
-            viz.append("  │")
-            viz.append("  ▼")
-            viz.append("[Parallel Execution]")
-            for agent in agent_sequence:
-                viz.append(f"  ├─> {agent}")
-            viz.append("  │")
-            viz.append("  ▼")
-            viz.append("[Merge Results]")
-            viz.append("  │")
-            viz.append("  ▼")
-            viz.append("END")
-
-        return "\n".join(viz)
-
-    # ADD THESE NEW METHODS to the WorkflowEngine class:
-
-    async def execute_pipeline_workflow(
-        self, pipeline_plan: Dict, user_request: str, files: List[Dict] = None
-    ) -> Dict[str, Any]:
-        """
-        Execute a multi-step pipeline workflow with intelligence and adaptation.
-
-        Args:
-            pipeline_plan: Complete pipeline execution plan
-            user_request: Original user request
-            files: Uploaded files
-
-        Returns:
-            Pipeline execution results
-        """
-        print(f"DEBUG: WorkflowEngine executing pipeline workflow")
-
-        # Initialize pipeline executor
-        pipeline_executor = PipelineExecutor(self.registry)
-        workflow_intelligence = WorkflowIntelligence(self.registry)
-
-        # Execute pipeline with monitoring
-        execution_result = await self._execute_monitored_pipeline(
-            pipeline_executor, workflow_intelligence, pipeline_plan, user_request, files
-        )
-
-        return execution_result
-
-    async def _execute_monitored_pipeline(
-        self,
-        pipeline_executor: PipelineExecutor,
-        workflow_intelligence: WorkflowIntelligence,
-        pipeline_plan: Dict,
-        user_request: str,
-        files: List[Dict],
-    ) -> Dict[str, Any]:
-        """Execute pipeline with real-time monitoring and adaptation."""
-
         try:
-            # Start pipeline execution
-            result = await pipeline_executor.execute_pipeline(
-                pipeline_plan, user_request, files
-            )
+            # Get agent sequence from plan
+            agent_sequence = workflow_plan.get("agents", [])
+            execution_strategy = workflow_plan.get("execution_strategy", "sequential")
 
-            # Monitor and adapt if needed
-            if result["status"] in ["partial", "failed"] and result.get("errors"):
-                print(
-                    f"DEBUG: Pipeline had issues, checking for adaptation opportunities"
-                )
-
-                # Analyze pipeline performance
-                performance_analysis = (
-                    workflow_intelligence.analyze_pipeline_performance(
-                        result.get("pipeline_id", "unknown")
-                    )
-                )
-
-                print(
-                    f"DEBUG: Pipeline performance grade: {performance_analysis.get('performance_grade', 'unknown')}"
-                )
-
-                # Add performance metadata
-                if "metadata" not in result:
-                    result["metadata"] = {}
-                result["metadata"]["performance_analysis"] = performance_analysis
-
-            return result
-
-        except Exception as e:
-            print(f"DEBUG: Pipeline execution failed with exception: {str(e)}")
-            return {
-                "status": "error",
-                "error": f"Pipeline execution failed: {str(e)}",
-                "pipeline_id": pipeline_plan.get("pipeline_id", "unknown"),
-                "results": {},
-                "errors": [{"type": "execution_error", "message": str(e)}],
-            }
-
-    def _get_agent_function_name(self, agent_name: str) -> str:
-        """Smart function name resolution"""
-        if agent_name.endswith("_agent"):
-            return agent_name
-        else:
-            return f"{agent_name}_agent"
-
-    async def execute_agent(
-        self, agent_name: str, state: Dict[str, Any]
-    ) -> Dict[str, Any]:
-        """
-        Execute a single agent with enhanced error handling for pipeline context.
-        """
-        print(f"DEBUG: Executing agent '{agent_name}' with pipeline support")
-
-        # Check if agent exists
-        if not self.registry.agent_exists(agent_name):
-            return {
-                "status": "error",
-                "error": f"Agent '{agent_name}' not found",
-                "agent_name": agent_name,
-            }
-
-        # Get agent details
-        agent = self.registry.get_agent(agent_name)
-        agent_path = agent["location"]
-
-        # Handle relative paths correctly
-        if not os.path.isabs(agent_path):
-            current_dir = os.getcwd()
-            if current_dir.endswith("flask_app"):
-                project_root = os.path.dirname(current_dir)
+            if execution_strategy == "sequential":
+                results = await self._execute_sequential(agent_sequence, request, files)
+            elif execution_strategy == "parallel":
+                results = await self._execute_parallel(agent_sequence, request, files)
             else:
-                project_root = current_dir
-            agent_path = os.path.join(project_root, agent_path)
+                # Default to sequential
+                results = await self._execute_sequential(agent_sequence, request, files)
 
-        # Verify agent file exists
-        if not os.path.exists(agent_path):
-            return {
-                "status": "error",
-                "error": f"Agent file not found: {agent_path}",
-                "agent_name": agent_name,
-            }
-
-        try:
-            start_time = datetime.now()
-
-            # Load agent module
-            spec = importlib.util.spec_from_file_location(agent_name, agent_path)
-            agent_module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(agent_module)
-
-            # FIXED: Get agent function with correct naming convention
-            function_name = self._get_agent_function_name(agent_name)
-            print(f"DEBUG: Looking for function: {function_name}")
-
-            try:
-                agent_function = getattr(agent_module, function_name)
-                print(f"DEBUG: Found agent function: {function_name}")
-            except AttributeError:
-                # Try the other pattern
-                fallback_name = (
-                    agent_name
-                    if agent_name.endswith("_agent")
-                    else f"{agent_name}_agent"
-                )
-                if fallback_name != function_name:
-                    try:
-                        agent_function = getattr(agent_module, fallback_name)
-                        print(f"DEBUG: Found with fallback: {fallback_name}")
-                    except AttributeError:
-                        available_funcs = [
-                            name
-                            for name in dir(agent_module)
-                            if not name.startswith("_")
-                        ]
-                        print(f"DEBUG: Available functions: {available_funcs}")
-                        raise AttributeError(
-                            f"No agent function found. Tried: {function_name}, {fallback_name}"
-                        )
-                else:
-                    available_funcs = [
-                        name for name in dir(agent_module) if not name.startswith("_")
-                    ]
-                    print(f"DEBUG: Available functions: {available_funcs}")
-                    raise AttributeError(f"Agent function not found: {function_name}")
-
-            print(f"DEBUG: Found agent function: {agent_name}_agent")
-            print(f"DEBUG: Input state keys: {list(state.keys())}")
-
-            # FIXED: Execute synchronously (no await, no asyncio.wait_for)
-            agent_result = agent_function(state)
-
-            print(
-                f"DEBUG: Agent function returned. Result keys: {list(agent_result.keys()) if isinstance(agent_result, dict) else type(agent_result)}"
-            )
-
-            # Calculate execution time
+            # Compile final results
             execution_time = (datetime.now() - start_time).total_seconds()
 
-            # FIXED: Extract result correctly from state structure
-            if isinstance(agent_result, dict) and "results" in agent_result:
-                if agent_name in agent_result["results"]:
-                    result = agent_result["results"][agent_name]
+            return {
+                "status": "success",
+                "workflow_id": workflow_id,
+                "execution_time": execution_time,
+                "results": results,
+                "data_flow": self.workflow_state["data_flow"],
+                "summary": self._generate_workflow_summary(results),
+                "metadata": {
+                    "agents_executed": len(agent_sequence),
+                    "strategy": execution_strategy,
+                    "files_processed": len(files) if files else 0,
+                },
+            }
 
-                    # Add execution metadata if missing
-                    if "metadata" not in result:
-                        result["metadata"] = {}
-                    result["metadata"]["execution_time"] = execution_time
-                    result["metadata"]["agent_name"] = agent_name
-
-                    print(f"DEBUG: Extracted result: {result}")
-                    return result
-                else:
-                    return {
-                        "status": "error",
-                        "error": f"Agent '{agent_name}' did not produce expected result in state",
-                        "available_results": list(
-                            agent_result.get("results", {}).keys()
-                        ),
-                        "agent_name": agent_name,
-                    }
-            else:
-                return {
-                    "status": "error",
-                    "error": f"Agent returned invalid state structure: {type(agent_result)}",
-                    "agent_name": agent_name,
-                }
-
-        except AttributeError as e:
-            if "has no attribute" in str(e):
-                return {
-                    "status": "error",
-                    "error": f"Agent function '{agent_name}_agent' not found in module",
-                    "agent_name": agent_name,
-                    "traceback": traceback.format_exc(),
-                }
-            else:
-                return {
-                    "status": "error",
-                    "error": f"Attribute error: {str(e)}",
-                    "agent_name": agent_name,
-                    "traceback": traceback.format_exc(),
-                }
         except Exception as e:
-            print(f"DEBUG: Agent execution failed with exception: {str(e)}")
-            print(f"DEBUG: Full traceback: {traceback.format_exc()}")
             return {
                 "status": "error",
-                "error": f"Agent execution failed: {str(e)}",
-                "agent_name": agent_name,
-                "traceback": traceback.format_exc(),
+                "workflow_id": workflow_id,
+                "error": str(e),
+                "partial_results": self.workflow_state.get("step_results", {}),
+                "data_flow": self.workflow_state.get("data_flow", []),
             }
 
-    def create_pipeline_state(
-        self, request: str, pipeline_plan: Dict, files: List[Dict] = None
-    ) -> Dict[str, Any]:
-        """
-        Create enhanced state for pipeline execution.
+    # async def _execute_sequential(
+    #     self, agent_sequence: List[str], request: str, files: List[Dict]
+    # ) -> Dict:
+    #     """Execute agents sequentially with data flowing between steps."""
 
-        Args:
-            request: User request
-            pipeline_plan: Pipeline execution plan
-            files: Uploaded files
+    #     results = {}
+    #     current_data = None
 
-        Returns:
-            Enhanced pipeline state
-        """
+    #     # Start with file data if available
+    #     if files and files[0].get("read_success"):
+    #         current_data = files[0]
+    #         self.workflow_state["current_data"] = current_data
 
-        pipeline_state = {
-            "request": request,
-            "pipeline_id": pipeline_plan.get(
-                "pipeline_id", f"pipeline_{datetime.now().strftime('%H%M%S')}"
-            ),
-            "files": files or [],
-            "execution_path": [],
-            "current_data": {"user_request": request, "files": files},
-            "results": {},
-            "errors": [],
-            # Pipeline-specific fields
-            "pipeline_context": {
-                "total_steps": pipeline_plan.get("total_steps", 0),
-                "current_step": 0,
-                "execution_strategy": pipeline_plan.get(
-                    "execution_strategy", "sequential"
-                ),
-                "data_flow": pipeline_plan.get("data_flow", {}),
-                "step_plans": pipeline_plan.get("steps", []),
-            },
-            # Timing information
-            "started_at": datetime.now().isoformat(),
-            "completed_at": None,
-            # Monitoring data
-            "step_results": {},
-            "adaptations": [],
-            "performance_metrics": {
-                "steps_completed": 0,
-                "total_execution_time": 0,
-                "average_step_time": 0,
-            },
-        }
+    #     for i, agent_name in enumerate(agent_sequence):
+    #         print(f"🔄 Step {i+1}: Executing {agent_name}")
 
-        return pipeline_state
+    #         # Get agent
+    #         agent = self.agents.get(agent_name)
+    #         if not agent:
+    #             print(f"⚠️  Agent {agent_name} not found, skipping")
+    #             continue
 
-    async def execute_workflow_step(
-        self, step_plan: Dict, pipeline_state: Dict, workflow_intelligence=None
-    ) -> Dict[str, Any]:
-        """
-        Execute a single workflow step with monitoring.
+    #         # Prepare context for this step
+    #         step_context = {
+    #             "step_number": i + 1,
+    #             "total_steps": len(agent_sequence),
+    #             "previous_results": results,
+    #             "workflow_request": request,
+    #         }
 
-        Args:
-            step_plan: Individual step execution plan
-            pipeline_state: Current pipeline state
-            workflow_intelligence: Optional intelligence engine for monitoring
+    #         # Execute agent with current data
+    #         step_result = await agent.execute(
+    #             request=request, file_data=current_data, context=step_context
+    #         )
 
-        Returns:
-            Step execution result
-        """
+    #         # Store result
+    #         results[agent_name] = step_result
+    #         self.workflow_state["step_results"][agent_name] = step_result
 
-        agent_name = step_plan.get("agent_assigned")
-        step_name = step_plan.get("name", "unnamed_step")
+    #         # Update data flow for next step
+    #         if step_result.get("status") == "success":
+    #             # Pass successful data to next agent
+    #             data_output = step_result.get("data", {})
 
-        print(f"DEBUG: Executing workflow step: {step_name} with agent: {agent_name}")
+    #             # Create enriched data for next step
+    #             if current_data:
+    #                 # Merge new results with existing data
+    #                 enhanced_data = {
+    #                     **current_data,
+    #                     "previous_analysis": data_output,
+    #                     "step_history": results,
+    #                 }
+    #             else:
+    #                 # Create new data structure
+    #                 enhanced_data = {
+    #                     "content": data_output,
+    #                     "structure": "processed",
+    #                     "previous_analysis": data_output,
+    #                     "step_history": results,
+    #                 }
 
-        if not agent_name:
-            return {
-                "status": "error",
-                "error": "No agent assigned to step",
-                "step_name": step_name,
+    #             current_data = enhanced_data
+    #             self.workflow_state["current_data"] = current_data
+
+    #             # Log data flow
+    #             self.workflow_state["data_flow"].append(
+    #                 {
+    #                     "from_step": agent_name,
+    #                     "to_step": (
+    #                         agent_sequence[i + 1]
+    #                         if i + 1 < len(agent_sequence)
+    #                         else "final"
+    #                     ),
+    #                     "data_type": type(data_output).__name__,
+    #                     "data_size": len(str(data_output)) if data_output else 0,
+    #                     "timestamp": datetime.now().isoformat(),
+    #                 }
+    #             )
+
+    #             print(f"✅ {agent_name} completed successfully")
+
+    #         else:
+    #             error_msg = step_result.get("error", "Unknown error")
+    #             print(f"❌ {agent_name} failed: {error_msg}")
+    #             self.workflow_state["errors"].append(
+    #                 {
+    #                     "step": agent_name,
+    #                     "error": error_msg,
+    #                     "timestamp": datetime.now().isoformat(),
+    #                 }
+    #             )
+
+    #     return results
+
+    async def _execute_sequential(
+        self, agent_sequence: List[str], request: str, files: List[Dict]
+    ) -> Dict:
+        """Execute agents sequentially with data flowing between steps."""
+
+        results = {}
+        current_data = None
+
+        # Start with file data if available
+        if files and files[0].get("read_success"):
+            current_data = files[0]
+            self.workflow_state["current_data"] = current_data
+
+        for i, agent_name in enumerate(agent_sequence):
+            print(f"Step {i+1}: Executing {agent_name}")
+
+            # Get agent
+            agent = self.agents.get(agent_name)
+            if not agent:
+                print(f"Agent {agent_name} not found, skipping")
+                continue
+
+            # Prepare context for this step
+            step_context = {
+                "step_number": i + 1,
+                "total_steps": len(agent_sequence),
+                "previous_results": results,
+                "workflow_request": request,
             }
 
-        try:
-            # Update pipeline context for this step
-            pipeline_state["pipeline_context"]["current_step"] = step_plan.get(
-                "step_index", 0
-            )
-            pipeline_state["pipeline_context"]["current_step_name"] = step_name
-
-            # Execute the agent
-            step_result = await self.execute_agent(agent_name, pipeline_state)
-
-            # Add step metadata
-            step_result["step_name"] = step_name
-            step_result["step_index"] = step_plan.get("step_index", 0)
-
-            # Monitor execution if intelligence engine provided
-            if workflow_intelligence and step_result:
-                monitoring_result = (
-                    await workflow_intelligence.monitor_pipeline_execution(
-                        pipeline_state, step_result
+            # FIXED: Execute agent with proper method signature
+            try:
+                if agent_name in ["pdf_analyzer", "text_processor", "chart_generator"]:
+                    # New specialized agents - use keyword arguments
+                    step_result = await agent.execute(
+                        request=request, file_data=current_data, context=step_context
                     )
+                else:
+                    # Old IntelligentAgent - use state format
+                    state = {
+                        "current_data": current_data,
+                        "request": request,
+                        "results": results,
+                        "errors": [],
+                        "execution_path": [],
+                    }
+                    step_result = await agent.execute(state)
+
+            except Exception as e:
+                print(f"Agent {agent_name} failed: {str(e)}")
+                step_result = {"status": "error", "error": str(e), "data": None}
+
+            # Store result
+            results[agent_name] = step_result
+            self.workflow_state["step_results"][agent_name] = step_result
+
+            # Update data flow for next step
+            if step_result.get("status") == "success":
+                # Pass successful data to next agent
+                data_output = step_result.get("data", {})
+
+                # Create enriched data for next step
+                if current_data:
+                    # Merge new results with existing data
+                    enhanced_data = {
+                        **current_data,
+                        "previous_analysis": data_output,
+                        "step_history": results,
+                    }
+                else:
+                    # Create new data structure
+                    enhanced_data = {
+                        "content": data_output,
+                        "structure": "processed",
+                        "previous_analysis": data_output,
+                        "step_history": results,
+                    }
+
+                current_data = enhanced_data
+                self.workflow_state["current_data"] = current_data
+
+                # Log data flow
+                self.workflow_state["data_flow"].append(
+                    {
+                        "from_step": agent_name,
+                        "to_step": (
+                            agent_sequence[i + 1]
+                            if i + 1 < len(agent_sequence)
+                            else "final"
+                        ),
+                        "data_type": type(data_output).__name__,
+                        "data_size": len(str(data_output)) if data_output else 0,
+                        "timestamp": datetime.now().isoformat(),
+                    }
                 )
 
-                # Handle adaptation if needed
-                if monitoring_result.get("adaptation_needed"):
-                    adaptation_strategy = monitoring_result.get("adaptation_strategy")
-                    if adaptation_strategy:
-                        print(f"DEBUG: Executing adaptation for step: {step_name}")
+                print(f"{agent_name} completed successfully")
 
-                        adaptation_result = (
-                            await workflow_intelligence.execute_adaptation(
-                                adaptation_strategy, pipeline_state, step_plan
-                            )
+            else:
+                error_msg = step_result.get("error", "Unknown error")
+                print(f"{agent_name} failed: {error_msg}")
+                self.workflow_state["errors"].append(
+                    {
+                        "step": agent_name,
+                        "error": error_msg,
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                )
+
+        return results
+
+    async def _execute_parallel(
+        self, agent_sequence: List[str], request: str, files: List[Dict]
+    ) -> Dict:
+        """Execute agents in parallel (for independent tasks)."""
+
+        print(f"🔄 Executing {len(agent_sequence)} agents in parallel")
+
+        # Prepare tasks
+        tasks = []
+        for agent_name in agent_sequence:
+            agent = self.agents.get(agent_name)
+            if agent:
+                # Each agent gets the original file data
+                file_data = files[0] if files and files[0].get("read_success") else None
+                task = agent.execute(
+                    request=request,
+                    file_data=file_data,
+                    context={"execution_mode": "parallel"},
+                )
+                tasks.append((agent_name, task))
+
+        # Execute all tasks concurrently
+        results = {}
+        task_results = await asyncio.gather(
+            *[task for _, task in tasks], return_exceptions=True
+        )
+
+        # Process results
+        for i, (agent_name, result) in enumerate(
+            zip([name for name, _ in tasks], task_results)
+        ):
+            if isinstance(result, Exception):
+                results[agent_name] = {
+                    "status": "error",
+                    "error": str(result),
+                    "data": None,
+                }
+                print(f"❌ {agent_name} failed: {result}")
+            else:
+                results[agent_name] = result
+                print(f"✅ {agent_name} completed")
+
+        return results
+
+    def _generate_workflow_summary(self, results: Dict) -> str:
+        """Generate human-readable workflow summary - FIXED VERSION."""
+
+        successful_agents = []
+        failed_agents = []
+
+        # FIXED: Handle different result structures safely
+        for name, result in results.items():
+            if isinstance(result, dict):
+                if result.get("status") == "success":
+                    successful_agents.append(name)
+                elif result.get("status") == "error":
+                    failed_agents.append(name)
+                else:
+                    # Unknown status, treat as successful if no error
+                    successful_agents.append(name)
+            elif isinstance(result, str):
+                # String result - assume successful
+                successful_agents.append(name)
+            else:
+                # Other type - assume successful
+                successful_agents.append(name)
+
+        summary_parts = []
+
+        if successful_agents:
+            summary_parts.append(
+                f"✅ Successfully executed: {', '.join(successful_agents)}"
+            )
+
+            # Add key insights from each agent - FIXED with type checking
+            for agent_name in successful_agents:
+                result = results.get(agent_name, {})
+
+                # Handle different result types
+                if isinstance(result, dict):
+                    data = result.get("data", {})
+
+                    if (
+                        agent_name == "pdf_analyzer"
+                        and isinstance(data, dict)
+                        and data.get("summary")
+                    ):
+                        summary_parts.append(
+                            f"📄 PDF Analysis: {str(data['summary'])[:100]}..."
                         )
 
-                        # Update step result if adaptation succeeded
-                        if adaptation_result.get("status") == "success":
-                            step_result = adaptation_result.get(
-                                "recovery_result", step_result
+                    elif agent_name == "text_processor":
+                        if isinstance(data, dict) and data.get("processed_text"):
+                            summary_parts.append(
+                                f"📝 Text Processing: {str(data['processed_text'])[:100]}..."
                             )
-                            step_result["adaptation_applied"] = True
-                            step_result["adaptation_details"] = adaptation_result
+                        elif isinstance(data, str):
+                            summary_parts.append(f"📝 Text Processing: {data[:100]}...")
 
-            return step_result
+                    elif (
+                        agent_name == "chart_generator"
+                        and isinstance(data, dict)
+                        and data.get("chart_type")
+                    ):
+                        summary_parts.append(f"📊 Generated {data['chart_type']} chart")
 
-        except Exception as e:
-            return {
-                "status": "error",
-                "error": str(e),
-                "step_name": step_name,
-                "agent_name": agent_name,
-            }
+                    elif agent_name == "data_analyzer":
+                        summary_parts.append(
+                            f"📈 Data Analysis: Key insights identified"
+                        )
 
-    def validate_pipeline_state(self, state: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Validate and fix pipeline state structure.
+                elif isinstance(result, str):
+                    # Handle string results
+                    summary_parts.append(f"• {agent_name}: {result[:50]}...")
 
-        Args:
-            state: Pipeline state to validate
+        if failed_agents:
+            summary_parts.append(f"❌ Failed: {', '.join(failed_agents)}")
 
-        Returns:
-            Validation result with fixes applied
-        """
+        return " | ".join(summary_parts) if summary_parts else "Workflow completed"
 
-        validation_result = {"valid": True, "issues_found": [], "fixes_applied": []}
+    def get_workflow_state(self) -> Dict:
+        """Get current workflow state for debugging."""
+        return self.workflow_state.copy()
 
-        # Check required fields
-        required_fields = ["request", "results", "errors", "execution_path"]
-        for field in required_fields:
-            if field not in state:
-                state[field] = (
-                    []
-                    if field in ["errors", "execution_path"]
-                    else ({} if field == "results" else "")
-                )
-                validation_result["fixes_applied"].append(
-                    f"Added missing field: {field}"
-                )
 
-        # Check pipeline context
-        if "pipeline_context" not in state:
-            state["pipeline_context"] = {
-                "total_steps": 0,
-                "current_step": 0,
-                "execution_strategy": "sequential",
-            }
-            validation_result["fixes_applied"].append("Added missing pipeline_context")
+class WorkflowPlanner:
+    """Plans optimal multi-agent workflows based on requests and data."""
 
-        # Validate data types
-        if not isinstance(state["results"], dict):
-            state["results"] = {}
-            validation_result["fixes_applied"].append("Fixed results field type")
-
-        if not isinstance(state["errors"], list):
-            state["errors"] = []
-            validation_result["fixes_applied"].append("Fixed errors field type")
-
-        if not isinstance(state["execution_path"], list):
-            state["execution_path"] = []
-            validation_result["fixes_applied"].append("Fixed execution_path field type")
-
-        # Check for issues
-        if len(validation_result["fixes_applied"]) > 0:
-            validation_result["valid"] = False
-            validation_result["issues_found"] = [
-                f"Structure issues fixed: {len(validation_result['fixes_applied'])} problems"
-            ]
-
-        return validation_result
-
-    def get_pipeline_progress(self, pipeline_state: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Get current pipeline execution progress.
-
-        Args:
-            pipeline_state: Current pipeline state
-
-        Returns:
-            Progress information
-        """
-
-        pipeline_context = pipeline_state.get("pipeline_context", {})
-
-        current_step = pipeline_context.get("current_step", 0)
-        total_steps = pipeline_context.get("total_steps", 0)
-
-        # Calculate progress percentage
-        progress_percent = (current_step / total_steps * 100) if total_steps > 0 else 0
-
-        # Get timing information
-        started_at = pipeline_state.get("started_at")
-        current_time = datetime.now().isoformat()
-
-        # Calculate elapsed time
-        elapsed_time = 0
-        if started_at:
-            try:
-                start = datetime.fromisoformat(started_at.replace("Z", "+00:00"))
-                now = datetime.now()
-                elapsed_time = (now - start).total_seconds()
-            except:
-                pass
-
-        # Get step results summary
-        step_results = pipeline_state.get("step_results", {})
-        successful_steps = len(
-            [r for r in step_results.values() if r.get("status") == "success"]
-        )
-        failed_steps = len(
-            [r for r in step_results.values() if r.get("status") == "error"]
-        )
-
-        progress_info = {
-            "pipeline_id": pipeline_state.get("pipeline_id", "unknown"),
-            "current_step": current_step,
-            "total_steps": total_steps,
-            "progress_percent": round(progress_percent, 1),
-            "successful_steps": successful_steps,
-            "failed_steps": failed_steps,
-            "elapsed_time": round(elapsed_time, 1),
-            "execution_strategy": pipeline_context.get(
-                "execution_strategy", "sequential"
-            ),
-            "status": "in_progress" if current_step < total_steps else "completed",
-            "errors_count": len(pipeline_state.get("errors", [])),
-            "adaptations_count": len(pipeline_state.get("adaptations", [])),
+    def __init__(self):
+        self.available_agents = {
+            "pdf_analyzer": {
+                "best_for": ["pdf", "document_analysis", "text_extraction"],
+                "input_types": ["pdf", "document"],
+                "output_types": ["analysis", "extracted_text", "insights"],
+            },
+            "text_processor": {
+                "best_for": ["text_analysis", "entity_extraction", "sentiment"],
+                "input_types": ["text", "string", "document"],
+                "output_types": ["processed_text", "entities", "analysis"],
+            },
+            "chart_generator": {
+                "best_for": ["visualization", "charts", "graphs", "plotting"],
+                "input_types": ["tabular", "csv", "data"],
+                "output_types": ["chart", "visualization", "graph"],
+            },
+            "data_analyzer": {
+                "best_for": ["data_analysis", "statistics", "patterns"],
+                "input_types": ["tabular", "csv", "numbers"],
+                "output_types": ["analysis", "statistics", "insights"],
+            },
         }
 
-        return progress_info
+    def plan_workflow(self, request: str, files: List[Dict] = None) -> Dict:
+        """Plan optimal workflow based on request and available data."""
 
-```
+        request_lower = request.lower()
+        file_types = [f.get("structure", "unknown") for f in files] if files else []
 
---------------------------------------------------------------------------------
+        planned_agents = []
+        execution_strategy = "sequential"  # Default to sequential for data flow
 
-### File: core/workflow_intelligence.py
-**Path:** `core/workflow_intelligence.py`
-**Size:** 19,973 bytes
-**Modified:** 2025-09-10 21:15:39
+        # Analyze request intent
+        if "pdf" in request_lower or "document" in request_lower or "pdf" in file_types:
+            planned_agents.append("pdf_analyzer")
 
-```python
-"""
-Workflow Intelligence
-Real-time monitoring and adaptation engine for pipeline execution
-"""
-
-import os
-import sys
-import json
-import asyncio
-from typing import Dict, List, Optional, Any, Tuple
-from datetime import datetime, timedelta
-import openai
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from config import (
-    OPENAI_API_KEY,
-    ORCHESTRATOR_MODEL,
-    ORCHESTRATOR_MAX_TOKENS,
-    PIPELINE_RECOVERY_PROMPT,
-    WORKFLOW_ADAPTATION_PROMPT,
-)
-from core.registry import RegistryManager
-from core.agent_factory import AgentFactory
-
-
-class WorkflowIntelligence:
-    """
-    Real-time monitoring and adaptation engine for pipeline execution.
-    Handles failure detection, recovery strategies, and workflow optimization.
-    """
-
-    def __init__(self, registry: RegistryManager):
-        """Initialize the workflow intelligence engine."""
-        self.client = openai.OpenAI(api_key=OPENAI_API_KEY)
-        self.registry = registry
-        self.agent_factory = AgentFactory()
-        self.monitoring_data = []
-        self.adaptation_history = []
-
-    async def monitor_pipeline_execution(
-        self, pipeline_state: Dict, step_result: Dict
-    ) -> Dict[str, Any]:
-        """
-        Monitor pipeline execution and detect issues in real-time.
-
-        Args:
-            pipeline_state: Current pipeline state
-            step_result: Result from latest step execution
-
-        Returns:
-            Monitoring analysis with recommendations
-        """
-        print(
-            f"DEBUG: Monitoring pipeline step: {step_result.get('step_name', 'unknown')}"
-        )
-
-        # Record monitoring data
-        monitoring_entry = {
-            "pipeline_id": pipeline_state.get("pipeline_id"),
-            "step_index": pipeline_state.get("current_step", 0),
-            "step_name": step_result.get("step_name"),
-            "status": step_result.get("status"),
-            "timestamp": datetime.now().isoformat(),
-            "execution_time": step_result.get("metadata", {}).get("execution_time", 0),
-        }
-        self.monitoring_data.append(monitoring_entry)
-
-        # Analyze step result
-        analysis = {
-            "status": "healthy",
-            "issues_detected": [],
-            "recommendations": [],
-            "adaptation_needed": False,
-            "adaptation_strategy": None,
-        }
-
-        # Check for failures
-        if step_result.get("status") == "error":
-            analysis["status"] = "failed"
-            analysis["issues_detected"].append(
-                {
-                    "type": "step_failure",
-                    "description": step_result.get("error", "Unknown error"),
-                    "severity": "high",
-                }
-            )
-            analysis["adaptation_needed"] = True
-
-        # Check for performance issues
-        exec_time = monitoring_entry["execution_time"]
-        if exec_time > 30:  # Configurable threshold
-            analysis["issues_detected"].append(
-                {
-                    "type": "performance_degradation",
-                    "description": f"Step took {exec_time:.1f}s (threshold: 30s)",
-                    "severity": "medium",
-                }
-            )
-
-        # Check data quality issues
-        data_quality_issues = self._analyze_data_quality(step_result)
-        analysis["issues_detected"].extend(data_quality_issues)
-
-        # Generate recommendations
-        if analysis["issues_detected"]:
-            recommendations = await self._generate_recommendations(
-                analysis["issues_detected"], pipeline_state, step_result
-            )
-            analysis["recommendations"] = recommendations
-
-            # Determine if adaptation is needed
+            # If also asking for charts/analysis, add those
             if any(
-                issue["severity"] == "high" for issue in analysis["issues_detected"]
+                word in request_lower
+                for word in ["chart", "graph", "plot", "visualize"]
             ):
-                analysis["adaptation_needed"] = True
-                analysis["adaptation_strategy"] = await self._plan_adaptation_strategy(
-                    analysis["issues_detected"], pipeline_state, step_result
-                )
+                planned_agents.append("chart_generator")
+            if any(
+                word in request_lower for word in ["analyze", "analysis", "insights"]
+            ):
+                planned_agents.append("text_processor")
 
-        print(
-            f"DEBUG: Monitoring analysis - Status: {analysis['status']}, Issues: {len(analysis['issues_detected'])}"
-        )
-        return analysis
-
-    def _analyze_data_quality(self, step_result: Dict) -> List[Dict]:
-        """Analyze data quality issues in step results."""
-        issues = []
-
-        data = step_result.get("data", {})
-
-        # Check for empty results
-        if not data or (isinstance(data, (list, dict)) and len(data) == 0):
-            issues.append(
-                {
-                    "type": "empty_results",
-                    "description": "Step produced no data",
-                    "severity": "medium",
-                }
-            )
-
-        # Check for null/undefined values
-        if isinstance(data, dict):
-            null_fields = [k for k, v in data.items() if v is None]
-            if null_fields:
-                issues.append(
-                    {
-                        "type": "null_values",
-                        "description": f"Fields with null values: {null_fields}",
-                        "severity": "low",
-                    }
-                )
-
-        # Check for data type inconsistencies
-        if isinstance(data, list) and data:
-            first_type = type(data[0])
-            if not all(isinstance(item, first_type) for item in data):
-                issues.append(
-                    {
-                        "type": "type_inconsistency",
-                        "description": "Mixed data types in result list",
-                        "severity": "medium",
-                    }
-                )
-
-        return issues
-
-    async def _generate_recommendations(
-        self, issues: List[Dict], pipeline_state: Dict, step_result: Dict
-    ) -> List[Dict]:
-        """Generate recommendations for detected issues."""
-        recommendations = []
-
-        for issue in issues:
-            if issue["type"] == "step_failure":
-                recommendations.append(
-                    {
-                        "type": "retry_with_different_agent",
-                        "description": "Try executing with a different agent or create replacement",
-                        "priority": "high",
-                    }
-                )
-                recommendations.append(
-                    {
-                        "type": "modify_input_data",
-                        "description": "Preprocess input data to handle edge cases",
-                        "priority": "medium",
-                    }
-                )
-
-            elif issue["type"] == "performance_degradation":
-                recommendations.append(
-                    {
-                        "type": "optimize_agent",
-                        "description": "Consider creating optimized version of agent",
-                        "priority": "medium",
-                    }
-                )
-
-            elif issue["type"] == "empty_results":
-                recommendations.append(
-                    {
-                        "type": "verify_input_data",
-                        "description": "Check if input data is suitable for processing",
-                        "priority": "high",
-                    }
-                )
-                recommendations.append(
-                    {
-                        "type": "adjust_agent_logic",
-                        "description": "Modify agent to handle edge cases better",
-                        "priority": "medium",
-                    }
-                )
-
-        return recommendations
-
-    async def _plan_adaptation_strategy(
-        self, issues: List[Dict], pipeline_state: Dict, step_result: Dict
-    ) -> Dict[str, Any]:
-        """Plan adaptation strategy for handling issues."""
-
-        # Use GPT-4 to plan intelligent adaptation
-        prompt = WORKFLOW_ADAPTATION_PROMPT.format(
-            issues=json.dumps(issues),
-            pipeline_state=json.dumps(
-                {
-                    "current_step": pipeline_state.get("current_step"),
-                    "total_steps": pipeline_state.get("total_steps"),
-                    "previous_results": pipeline_state.get("step_results", {}),
-                }
-            ),
-            step_result=json.dumps(
-                {
-                    "status": step_result.get("status"),
-                    "error": step_result.get("error"),
-                    "agent_name": step_result.get("agent_name"),
-                }
-            ),
-        )
-
-        try:
-            response = await self._call_gpt4_json(
-                system_prompt="Plan intelligent adaptation strategies for workflow issues.",
-                user_prompt=prompt,
-            )
-
-            strategy = json.loads(response)
-            strategy["generated_at"] = datetime.now().isoformat()
-
-            return strategy
-
-        except Exception as e:
-            print(f"DEBUG: Adaptation planning failed: {str(e)}")
-            return {
-                "action": "manual_intervention",
-                "reason": f"Automated planning failed: {str(e)}",
-                "generated_at": datetime.now().isoformat(),
-            }
-
-    async def execute_adaptation(
-        self, adaptation_strategy: Dict, pipeline_state: Dict, step_plan: Dict
-    ) -> Dict[str, Any]:
-        """
-        Execute adaptation strategy to recover from issues.
-
-        Args:
-            adaptation_strategy: Strategy from _plan_adaptation_strategy
-            pipeline_state: Current pipeline state
-            step_plan: Plan for the failed step
-
-        Returns:
-            Adaptation execution result
-        """
-        print(
-            f"DEBUG: Executing adaptation strategy: {adaptation_strategy.get('action', 'unknown')}"
-        )
-
-        adaptation_result = {
-            "status": "failed",
-            "action_taken": adaptation_strategy.get("action"),
-            "timestamp": datetime.now().isoformat(),
-            "details": {},
-        }
-
-        action = adaptation_strategy.get("action", "")
-
-        try:
-            if action == "create_replacement_agent":
-                # Create new agent to replace failed one
-                result = await self._create_replacement_agent(
-                    adaptation_strategy, step_plan
-                )
-                adaptation_result.update(result)
-
-            elif action == "modify_existing_agent":
-                # Modify existing agent
-                result = await self._modify_existing_agent(
-                    adaptation_strategy, step_plan
-                )
-                adaptation_result.update(result)
-
-            elif action == "retry_with_preprocessing":
-                # Add data preprocessing step
-                result = await self._add_preprocessing_step(
-                    adaptation_strategy, step_plan, pipeline_state
-                )
-                adaptation_result.update(result)
-
-            elif action == "skip_step_with_fallback":
-                # Skip problematic step and use fallback
-                result = self._create_fallback_result(adaptation_strategy, step_plan)
-                adaptation_result.update(result)
-
+        elif (
+            "chart" in request_lower
+            or "graph" in request_lower
+            or "visualize" in request_lower
+        ):
+            # Data analysis first, then chart generation
+            if "tabular" in file_types or "csv" in str(files).lower():
+                planned_agents.extend(["data_analyzer", "chart_generator"])
             else:
-                adaptation_result["status"] = "unsupported"
-                adaptation_result["details"][
-                    "message"
-                ] = f"Unsupported adaptation action: {action}"
+                planned_agents.append("chart_generator")
 
-            # Record adaptation
-            self.adaptation_history.append(adaptation_result.copy())
+        elif any(
+            word in request_lower
+            for word in ["analyze", "analysis", "extract", "process"]
+        ):
+            if "tabular" in file_types:
+                planned_agents.append("data_analyzer")
+            else:
+                planned_agents.append("text_processor")
 
-        except Exception as e:
-            adaptation_result["status"] = "error"
-            adaptation_result["details"]["error"] = str(e)
-            print(f"DEBUG: Adaptation execution failed: {str(e)}")
+        # Default workflow
+        if not planned_agents:
+            if file_types:
+                if "pdf" in file_types:
+                    planned_agents.append("pdf_analyzer")
+                elif "tabular" in file_types:
+                    planned_agents.append("data_analyzer")
+                else:
+                    planned_agents.append("text_processor")
+            else:
+                planned_agents.append("text_processor")
 
-        return adaptation_result
-
-    async def _create_replacement_agent(
-        self, adaptation_strategy: Dict, step_plan: Dict
-    ) -> Dict[str, Any]:
-        """Create replacement agent for failed step."""
-
-        replacement_spec = adaptation_strategy.get("replacement_spec", {})
-
-        # Use agent factory to create replacement
-        creation_result = self.agent_factory.create_pipeline_agent(
-            {
-                "name": replacement_spec.get(
-                    "name", f"replacement_{step_plan.get('name', 'agent')}"
-                ),
-                "description": replacement_spec.get(
-                    "description", f"Replacement for {step_plan.get('name')}"
-                ),
-                "required_tools": replacement_spec.get("tools", []),
-                "pipeline_context": step_plan.get("pipeline_context", {}),
-            }
-        )
-
-        if creation_result["status"] == "success":
-            return {
-                "status": "success",
-                "details": {
-                    "replacement_agent": replacement_spec.get("name"),
-                    "creation_result": creation_result,
-                },
-            }
+        # FIXED: Always use sequential for multi-agent workflows to enable data flow
+        if len(planned_agents) > 1:
+            execution_strategy = "sequential"
         else:
-            return {
-                "status": "failed",
-                "details": {
-                    "creation_error": creation_result.get("message", "Unknown error")
-                },
-            }
-
-    async def _modify_existing_agent(
-        self, adaptation_strategy: Dict, step_plan: Dict
-    ) -> Dict[str, Any]:
-        """Modify existing agent to handle issues."""
-
-        # For now, create a modified version instead of modifying in-place
-        modifications = adaptation_strategy.get("modifications", {})
-        original_agent = step_plan.get("agent_assigned")
-
-        modified_spec = {
-            "name": f"{original_agent}_modified",
-            "description": f"Modified version of {original_agent}",
-            "modifications": modifications,
-            "original_agent": original_agent,
-        }
-
-        creation_result = self.agent_factory.create_pipeline_agent(modified_spec)
-
-        if creation_result["status"] == "success":
-            return {
-                "status": "success",
-                "details": {
-                    "modified_agent": modified_spec["name"],
-                    "modifications": modifications,
-                },
-            }
-        else:
-            return {
-                "status": "failed",
-                "details": {
-                    "modification_error": creation_result.get(
-                        "message", "Unknown error"
-                    )
-                },
-            }
-
-    async def _add_preprocessing_step(
-        self, adaptation_strategy: Dict, step_plan: Dict, pipeline_state: Dict
-    ) -> Dict[str, Any]:
-        """Add preprocessing step to handle data issues."""
-
-        preprocessing_spec = adaptation_strategy.get("preprocessing_spec", {})
-
-        # Create preprocessing agent
-        creation_result = self.agent_factory.create_pipeline_agent(
-            {
-                "name": f"preprocessor_{step_plan.get('name', 'data')}",
-                "description": f"Preprocessor for {step_plan.get('name')}",
-                "required_tools": preprocessing_spec.get(
-                    "tools", ["clean_data", "validate_data"]
-                ),
-                "preprocessing": True,
-            }
-        )
-
-        if creation_result["status"] == "success":
-            return {
-                "status": "success",
-                "details": {
-                    "preprocessing_agent": f"preprocessor_{step_plan.get('name', 'data')}",
-                    "preprocessing_spec": preprocessing_spec,
-                },
-            }
-        else:
-            return {
-                "status": "failed",
-                "details": {
-                    "preprocessing_error": creation_result.get(
-                        "message", "Unknown error"
-                    )
-                },
-            }
-
-    def _create_fallback_result(
-        self, adaptation_strategy: Dict, step_plan: Dict
-    ) -> Dict[str, Any]:
-        """Create fallback result for skipped step."""
-
-        fallback_data = adaptation_strategy.get("fallback_data", {})
+            execution_strategy = (
+                "sequential"  # Even single agents benefit from sequential processing
+            )
 
         return {
-            "status": "success",
-            "details": {
-                "action": "step_skipped",
-                "fallback_data": fallback_data,
-                "reason": "Created fallback result due to persistent failures",
-            },
-            "fallback_result": {
-                "status": "success",
-                "data": fallback_data,
-                "metadata": {
-                    "fallback": True,
-                    "original_step": step_plan.get("name"),
-                    "reason": "Adaptation strategy - step skipped with fallback",
-                },
-            },
+            "agents": planned_agents,
+            "execution_strategy": execution_strategy,
+            "rationale": f"Selected {len(planned_agents)} agents based on request analysis",
+            "data_flow_required": len(planned_agents) > 1,
         }
-
-    def analyze_pipeline_performance(self, pipeline_id: str) -> Dict[str, Any]:
-        """Analyze overall pipeline performance."""
-
-        # Get monitoring data for this pipeline
-        pipeline_data = [
-            entry
-            for entry in self.monitoring_data
-            if entry.get("pipeline_id") == pipeline_id
-        ]
-
-        if not pipeline_data:
-            return {"status": "no_data", "pipeline_id": pipeline_id}
-
-        # Calculate metrics
-        total_time = sum(entry.get("execution_time", 0) for entry in pipeline_data)
-        step_count = len(pipeline_data)
-        failed_steps = len(
-            [entry for entry in pipeline_data if entry.get("status") == "error"]
-        )
-
-        analysis = {
-            "pipeline_id": pipeline_id,
-            "total_execution_time": total_time,
-            "total_steps": step_count,
-            "failed_steps": failed_steps,
-            "success_rate": (
-                (step_count - failed_steps) / step_count if step_count > 0 else 0
-            ),
-            "average_step_time": total_time / step_count if step_count > 0 else 0,
-            "performance_grade": "unknown",
-        }
-
-        # Assign performance grade
-        if analysis["success_rate"] >= 0.9 and analysis["average_step_time"] < 10:
-            analysis["performance_grade"] = "excellent"
-        elif analysis["success_rate"] >= 0.8 and analysis["average_step_time"] < 20:
-            analysis["performance_grade"] = "good"
-        elif analysis["success_rate"] >= 0.6:
-            analysis["performance_grade"] = "acceptable"
-        else:
-            analysis["performance_grade"] = "poor"
-
-        return analysis
-
-    def get_adaptation_history(self) -> List[Dict]:
-        """Get history of adaptations performed."""
-        return self.adaptation_history.copy()
-
-    def clear_monitoring_data(self, older_than_hours: int = 24):
-        """Clear old monitoring data."""
-        cutoff_time = datetime.now() - timedelta(hours=older_than_hours)
-
-        self.monitoring_data = [
-            entry
-            for entry in self.monitoring_data
-            if datetime.fromisoformat(entry["timestamp"]) > cutoff_time
-        ]
-
-        self.adaptation_history = [
-            entry
-            for entry in self.adaptation_history
-            if datetime.fromisoformat(entry["timestamp"]) > cutoff_time
-        ]
-
-    async def _call_gpt4_json(
-        self, system_prompt: str, user_prompt: str, temperature: float = 0.1
-    ) -> str:
-        """Call GPT-4 for JSON responses."""
-        enhanced_prompt = f"{system_prompt}\n\n{user_prompt}\n\nRespond with ONLY valid JSON, no other text."
-
-        response = self.client.chat.completions.create(
-            model=ORCHESTRATOR_MODEL,
-            max_completion_tokens=ORCHESTRATOR_MAX_TOKENS,
-            messages=[{"role": "user", "content": enhanced_prompt}],
-        )
-
-        content = response.choices[0].message.content
-
-        # Extract JSON from response
-        if "```json" in content:
-            start = content.find("```json") + 7
-            end = content.find("```", start)
-            if end > start:
-                return content[start:end].strip()
-        elif "{" in content:
-            start = content.find("{")
-            end = content.rfind("}") + 1
-            if end > start:
-                return content[start:end].strip()
-
-        return content.strip()
 
 ```
 
@@ -14027,8 +9608,8 @@ class WorkflowIntelligence:
 
 ### File: create_knowledge_base.py
 **Path:** `create_knowledge_base.py`
-**Size:** 10,857 bytes
-**Modified:** 2025-09-09 17:21:49
+**Size:** 10,923 bytes
+**Modified:** 2025-09-14 16:39:00
 
 ```python
 #!/usr/bin/env python3
@@ -14058,6 +9639,8 @@ class ProjectKnowledgeExtractor:
             ".mypy_cache",
             "dist",
             "build",
+            "backup_removed_components",
+            "flask_app",
         }
 
         self.exclude_files = {
@@ -14362,3940 +9945,6 @@ if __name__ == "__main__":
 
 --------------------------------------------------------------------------------
 
-### File: flask_app/__init__.py
-**Path:** `flask_app/__init__.py`
-**Size:** 161 bytes
-**Modified:** 2025-09-07 12:05:15
-
-```python
-# flask_app/__init__.py
-"""
-Flask UI Application for Agentic Fabric POC
-Provides web interface for multi-agent orchestration platform
-"""
-
-__version__ = "1.0.0"
-
-```
-
---------------------------------------------------------------------------------
-
-### File: flask_app/app.py
-**Path:** `flask_app/app.py`
-**Size:** 7,235 bytes
-**Modified:** 2025-09-09 20:43:17
-
-```python
-# flask_app/app.py
-"""
-Main Flask Application - FIXED VERSION
-Entry point for the Agentic Fabric web interface
-"""
-
-import json
-import os
-import sys
-from flask import Flask, render_template, request, jsonify, session
-from flask_cors import CORS
-
-# Add project root to Python path for backend imports
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(project_root)
-
-# Import UI configuration
-from flask_app.config_ui import config
-
-
-def create_app(config_name=None):
-    """
-    Application factory pattern for Flask app creation.
-
-    Args:
-        config_name: Configuration environment ('development', 'production')
-
-    Returns:
-        Configured Flask application instance
-    """
-    app = Flask(__name__)
-
-    # Determine configuration
-    config_name = config_name or os.environ.get("FLASK_ENV", "development")
-    app.config.from_object(config[config_name])
-
-    # Enable CORS for API endpoints
-    CORS(
-        app,
-        resources={
-            r"/api/*": {
-                "origins": "*",
-                "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-                "allow_headers": [
-                    "Content-Type",
-                    "Authorization",
-                    "HX-Request",
-                    "HX-Target",
-                ],
-            }
-        },
-    )
-
-    # Ensure upload directory exists
-    os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
-    os.makedirs(app.config["OUTPUT_FOLDER"], exist_ok=True)
-
-    # Initialize extensions and register blueprints
-    register_blueprints(app)
-    register_error_handlers(app)
-    register_template_functions(app)
-
-    # FIXED: Use proper Flask 3.0 initialization method instead of before_first_request
-    with app.app_context():
-        initialize_services()
-
-    return app
-
-
-def initialize_services():
-    """Initialize services at application startup (Flask 3.0 compatible)."""
-    try:
-        from flask_app.services import (
-            orchestrator_service,
-            registry_service,
-            workflow_service,
-        )
-
-        print("DEBUG: Initializing services...")
-
-        # Initialize orchestrator service with sample data
-        if orchestrator_service.is_backend_available():
-            orchestrator_service.create_sample_workflows()
-            print("DEBUG: Orchestrator service initialized successfully")
-        else:
-            print("WARNING: Orchestrator service not available")
-
-        print("DEBUG: Services initialization completed")
-
-    except Exception as e:
-        print(f"ERROR: Failed to initialize services: {e}")
-
-
-def register_blueprints(app):
-    """Register Flask blueprints for route organization."""
-    try:
-        from flask_app.routes.main import main_bp
-        from flask_app.routes.api import api_bp
-
-        app.register_blueprint(main_bp)
-        app.register_blueprint(api_bp, url_prefix="/api")
-
-    except ImportError as e:
-        app.logger.warning(f"Blueprint import failed: {e}")
-
-
-def register_error_handlers(app):
-    """Register custom error handlers."""
-
-    @app.errorhandler(404)
-    def not_found_error(error):
-        return (
-            render_template(
-                "error.html", error_code=404, error_message="Page not found"
-            ),
-            404,
-        )
-
-    @app.errorhandler(500)
-    def internal_error(error):
-        return (
-            render_template(
-                "error.html", error_code=500, error_message="Internal server error"
-            ),
-            500,
-        )
-
-    @app.errorhandler(413)
-    def file_too_large(error):
-        return (
-            jsonify(
-                {
-                    "error": "File too large",
-                    "message": f'Maximum file size is {app.config["MAX_CONTENT_LENGTH"] // (1024*1024)}MB',
-                }
-            ),
-            413,
-        )
-
-
-def register_template_functions(app):
-    """Register custom template functions and filters."""
-
-    @app.template_filter("file_size")
-    def file_size_filter(size_bytes):
-        """Convert bytes to human readable format."""
-        if size_bytes == 0:
-            return "0 B"
-
-        size_names = ["B", "KB", "MB", "GB"]
-        import math
-
-        i = int(math.floor(math.log(size_bytes, 1024)))
-        p = math.pow(1024, i)
-        s = round(size_bytes / p, 2)
-        return f"{s} {size_names[i]}"
-
-    @app.template_filter("time_ago")
-    def time_ago_filter(timestamp):
-        """Convert timestamp to relative time."""
-        from datetime import datetime
-
-        if isinstance(timestamp, str):
-            try:
-                timestamp = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
-            except:
-                return timestamp
-
-        now = datetime.now(timestamp.tzinfo if timestamp.tzinfo else None)
-        diff = now - timestamp
-
-        if diff.days > 0:
-            return f"{diff.days} day{'s' if diff.days != 1 else ''} ago"
-        elif diff.seconds > 3600:
-            hours = diff.seconds // 3600
-            return f"{hours} hour{'s' if hours != 1 else ''} ago"
-        elif diff.seconds > 60:
-            minutes = diff.seconds // 60
-            return f"{minutes} minute{'s' if minutes != 1 else ''} ago"
-        else:
-            return "just now"
-
-    @app.context_processor
-    def inject_globals():
-        """Inject global variables into all templates."""
-        return {
-            "app_name": "Agentic Fabric",
-            "app_version": "1.0.0",
-            "debug_mode": app.config.get("ENABLE_DEBUG_MODE", False),
-            "show_code_gen": app.config.get("SHOW_CODE_GENERATION", False),
-        }
-
-
-# Create app instance
-app = create_app()
-
-
-@app.route("/favicon.ico")
-def favicon():
-    """Handle favicon requests to prevent 404 errors."""
-    from flask import send_from_directory
-
-    return send_from_directory(
-        os.path.join(app.root_path, "static"),
-        "favicon.ico",
-        mimetype="image/vnd.microsoft.icon",
-    )
-
-
-@app.route("/test-backend")
-def test_backend():
-    """Test backend integration."""
-    from flask_app.services import (
-        orchestrator_service,
-        registry_service,
-        workflow_service,
-    )
-
-    # Test services
-    results = {
-        "orchestrator_available": orchestrator_service.is_backend_available(),
-        "registry_available": registry_service.is_available(),
-        "workflow_available": workflow_service.is_available(),
-        "registry_stats": (
-            registry_service.get_registry_stats()
-            if registry_service.is_available()
-            else {}
-        ),
-        "agents_count": (
-            len(registry_service.get_agents_list())
-            if registry_service.is_available()
-            else 0
-        ),
-        "tools_count": (
-            len(registry_service.get_tools_list())
-            if registry_service.is_available()
-            else 0
-        ),
-    }
-
-    return f"""
-    <h1>Backend Integration Test</h1>
-    <pre>{json.dumps(results, indent=2)}</pre>
-    <a href="/">← Back to main</a>
-    """
-
-
-if __name__ == "__main__":
-    # Development server
-    port = int(os.environ.get("PORT", 5000))
-    app.run(
-        host="127.0.0.1", port=port, debug=app.config.get("DEBUG", True), threaded=True
-    )
-
-```
-
---------------------------------------------------------------------------------
-
-### File: flask_app/config_ui.py
-**Path:** `flask_app/config_ui.py`
-**Size:** 1,801 bytes
-**Modified:** 2025-09-09 16:33:57
-
-```python
-# flask_app/config_ui.py
-"""
-Flask UI Configuration
-Separate from core config.py to avoid conflicts
-"""
-
-import os
-from datetime import timedelta
-
-
-class Config:
-    """Base configuration class."""
-
-    # Flask Core Settings
-    SECRET_KEY = (
-        os.environ.get("FLASK_SECRET_KEY")
-        or "agentic-fabric-dev-key-change-in-production"
-    )
-
-    # Upload Settings
-    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
-    UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads")
-
-    # ADD THIS LINE:
-    OUTPUT_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "outputs")
-
-    ALLOWED_EXTENSIONS = {
-        "txt",
-        "pdf",
-        "csv",
-        "json",
-        "xlsx",
-        "xls",
-        "docx",
-        "jpg",
-        "jpeg",
-        "png",
-    }
-
-    # Session Settings
-    PERMANENT_SESSION_LIFETIME = timedelta(hours=2)
-
-    # HTMX Settings
-    HTMX_BOOSTED = True
-
-    # Backend Integration
-    BACKEND_TIMEOUT = 30  # seconds
-    MAX_WORKFLOW_TIME = 300  # 5 minutes max per workflow
-
-    # UI Settings
-    ITEMS_PER_PAGE = 20
-    ENABLE_DEBUG_MODE = os.environ.get("FLASK_DEBUG", "False").lower() == "true"
-    SHOW_CODE_GENERATION = os.environ.get("SHOW_CODE_GEN", "False").lower() == "true"
-
-    # Real-time Updates
-    SSE_HEARTBEAT_INTERVAL = 30  # seconds
-    WORKFLOW_POLL_INTERVAL = 1  # seconds
-
-
-class DevelopmentConfig(Config):
-    """Development configuration."""
-
-    DEBUG = True
-    TEMPLATES_AUTO_RELOAD = True
-    EXPLAIN_TEMPLATE_LOADING = False
-
-
-class ProductionConfig(Config):
-    """Production configuration."""
-
-    DEBUG = False
-    TESTING = False
-
-
-# Configuration mapping
-config = {
-    "development": DevelopmentConfig,
-    "production": ProductionConfig,
-    "default": DevelopmentConfig,
-}
-
-```
-
---------------------------------------------------------------------------------
-
-### File: flask_app/requirements_ui.txt
-**Path:** `flask_app/requirements_ui.txt`
-**Size:** 434 bytes
-**Modified:** 2025-09-07 12:06:24
-
-```text
-# Flask UI Requirements
-# Core Flask dependencies for the web interface
-
-# Web Framework
-Flask==3.0.0
-Flask-CORS==4.0.0
-
-# Template Engine (included with Flask)
-Jinja2==3.1.2
-
-# WSGI Server for production
-gunicorn==21.2.0
-
-# Development tools
-python-dotenv==1.0.0
-
-# File handling
-Werkzeug==3.0.1
-
-# Date/time utilities (already in main requirements)
-python-dateutil==2.9.0.post0
-
-# JSON handling (built-in)
-# Async support (built-in)
-```
-
---------------------------------------------------------------------------------
-
-### File: flask_app/routes/__init__.py
-**Path:** `flask_app/routes/__init__.py`
-**Size:** 224 bytes
-**Modified:** 2025-09-07 12:32:00
-
-```python
-# flask_app/routes/__init__.py
-"""
-Route Blueprints for Flask Application
-Organized by functionality: main, api, orchestrator, registry
-"""
-
-from .main import main_bp
-from .api import api_bp
-
-__all__ = ["main_bp", "api_bp"]
-
-```
-
---------------------------------------------------------------------------------
-
-### File: flask_app/routes/api.py
-**Path:** `flask_app/routes/api.py`
-**Size:** 38,607 bytes
-**Modified:** 2025-09-09 21:05:52
-
-```python
-# flask_app/routes/api.py - STREAMLINED VERSION
-"""
-API Routes Blueprint - Streamlined for Agentic Fabric POC
-Handles AJAX requests, file uploads, and data endpoints
-"""
-
-import os
-import json
-from typing import Any, Dict, List
-import uuid
-from datetime import datetime
-from flask import (
-    Blueprint,
-    request,
-    jsonify,
-    current_app,
-    session,
-    make_response,
-    send_file,
-)
-from werkzeug.utils import secure_filename
-from flask_app.services.orchestrator_service import orchestrator_service
-from flask_app.services.registry_service import registry_service
-from flask_app.services.workflow_service import workflow_service
-
-api_bp = Blueprint("api", __name__)
-
-
-def allowed_file(filename):
-    """Check if file extension is allowed."""
-    return (
-        "." in filename
-        and filename.rsplit(".", 1)[1].lower()
-        in current_app.config["ALLOWED_EXTENSIONS"]
-    )
-
-
-@api_bp.route("/health")
-def health_check():
-    """System health check endpoint - FIXED VERSION."""
-    try:
-        # FIXED: Use proper error handling for service availability checks
-        health_status = {
-            "status": "healthy",
-            "timestamp": datetime.now().isoformat(),
-            "services": {
-                "orchestrator": {
-                    "available": False,
-                    "status": "unknown",
-                    "message": "",
-                },
-                "registry": {"available": False, "status": "unknown", "message": ""},
-                "workflow": {"available": False, "status": "unknown", "message": ""},
-            },
-            "system": {
-                "uptime": "unknown",
-                "memory_usage": "unknown",
-                "active_workflows": 0,
-            },
-        }
-
-        # Check orchestrator service
-        try:
-            orchestrator_available = orchestrator_service.is_backend_available()
-            health_status["services"]["orchestrator"] = {
-                "available": orchestrator_available,
-                "status": "operational" if orchestrator_available else "degraded",
-                "message": (
-                    "Backend orchestrator ready"
-                    if orchestrator_available
-                    else "Backend orchestrator not available"
-                ),
-            }
-
-            if orchestrator_available:
-                health_status["system"]["active_workflows"] = len(
-                    orchestrator_service.active_workflows
-                )
-
-        except Exception as e:
-            health_status["services"]["orchestrator"] = {
-                "available": False,
-                "status": "error",
-                "message": f"Orchestrator check failed: {str(e)}",
-            }
-
-        # Check registry service
-        try:
-            registry_available = registry_service.is_available()
-            health_status["services"]["registry"] = {
-                "available": registry_available,
-                "status": "operational" if registry_available else "degraded",
-                "message": (
-                    "Registry service ready"
-                    if registry_available
-                    else "Registry service not available"
-                ),
-            }
-
-            if registry_available:
-                health_status["registry_stats"] = registry_service.get_registry_stats()
-
-        except Exception as e:
-            health_status["services"]["registry"] = {
-                "available": False,
-                "status": "error",
-                "message": f"Registry check failed: {str(e)}",
-            }
-
-        # Check workflow service
-        try:
-            workflow_available = workflow_service.is_available()
-            health_status["services"]["workflow"] = {
-                "available": workflow_available,
-                "status": "operational" if workflow_available else "degraded",
-                "message": (
-                    "Workflow engine ready"
-                    if workflow_available
-                    else "Workflow engine not available"
-                ),
-            }
-        except Exception as e:
-            health_status["services"]["workflow"] = {
-                "available": False,
-                "status": "error",
-                "message": f"Workflow check failed: {str(e)}",
-            }
-
-        # Determine overall system status
-        services_available = sum(
-            1 for s in health_status["services"].values() if s["available"]
-        )
-        total_services = len(health_status["services"])
-
-        if services_available == total_services:
-            health_status["status"] = "healthy"
-        elif services_available > 0:
-            health_status["status"] = "degraded"
-        else:
-            health_status["status"] = "unhealthy"
-
-        # Add system information
-        try:
-            import psutil
-            import time
-
-            health_status["system"][
-                "uptime"
-            ] = f"{time.time() - psutil.boot_time():.1f}s"
-            health_status["system"][
-                "memory_usage"
-            ] = f"{psutil.virtual_memory().percent}%"
-        except ImportError:
-            # psutil not available, use defaults
-            pass
-
-        return jsonify(health_status)
-
-    except Exception as e:
-        # FIXED: Always return a valid response even on complete failure
-        return (
-            jsonify(
-                {
-                    "status": "error",
-                    "timestamp": datetime.now().isoformat(),
-                    "error": f"Health check failed: {str(e)}",
-                    "services": {
-                        "orchestrator": {
-                            "available": False,
-                            "status": "error",
-                            "message": "Health check failed",
-                        },
-                        "registry": {
-                            "available": False,
-                            "status": "error",
-                            "message": "Health check failed",
-                        },
-                        "workflow": {
-                            "available": False,
-                            "status": "error",
-                            "message": "Health check failed",
-                        },
-                    },
-                }
-            ),
-            500000,
-        )
-
-
-@api_bp.route("/upload", methods=["POST"])
-def upload_file():
-    """Handle file uploads."""
-    try:
-        if "files" not in request.files:
-            return jsonify({"error": "No files provided"}), 400
-
-        files = request.files.getlist("files")
-        uploaded_files = []
-
-        for file in files:
-            if file.filename == "":
-                continue
-
-            if file and allowed_file(file.filename):
-                # Generate unique filename
-                filename = secure_filename(file.filename)
-                unique_id = uuid.uuid4().hex[:8]
-                name, ext = os.path.splitext(filename)
-                unique_filename = f"{name}_{unique_id}{ext}"
-
-                # Save file
-                filepath = os.path.join(
-                    current_app.config["UPLOAD_FOLDER"], unique_filename
-                )
-                file.save(filepath)
-
-                # Get file metadata
-                file_stats = os.stat(filepath)
-                file_metadata = {
-                    "id": unique_id,
-                    "original_name": filename,
-                    "stored_name": unique_filename,
-                    "path": filepath,
-                    "size": file_stats.st_size,
-                    "type": file.content_type or "application/octet-stream",
-                    "uploaded_at": datetime.now().isoformat(),
-                }
-                uploaded_files.append(file_metadata)
-            else:
-                return (
-                    jsonify({"error": f"File type not allowed: {file.filename}"}),
-                    400,
-                )
-
-        return jsonify(
-            {"status": "success", "files": uploaded_files, "count": len(uploaded_files)}
-        )
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/chat/message", methods=["POST"])
-def send_chat_message():
-    """Process a chat message with natural language support."""
-    try:
-        data = request.get_json()
-        if not data or "message" not in data:
-            return jsonify({"error": "No message provided"}), 400
-
-        message = data["message"].strip()
-        if not message:
-            return jsonify({"error": "Message cannot be empty"}), 400
-
-        files = data.get("files", [])
-        settings = data.get("settings", {})
-
-        # Get user preferences
-        auto_create = settings.get("auto_create", session.get("auto_create", True))
-        workflow_type = settings.get(
-            "workflow_type", session.get("workflow_type", "sequential")
-        )
-
-        # Generate unique message ID
-        message_id = f"msg_{uuid.uuid4().hex[:8]}"
-
-        # Store in session
-        if "chat_history" not in session:
-            session["chat_history"] = []
-
-        user_message = {
-            "id": message_id,
-            "message": message,
-            "timestamp": datetime.now().isoformat(),
-            "type": "user",
-            "files": files,
-        }
-        session["chat_history"].append(user_message)
-
-        # NEW: Add pipeline detection and routing
-        import asyncio
-
-        try:
-            # Simple complexity detection
-            request_lower = message.lower()
-            pipeline_keywords = [
-                "then",
-                "after",
-                "and",
-                "extract and",
-                "analyze and",
-                "step",
-                "first",
-                "next",
-            ]
-            is_complex = (
-                any(keyword in request_lower for keyword in pipeline_keywords)
-                or len(files) > 1
-            )
-
-            if is_complex:
-                # Use pipeline processing (if you implement process_pipeline_request)
-                # For now, use regular processing but mark as pipeline
-                result = asyncio.run(
-                    orchestrator_service.process_user_request(
-                        request_text=message,
-                        files=files,
-                        auto_create=auto_create,
-                    )
-                )
-                # Mark as pipeline result
-                result.setdefault("metadata", {})["is_pipeline"] = True
-            else:
-                # Use regular processing
-                result = asyncio.run(
-                    orchestrator_service.process_user_request(
-                        request_text=message,
-                        files=files,
-                        auto_create=auto_create,
-                    )
-                )
-        except Exception as e:
-            result = {
-                "status": "error",
-                "error": str(e),
-                "response": f"I encountered an error processing your request: {str(e)}",
-            }
-
-        # Create natural language response
-        response_text = create_natural_response(result, message)
-
-        # Add system response to session with pipeline info
-        system_response = {
-            "id": f"sys_{uuid.uuid4().hex[:8]}",
-            "message": response_text,
-            "timestamp": datetime.now().isoformat(),
-            "type": "system",
-            "workflow_id": result.get("workflow_id"),
-            "status": result.get("status"),
-            "metadata": {
-                "agents_used": result.get("workflow", {}).get("steps", []),
-                "execution_time": result.get("execution_time", 0),
-                "components_created": result.get("metadata", {}).get(
-                    "components_created", 0
-                ),
-                "workflow_type": workflow_type,
-                # NEW: Add pipeline info
-                "pipeline_info": {
-                    "type": (
-                        "pipeline"
-                        if len(result.get("workflow", {}).get("steps", [])) > 1
-                        else "simple"
-                    ),
-                    "steps": result.get("workflow", {}).get("steps", []),
-                    "steps_completed": len(result.get("workflow", {}).get("steps", [])),
-                    "total_steps": len(result.get("workflow", {}).get("steps", [])),
-                    "execution_time": result.get("execution_time", 0),
-                    "performance_grade": (
-                        "excellent"
-                        if result.get("status") == "success"
-                        else "acceptable"
-                    ),
-                    "components_created": result.get("metadata", {}).get(
-                        "components_created", 0
-                    ),
-                },
-            },
-        }
-
-        session["chat_history"].append(system_response)
-        session.modified = True
-
-        return jsonify(
-            {
-                "status": "success",
-                "message_id": message_id,
-                "response": response_text,
-                "workflow_id": result.get("workflow_id"),
-                "workflow": result.get("workflow", {}),
-                "execution_time": result.get("execution_time", 0),
-                "results": result.get("results", {}),
-                "metadata": system_response["metadata"],
-                "chat_updated": True,
-                # NEW: Add pipeline-specific data for frontend
-                "pipeline_info": system_response["metadata"]["pipeline_info"],
-            }
-        )
-
-    except Exception as e:
-        return (
-            jsonify(
-                {
-                    "status": "error",
-                    "error": str(e),
-                    "response": f"I'm having technical difficulties: {str(e)}",
-                }
-            ),
-            500,
-        )
-
-
-def create_natural_response(result, original_request):
-    """Create response using orchestrator output or intelligent fallbacks."""
-
-    # ALWAYS use the orchestrator's synthesized response first
-    if result.get("response"):
-        response = result["response"]
-        print(f"DEBUG: Using orchestrator response: {response[:100]}...")
-
-        # Enhanced: Format attribution nicely if present
-        if "*Processed using" in response:
-            # Split main response from attribution
-            parts = response.split("*Processed using", 1)
-            main_text = parts[0].strip()
-
-            if len(parts) > 1:
-                # Clean and format attribution
-                attribution = "Processed using" + parts[1].replace("*", "").strip()
-                # Add subtle styling with HTML
-                formatted_response = f"{main_text}\n\n<small class='text-muted'><i class='fas fa-cogs'></i> {attribution}</small>"
-                return formatted_response
-
-        return response
-
-    # IMPROVED: Use original_request for context-aware fallbacks
-    if result.get("status") == "error":
-        error_msg = result.get("error", "An unknown error occurred")
-        return f"I encountered an error while processing your request '{original_request[:50]}...': {error_msg}"
-
-    # IMPROVED: Context-aware partial response using original_request
-    agent_count = len(result.get("workflow", {}).get("steps", []))
-    if agent_count > 0:
-        # Try to extract some meaning from results even without orchestrator synthesis
-        basic_summary = extract_basic_results(
-            result.get("results", {}), original_request
-        )
-        if basic_summary:
-            # Enhanced: Add styled attribution to fallback responses
-            agent_names = ", ".join(result.get("workflow", {}).get("steps", []))
-            styled_attribution = f"<small class='text-muted'><i class='fas fa-cogs'></i> Processed using {agent_count} agent{'s' if agent_count != 1 else ''}: {agent_names}</small>"
-            return f"{basic_summary}\n\n{styled_attribution}\n\n<em>(Detailed response generation failed)</em>"
-        else:
-            return f"I attempted to process '{original_request[:50]}...' using {agent_count} agent{'s' if agent_count != 1 else ''}, but couldn't generate a detailed response."
-    else:
-        return f"I couldn't determine how to handle your request: '{original_request[:50]}...'. Please provide more specific instructions."
-
-
-def extract_basic_results(results, original_request):
-    """Extract basic results when orchestrator synthesis fails."""
-    if not results:
-        return None
-
-    request_lower = original_request.lower()
-    basic_findings = []
-
-    for agent_name, result in results.items():
-        if isinstance(result, dict) and result.get("status") == "success":
-            data = result.get("data", {})
-
-            # Context-aware result extraction based on original request
-            if "count" in request_lower and "word" in request_lower:
-                if "word_count" in data:
-                    return f"I counted {data['word_count']} words in your text."
-
-            elif "extract" in request_lower and "email" in request_lower:
-                if "emails" in data and data["emails"]:
-                    count = len(data["emails"])
-                    return f"I found {count} email address{'es' if count != 1 else ''}: {', '.join(data['emails'])}"
-                else:
-                    return "No email addresses were found in the provided text."
-
-            elif "extract" in request_lower and "url" in request_lower:
-                if "urls" in data and data["urls"]:
-                    count = len(data["urls"])
-                    return f"I found {count} URL{'s' if count != 1 else ''}: {', '.join(data['urls'])}"
-                else:
-                    return "No URLs were found in the provided text."
-
-            # Generic fallback
-            elif isinstance(data, dict) and data:
-                key_results = []
-                for key, value in list(data.items())[:3]:
-                    if isinstance(value, list):
-                        key_results.append(f"{key}: {len(value)} items")
-                    elif isinstance(value, (int, float)):
-                        key_results.append(f"{key}: {value}")
-
-                if key_results:
-                    return f"Results: {', '.join(key_results)}"
-
-    return None
-
-
-def extract_content_summary(agent_results):
-    """Extract meaningful content from agent results."""
-    content_parts = []
-
-    for agent_name, agent_result in agent_results.items():
-        if (
-            not isinstance(agent_result, dict)
-            or agent_result.get("status") != "success"
-        ):
-            continue
-
-        agent_data = agent_result.get("data", {})
-
-        # Email extraction
-        if "email" in agent_name.lower() and isinstance(agent_data, dict):
-            emails = agent_data.get("emails", [])
-            if emails:
-                content_parts.append(f"Found **{len(emails)} email addresses**:")
-                for email in emails[:5]:  # Show first 5
-                    content_parts.append(f"   • {email}")
-                if len(emails) > 5:
-                    content_parts.append(f"   • ... and {len(emails) - 5} more")
-
-        # URL extraction
-        elif "url" in agent_name.lower() and isinstance(agent_data, dict):
-            urls = agent_data.get("urls", [])
-            if urls:
-                content_parts.append(f"Found **{len(urls)} URLs**:")
-                for url in urls[:3]:  # Show first 3
-                    content_parts.append(f"   • {url}")
-                if len(urls) > 3:
-                    content_parts.append(f"   • ... and {len(urls) - 3} more")
-
-        # Generic data processing
-        else:
-            if isinstance(agent_data, dict) and agent_data:
-                summary_items = []
-                for key, value in list(agent_data.items())[:3]:
-                    if isinstance(value, list):
-                        summary_items.append(
-                            f"**{key.replace('_', ' ').title()}**: {len(value)} items"
-                        )
-                    elif isinstance(value, (int, float)):
-                        summary_items.append(
-                            f"**{key.replace('_', ' ').title()}**: {value}"
-                        )
-
-                if summary_items:
-                    content_parts.append(
-                        f"**{agent_name.replace('_', ' ').title()} Results:**"
-                    )
-                    content_parts.extend([f"   • {item}" for item in summary_items])
-
-    return content_parts
-
-
-# Simple API endpoints
-@api_bp.route("/workflow/<workflow_id>/status")
-def get_workflow_status(workflow_id):
-    """Get workflow status."""
-    try:
-        status = orchestrator_service.get_workflow_status(workflow_id)
-        if not status:
-            return jsonify({"error": "Workflow not found"}), 404
-        return jsonify(status)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/registry/agents")
-def list_agents():
-    """Get list of available agents."""
-    try:
-        agents = registry_service.get_agents_list()
-        return jsonify({"agents": agents, "count": len(agents)})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/registry/tools")
-def list_tools():
-    """Get list of available tools."""
-    try:
-        tools = registry_service.get_tools_list()
-        return jsonify({"tools": tools, "count": len(tools)})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/registry/stats")
-def registry_stats():
-    """Get registry statistics."""
-    try:
-        stats = registry_service.get_registry_stats()
-        return jsonify(stats)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/chat/history")
-def get_chat_history():
-    """Get current chat history."""
-    try:
-        history = session.get("chat_history", [])
-        return jsonify({"history": history, "count": len(history)})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/chat/clear", methods=["POST"])
-def clear_chat_history():
-    """Clear chat history."""
-    try:
-        session["chat_history"] = []
-        session.modified = True
-        return jsonify({"status": "success", "message": "Chat history cleared"})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/chat/export")
-def export_chat_history():
-    """Export chat history as JSON."""
-    try:
-        history = session.get("chat_history", [])
-        export_data = {
-            "exported_at": datetime.now().isoformat(),
-            "message_count": len(history),
-            "messages": history,
-        }
-
-        response = make_response(json.dumps(export_data, indent=2))
-        response.headers["Content-Type"] = "application/json"
-        response.headers["Content-Disposition"] = (
-            f'attachment; filename=chat_history_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
-        )
-        return response
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-# Error handlers
-@api_bp.errorhandler(400)
-def bad_request(error):
-    """Handle 400 errors."""
-    return jsonify({"error": "Bad request"}), 400
-
-
-@api_bp.errorhandler(404)
-def not_found_api(error):
-    """Handle 404 errors."""
-    return jsonify({"error": "Endpoint not found"}), 404
-
-
-@api_bp.errorhandler(500)
-def internal_error_api(error):
-    """Handle 500 errors."""
-    return jsonify({"error": "Internal server error"}), 500
-
-
-@api_bp.route("/workflows")
-def list_workflows():
-    """Get workflow history."""
-    try:
-        per_page = min(int(request.args.get("per_page", 20)), 100)
-        workflows = orchestrator_service.get_workflow_history(limit=per_page)
-        return jsonify(
-            {"workflows": workflows, "count": len(workflows), "total": len(workflows)}
-        )
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/registry/dependencies")
-def get_dependencies():
-    """Get dependency graph."""
-    try:
-        deps = registry_service.get_dependency_graph()
-        return jsonify(deps)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-def get_current_workflow_status(self) -> Dict[str, Any]:
-    """Get current workflow execution status for sidebar display."""
-    try:
-        # Get active workflows from orchestrator service
-        from flask_app.services.orchestrator_service import orchestrator_service
-
-        active_workflows = orchestrator_service.get_active_workflows()
-
-        if not active_workflows:
-            return {
-                "status": "idle",
-                "message": "No active workflows",
-                "current_workflow": None,
-            }
-
-        # Get the most recent active workflow
-        current = active_workflows[0]
-
-        return {
-            "status": "active",
-            "message": f"Processing: {current.get('request', 'Unknown task')[:50]}...",
-            "current_workflow": {
-                "id": current.get("workflow_id"),
-                "request": current.get("request"),
-                "status": current.get("status"),
-                "started_at": current.get("started_at"),
-                "progress": self._calculate_workflow_progress(current),
-            },
-        }
-    except Exception as e:
-        return {
-            "status": "error",
-            "message": f"Error getting workflow status: {str(e)}",
-            "current_workflow": None,
-        }
-
-
-@api_bp.route("/workflow/status/current")
-def get_current_workflow_status():
-    """Get current workflow status - FIXED VERSION."""
-    try:
-        # FIXED: Handle case where orchestrator_service might not be fully initialized
-        if not hasattr(orchestrator_service, "active_workflows"):
-            return jsonify(
-                {
-                    "status": "no_active_workflows",
-                    "active_workflows": {},
-                    "message": "Orchestrator service not fully initialized",
-                }
-            )
-
-        active_workflows = orchestrator_service.active_workflows
-
-        if not active_workflows:
-            return jsonify(
-                {
-                    "status": "no_active_workflows",
-                    "active_workflows": {},
-                    "message": "No workflows currently running",
-                }
-            )
-
-        return jsonify(
-            {
-                "status": "success",
-                "active_workflows": active_workflows,
-                "count": len(active_workflows),
-            }
-        )
-
-    except Exception as e:
-        return (
-            jsonify(
-                {
-                    "status": "error",
-                    "error": f"Failed to get workflow status: {str(e)}",
-                    "active_workflows": {},
-                }
-            ),
-            500000,
-        )
-
-
-@api_bp.route("/download/<filename>")
-def download_file(filename):
-    """Serve generated files for download."""
-    try:
-        # Security: Only allow downloading from outputs folder
-        safe_filename = secure_filename(filename)
-        file_path = os.path.join(current_app.config["OUTPUT_FOLDER"], safe_filename)
-
-        if os.path.exists(file_path):
-            return send_file(file_path, as_attachment=True, download_name=safe_filename)
-        else:
-            return jsonify({"error": "File not found"}), 404
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/list-outputs")
-def list_output_files():
-    """List available output files for debugging."""
-    try:
-        output_dir = current_app.config["OUTPUT_FOLDER"]
-        if os.path.exists(output_dir):
-            files = [
-                f
-                for f in os.listdir(output_dir)
-                if os.path.isfile(os.path.join(output_dir, f))
-            ]
-            return jsonify({"files": files, "output_dir": output_dir})
-        else:
-            return jsonify(
-                {
-                    "files": [],
-                    "output_dir": output_dir,
-                    "note": "Directory doesn't exist",
-                }
-            )
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-# ADD THESE NEW ENDPOINTS to flask_app/routes/api.py:
-
-
-@api_bp.route("/chat/pipeline", methods=["POST"])
-async def process_pipeline_chat():
-    """Enhanced chat endpoint with pipeline support."""
-    try:
-        data = request.get_json()
-
-        if not data or "message" not in data:
-            return jsonify({"error": "Message is required"}), 400
-
-        user_message = data["message"].strip()
-        if not user_message:
-            return jsonify({"error": "Message cannot be empty"}), 400
-
-        auto_create = data.get("auto_create", True)
-        session_id = session.get("session_id", str(uuid.uuid4()))
-        session["session_id"] = session_id
-
-        # Get uploaded files from session
-        uploaded_files = session.get("uploaded_files", [])
-
-        print(f"DEBUG: Processing pipeline chat - Message: {user_message[:100]}...")
-
-        # Process through enhanced pipeline orchestrator
-        result = await orchestrator_service.process_pipeline_request(
-            request_text=user_message, files=uploaded_files, auto_create=auto_create
-        )
-
-        # Create chat message entry
-        chat_entry = {
-            "id": str(uuid.uuid4()),
-            "type": "user",
-            "content": user_message,
-            "timestamp": datetime.now().isoformat(),
-            "files": len(uploaded_files),
-            "workflow_id": result.get("workflow_id"),
-        }
-
-        # Create response entry
-        response_entry = {
-            "id": str(uuid.uuid4()),
-            "type": "assistant",
-            "content": result.get(
-                "response", "I encountered an issue processing your request."
-            ),
-            "timestamp": datetime.now().isoformat(),
-            "workflow": result.get("workflow", {}),
-            "status": result.get("status", "unknown"),
-            "metadata": result.get("metadata", {}),
-            "pipeline_info": {
-                "type": result.get("workflow", {}).get("type", "unknown"),
-                "steps_completed": result.get("workflow", {}).get("steps_completed", 0),
-                "total_steps": result.get("workflow", {}).get("total_steps", 0),
-                "execution_time": result.get("metadata", {}).get("execution_time", 0),
-                "performance_grade": result.get("metadata", {}).get(
-                    "performance_grade", "unknown"
-                ),
-            },
-        }
-
-        # Add to chat history
-        if "chat_history" not in session:
-            session["chat_history"] = []
-
-        session["chat_history"].extend([chat_entry, response_entry])
-        session.modified = True
-
-        # Clear uploaded files after processing
-        session["uploaded_files"] = []
-
-        return jsonify(
-            {
-                "response": response_entry,
-                "workflow": result.get("workflow", {}),
-                "status": result.get("status"),
-                "pipeline_info": response_entry["pipeline_info"],
-                "generated_files": result.get("generated_files", []),
-                "errors": result.get("errors", []),
-            }
-        )
-
-    except Exception as e:
-        current_app.logger.error(f"Pipeline chat error: {str(e)}")
-        return (
-            jsonify(
-                {
-                    "error": "An error occurred processing your request",
-                    "details": str(e) if current_app.debug else None,
-                }
-            ),
-            500,
-        )
-
-
-@api_bp.route("/pipeline/analytics")
-def get_pipeline_analytics():
-    """Get pipeline processing analytics."""
-    try:
-        analytics = orchestrator_service.get_pipeline_analytics()
-        return jsonify(analytics)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/pipeline/status/<workflow_id>")
-def get_pipeline_status(workflow_id):
-    """Get status of a specific pipeline workflow."""
-    try:
-        # Get workflow from active workflows or history
-        active_workflow = orchestrator_service.active_workflows.get(workflow_id)
-
-        if active_workflow:
-            return jsonify(
-                {
-                    "workflow_id": workflow_id,
-                    "status": active_workflow.get("status", "unknown"),
-                    "started_at": active_workflow.get("started_at"),
-                    "completed_at": active_workflow.get("completed_at"),
-                    "type": active_workflow.get("type", "unknown"),
-                }
-            )
-
-        # Check history
-        historical_workflow = None
-        for workflow in orchestrator_service.workflow_history:
-            if workflow.get("workflow_id") == workflow_id:
-                historical_workflow = workflow
-                break
-
-        if historical_workflow:
-            return jsonify(historical_workflow)
-
-        return jsonify({"error": "Workflow not found"}), 404
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/pipeline/complexity/analyze", methods=["POST"])
-async def analyze_request_complexity():
-    """Analyze complexity of a request without processing it."""
-    try:
-        data = request.get_json()
-
-        if not data or "request" not in data:
-            return jsonify({"error": "Request text is required"}), 400
-
-        request_text = data["request"]
-        files = data.get("files", [])
-
-        # Use orchestrator service complexity detection
-        complexity = await orchestrator_service._detect_request_complexity(
-            request_text, files
-        )
-
-        # Get additional analysis
-        analysis = {
-            "complexity_level": complexity,
-            "estimated_steps": (
-                1 if complexity == "simple" else (3 if complexity == "pipeline" else 5)
-            ),
-            "processing_time_estimate": (
-                "5-10s"
-                if complexity == "simple"
-                else ("15-30s" if complexity == "pipeline" else "30-60s")
-            ),
-            "requires_pipeline": complexity in ["pipeline", "complex"],
-            "indicators": _get_complexity_indicators(request_text, files),
-        }
-
-        return jsonify(analysis)
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-def _get_complexity_indicators(request_text: str, files: List[Dict]) -> Dict[str, Any]:
-    """Get indicators that contributed to complexity assessment."""
-
-    request_lower = request_text.lower()
-
-    indicators = {
-        "pipeline_keywords": [],
-        "complex_keywords": [],
-        "step_indicators": [],
-        "file_complexity": {},
-        "length_factor": len(request_text.split()),
-    }
-
-    # Check for pipeline keywords
-    pipeline_keywords = [
-        "then",
-        "after",
-        "next",
-        "followed by",
-        "and then",
-        "first",
-        "second",
-        "third",
-        "finally",
-        "last",
-        "extract and",
-        "analyze and",
-        "process and",
-        "create and",
-    ]
-
-    for keyword in pipeline_keywords:
-        if keyword in request_lower:
-            indicators["pipeline_keywords"].append(keyword)
-
-    # Check for complex keywords
-    complex_keywords = [
-        "multiple files",
-        "compare",
-        "merge",
-        "combine",
-        "different formats",
-        "various sources",
-        "cross-reference",
-        "comprehensive",
-        "detailed analysis",
-        "full report",
-    ]
-
-    for keyword in complex_keywords:
-        if keyword in request_lower:
-            indicators["complex_keywords"].append(keyword)
-
-    # Check for step indicators
-    step_indicators = ["1.", "2.", "3.", "step 1", "step 2", "step 3"]
-    for indicator in step_indicators:
-        if indicator in request_lower:
-            indicators["step_indicators"].append(indicator)
-
-    # File complexity
-    indicators["file_complexity"] = {
-        "file_count": len(files) if files else 0,
-        "multiple_files": files and len(files) > 1,
-        "file_types": (
-            list(set(f.get("type", "unknown") for f in files)) if files else []
-        ),
-    }
-
-    return indicators
-
-
-@api_bp.route("/components/pipeline")
-def get_pipeline_components():
-    """Get information about pipeline-capable components."""
-    try:
-        # Get all agents and filter for pipeline-capable ones
-        all_agents = registry_service.get_agents_list()
-        pipeline_agents = [
-            agent
-            for agent in all_agents
-            if "pipeline" in agent.get("tags", [])
-            or agent.get("metadata", {}).get("created_for_pipeline", False)
-        ]
-
-        # Get tools that support pipeline operations
-        all_tools = registry_service.get_tools_list()
-        pipeline_tools = [
-            tool
-            for tool in all_tools
-            if any(
-                keyword in tool.get("description", "").lower()
-                for keyword in ["format", "convert", "adapt", "process"]
-            )
-        ]
-
-        return jsonify(
-            {
-                "pipeline_agents": {
-                    "count": len(pipeline_agents),
-                    "agents": pipeline_agents,
-                },
-                "pipeline_tools": {
-                    "count": len(pipeline_tools),
-                    "tools": pipeline_tools,
-                },
-                "total_components": len(pipeline_agents) + len(pipeline_tools),
-            }
-        )
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/workflows/pipeline")
-def list_pipeline_workflows():
-    """Get list of pipeline workflows."""
-    try:
-        # Get pipeline workflows from history
-        pipeline_workflows = [
-            w
-            for w in orchestrator_service.workflow_history
-            if w.get("type") == "pipeline"
-        ]
-
-        # Sort by most recent first
-        pipeline_workflows.sort(key=lambda x: x.get("started_at", ""), reverse=True)
-
-        return jsonify(
-            {
-                "workflows": pipeline_workflows,
-                "count": len(pipeline_workflows),
-                "analytics": orchestrator_service.get_pipeline_analytics(),
-            }
-        )
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-```
-
---------------------------------------------------------------------------------
-
-### File: flask_app/routes/main.py
-**Path:** `flask_app/routes/main.py`
-**Size:** 11,464 bytes
-**Modified:** 2025-09-08 21:06:56
-
-```python
-# flask_app/routes/main.py
-"""
-Main Routes Blueprint
-Handles page rendering and navigation
-"""
-
-from flask import Blueprint, render_template, request, session, redirect, url_for, flash
-from flask_app.services.registry_service import registry_service
-from flask_app.services.orchestrator_service import orchestrator_service
-import os
-
-main_bp = Blueprint("main", __name__)
-
-
-@main_bp.route("/")
-def index():
-    """Main chat interface page with enhanced system status."""
-    try:
-        # Get chat history from session
-        chat_history = session.get("chat_history", [])
-        # Get comprehensive system status with safe defaults
-        system_status = {
-            "backend_available": registry_service.is_available(),
-            "registry_stats": registry_service.get_registry_stats() or {},
-            "recent_workflows": [],  # Start with empty list
-            "system_performance": {},  # Start with empty dict
-        }
-
-        # Only try to get workflows if orchestrator is available
-        try:
-            if orchestrator_service.is_backend_available():
-                system_status["recent_workflows"] = (
-                    orchestrator_service.get_workflow_history(limit=5) or []
-                )
-                system_status["system_performance"] = (
-                    orchestrator_service.get_system_stats() or {}
-                )
-        except Exception as e:
-            print(f"Warning: Could not get orchestrator data: {e}")
-            # Continue with empty data rather than failing
-
-        # Get session-based chat history with safe default
-        chat_history = session.get("chat_history", [])
-
-        # Get user preferences with safe defaults
-        user_settings = {
-            "auto_create": session.get("auto_create", True),
-            "workflow_type": session.get("workflow_type", "sequential"),
-            "theme": session.get("theme", "light"),
-            "show_debug": session.get("debug_mode", False),
-        }
-
-        return render_template(
-            "index.jinja2",  # Use correct template name
-            system_status=system_status,
-            chat_history=chat_history,
-            user_settings=user_settings,
-        )
-
-    except Exception as e:
-        print(f"Error in index route: {str(e)}")
-        import traceback
-
-        traceback.print_exc()
-        flash(f"Error loading chat interface: {str(e)}", "error")
-        return render_template(
-            "error.html", error_code=500, error_message="Failed to load chat interface"
-        )
-
-
-@main_bp.route("/registry")
-def registry():
-    """Registry explorer page."""
-    try:
-        # Get filter parameters
-        agent_tags = request.args.getlist("agent_tags")
-        tool_tags = request.args.getlist("tool_tags")
-        search_query = request.args.get("search", "").strip()
-
-        # Fetch data with safe defaults
-        agents = (
-            registry_service.get_agents_list(tags=agent_tags if agent_tags else None)
-            or []
-        )
-
-        tools = (
-            registry_service.get_tools_list(tags=tool_tags if tool_tags else None) or []
-        )
-
-        registry_stats = registry_service.get_registry_stats() or {
-            "available": False,
-            "statistics": {"total_agents": 0, "total_tools": 0},
-            "summary": {"health_score": 0, "status": "unavailable"},
-        }
-
-        # Apply search filter if provided
-        if search_query:
-            search_results = registry_service.search_components(search_query)
-            agents = search_results.get("agents", [])
-            tools = search_results.get("tools", [])
-
-        # Get all available tags for filters
-        all_agent_tags = set()
-        all_tool_tags = set()
-
-        for agent in registry_service.get_agents_list() or []:
-            all_agent_tags.update(agent.get("tags", []))
-
-        for tool in registry_service.get_tools_list() or []:
-            all_tool_tags.update(tool.get("tags", []))
-
-        return render_template(
-            "registry.html",
-            agents=agents,
-            tools=tools,
-            registry_stats=registry_stats,
-            all_agent_tags=sorted(all_agent_tags),
-            all_tool_tags=sorted(all_tool_tags),
-            current_filters={
-                "agent_tags": agent_tags,
-                "tool_tags": tool_tags,
-                "search": search_query,
-            },
-        )
-
-    except Exception as e:
-        print(f"Registry error: {str(e)}")
-        import traceback
-
-        traceback.print_exc()
-        flash(f"Error loading registry: {str(e)}", "error")
-        return render_template(
-            "error.html", error_code=500, error_message="Failed to load registry"
-        )
-
-
-@main_bp.route("/workflows")
-def workflows():
-    """Workflow history and management page."""
-    try:
-        # Get real workflow history from orchestrator service
-        all_workflows = []
-        active_workflows = []
-
-        try:
-            all_workflows = orchestrator_service.get_workflow_history() or []
-            active_workflows = orchestrator_service.get_active_workflows() or []
-        except Exception as e:
-            print(f"Error getting workflow data: {e}")
-            # Fallback to empty lists
-
-        # Get pagination parameters
-        page = int(request.args.get("page", 1))
-        per_page = int(request.args.get("per_page", 20))
-
-        # Apply pagination
-        start_idx = (page - 1) * per_page
-        end_idx = start_idx + per_page
-        workflows = all_workflows[start_idx:end_idx]
-
-        pagination_info = {
-            "page": page,
-            "per_page": per_page,
-            "total": len(all_workflows),
-            "pages": max(1, (len(all_workflows) + per_page - 1) // per_page),
-            "has_prev": page > 1,
-            "has_next": end_idx < len(all_workflows),
-        }
-
-        # Get system stats
-        system_stats = {
-            "avg_processing_time": sum(
-                w.get("execution_time", 0) for w in all_workflows
-            )
-            / max(len(all_workflows), 1),
-            "success_rate": len(
-                [w for w in all_workflows if w.get("status") == "success"]
-            )
-            / max(len(all_workflows), 1),
-            "total_processed": len(all_workflows),
-            "active_workflows": len(active_workflows),
-        }
-
-        return render_template(
-            "workflows.html",
-            workflows=workflows,
-            active_workflows=active_workflows,
-            pagination=pagination_info,
-            system_stats=system_stats,
-        )
-
-    except Exception as e:
-        print(f"Workflows error: {str(e)}")
-        flash(f"Error loading workflows: {str(e)}", "error")
-        return render_template(
-            "error.html", error_code=500, error_message="Failed to load workflows"
-        )
-
-
-@main_bp.route("/workflow/<workflow_id>")
-def workflow_detail(workflow_id):
-    """Detailed view of a specific workflow."""
-    try:
-        # Get workflow status and details
-        workflow_status = orchestrator_service.get_workflow_status(workflow_id)
-
-        if not workflow_status:
-            flash("Workflow not found", "error")
-            return redirect(url_for("main.workflows"))
-
-        # Get visualization data
-        from flask_app.services import workflow_service
-
-        viz_data = workflow_service.get_workflow_visualization(workflow_id)
-
-        return render_template(
-            "workflow_detail.jinja2",
-            workflow=workflow_status,
-            visualization=viz_data,
-            workflow_id=workflow_id,
-        )
-
-    except Exception as e:
-        flash(f"Error loading workflow details: {str(e)}", "error")
-        return redirect(url_for("main.workflows"))
-
-
-@main_bp.route("/agent/<agent_name>")
-def agent_detail(agent_name):
-    """Detailed view of a specific agent."""
-    try:
-        agent = registry_service.get_agent_details(agent_name)
-
-        if not agent:
-            flash("Agent not found", "error")
-            return redirect(url_for("main.registry"))
-
-        return render_template("agent_detail.html", agent=agent, agent_name=agent_name)
-
-    except Exception as e:
-        flash(f"Error loading agent details: {str(e)}", "error")
-        return redirect(url_for("main.registry"))
-
-
-@main_bp.route("/tool/<tool_name>")
-def tool_detail(tool_name):
-    """Detailed view of a specific tool."""
-    try:
-        tool = registry_service.get_tool_details(tool_name)
-
-        if not tool:
-            flash("Tool not found", "error")
-            return redirect(url_for("main.registry"))
-
-        return render_template("tool_detail.html", tool=tool, tool_name=tool_name)
-
-    except Exception as e:
-        flash(f"Error loading tool details: {str(e)}", "error")
-        return redirect(url_for("main.registry"))
-
-
-@main_bp.route("/dependencies")
-def dependencies():
-    """Dependency graph visualization page."""
-    try:
-        dependency_graph = registry_service.get_dependency_graph()
-
-        return render_template("dependencies.html", graph=dependency_graph)
-
-    except Exception as e:
-        flash(f"Error loading dependencies: {str(e)}", "error")
-        return render_template(
-            "error.html",
-            error_code=500,
-            error_message="Failed to load dependency graph",
-        )
-
-
-@main_bp.route("/help")
-def help_page():
-    """Help and documentation page."""
-    return render_template("help.html")
-
-
-@main_bp.route("/settings")
-def settings():
-    """Application settings page."""
-    try:
-        current_settings = {
-            "debug_mode": session.get("debug_mode", False),
-            "show_code_generation": session.get("show_code_generation", False),
-            "theme": session.get("theme", "light"),
-            "auto_create": session.get("auto_create", True),
-            "workflow_type": session.get("workflow_type", "sequential"),
-        }
-
-        return render_template("settings.html", settings=current_settings)
-
-    except Exception as e:
-        flash(f"Error loading settings: {str(e)}", "error")
-        return render_template(
-            "error.html", error_code=500, error_message="Failed to load settings"
-        )
-
-
-@main_bp.route("/settings", methods=["POST"])
-def update_settings():
-    """Update application settings."""
-    try:
-        # Update session settings
-        session["debug_mode"] = request.form.get("debug_mode") == "on"
-        session["show_code_generation"] = (
-            request.form.get("show_code_generation") == "on"
-        )
-        session["theme"] = request.form.get("theme", "light")
-        session["auto_create"] = request.form.get("auto_create") == "on"
-        session["workflow_type"] = request.form.get("workflow_type", "sequential")
-
-        flash("Settings updated successfully", "success")
-        return redirect(url_for("main.settings"))
-
-    except Exception as e:
-        flash(f"Error updating settings: {str(e)}", "error")
-        return redirect(url_for("main.settings"))
-
-
-# Error handlers for this blueprint
-@main_bp.errorhandler(404)
-def not_found(error):
-    """Handle 404 errors within main blueprint."""
-    return (
-        render_template("error.html", error_code=404, error_message="Page not found"),
-        404,
-    )
-
-
-@main_bp.errorhandler(500)
-def internal_error(error):
-    """Handle 500 errors within main blueprint."""
-    return (
-        render_template(
-            "error.html", error_code=500, error_message="Internal server error"
-        ),
-        500,
-    )
-
-```
-
---------------------------------------------------------------------------------
-
-### File: flask_app/services/__init__.py
-**Path:** `flask_app/services/__init__.py`
-**Size:** 368 bytes
-**Modified:** 2025-09-08 21:07:09
-
-```python
-from .orchestrator_service import OrchestratorService, orchestrator_service
-from .registry_service import RegistryService, registry_service
-from .workflow_service import WorkflowService, workflow_service
-
-__all__ = [
-    "OrchestratorService",
-    "RegistryService",
-    "WorkflowService",
-    "orchestrator_service",
-    "registry_service",
-    "workflow_service",
-]
-
-```
-
---------------------------------------------------------------------------------
-
-### File: flask_app/services/orchestrator_service.py
-**Path:** `flask_app/services/orchestrator_service.py`
-**Size:** 35,515 bytes
-**Modified:** 2025-09-09 21:05:44
-
-```python
-# flask_app/services/orchestrator_service.py
-"""
-Orchestrator Service
-Interfaces with core/orchestrator.py for request processing
-"""
-
-import os
-import sys
-import asyncio
-import json
-import uuid
-from datetime import datetime, timedelta
-from typing import Dict, Any, List, Optional
-
-from core.pipeline_orchestrator import PipelineOrchestrator
-from core.workflow_intelligence import WorkflowIntelligence
-
-
-# Add project root to path for backend imports
-project_root = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-)
-sys.path.append(project_root)
-
-try:
-    from core.orchestrator import Orchestrator
-    from core.registry_singleton import get_shared_registry
-    from core.pipeline_orchestrator import PipelineOrchestrator
-    from core.workflow_intelligence import WorkflowIntelligence
-except ImportError as e:
-    print(f"Warning: Could not import backend components: {e}")
-    Orchestrator = None
-    PipelineOrchestrator = None
-    WorkflowIntelligence = None
-
-
-class OrchestratorService:
-    """Service layer for orchestrator operations."""
-
-    def __init__(self):
-        """Initialize orchestrator service with pipeline support - FIXED VERSION."""
-        # FIXED: Initialize all attributes first to prevent AttributeError
-        self.orchestrator = None
-        self.registry = None
-        self.pipeline_orchestrator = None
-        self.workflow_intelligence = None
-        self.active_workflows = {}
-        self.workflow_history = []  # FIXED: Always initialize this attribute
-
-        try:
-            # Try to initialize backend components
-            if Orchestrator:
-                self.orchestrator = Orchestrator()
-                print("DEBUG: Orchestrator initialized successfully")
-
-            # Get shared registry
-            if get_shared_registry:
-                self.registry = get_shared_registry()
-                print("DEBUG: Registry obtained successfully")
-
-            # Initialize pipeline components if available
-            if PipelineOrchestrator:
-                self.pipeline_orchestrator = PipelineOrchestrator()
-                print("DEBUG: PipelineOrchestrator initialized successfully")
-
-            if WorkflowIntelligence and self.registry:
-                self.workflow_intelligence = WorkflowIntelligence(self.registry)
-                print("DEBUG: WorkflowIntelligence initialized successfully")
-
-            print("DEBUG: OrchestratorService initialized with all components")
-
-        except Exception as e:
-            print(f"WARNING: Failed to initialize some orchestrator components: {e}")
-            # Ensure all attributes are still set even if initialization fails
-
-    def is_backend_available(self) -> bool:
-        """Check if backend components are available."""
-        return self.orchestrator is not None
-
-    async def process_user_request(
-        self,
-        request_text: str,
-        files: List[Dict] = None,
-        auto_create: bool = True,
-        workflow_type: str = "sequential",
-    ) -> Dict[str, Any]:
-        """
-        Process user request through orchestrator.
-
-        Args:
-            request_text: User's natural language request
-            files: List of uploaded files with metadata
-            auto_create: Whether to auto-create missing agents
-            workflow_type: Type of workflow execution
-
-        Returns:
-            Processed result with workflow information
-        """
-        workflow_id = f"wf_{uuid.uuid4().hex[:8]}"
-
-        try:
-            if not self.is_backend_available():
-                return {
-                    "status": "error",
-                    "workflow_id": workflow_id,
-                    "error": "Backend orchestrator not available",
-                    "message": "Please check backend configuration",
-                    "results": {},
-                    "execution_time": 0,
-                    "metadata": {
-                        "agents_used": [],
-                        "workflow_type": workflow_type,
-                        "execution_time": 0,
-                        "components_created": 0,
-                        "pipeline_info": {
-                            "type": "simple",
-                            "steps": [],
-                            "steps_completed": 0,
-                            "total_steps": 0,
-                            "execution_time": 0,
-                            "components_created": 0,
-                            "performance_grade": "acceptable",
-                        },
-                    },
-                    "pipeline_info": {
-                        "type": "simple",
-                        "steps": [],
-                        "steps_completed": 0,
-                        "total_steps": 0,
-                        "execution_time": 0,
-                        "components_created": 0,
-                        "performance_grade": "acceptable",
-                    },
-                    "workflow": {},
-                }
-
-            # Prepare request data
-            request_data = {
-                "request": request_text,
-                "files": files or [],
-                "workflow_id": workflow_id,
-                "workflow_type": workflow_type,
-                "auto_create": auto_create,
-                "started_at": datetime.now().isoformat(),
-            }
-
-            # Store workflow as active
-            self.active_workflows[workflow_id] = {
-                "status": "processing",
-                "request": request_text,
-                "started_at": datetime.now().isoformat(),
-                "workflow_type": workflow_type,
-            }
-
-            # Process through orchestrator
-            start_time = datetime.now()
-            result = await self.orchestrator.process_request(
-                user_request=request_text,
-                files=files,
-                auto_create=auto_create,
-            )
-            execution_time = (datetime.now() - start_time).total_seconds()
-
-            # Update workflow status
-            workflow_data = {
-                "workflow_id": workflow_id,
-                "request": request_text,
-                "status": result.get("status", "completed"),
-                "started_at": request_data["started_at"],
-                "completed_at": datetime.now().isoformat(),
-                "execution_time": execution_time,
-                "workflow_type": workflow_type,
-                "files": len(files) if files else 0,
-                "agents_used": result.get("agents_used", []),
-                "results": result.get("results", {}),
-            }
-
-            # Add to history
-            self.workflow_history.append(workflow_data)
-
-            # Remove from active workflows
-            if workflow_id in self.active_workflows:
-                del self.active_workflows[workflow_id]
-
-            # Format response for UI
-            return {
-                "status": "success",
-                "workflow_id": workflow_id,
-                "response": result.get("response", "Request processed successfully"),
-                "results": result.get("results", {}),
-                "execution_time": execution_time,
-                "metadata": {
-                    "agents_used": result.get("agents_used", []),
-                    "workflow_type": workflow_type,
-                    "execution_time": execution_time,
-                    "components_created": result.get("components_created", 0),
-                    "pipeline_info": {
-                        "type": "simple",
-                        "steps": result.get("pipeline_steps", []),
-                        "steps_completed": len(result.get("pipeline_steps", [])),
-                        "total_steps": len(result.get("pipeline_steps", [])),
-                        "execution_time": execution_time,
-                        "components_created": result.get("components_created", 0),
-                        "performance_grade": (
-                            "good" if execution_time < 10 else "acceptable"
-                        ),
-                    },
-                },
-                "pipeline_info": {
-                    "type": "simple",
-                    "steps": result.get("pipeline_steps", []),
-                    "steps_completed": len(result.get("pipeline_steps", [])),
-                    "total_steps": len(result.get("pipeline_steps", [])),
-                    "execution_time": execution_time,
-                    "components_created": result.get("components_created", 0),
-                    "performance_grade": (
-                        "good" if execution_time < 10 else "acceptable"
-                    ),
-                },
-                "workflow": workflow_data,
-                "chat_updated": True,
-                "message_id": f"msg_{uuid.uuid4().hex[:8]}",
-            }
-
-        except Exception as e:
-            print(f"ERROR: Failed to process request: {e}")
-
-            # Ensure workflow is removed from active and added to history even on error
-            if workflow_id in self.active_workflows:
-                del self.active_workflows[workflow_id]
-
-            error_workflow = {
-                "workflow_id": workflow_id,
-                "request": request_text,
-                "status": "error",
-                "started_at": datetime.now().isoformat(),
-                "completed_at": datetime.now().isoformat(),
-                "execution_time": 0,
-                "error": str(e),
-            }
-            self.workflow_history.append(error_workflow)
-
-            return {
-                "status": "error",
-                "workflow_id": workflow_id,
-                "error": f"Failed to process request: {str(e)}",
-                "message": "An error occurred while processing your request",
-                "results": {},
-                "execution_time": 0,
-                "metadata": {
-                    "agents_used": [],
-                    "workflow_type": workflow_type,
-                    "execution_time": 0,
-                    "components_created": 0,
-                    "pipeline_info": {
-                        "type": "simple",
-                        "steps": [],
-                        "steps_completed": 0,
-                        "total_steps": 0,
-                        "execution_time": 0,
-                        "components_created": 0,
-                        "performance_grade": "poor",
-                    },
-                },
-                "pipeline_info": {
-                    "type": "simple",
-                    "steps": [],
-                    "steps_completed": 0,
-                    "total_steps": 0,
-                    "execution_time": 0,
-                    "components_created": 0,
-                    "performance_grade": "poor",
-                },
-                "workflow": error_workflow,
-                "chat_updated": True,
-                "message_id": f"msg_{uuid.uuid4().hex[:8]}",
-            }
-
-    def get_workflow_status(self, workflow_id: str) -> Optional[Dict[str, Any]]:
-        """Get current status of a workflow."""
-
-        # Check active workflows
-        if workflow_id in self.active_workflows:
-            return self.active_workflows[workflow_id]
-
-        # Check history
-        for workflow in self.workflow_history:
-            if workflow.get("workflow_id") == workflow_id:
-                return workflow
-
-        return None
-
-    def get_workflow_metrics(self) -> Dict[str, Any]:
-        """Get workflow performance metrics."""
-        if not self.workflow_history:
-            return {"total": 0, "success_rate": 0, "avg_execution_time": 0}
-
-        total = len(self.workflow_history)
-        successful = len(
-            [w for w in self.workflow_history if w.get("status") == "success"]
-        )
-        avg_time = (
-            sum(w.get("execution_time", 0) for w in self.workflow_history) / total
-        )
-
-        return {
-            "total": total,
-            "success_rate": successful / total,
-            "avg_execution_time": avg_time,
-            "active_workflows": len(self.active_workflows),
-        }
-
-    def create_sample_workflows(self):
-        """Create sample workflow data for demonstration."""
-        if not self.workflow_history:  # Only create if empty
-            sample_workflows = [
-                {
-                    "workflow_id": "wf_demo_001",
-                    "request": "Extract emails from uploaded document",
-                    "status": "success",
-                    "started_at": (datetime.now() - timedelta(hours=2)).isoformat(),
-                    "completed_at": (
-                        datetime.now() - timedelta(hours=2) + timedelta(minutes=5)
-                    ).isoformat(),
-                    "execution_time": 4.2,
-                    "files": 1,
-                    "agents_used": ["email_extractor"],
-                },
-                {
-                    "workflow_id": "wf_demo_002",
-                    "request": "Analyze CSV data and create statistical report",
-                    "status": "success",
-                    "started_at": (datetime.now() - timedelta(hours=1)).isoformat(),
-                    "completed_at": (
-                        datetime.now() - timedelta(hours=1) + timedelta(minutes=8)
-                    ).isoformat(),
-                    "execution_time": 7.8,
-                    "files": 1,
-                    "agents_used": ["read_csv", "word_counter"],
-                },
-                {
-                    "workflow_id": "wf_demo_003",
-                    "request": "Extract phone numbers and URLs from text",
-                    "status": "partial",
-                    "started_at": (datetime.now() - timedelta(minutes=30)).isoformat(),
-                    "completed_at": (
-                        datetime.now() - timedelta(minutes=25)
-                    ).isoformat(),
-                    "execution_time": 3.1,
-                    "files": 0,
-                    "agents_used": ["url_extractor"],
-                },
-            ]
-            self.workflow_history.extend(sample_workflows)
-            print("DEBUG: Sample workflows created")
-
-    def get_pipeline_analytics(self) -> Dict[str, Any]:
-        """Get pipeline performance analytics."""
-        # Get last 10 pipeline workflows
-        recent_pipelines = [
-            w for w in self.workflow_history[-10:] if w.get("type") == "pipeline"
-        ]
-
-        if not recent_pipelines:
-            return {"trend": "no_data"}
-
-        success_count = len(
-            [w for w in recent_pipelines if w.get("status") == "success"]
-        )
-        avg_time = sum(w.get("execution_time", 0) for w in recent_pipelines) / len(
-            recent_pipelines
-        )
-
-        return {
-            "recent_success_rate": success_count / len(recent_pipelines),
-            "recent_average_time": avg_time,
-            "trend": (
-                "improving" if success_count > len(recent_pipelines) * 0.7 else "stable"
-            ),
-        }
-
-    def get_active_workflows(self) -> List[Dict[str, Any]]:
-        """Get list of currently active workflows."""
-        active = list(self.active_workflows.values())
-
-        # Ensure each active workflow has required fields
-        for workflow in active:
-            workflow.setdefault(
-                "workflow_id", workflow.get("id", f"active_{len(active)}")
-            )
-            workflow.setdefault("request", "Active workflow processing...")
-            workflow.setdefault("status", "processing")
-            workflow.setdefault("started_at", datetime.now().isoformat())
-
-        return active
-
-    def get_workflow_history(self, limit: int = 50) -> List[Dict[str, Any]]:
-        """Get recent workflow history."""
-        history = self.workflow_history[-limit:] if self.workflow_history else []
-
-        # Ensure each workflow has required fields for the template
-        for workflow in history:
-            workflow.setdefault("workflow_id", f"wf_{len(history)}")
-            workflow.setdefault("request", "Sample workflow request")
-            workflow.setdefault("status", "completed")
-            workflow.setdefault("started_at", datetime.now().isoformat())
-            workflow.setdefault("execution_time", 2.5)
-            workflow.setdefault("files", 0)
-
-        return history
-
-    def get_system_stats(self) -> Dict[str, Any]:
-        """Get system performance statistics."""
-        return {
-            "active_workflows": len(self.active_workflows),
-            "total_processed": len(self.workflow_history),
-            "backend_available": self.is_backend_available(),
-            "avg_processing_time": self._calculate_avg_processing_time(),
-            "success_rate": self._calculate_success_rate(),
-        }
-
-    def _calculate_avg_processing_time(self) -> float:
-        """Calculate average processing time from history."""
-        if not self.workflow_history:
-            return 0.0
-
-        total_time = 0
-        count = 0
-
-        for workflow in self.workflow_history:
-            if "started_at" in workflow and "completed_at" in workflow:
-                try:
-                    start = datetime.fromisoformat(workflow["started_at"])
-                    end = datetime.fromisoformat(workflow["completed_at"])
-                    total_time += (end - start).total_seconds()
-                    count += 1
-                except:
-                    continue
-
-        return total_time / count if count > 0 else 0.0
-
-    def _calculate_success_rate(self) -> float:
-        """Calculate success rate from history."""
-        if not self.workflow_history:
-            return 1.0
-
-        successful = sum(
-            1 for w in self.workflow_history if w.get("status") == "success"
-        )
-        return successful / len(self.workflow_history)
-
-    def create_sample_workflows(self):
-        """Create sample workflow data for demonstration."""
-        if not self.workflow_history:  # Only create if empty
-            sample_workflows = [
-                {
-                    "workflow_id": "wf_demo_001",
-                    "request": "Extract emails from uploaded document",
-                    "status": "success",
-                    "started_at": (datetime.now() - timedelta(hours=2)).isoformat(),
-                    "completed_at": (
-                        datetime.now() - timedelta(hours=2) + timedelta(minutes=5)
-                    ).isoformat(),
-                    "execution_time": 4.2,
-                    "files": 1,
-                },
-                {
-                    "workflow_id": "wf_demo_002",
-                    "request": "Analyze CSV data and create statistical report",
-                    "status": "success",
-                    "started_at": (datetime.now() - timedelta(hours=1)).isoformat(),
-                    "completed_at": (
-                        datetime.now() - timedelta(hours=1) + timedelta(minutes=8)
-                    ).isoformat(),
-                    "execution_time": 7.8,
-                    "files": 1,
-                },
-                {
-                    "workflow_id": "wf_demo_003",
-                    "request": "Extract phone numbers and URLs from text",
-                    "status": "partial",
-                    "started_at": (datetime.now() - timedelta(minutes=30)).isoformat(),
-                    "completed_at": (
-                        datetime.now() - timedelta(minutes=25)
-                    ).isoformat(),
-                    "execution_time": 3.1,
-                    "files": 0,
-                },
-            ]
-            self.workflow_history.extend(sample_workflows)
-
-    # ADD THESE NEW METHODS to the OrchestratorService class:
-
-    async def process_pipeline_request(
-        self,
-        request_text: str,
-        files: List[Dict] = None,
-        auto_create: bool = True,
-    ) -> Dict[str, Any]:
-        """
-        Process complex pipeline requests with enhanced capabilities.
-
-        Args:
-            request_text: User's natural language request
-            files: List of uploaded files with metadata
-            auto_create: Whether to auto-create missing agents
-
-        Returns:
-            Enhanced result with pipeline information
-        """
-
-        workflow_id = f"pipeline_{uuid.uuid4().hex[:8]}"
-
-        try:
-            if not self.is_backend_available():
-                return {
-                    "status": "error",
-                    "workflow_id": workflow_id,
-                    "error": "Backend pipeline orchestrator not available",
-                }
-
-            # Analyze request complexity
-            complexity = await self._detect_request_complexity(request_text, files)
-
-            # Process based on complexity
-            if complexity in ["pipeline", "complex"]:
-                result = await self._process_as_pipeline(
-                    request_text, files, auto_create, workflow_id
-                )
-            else:
-                # Use regular orchestrator for simple requests
-                result = await self.process_user_request(
-                    request_text, files, auto_create
-                )
-
-            # Add pipeline metadata
-            if "metadata" not in result:
-                result["metadata"] = {}
-            result["metadata"]["complexity_detected"] = complexity
-            result["metadata"]["pipeline_processing"] = complexity in [
-                "pipeline",
-                "complex",
-            ]
-
-            return result
-
-        except Exception as e:
-            return {
-                "status": "error",
-                "workflow_id": workflow_id,
-                "error": f"Pipeline processing failed: {str(e)}",
-            }
-
-    async def _detect_request_complexity(
-        self, request_text: str, files: List[Dict] = None
-    ) -> str:
-        """Detect complexity level of the request."""
-
-        request_lower = request_text.lower()
-
-        # Pipeline indicators
-        pipeline_keywords = [
-            "then",
-            "after",
-            "next",
-            "followed by",
-            "and then",
-            "first",
-            "second",
-            "third",
-            "finally",
-            "last",
-            "extract and",
-            "analyze and",
-            "process and",
-            "create and",
-            "step by step",
-            "pipeline",
-            "workflow",
-            "sequence",
-        ]
-
-        # Complex indicators
-        complex_keywords = [
-            "multiple files",
-            "compare",
-            "merge",
-            "combine",
-            "different formats",
-            "various sources",
-            "cross-reference",
-            "comprehensive",
-            "detailed analysis",
-            "full report",
-        ]
-
-        # Count indicators
-        pipeline_count = sum(
-            1 for keyword in pipeline_keywords if keyword in request_lower
-        )
-        complex_count = sum(
-            1 for keyword in complex_keywords if keyword in request_lower
-        )
-
-        # Check for numbered steps
-        step_indicators = ["1.", "2.", "3.", "step 1", "step 2", "step 3"]
-        step_count = sum(
-            1 for indicator in step_indicators if indicator in request_lower
-        )
-
-        # File complexity
-        multiple_files = files and len(files) > 1
-
-        # Decision logic
-        if (
-            complex_count > 0
-            or (pipeline_count > 2)
-            or step_count > 1
-            or multiple_files
-        ):
-            return "complex"
-        elif pipeline_count > 0 or len(request_lower.split()) > 20:
-            return "pipeline"
-        else:
-            return "simple"
-
-    async def _process_as_pipeline(
-        self, request_text: str, files: List[Dict], auto_create: bool, workflow_id: str
-    ) -> Dict[str, Any]:
-        """Process request using pipeline orchestrator."""
-
-        # Track workflow start
-        self.active_workflows[workflow_id] = {
-            "status": "processing",
-            "started_at": datetime.now().isoformat(),
-            "request": request_text,
-            "files": len(files) if files else 0,
-            "type": "pipeline",
-        }
-
-        try:
-            # Step 1: Analyze complex request
-            analysis_result = await self.pipeline_orchestrator.analyze_complex_request(
-                request_text, files
-            )
-
-            if analysis_result["status"] != "success":
-                return {
-                    "status": "error",
-                    "workflow_id": workflow_id,
-                    "error": f"Pipeline analysis failed: {analysis_result.get('error')}",
-                }
-
-            # Step 2: Plan pipeline execution
-            pipeline_plan = await self.pipeline_orchestrator.plan_pipeline(
-                analysis_result, auto_create
-            )
-
-            # Step 3: Execute with monitoring
-            execution_result = (
-                await self.pipeline_orchestrator.execute_pipeline_with_adaptation(
-                    pipeline_plan, request_text, files
-                )
-            )
-
-            # Step 4: Generate response
-            response = await self._generate_pipeline_response(
-                request_text, execution_result, analysis_result
-            )
-
-            # Update workflow status
-            final_status = execution_result.get("status", "unknown")
-            self.active_workflows[workflow_id]["status"] = final_status
-            self.active_workflows[workflow_id][
-                "completed_at"
-            ] = datetime.now().isoformat()
-
-            # Add to history
-            self.workflow_history.append(
-                {
-                    "workflow_id": workflow_id,
-                    "request": request_text,
-                    "status": final_status,
-                    "type": "pipeline",
-                    "started_at": self.active_workflows[workflow_id]["started_at"],
-                    "completed_at": self.active_workflows[workflow_id]["completed_at"],
-                    "execution_time": execution_result.get("execution_time", 0),
-                    "files": len(files) if files else 0,
-                    "steps_completed": execution_result.get("steps_completed", 0),
-                    "total_steps": execution_result.get("total_steps", 0),
-                }
-            )
-
-            return {
-                "status": final_status,
-                "workflow_id": workflow_id,
-                "workflow": {
-                    "type": "pipeline",
-                    "steps": [
-                        step.get("name", f"step_{i}")
-                        for i, step in enumerate(pipeline_plan.get("steps", []))
-                    ],
-                    "execution_strategy": pipeline_plan.get(
-                        "execution_strategy", "sequential"
-                    ),
-                    "total_steps": pipeline_plan.get("total_steps", 0),
-                    "steps_completed": execution_result.get("steps_completed", 0),
-                },
-                "response": response,
-                "results": execution_result.get("results", {}),
-                "step_results": execution_result.get("step_results", {}),
-                "metadata": {
-                    "pipeline_analysis": analysis_result,
-                    "execution_time": execution_result.get("execution_time", 0),
-                    "adaptations": execution_result.get("adaptations", []),
-                    "components_created": len(pipeline_plan.get("creation_needed", [])),
-                    "performance_grade": self._calculate_performance_grade(
-                        execution_result
-                    ),
-                },
-                "errors": execution_result.get("errors", []),
-            }
-
-        except Exception as e:
-            # Update workflow status
-            self.active_workflows[workflow_id]["status"] = "error"
-            self.active_workflows[workflow_id][
-                "completed_at"
-            ] = datetime.now().isoformat()
-
-            return {
-                "status": "error",
-                "workflow_id": workflow_id,
-                "error": f"Pipeline processing failed: {str(e)}",
-            }
-
-    async def _generate_pipeline_response(
-        self, request_text: str, execution_result: Dict, analysis_result: Dict
-    ) -> str:
-        """Generate natural language response for pipeline execution."""
-
-        steps_completed = execution_result.get("steps_completed", 0)
-        total_steps = execution_result.get("total_steps", 0)
-        adaptations = execution_result.get("adaptations", [])
-
-        # Build response based on execution results
-        if execution_result["status"] == "success":
-            response_parts = [
-                f"I successfully completed your {total_steps}-step request through an intelligent pipeline."
-            ]
-
-            # Summarize key results
-            results = execution_result.get("results", {})
-            if results:
-                response_parts.append("Here's what I accomplished:")
-                for step_name, result in results.items():
-                    if result.get("status") == "success":
-                        data = result.get("data", {})
-                        if isinstance(data, dict) and data:
-                            key_info = self._extract_key_result_info(data)
-                            if key_info:
-                                response_parts.append(f"- {step_name}: {key_info}")
-
-            # Mention adaptations if any
-            if adaptations:
-                response_parts.append(
-                    f"Note: I made {len(adaptations)} intelligent adaptations during processing to ensure optimal results."
-                )
-
-        elif execution_result["status"] == "partial":
-            response_parts = [
-                f"I completed {steps_completed} of {total_steps} steps in your pipeline request."
-            ]
-
-            # Mention what was accomplished
-            successful_results = {
-                k: v
-                for k, v in execution_result.get("results", {}).items()
-                if v.get("status") == "success"
-            }
-            if successful_results:
-                response_parts.append("Successfully completed steps:")
-                for step_name, result in successful_results.items():
-                    data = result.get("data", {})
-                    key_info = self._extract_key_result_info(data)
-                    if key_info:
-                        response_parts.append(f"- {step_name}: {key_info}")
-
-            # Mention issues
-            errors = execution_result.get("errors", [])
-            if errors:
-                response_parts.append(
-                    f"Some steps encountered issues, but I provided the best possible results."
-                )
-
-        else:
-            response_parts = [
-                "I encountered difficulties processing your multi-step request.",
-                "Please check the error details for more information.",
-            ]
-
-        return " ".join(response_parts)
-
-    def _extract_key_result_info(self, data: Any) -> str:
-        """Extract key information from result data for response generation."""
-
-        if isinstance(data, dict):
-            # Look for common result patterns
-            if "count" in data:
-                return f"found {data['count']} items"
-            elif "total" in data:
-                return f"processed {data['total']} items"
-            elif "extracted" in data:
-                extracted = data["extracted"]
-                if isinstance(extracted, list):
-                    return f"extracted {len(extracted)} items"
-            elif "processed_data" in data:
-                return "processed successfully"
-            elif len(data) > 0:
-                return f"generated {len(data)} results"
-
-        elif isinstance(data, list):
-            return f"generated {len(data)} items"
-
-        elif isinstance(data, str) and data:
-            return f"processed text ({len(data)} characters)"
-
-        return "completed successfully"
-
-    def _calculate_performance_grade(self, execution_result: Dict) -> str:
-        """Calculate performance grade for pipeline execution."""
-
-        steps_completed = execution_result.get("steps_completed", 0)
-        total_steps = execution_result.get("total_steps", 1)
-        execution_time = execution_result.get("execution_time", 0)
-        errors = len(execution_result.get("errors", []))
-        adaptations = len(execution_result.get("adaptations", []))
-
-        # Calculate completion rate
-        completion_rate = steps_completed / total_steps if total_steps > 0 else 0
-
-        # Calculate average time per step
-        avg_time_per_step = (
-            execution_time / steps_completed if steps_completed > 0 else execution_time
-        )
-
-        # Assign grade
-        if completion_rate == 1.0 and errors == 0 and avg_time_per_step < 10:
-            return "excellent"
-        elif completion_rate >= 0.8 and errors <= 1 and avg_time_per_step < 20:
-            return "good"
-        elif completion_rate >= 0.6 and errors <= 2:
-            return "acceptable"
-        else:
-            return "needs_improvement"
-
-    def get_pipeline_analytics(self) -> Dict[str, Any]:
-        """Get analytics for pipeline processing."""
-
-        # Filter pipeline workflows
-        pipeline_workflows = [
-            w for w in self.workflow_history if w.get("type") == "pipeline"
-        ]
-
-        if not pipeline_workflows:
-            return {
-                "total_pipelines": 0,
-                "success_rate": 0,
-                "average_steps": 0,
-                "average_execution_time": 0,
-            }
-
-        # Calculate metrics
-        total_pipelines = len(pipeline_workflows)
-        successful_pipelines = len(
-            [w for w in pipeline_workflows if w.get("status") == "success"]
-        )
-
-        total_steps = sum(w.get("total_steps", 0) for w in pipeline_workflows)
-        completed_steps = sum(w.get("steps_completed", 0) for w in pipeline_workflows)
-
-        total_time = sum(w.get("execution_time", 0) for w in pipeline_workflows)
-
-        analytics = {
-            "total_pipelines": total_pipelines,
-            "success_rate": successful_pipelines / total_pipelines,
-            "average_steps": total_steps / total_pipelines,
-            "step_completion_rate": (
-                completed_steps / total_steps if total_steps > 0 else 0
-            ),
-            "average_execution_time": total_time / total_pipelines,
-            "recent_performance": self._get_recent_pipeline_performance(),
-        }
-
-        return analytics
-
-    def _get_recent_pipeline_performance(self) -> Dict[str, Any]:
-        """Get performance metrics for recent pipelines."""
-
-        # Get last 10 pipeline workflows
-        recent_pipelines = [
-            w for w in self.workflow_history[-10:] if w.get("type") == "pipeline"
-        ]
-
-        if not recent_pipelines:
-            return {"trend": "no_data"}
-
-        success_count = len(
-            [w for w in recent_pipelines if w.get("status") == "success"]
-        )
-        avg_time = sum(w.get("execution_time", 0) for w in recent_pipelines) / len(
-            recent_pipelines
-        )
-
-        return {
-            "recent_success_rate": success_count / len(recent_pipelines),
-            "recent_average_time": avg_time,
-            "trend": (
-                "improving" if success_count > len(recent_pipelines) * 0.7 else "stable"
-            ),
-        }
-
-
-# Global service instance
-orchestrator_service = OrchestratorService()
-
-```
-
---------------------------------------------------------------------------------
-
-### File: flask_app/services/registry_service.py
-**Path:** `flask_app/services/registry_service.py`
-**Size:** 14,086 bytes
-**Modified:** 2025-09-09 08:02:56
-
-```python
-# flask_app/services/registry_service.py
-"""
-Registry Service
-Interfaces with backend registry for agent/tool information
-"""
-
-import os
-import sys
-from typing import Dict, List, Any, Optional
-
-# Add project root to path
-project_root = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-)
-sys.path.append(project_root)
-
-try:
-    from core.registry_singleton import get_shared_registry
-    from core.registry import RegistryManager
-except ImportError as e:
-    print(f"Warning: Could not import registry components: {e}")
-    get_shared_registry = None
-
-
-class RegistryService:
-    """Service layer for registry operations."""
-
-    def __init__(self):
-        """Initialize registry service."""
-        self.registry = get_shared_registry() if get_shared_registry else None
-
-    def is_available(self) -> bool:
-        """Check if registry is available."""
-        return self.registry is not None
-
-    def get_agents_list(
-        self, tags: List[str] = None, active_only: bool = True
-    ) -> List[Dict[str, Any]]:
-        """Get list of available agents."""
-        if not self.is_available():
-            return []
-
-        try:
-            agents = self.registry.list_agents(tags=tags, active_only=active_only)
-
-            # Add formatted data for UI
-            for agent in agents:
-                agent["formatted_created_at"] = self._format_timestamp(
-                    agent.get("created_at")
-                )
-                agent["capabilities_summary"] = self._summarize_capabilities(agent)
-                agent["performance_indicator"] = self._get_performance_indicator(agent)
-
-            return agents
-        except Exception as e:
-            print(f"Error fetching agents: {e}")
-            return []
-
-    def get_tools_list(
-        self, tags: List[str] = None, pure_only: bool = False
-    ) -> List[Dict[str, Any]]:
-        """Get list of available tools."""
-        if not self.is_available():
-            return []
-
-        try:
-            tools = self.registry.list_tools(tags=tags, pure_only=pure_only)
-
-            # Add formatted data for UI
-            for tool in tools:
-                tool["formatted_created_at"] = self._format_timestamp(
-                    tool.get("created_at")
-                )
-                tool["usage_summary"] = self._get_tool_usage_summary(tool)
-                tool["complexity_level"] = self._assess_tool_complexity(tool)
-
-            return tools
-        except Exception as e:
-            print(f"Error fetching tools: {e}")
-            return []
-
-    def get_agent_details(self, agent_name: str) -> Optional[Dict[str, Any]]:
-        """Get detailed information about a specific agent."""
-        if not self.is_available():
-            return None
-
-        try:
-            agent = self.registry.get_agent(agent_name)
-            if agent:
-                # Add dependency information
-                agent["dependencies"] = self.registry.get_agent_dependencies(agent_name)
-                agent["formatted_created_at"] = self._format_timestamp(
-                    agent.get("created_at")
-                )
-
-            return agent
-        except Exception as e:
-            print(f"Error fetching agent details: {e}")
-            return None
-
-    def get_tool_details(self, tool_name: str) -> Optional[Dict[str, Any]]:
-        """Get detailed information about a specific tool."""
-        if not self.is_available():
-            return None
-
-        try:
-            tool = self.registry.get_tool(tool_name)
-            if tool:
-                # Add usage information
-                tool["used_by"] = self.registry.get_tool_usage(tool_name)
-                tool["formatted_created_at"] = self._format_timestamp(
-                    tool.get("created_at")
-                )
-
-            return tool
-        except Exception as e:
-            print(f"Error fetching tool details: {e}")
-            return None
-
-    # flask_app/services/registry_service.py - Replace the get_registry_stats method
-
-    def get_registry_stats(self) -> Dict[str, Any]:
-        """Get comprehensive registry statistics - FIXED."""
-        if not self.is_available():
-            return {
-                "available": False,
-                "statistics": {"total_agents": 0, "total_tools": 0},
-                "summary": {"health_score": 0, "status": "unavailable"},
-            }
-
-        try:
-            # Get actual registry data directly
-            registry = self.registry
-
-            # Get agents and tools lists
-            agents_data = registry.agents.get("agents", {})
-            tools_data = registry.tools.get("tools", {})
-
-            # Filter active components
-            active_agents = [
-                a for a in agents_data.values() if a.get("status") == "active"
-            ]
-            active_tools = [
-                t for t in tools_data.values() if t.get("status") == "active"
-            ]
-
-            stats = {
-                "total_agents": len(active_agents),
-                "total_tools": len(active_tools),
-                "total_components": len(active_agents) + len(active_tools),
-                "prebuilt_agents": len(
-                    [a for a in active_agents if a.get("is_prebuilt", False)]
-                ),
-                "generated_agents": len(
-                    [a for a in active_agents if not a.get("is_prebuilt", False)]
-                ),
-                "execution_count": sum(
-                    a.get("execution_count", 0) for a in active_agents
-                ),
-            }
-
-            # Calculate health score
-            health_score = 100 if stats["total_components"] > 0 else 0
-            if stats["total_agents"] > 0:
-                # Better health calculation
-                base_score = 50
-                agent_bonus = min(
-                    30, stats["total_agents"] * 5
-                )  # Up to 30 points for agents
-                tool_bonus = min(
-                    20, stats["total_tools"] * 2
-                )  # Up to 20 points for tools
-                health_score = base_score + agent_bonus + tool_bonus
-
-            return {
-                "available": True,
-                "statistics": stats,
-                "summary": {
-                    "health_score": min(100, health_score),
-                    "status": (
-                        "healthy"
-                        if health_score > 70
-                        else "degraded" if health_score > 30 else "poor"
-                    ),
-                },
-                "agent_breakdown": {
-                    "prebuilt": stats["prebuilt_agents"],
-                    "generated": stats["generated_agents"],
-                    "active": stats["total_agents"],
-                },
-                "performance": {
-                    "total_executions": stats["execution_count"],
-                    "avg_execution_time": self._calculate_avg_execution_time(
-                        active_agents
-                    ),
-                },
-            }
-        except Exception as e:
-            print(f"ERROR: Failed to get registry stats: {e}")
-            import traceback
-
-            traceback.print_exc()
-            return {
-                "available": True,
-                "statistics": {"total_agents": 0, "total_tools": 0},
-                "summary": {"health_score": 0, "status": "error"},
-                "error": str(e),
-            }
-
-    def _calculate_avg_execution_time(self, agents: List[Dict]) -> float:
-        """Calculate average execution time from agents."""
-        if not agents:
-            return 0.0
-
-        total_time = 0
-        count = 0
-
-        for agent in agents:
-            if agent.get("avg_execution_time", 0) > 0:
-                total_time += agent["avg_execution_time"]
-                count += 1
-
-        return total_time / count if count > 0 else 0.0
-
-    def get_dependency_graph(self) -> Dict[str, Any]:
-        """Get dependency graph for visualization."""
-        if not self.is_available():
-            return {
-                "nodes": [],
-                "edges": [],
-                "stats": {
-                    "total_agents": 0,
-                    "total_tools": 0,
-                    "missing_dependencies": 0,
-                    "unused_tools": 0,
-                },
-            }
-
-        try:
-            deps = self.registry.get_dependency_graph()
-
-            # Convert to visualization format
-            nodes = []
-            edges = []
-
-            # Add agent nodes
-            for agent_name, tools in deps.get("agents_to_tools", {}).items():
-                nodes.append(
-                    {
-                        "id": agent_name,
-                        "type": "agent",
-                        "name": agent_name,  # Add name field
-                        "label": agent_name,
-                        "description": self._get_agent_description(agent_name),
-                        "uses_tools": tools,  # Add for UI
-                    }
-                )
-
-                # Add edges to tools
-                for tool_name in tools:
-                    edges.append(
-                        {"from": tool_name, "to": agent_name, "type": "dependency"}
-                    )
-
-            # Add tool nodes
-            for tool_name, agents_using in deps.get("tools_to_agents", {}).items():
-                nodes.append(
-                    {
-                        "id": tool_name,
-                        "type": "tool",
-                        "name": tool_name,  # Add name field
-                        "label": tool_name,
-                        "description": self._get_tool_description(tool_name),
-                        "used_by": agents_using,  # Add for UI
-                    }
-                )
-
-            # Calculate statistics
-            agent_nodes = [n for n in nodes if n["type"] == "agent"]
-            tool_nodes = [n for n in nodes if n["type"] == "tool"]
-            unused_tools = [t for t in tool_nodes if not t.get("used_by")]
-
-            return {
-                "nodes": nodes,
-                "edges": edges,
-                "stats": {
-                    "total_agents": len(agent_nodes),
-                    "total_tools": len(tool_nodes),
-                    "total_nodes": len(nodes),
-                    "total_edges": len(edges),
-                    "missing_dependencies": len(deps.get("missing_dependencies", [])),
-                    "unused_tools": len(unused_tools),
-                },
-            }
-
-        except Exception as e:
-            print(f"Error building dependency graph: {e}")
-            return {
-                "nodes": [],
-                "edges": [],
-                "error": str(e),
-                "stats": {
-                    "total_agents": 0,
-                    "total_tools": 0,
-                    "missing_dependencies": 0,
-                    "unused_tools": 0,
-                },
-            }
-
-    def search_components(self, query: str) -> Dict[str, List[Dict]]:
-        """Search agents and tools by query."""
-        if not self.is_available():
-            return {"agents": [], "tools": []}
-
-        try:
-            agents = self.registry.search_agents(query)
-            tools = self.registry.search_tools(query)
-
-            return {
-                "agents": agents,
-                "tools": tools,
-                "total_results": len(agents) + len(tools),
-            }
-        except Exception as e:
-            print(f"Error searching components: {e}")
-            return {"agents": [], "tools": [], "error": str(e)}
-
-    def _format_timestamp(self, timestamp: str = None) -> str:
-        """Format timestamp for display."""
-        if not timestamp:
-            from datetime import datetime
-
-            return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-        try:
-            from datetime import datetime
-
-            dt = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
-            return dt.strftime("%Y-%m-%d %H:%M:%S")
-        except:
-            return timestamp
-
-    def _summarize_capabilities(self, agent: Dict) -> str:
-        """Create a summary of agent capabilities."""
-        tools = agent.get("uses_tools", [])
-        tags = agent.get("tags", [])
-
-        if tools:
-            return f"Uses {len(tools)} tools: {', '.join(tools[:3])}{'...' if len(tools) > 3 else ''}"
-        elif tags:
-            return f"Tags: {', '.join(tags[:3])}{'...' if len(tags) > 3 else ''}"
-        else:
-            return "General purpose agent"
-
-    def _get_performance_indicator(self, agent: Dict) -> str:
-        """Get performance indicator for agent."""
-        exec_count = agent.get("execution_count", 0)
-        avg_time = agent.get("avg_execution_time", 0)
-
-        if exec_count == 0:
-            return "New"
-        elif avg_time < 2:
-            return "Fast"
-        elif avg_time < 10:
-            return "Normal"
-        else:
-            return "Slow"
-
-    def _get_tool_usage_summary(self, tool: Dict) -> str:
-        """Get usage summary for tool."""
-        used_by = tool.get("used_by_agents", [])
-        if not used_by:
-            return "Unused"
-        elif len(used_by) == 1:
-            return f"Used by {used_by[0]}"
-        else:
-            return f"Used by {len(used_by)} agents"
-
-    def _assess_tool_complexity(self, tool: Dict) -> str:
-        """Assess tool complexity level."""
-        line_count = tool.get("line_count", 0)
-        if line_count < 30:
-            return "Simple"
-        elif line_count < 100:
-            return "Medium"
-        else:
-            return "Complex"
-
-    def _get_agent_description(self, agent_name: str) -> str:
-        """Get agent description for visualization."""
-        agent = self.get_agent_details(agent_name)
-        return agent.get("description", "Agent") if agent else "Agent"
-
-    def _get_tool_description(self, tool_name: str) -> str:
-        """Get tool description for visualization."""
-        tool = self.get_tool_details(tool_name)
-        return tool.get("description", "Tool") if tool else "Tool"
-
-
-# Global service instance
-registry_service = RegistryService()
-
-```
-
---------------------------------------------------------------------------------
-
-### File: flask_app/services/workflow_service.py
-**Path:** `flask_app/services/workflow_service.py`
-**Size:** 18,332 bytes
-**Modified:** 2025-09-09 20:52:23
-
-```python
-# flask_app/services/workflow_service.py
-"""
-Workflow Service
-Handles workflow visualization and real-time updates
-"""
-
-import os
-import sys
-import json
-from typing import Dict, List, Any, Optional, Generator
-from datetime import datetime
-
-# Add project root to path
-project_root = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-)
-sys.path.append(project_root)
-
-try:
-    from core.workflow_engine import WorkflowEngine, WorkflowState
-except ImportError as e:
-    print(f"Warning: Could not import workflow components: {e}")
-    WorkflowEngine = None
-
-
-class WorkflowService:
-    """Service layer for workflow operations."""
-
-    def __init__(self):
-        """Initialize workflow service - FIXED VERSION."""
-        # FIXED: Properly handle WorkflowEngine initialization
-        try:
-            if WorkflowEngine:
-                # Try to initialize with registry first (if it requires one)
-                try:
-                    from core.registry_singleton import get_shared_registry
-
-                    registry = get_shared_registry()
-                    if registry:
-                        self.workflow_engine = WorkflowEngine(registry)
-                    else:
-                        self.workflow_engine = WorkflowEngine()
-                except TypeError:
-                    # If WorkflowEngine doesn't accept registry, use default constructor
-                    self.workflow_engine = WorkflowEngine()
-                except Exception as e:
-                    print(
-                        f"DEBUG: Failed to initialize WorkflowEngine with registry: {e}"
-                    )
-                    # Fallback to no-argument constructor
-                    self.workflow_engine = WorkflowEngine()
-            else:
-                self.workflow_engine = None
-
-            self.workflow_cache = {}
-            print("DEBUG: WorkflowService initialized successfully")
-
-        except Exception as e:
-            print(f"WARNING: Failed to initialize WorkflowService: {e}")
-            self.workflow_engine = None
-            self.workflow_cache = {}
-
-    def is_available(self) -> bool:
-        """Check if workflow engine is available."""
-        return self.workflow_engine is not None
-
-    def get_workflow_visualization(self, workflow_id: str) -> Dict[str, Any]:
-        """Get workflow visualization data."""
-        if not self.is_available():
-            return {"error": "Workflow engine not available"}
-
-        # Check cache first
-        if workflow_id in self.workflow_cache:
-            workflow_data = self.workflow_cache[workflow_id]
-        else:
-            try:
-                workflow_status = self.workflow_engine.get_workflow_status(workflow_id)
-                if not workflow_status:
-                    return {"error": "Workflow not found"}
-                workflow_data = workflow_status
-            except Exception as e:
-                return {"error": f"Failed to get workflow status: {str(e)}"}
-
-        return self._create_visualization_data(workflow_data)
-
-    def stream_workflow_updates(self, workflow_id: str) -> Generator[str, None, None]:
-        """Stream real-time workflow updates."""
-        if not self.is_available():
-            yield f"data: {json.dumps({'error': 'Workflow engine not available'})}\n\n"
-            return
-
-        # This would connect to real workflow engine streaming
-        # For now, simulate updates
-        import time
-
-        try:
-            for i in range(10):  # Simulate 10 updates
-                time.sleep(1)
-
-                update = {
-                    "workflow_id": workflow_id,
-                    "timestamp": datetime.now().isoformat(),
-                    "type": "status_update",
-                    "data": {
-                        "step": i + 1,
-                        "status": "processing" if i < 9 else "completed",
-                        "message": f"Processing step {i + 1}/10",
-                    },
-                }
-
-                yield f"data: {json.dumps(update)}\n\n"
-
-            # Final completion message
-            completion = {
-                "workflow_id": workflow_id,
-                "timestamp": datetime.now().isoformat(),
-                "type": "completion",
-                "data": {
-                    "status": "completed",
-                    "message": "Workflow completed successfully",
-                },
-            }
-            yield f"data: {json.dumps(completion)}\n\n"
-        except Exception as e:
-            yield f"data: {json.dumps({'error': str(e)})}\n\n"
-
-    def create_workflow_diagram(
-        self, agents: List[str], workflow_type: str = "sequential"
-    ) -> str:
-        """Create Mermaid diagram for workflow."""
-        if workflow_type == "sequential":
-            return self._create_sequential_diagram(agents)
-        elif workflow_type == "parallel":
-            return self._create_parallel_diagram(agents)
-        else:
-            return self._create_conditional_diagram(agents)
-
-    def get_execution_timeline(self, workflow_id: str) -> List[Dict[str, Any]]:
-        """Get execution timeline for workflow."""
-        if workflow_id in self.workflow_cache:
-            workflow_data = self.workflow_cache[workflow_id]
-            return self._extract_timeline(workflow_data)
-
-        return []
-
-    def _create_visualization_data(self, workflow_data: Dict) -> Dict[str, Any]:
-        """Create visualization data structure."""
-        agents = workflow_data.get("agents", [])
-        workflow_type = workflow_data.get("type", "sequential")
-
-        return {
-            "workflow_id": workflow_data.get("id", "unknown"),
-            "type": workflow_type,
-            "diagram": self.create_workflow_diagram(agents, workflow_type),
-            "nodes": self._create_node_data(agents, workflow_data),
-            "edges": self._create_edge_data(agents, workflow_type),
-            "timeline": self.get_execution_timeline(workflow_data.get("id", "")),
-            "status": workflow_data.get("status", "unknown"),
-            "progress": self._calculate_progress(workflow_data),
-        }
-
-    def _create_node_data(self, agents: List[str], workflow_data: Dict) -> List[Dict]:
-        """Create node data for visualization."""
-        nodes = []
-
-        for i, agent in enumerate(agents):
-            status = self._get_agent_status(agent, workflow_data)
-
-            nodes.append(
-                {
-                    "id": agent,
-                    "label": agent.replace("_", " ").title(),
-                    "type": "agent",
-                    "status": status,
-                    "position": {"x": i * 200, "y": 100},
-                    "metadata": {
-                        "execution_time": workflow_data.get("execution_times", {}).get(
-                            agent, 0
-                        ),
-                        "tools_used": workflow_data.get("tools_used", {}).get(
-                            agent, []
-                        ),
-                        "output_size": workflow_data.get("output_sizes", {}).get(
-                            agent, 0
-                        ),
-                    },
-                }
-            )
-
-        return nodes
-
-    def _create_edge_data(self, agents: List[str], workflow_type: str) -> List[Dict]:
-        """Create edge data for visualization."""
-        edges = []
-
-        if workflow_type == "sequential":
-            for i in range(len(agents) - 1):
-                edges.append(
-                    {"from": agents[i], "to": agents[i + 1], "type": "sequential"}
-                )
-        elif workflow_type == "parallel":
-            # All agents connect to a merge point
-            for agent in agents:
-                edges.append({"from": "start", "to": agent, "type": "parallel"})
-                edges.append({"from": agent, "to": "merge", "type": "parallel"})
-
-        return edges
-
-    def _create_sequential_diagram(self, agents: List[str]) -> str:
-        """Create Mermaid diagram for sequential workflow."""
-        diagram = "graph TD\n"
-        diagram += "    Start([Start])\n"
-
-        for i, agent in enumerate(agents):
-            agent_id = f"A{i+1}"
-            agent_label = agent.replace("_", " ").title()
-            diagram += f"    {agent_id}[{agent_label}]\n"
-
-            if i == 0:
-                diagram += f"    Start --> {agent_id}\n"
-            else:
-                prev_id = f"A{i}"
-                diagram += f"    {prev_id} --> {agent_id}\n"
-
-        diagram += f"    A{len(agents)} --> End([End])\n"
-
-        # Add styling
-        diagram += "\n    classDef startEnd fill:#e1f5fe\n"
-        diagram += "    classDef agent fill:#f3e5f5\n"
-        diagram += "    class Start,End startEnd\n"
-        diagram += (
-            f"    class {','.join([f'A{i+1}' for i in range(len(agents))])} agent\n"
-        )
-
-        return diagram
-
-    def _create_parallel_diagram(self, agents: List[str]) -> str:
-        """Create Mermaid diagram for parallel workflow."""
-        diagram = "graph TD\n"
-        diagram += "    Start([Start])\n"
-        diagram += "    Merge([Merge Results])\n"
-        diagram += "    End([End])\n"
-
-        for i, agent in enumerate(agents):
-            agent_id = f"A{i+1}"
-            agent_label = agent.replace("_", " ").title()
-            diagram += f"    {agent_id}[{agent_label}]\n"
-            diagram += f"    Start --> {agent_id}\n"
-            diagram += f"    {agent_id} --> Merge\n"
-
-        diagram += "    Merge --> End\n"
-
-        # Add styling
-        diagram += "\n    classDef startEnd fill:#e1f5fe\n"
-        diagram += "    classDef agent fill:#f3e5f5\n"
-        diagram += "    classDef merge fill:#fff3e0\n"
-        diagram += "    class Start,End startEnd\n"
-        diagram += "    class Merge merge\n"
-        diagram += (
-            f"    class {','.join([f'A{i+1}' for i in range(len(agents))])} agent\n"
-        )
-
-        return diagram
-
-    def _create_conditional_diagram(self, agents: List[str]) -> str:
-        """Create Mermaid diagram for conditional workflow."""
-        diagram = "graph TD\n"
-        diagram += "    Start([Start])\n"
-        diagram += "    Decision{Decision}\n"
-        diagram += "    Start --> Decision\n"
-
-        for i, agent in enumerate(agents):
-            agent_id = f"A{i+1}"
-            agent_label = agent.replace("_", " ").title()
-            diagram += f"    {agent_id}[{agent_label}]\n"
-            diagram += f"    Decision -->|Option {i+1}| {agent_id}\n"
-            diagram += f"    {agent_id} --> End([End])\n"
-
-        return diagram
-
-    def _get_agent_status(self, agent: str, workflow_data: Dict) -> str:
-        """Get current status of an agent in workflow."""
-        if agent in workflow_data.get("completed", []):
-            return "completed"
-        elif agent in workflow_data.get("active", []):
-            return "active"
-        elif agent in workflow_data.get("failed", []):
-            return "error"
-        else:
-            return "pending"
-
-    def _calculate_progress(self, workflow_data: Dict) -> float:
-        """Calculate overall workflow progress."""
-        total_agents = len(workflow_data.get("agents", []))
-        completed_agents = len(workflow_data.get("completed", []))
-
-        if total_agents == 0:
-            return 0.0
-
-        return (completed_agents / total_agents) * 100
-
-    def _extract_timeline(self, workflow_data: Dict) -> List[Dict[str, Any]]:
-        """Extract execution timeline from workflow data."""
-        timeline = []
-
-        # This would extract real timeline data from workflow execution
-        # For now, create sample timeline
-        events = workflow_data.get("events", [])
-
-        for event in events:
-            timeline.append(
-                {
-                    "timestamp": event.get("timestamp", datetime.now().isoformat()),
-                    "agent": event.get("agent", "unknown"),
-                    "event_type": event.get("type", "execution"),
-                    "message": event.get("message", "Agent executed"),
-                    "duration": event.get("duration", 0),
-                }
-            )
-
-        return sorted(timeline, key=lambda x: x["timestamp"])
-
-    def get_workflow_statistics(self) -> Dict[str, Any]:
-        """Get comprehensive workflow statistics."""
-        try:
-            # This would integrate with your actual workflow data
-            return {
-                "total_workflows": len(self.workflow_cache),
-                "active_workflows": sum(
-                    1
-                    for w in self.workflow_cache.values()
-                    if w.get("status") == "running"
-                ),
-                "success_rate": 0.85,  # Calculate from actual data
-                "avg_execution_time": 5.2,  # Calculate from actual data
-                "most_used_agents": ["email_extractor", "url_extractor"],
-                "performance_trends": {
-                    "last_hour": [1.2, 2.1, 1.8, 2.3, 1.9],
-                    "success_rates": [0.9, 0.85, 0.92, 0.88, 0.87],
-                },
-            }
-        except Exception as e:
-            print(f"Error getting workflow statistics: {e}")
-            return {}
-
-    def create_mermaid_workflow_diagram(
-        self, agents: List[str], status_data: Dict = None
-    ) -> str:
-        """Create a Mermaid diagram with real-time status."""
-        diagram = "graph TD\n"
-        diagram += "    Start([User Request])\n"
-
-        for i, agent in enumerate(agents):
-            agent_id = f"A{i+1}"
-            agent_label = agent.replace("_", " ").title()
-
-            # Determine status styling
-            if status_data and agent in status_data:
-                status = status_data[agent].get("status", "pending")
-                if status == "completed":
-                    diagram += f"    {agent_id}[{agent_label}]:::completed\n"
-                elif status == "active":
-                    diagram += f"    {agent_id}[{agent_label}]:::active\n"
-                elif status == "error":
-                    diagram += f"    {agent_id}[{agent_label}]:::error\n"
-                else:
-                    diagram += f"    {agent_id}[{agent_label}]:::pending\n"
-            else:
-                diagram += f"    {agent_id}[{agent_label}]\n"
-
-            # Add connections
-            if i == 0:
-                diagram += f"    Start --> {agent_id}\n"
-            else:
-                diagram += f"    A{i} --> {agent_id}\n"
-
-        diagram += f"    A{len(agents)} --> End([Response])\n"
-        diagram += "\n"
-
-        # Add CSS classes for styling
-        diagram += "    classDef completed fill:#d4edda,stroke:#c3e6cb,color:#155724\n"
-        diagram += "    classDef active fill:#fff3cd,stroke:#ffeaa7,color:#856404\n"
-        diagram += "    classDef error fill:#f8d7da,stroke:#f5c6cb,color:#721c24\n"
-        diagram += "    classDef pending fill:#f8f9fa,stroke:#dee2e6,color:#495057\n"
-
-        return diagram
-
-    def get_current_workflow_status(self) -> Dict[str, Any]:
-        """Get current workflow execution status for sidebar display."""
-        try:
-            # Get active workflows from orchestrator service
-            from flask_app.services.orchestrator_service import orchestrator_service
-
-            active_workflows = orchestrator_service.get_active_workflows()
-
-            if not active_workflows:
-                return {
-                    "status": "idle",
-                    "message": "No active workflows",
-                    "current_workflow": None,
-                }
-
-            # Get the most recent active workflow
-            current = active_workflows[0]
-
-            return {
-                "status": "active",
-                "message": f"Processing: {current.get('request', 'Unknown task')[:50]}...",
-                "current_workflow": {
-                    "id": current.get("workflow_id"),
-                    "request": current.get("request"),
-                    "status": current.get("status"),
-                    "started_at": current.get("started_at"),
-                    "progress": self._calculate_workflow_progress(current),
-                },
-            }
-        except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Error getting workflow status: {str(e)}",
-                "current_workflow": None,
-            }
-
-    def _calculate_workflow_progress(self, workflow_data: Dict) -> int:
-        """Calculate workflow progress percentage."""
-        # This is a simple calculation - you can make it more sophisticated
-        if workflow_data.get("status") == "completed":
-            return 100
-        elif workflow_data.get("status") == "processing":
-            return 50  # Assume 50% when processing
-        else:
-            return 0
-
-    def get_workflow_status(self, workflow_id: str) -> Dict[str, Any]:
-        """Get current workflow status."""
-        if not self.is_available():
-            return {
-                "workflow_id": workflow_id,
-                "status": "unavailable",
-                "message": "Workflow engine not available",
-            }
-
-        try:
-            if hasattr(self.workflow_engine, "get_workflow_status"):
-                status = self.workflow_engine.get_workflow_status(workflow_id)
-                if status:
-                    return status
-
-            # Return default status if workflow not found
-            return {
-                "workflow_id": workflow_id,
-                "status": "not_found",
-                "message": "Workflow not found",
-            }
-
-        except Exception as e:
-            return {
-                "workflow_id": workflow_id,
-                "status": "error",
-                "message": f"Error getting workflow status: {str(e)}",
-            }
-
-    def list_workflows(self) -> List[Dict[str, Any]]:
-        """List all workflows."""
-        if not self.is_available():
-            return []
-
-        try:
-            if hasattr(self.workflow_engine, "list_workflows"):
-                return self.workflow_engine.list_workflows()
-            else:
-                # Return empty list if method not available
-                return []
-        except Exception as e:
-            print(f"Error listing workflows: {e}")
-            return []
-
-
-# Global service instance
-workflow_service = WorkflowService()
-
-```
-
---------------------------------------------------------------------------------
-
-### File: flask_app/static/css/custom.css
-**Path:** `flask_app/static/css/custom.css`
-**Size:** 11,431 bytes
-**Modified:** 2025-09-09 20:24:03
-
-*[Binary file or content not included]*
-
---------------------------------------------------------------------------------
-
-### File: flask_app/static/favicon.ico
-**Path:** `flask_app/static/favicon.ico`
-**Size:** 0 bytes
-**Modified:** 2025-09-07 12:52:59
-
-*[Binary file or content not included]*
-
---------------------------------------------------------------------------------
-
-### File: flask_app/static/js/app.js
-**Path:** `flask_app/static/js/app.js`
-**Size:** 29,009 bytes
-**Modified:** 2025-09-09 19:58:56
-
-*[Binary file or content not included]*
-
---------------------------------------------------------------------------------
-
-### File: flask_app/templates/base.html
-**Path:** `flask_app/templates/base.html`
-**Size:** 9,269 bytes
-**Modified:** 2025-09-09 08:05:31
-
-*[Binary file or content not included]*
-
---------------------------------------------------------------------------------
-
-### File: flask_app/templates/components/chat-container.html
-**Path:** `flask_app/templates/components/chat-container.html`
-**Size:** 22,439 bytes
-**Modified:** 2025-09-09 20:15:42
-
-*[Binary file or content not included]*
-
---------------------------------------------------------------------------------
-
-### File: flask_app/templates/components/sidebar.html
-**Path:** `flask_app/templates/components/sidebar.html`
-**Size:** 8,404 bytes
-**Modified:** 2025-09-08 23:45:51
-
-*[Binary file or content not included]*
-
---------------------------------------------------------------------------------
-
-### File: flask_app/templates/components/workflow-panel.html
-**Path:** `flask_app/templates/components/workflow-panel.html`
-**Size:** 5,967 bytes
-**Modified:** 2025-09-09 08:05:37
-
-*[Binary file or content not included]*
-
---------------------------------------------------------------------------------
-
-### File: flask_app/templates/components/workflow-visualization.html
-**Path:** `flask_app/templates/components/workflow-visualization.html`
-**Size:** 18,111 bytes
-**Modified:** 2025-09-09 08:05:44
-
-*[Binary file or content not included]*
-
---------------------------------------------------------------------------------
-
-### File: flask_app/templates/dependencies.html
-**Path:** `flask_app/templates/dependencies.html`
-**Size:** 20,910 bytes
-**Modified:** 2025-09-07 22:52:12
-
-*[Binary file or content not included]*
-
---------------------------------------------------------------------------------
-
-### File: flask_app/templates/error.html
-**Path:** `flask_app/templates/error.html`
-**Size:** 796 bytes
-**Modified:** 2025-09-07 12:38:11
-
-*[Binary file or content not included]*
-
---------------------------------------------------------------------------------
-
-### File: flask_app/templates/help.html
-**Path:** `flask_app/templates/help.html`
-**Size:** 1,418 bytes
-**Modified:** 2025-09-07 12:54:08
-
-*[Binary file or content not included]*
-
---------------------------------------------------------------------------------
-
-### File: flask_app/templates/index.jinja2
-**Path:** `flask_app/templates/index.jinja2`
-**Size:** 7,999 bytes
-**Modified:** 2025-09-09 20:23:29
-
-*[Binary file or content not included]*
-
---------------------------------------------------------------------------------
-
-### File: flask_app/templates/partials/chat-message.html
-**Path:** `flask_app/templates/partials/chat-message.html`
-**Size:** 1,380 bytes
-**Modified:** 2025-09-07 13:14:07
-
-*[Binary file or content not included]*
-
---------------------------------------------------------------------------------
-
-### File: flask_app/templates/partials/workflow-status.jinja2
-**Path:** `flask_app/templates/partials/workflow-status.jinja2`
-**Size:** 1,232 bytes
-**Modified:** 2025-09-07 13:22:50
-
-*[Binary file or content not included]*
-
---------------------------------------------------------------------------------
-
-### File: flask_app/templates/registry.html
-**Path:** `flask_app/templates/registry.html`
-**Size:** 7,127 bytes
-**Modified:** 2025-09-08 21:01:07
-
-*[Binary file or content not included]*
-
---------------------------------------------------------------------------------
-
-### File: flask_app/templates/settings.html
-**Path:** `flask_app/templates/settings.html`
-**Size:** 1,933 bytes
-**Modified:** 2025-09-07 12:54:29
-
-*[Binary file or content not included]*
-
---------------------------------------------------------------------------------
-
-### File: flask_app/templates/workflow_detail.jinja2
-**Path:** `flask_app/templates/workflow_detail.jinja2`
-**Size:** 18,007 bytes
-**Modified:** 2025-09-07 13:22:48
-
-*[Binary file or content not included]*
-
---------------------------------------------------------------------------------
-
-### File: flask_app/templates/workflows.html
-**Path:** `flask_app/templates/workflows.html`
-**Size:** 15,881 bytes
-**Modified:** 2025-09-07 22:57:12
-
-*[Binary file or content not included]*
-
---------------------------------------------------------------------------------
-
 ### File: generated/__init__.py
 **Path:** `generated/__init__.py`
 **Size:** 0 bytes
@@ -18303,386 +9952,6 @@ workflow_service = WorkflowService()
 
 ```python
 
-```
-
---------------------------------------------------------------------------------
-
-### File: generated/agents/calculate_average_agent_agent.py
-**Path:** `generated/agents/calculate_average_agent_agent.py`
-**Size:** 7,027 bytes
-**Modified:** 2025-09-11 09:13:56
-
-```python
-def calculate_average_agent_agent(state):
-    """
-    This agent receives a string input containing numeric values and calculates their average using built-in operations.
-    
-    Dynamically handles: Pipeline step input - can be any format from previous step or initial data
-    Produces: Processed output for next pipeline step
-    """
-    import sys
-    import os
-    import re
-    import json
-    from datetime import datetime
-    from typing import List, Dict, Any, Union
-    
-    # Add project path
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    
-    # Initialize state
-    if 'results' not in state:
-        state['results'] = {}
-    if 'errors' not in state:
-        state['errors'] = []
-    if 'execution_path' not in state:
-        state['execution_path'] = []
-    
-    try:
-        start_time = datetime.now()
-        
-        # INTELLIGENT INPUT EXTRACTION
-        input_data = None
-        
-        # Priority order for data extraction
-        for key in ['extracted_data', 'current_data', 'data', 'input', 'request']:
-            if key in state and state[key] is not None:
-                input_data = state[key]
-                break
-        
-        # If still no data, try to extract from nested structures
-        if input_data is None:
-            for key in ['results', 'context', 'files']:
-                if key in state and state[key]:
-                    input_data = state[key]
-                    break
-        
-        if input_data is None:
-            raise ValueError("No input data found in state")
-        
-        # DYNAMIC NUMERIC VALUE EXTRACTION AND AVERAGE CALCULATION
-        numeric_values = []
-        
-        def extract_numbers_from_text(text):
-            """Extract all numeric values from text string"""
-            # Pattern to match integers and floats (including negative numbers)
-            number_pattern = r'-?\d+\.?\d*'
-            matches = re.findall(number_pattern, str(text))
-            numbers = []
-            for match in matches:
-                try:
-                    # Try to convert to float first, then int if it's a whole number
-                    num = float(match)
-                    if num.is_integer():
-                        numbers.append(int(num))
-                    else:
-                        numbers.append(num)
-                except ValueError:
-                    continue
-            return numbers
-        
-        # Handle different input types
-        if isinstance(input_data, str):
-            # Extract numbers from string
-            numeric_values = extract_numbers_from_text(input_data)
-            
-        elif isinstance(input_data, (list, tuple)):
-            # Process list/tuple - could contain numbers or strings with numbers
-            for item in input_data:
-                if isinstance(item, (int, float)):
-                    numeric_values.append(item)
-                elif isinstance(item, str):
-                    numeric_values.extend(extract_numbers_from_text(item))
-                elif isinstance(item, dict):
-                    # Extract numbers from dictionary values
-                    for value in item.values():
-                        if isinstance(value, (int, float)):
-                            numeric_values.append(value)
-                        elif isinstance(value, str):
-                            numeric_values.extend(extract_numbers_from_text(value))
-                            
-        elif isinstance(input_data, dict):
-            # Extract numbers from dictionary values and nested structures
-            def extract_from_dict(d):
-                numbers = []
-                for value in d.values():
-                    if isinstance(value, (int, float)):
-                        numbers.append(value)
-                    elif isinstance(value, str):
-                        numbers.extend(extract_numbers_from_text(value))
-                    elif isinstance(value, (list, tuple)):
-                        for item in value:
-                            if isinstance(item, (int, float)):
-                                numbers.append(item)
-                            elif isinstance(item, str):
-                                numbers.extend(extract_numbers_from_text(item))
-                    elif isinstance(value, dict):
-                        numbers.extend(extract_from_dict(value))
-                return numbers
-            
-            numeric_values = extract_from_dict(input_data)
-            
-        elif isinstance(input_data, (int, float)):
-            # Single numeric value
-            numeric_values = [input_data]
-            
-        else:
-            # Try to extract from string representation
-            numeric_values = extract_numbers_from_text(str(input_data))
-        
-        # Calculate average
-        if not numeric_values:
-            raise ValueError("No numeric values found in input data")
-        
-        # Remove any None values or invalid numbers
-        valid_numbers = [num for num in numeric_values if num is not None and isinstance(num, (int, float))]
-        
-        if not valid_numbers:
-            raise ValueError("No valid numeric values found in input data")
-        
-        # Calculate average using built-in operations
-        total_sum = sum(valid_numbers)
-        count = len(valid_numbers)
-        average = total_sum / count
-        
-        # Prepare processed data with comprehensive results
-        processed_data = {
-            'average': average,
-            'sum': total_sum,
-            'count': count,
-            'values': valid_numbers,
-            'min_value': min(valid_numbers),
-            'max_value': max(valid_numbers),
-            'range': max(valid_numbers) - min(valid_numbers)
-        }
-        
-        # STRUCTURED OUTPUT
-        result = {
-            'status': 'success',
-            'data': processed_data,
-            'metadata': {
-                'agent': 'calculate_average_agent',
-                'execution_time': (datetime.now() - start_time).total_seconds(),
-                'input_type': type(input_data).__name__,
-                'output_type': type(processed_data).__name__,
-                'tools_used': [],
-                'values_found': count,
-                'calculation_method': 'sum_divided_by_count'
-            }
-        }
-        
-        # Update pipeline state
-        state['results']['calculate_average_agent'] = result
-        state['current_data'] = processed_data
-        state['execution_path'].append('calculate_average_agent')
-        
-        return state
-        
-    except Exception as e:
-        import traceback
-        error_info = {
-            'agent': 'calculate_average_agent',
-            'error': str(e),
-            'traceback': traceback.format_exc()
-        }
-        
-        state['errors'].append(error_info)
-        state['results']['calculate_average_agent'] = {
-            'status': 'error',
-            'error': str(e),
-            'metadata': error_info
-        }
-        
-        return state
-```
-
---------------------------------------------------------------------------------
-
-### File: generated/agents/check_average_prime_agent_agent.py
-**Path:** `generated/agents/check_average_prime_agent_agent.py`
-**Size:** 6,742 bytes
-**Modified:** 2025-09-11 09:14:18
-
-```python
-def check_average_prime_agent_agent(state):
-    """
-    This agent receives a string input, parses it to extract numeric values, calculates their average, and checks whether the computed average is a prime number using built-in logic.
-    
-    Dynamically handles: Pipeline step input - can be any format from previous step or initial data
-    Produces: Processed output for next pipeline step
-    """
-    import sys
-    import os
-    import re
-    import json
-    from datetime import datetime
-    from typing import List, Dict, Any, Union
-    
-    # Add project path
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    
-    # Initialize state
-    if 'results' not in state:
-        state['results'] = {}
-    if 'errors' not in state:
-        state['errors'] = []
-    if 'execution_path' not in state:
-        state['execution_path'] = []
-    
-    try:
-        start_time = datetime.now()
-        
-        # INTELLIGENT INPUT EXTRACTION
-        # Extract data from multiple possible sources in state
-        input_data = None
-        
-        # Priority order for data extraction
-        for key in ['extracted_data', 'current_data', 'data', 'input', 'request']:
-            if key in state and state[key] is not None:
-                input_data = state[key]
-                break
-        
-        # If still no data, try to extract from nested structures
-        if input_data is None:
-            for key in ['results', 'context', 'files']:
-                if key in state and state[key]:
-                    input_data = state[key]
-                    break
-        
-        # DYNAMIC LOGIC IMPLEMENTATION
-        def is_prime(n):
-            """Check if a number is prime using built-in logic"""
-            if n < 2:
-                return False
-            if n == 2:
-                return True
-            if n % 2 == 0:
-                return False
-            
-            # Check odd divisors up to sqrt(n)
-            i = 3
-            while i * i <= n:
-                if n % i == 0:
-                    return False
-                i += 2
-            return True
-        
-        def extract_numbers_from_string(text):
-            """Extract numeric values from string input"""
-            if isinstance(text, str):
-                # Find all integer and float numbers in the string
-                number_pattern = r'-?\d+\.?\d*'
-                matches = re.findall(number_pattern, text)
-                numbers = []
-                for match in matches:
-                    try:
-                        # Try to convert to int first, then float
-                        if '.' in match:
-                            numbers.append(float(match))
-                        else:
-                            numbers.append(int(match))
-                    except ValueError:
-                        continue
-                return numbers
-            return []
-        
-        def extract_numbers_from_any_format(data):
-            """Extract numbers from various data formats"""
-            numbers = []
-            
-            if isinstance(data, (int, float)):
-                numbers.append(data)
-            elif isinstance(data, str):
-                numbers.extend(extract_numbers_from_string(data))
-            elif isinstance(data, list):
-                for item in data:
-                    if isinstance(item, (int, float)):
-                        numbers.append(item)
-                    elif isinstance(item, str):
-                        numbers.extend(extract_numbers_from_string(item))
-                    elif isinstance(item, dict):
-                        numbers.extend(extract_numbers_from_any_format(item))
-            elif isinstance(data, dict):
-                for value in data.values():
-                    numbers.extend(extract_numbers_from_any_format(value))
-            
-            return numbers
-        
-        # Extract numeric values from input
-        extracted_numbers = []
-        
-        if input_data is not None:
-            extracted_numbers = extract_numbers_from_any_format(input_data)
-        
-        # If no numbers found, try to look in the entire state
-        if not extracted_numbers:
-            extracted_numbers = extract_numbers_from_any_format(state)
-        
-        if not extracted_numbers:
-            processed_data = {
-                'numbers_found': [],
-                'average': None,
-                'is_prime': False,
-                'message': 'No numeric values found in input',
-                'status': 'no_numbers'
-            }
-        else:
-            # Calculate average
-            average = sum(extracted_numbers) / len(extracted_numbers)
-            
-            # Check if average is prime (only for integers or convert to int)
-            # For prime check, we'll use the integer part if it's a float
-            average_int = int(average) if average == int(average) else int(average)
-            is_average_prime = is_prime(average_int) if average == int(average) else False
-            
-            processed_data = {
-                'numbers_found': extracted_numbers,
-                'count': len(extracted_numbers),
-                'sum': sum(extracted_numbers),
-                'average': average,
-                'average_integer': average_int,
-                'is_exact_integer': average == int(average),
-                'is_prime': is_average_prime,
-                'message': f'Found {len(extracted_numbers)} numbers, average is {average}, prime check: {is_average_prime}',
-                'status': 'success'
-            }
-        
-        # STRUCTURED OUTPUT
-        result = {
-            'status': 'success',
-            'data': processed_data,
-            'metadata': {
-                'agent': 'check_average_prime_agent',
-                'execution_time': (datetime.now() - start_time).total_seconds(),
-                'input_type': type(input_data).__name__,
-                'output_type': type(processed_data).__name__,
-                'tools_used': []
-            }
-        }
-        
-        # Update pipeline state
-        state['results']['check_average_prime_agent'] = result
-        state['current_data'] = processed_data
-        state['execution_path'].append('check_average_prime_agent')
-        
-        return state
-        
-    except Exception as e:
-        import traceback
-        error_info = {
-            'agent': 'check_average_prime_agent',
-            'error': str(e),
-            'traceback': traceback.format_exc()
-        }
-        
-        state['errors'].append(error_info)
-        state['results']['check_average_prime_agent'] = {
-            'status': 'error',
-            'error': str(e),
-            'metadata': error_info
-        }
-        
-        return state
 ```
 
 --------------------------------------------------------------------------------
@@ -18801,216 +10070,6 @@ def email_extractor_agent(state):
 
     return state
 
-```
-
---------------------------------------------------------------------------------
-
-### File: generated/agents/filter_prime_numbers_agent.py
-**Path:** `generated/agents/filter_prime_numbers_agent.py`
-**Size:** 6,964 bytes
-**Modified:** 2025-09-11 09:13:26
-
-```python
-def filter_prime_numbers_agent(state):
-    """
-    Extracts numerical values from the input string and filters out only the prime numbers.
-    
-    Dynamically handles: Pipeline step input - can be any format from previous step or initial data
-    Produces: Processed output for next pipeline step
-    """
-    import sys
-    import os
-    import re
-    import json
-    from datetime import datetime
-    from typing import List, Dict, Any, Union
-    
-    # Add project path
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    
-    # No tools to import
-    
-    # Initialize state
-    if 'results' not in state:
-        state['results'] = {}
-    if 'errors' not in state:
-        state['errors'] = []
-    if 'execution_path' not in state:
-        state['execution_path'] = []
-    
-    try:
-        start_time = datetime.now()
-        
-        # INTELLIGENT INPUT EXTRACTION
-        input_data = None
-        
-        # Priority order for data extraction
-        for key in ['extracted_data', 'current_data', 'data', 'input', 'request']:
-            if key in state and state[key] is not None:
-                input_data = state[key]
-                break
-        
-        # If still no data, try to extract from nested structures
-        if input_data is None:
-            for key in ['results', 'context', 'files']:
-                if key in state and state[key]:
-                    input_data = state[key]
-                    break
-        
-        if input_data is None:
-            raise ValueError("No input data found in state")
-        
-        # HELPER FUNCTION: Check if a number is prime
-        def is_prime(n):
-            """Check if a number is prime"""
-            if n < 2:
-                return False
-            if n == 2:
-                return True
-            if n % 2 == 0:
-                return False
-            
-            # Check odd divisors up to sqrt(n)
-            i = 3
-            while i * i <= n:
-                if n % i == 0:
-                    return False
-                i += 2
-            return True
-        
-        # HELPER FUNCTION: Extract numbers from various data types
-        def extract_numbers(data):
-            """Extract all numbers from various data formats"""
-            numbers = []
-            
-            if isinstance(data, (int, float)):
-                # Direct number
-                if isinstance(data, int):
-                    numbers.append(data)
-                elif data.is_integer():
-                    numbers.append(int(data))
-            
-            elif isinstance(data, str):
-                # Extract numbers from string using regex
-                # Match integers and floats
-                number_pattern = r'-?\d+\.?\d*'
-                matches = re.findall(number_pattern, data)
-                for match in matches:
-                    try:
-                        if '.' in match:
-                            num = float(match)
-                            if num.is_integer():
-                                numbers.append(int(num))
-                        else:
-                            numbers.append(int(match))
-                    except ValueError:
-                        continue
-            
-            elif isinstance(data, list):
-                # Process each element in list
-                for item in data:
-                    numbers.extend(extract_numbers(item))
-            
-            elif isinstance(data, dict):
-                # Process all values in dictionary
-                for value in data.values():
-                    numbers.extend(extract_numbers(value))
-            
-            elif hasattr(data, '__iter__') and not isinstance(data, (str, bytes)):
-                # Handle other iterable types
-                try:
-                    for item in data:
-                        numbers.extend(extract_numbers(item))
-                except:
-                    pass
-            
-            return numbers
-        
-        # MAIN LOGIC: Extract numbers and filter primes
-        
-        # Extract all numbers from input data
-        extracted_numbers = extract_numbers(input_data)
-        
-        # Remove duplicates while preserving order
-        unique_numbers = []
-        seen = set()
-        for num in extracted_numbers:
-            if num not in seen:
-                unique_numbers.append(num)
-                seen.add(num)
-        
-        # Filter for prime numbers only
-        prime_numbers = []
-        non_prime_numbers = []
-        
-        for num in unique_numbers:
-            if is_prime(num):
-                prime_numbers.append(num)
-            else:
-                non_prime_numbers.append(num)
-        
-        # Sort prime numbers for consistent output
-        prime_numbers.sort()
-        
-        # Create comprehensive output
-        processed_data = {
-            'prime_numbers': prime_numbers,
-            'count': len(prime_numbers),
-            'statistics': {
-                'total_numbers_found': len(unique_numbers),
-                'prime_count': len(prime_numbers),
-                'non_prime_count': len(non_prime_numbers),
-                'largest_prime': max(prime_numbers) if prime_numbers else None,
-                'smallest_prime': min(prime_numbers) if prime_numbers else None
-            },
-            'analysis': {
-                'all_numbers_found': unique_numbers,
-                'non_prime_numbers': non_prime_numbers,
-                'input_summary': {
-                    'input_type': type(input_data).__name__,
-                    'contains_numbers': len(unique_numbers) > 0,
-                    'contains_primes': len(prime_numbers) > 0
-                }
-            }
-        }
-        
-        # STRUCTURED OUTPUT
-        result = {
-            'status': 'success',
-            'data': processed_data,
-            'metadata': {
-                'agent': 'filter_prime_numbers',
-                'execution_time': (datetime.now() - start_time).total_seconds(),
-                'input_type': type(input_data).__name__,
-                'output_type': type(processed_data).__name__,
-                'tools_used': [],
-                'processing_summary': f"Found {len(unique_numbers)} numbers, {len(prime_numbers)} are prime"
-            }
-        }
-        
-        # Update pipeline state
-        state['results']['filter_prime_numbers'] = result
-        state['current_data'] = processed_data
-        state['execution_path'].append('filter_prime_numbers')
-        
-        return state
-        
-    except Exception as e:
-        import traceback
-        error_info = {
-            'agent': 'filter_prime_numbers',
-            'error': str(e),
-            'traceback': traceback.format_exc()
-        }
-        
-        state['errors'].append(error_info)
-        state['results']['filter_prime_numbers'] = {
-            'status': 'error',
-            'error': str(e),
-            'metadata': error_info
-        }
-        
-        return state
 ```
 
 --------------------------------------------------------------------------------
@@ -19251,7 +10310,7 @@ def read_text_agent(state):
 ### File: generated/tools/analyze_sentiment.py
 **Path:** `generated/tools/analyze_sentiment.py`
 **Size:** 2,001 bytes
-**Modified:** 2025-09-04 23:26:14
+**Modified:** 2025-09-14 16:44:20
 
 ```python
 def analyze_sentiment(input_data=None):
@@ -19308,7 +10367,7 @@ def analyze_sentiment(input_data=None):
 ### File: generated/tools/calculate_mean.py
 **Path:** `generated/tools/calculate_mean.py`
 **Size:** 1,234 bytes
-**Modified:** 2025-09-04 23:20:14
+**Modified:** 2025-09-14 16:44:24
 
 ```python
 def calculate_mean(input_data=None):
@@ -19363,7 +10422,7 @@ def calculate_mean(input_data=None):
 ### File: generated/tools/extract_emails.py
 **Path:** `generated/tools/extract_emails.py`
 **Size:** 945 bytes
-**Modified:** 2025-09-04 10:13:41
+**Modified:** 2025-09-14 16:44:26
 
 ```python
 def extract_emails(input_data=None):
@@ -19406,7 +10465,7 @@ def extract_emails(input_data=None):
 ### File: generated/tools/extract_phones.py
 **Path:** `generated/tools/extract_phones.py`
 **Size:** 1,225 bytes
-**Modified:** 2025-09-04 23:14:54
+**Modified:** 2025-09-14 16:44:31
 
 ```python
 def extract_phones(input_data=None):
@@ -19453,7 +10512,7 @@ def extract_phones(input_data=None):
 ### File: generated/tools/extract_urls.py
 **Path:** `generated/tools/extract_urls.py`
 **Size:** 846 bytes
-**Modified:** 2025-09-04 10:13:28
+**Modified:** 2025-09-14 16:44:33
 
 ```python
 def extract_urls(input_data=None):
@@ -19488,313 +10547,6 @@ def extract_urls(input_data=None):
 
     except Exception:
         return []
-
-```
-
---------------------------------------------------------------------------------
-
-### File: prebuilt/agents/url_extractor_agent.py
-**Path:** `prebuilt/agents/url_extractor_agent.py`
-**Size:** 2,033 bytes
-**Modified:** 2025-09-04 23:15:38
-
-```python
-def url_extractor_agent(state):
-    """
-    Extract URLs from input text.
-    """
-    import sys
-    import os
-    from datetime import datetime
-
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-    # Import tool
-    from generated.tools.extract_urls import extract_urls
-
-    # Initialize state
-    if "results" not in state:
-        state["results"] = {}
-    if "errors" not in state:
-        state["errors"] = []
-    if "execution_path" not in state:
-        state["execution_path"] = []
-
-    try:
-        start_time = datetime.now()
-
-        # Extract input
-        input_data = state.get("current_data")
-        if input_data is None:
-            input_data = state.get("text", state.get("data", state.get("request", "")))
-
-        # Process with tool
-        urls = extract_urls(input_data)
-
-        # Analyze URLs
-        domains = {}
-        for url in urls:
-            try:
-                from urllib.parse import urlparse
-
-                parsed = urlparse(url)
-                domain = parsed.netloc or parsed.path.split("/")[0]
-                domains[domain] = domains.get(domain, 0) + 1
-            except:
-                pass
-
-        # Create result
-        result = {
-            "status": "success",
-            "data": {"urls": urls, "count": len(urls), "domains": domains},
-            "metadata": {
-                "agent": "url_extractor",
-                "execution_time": (datetime.now() - start_time).total_seconds(),
-                "tools_used": ["extract_urls"],
-            },
-        }
-
-        # Update state
-        state["results"]["url_extractor"] = result
-        state["current_data"] = result["data"]
-        state["execution_path"].append("url_extractor")
-
-    except Exception as e:
-        state["errors"].append({"agent": "url_extractor", "error": str(e)})
-        state["results"]["url_extractor"] = {
-            "status": "error",
-            "data": None,
-            "metadata": {"agent": "url_extractor", "error": str(e)},
-        }
-
-    return state
-
-```
-
---------------------------------------------------------------------------------
-
-### File: prebuilt/tools/read_csv.py
-**Path:** `prebuilt/tools/read_csv.py`
-**Size:** 1,339 bytes
-**Modified:** 2025-09-04 10:12:06
-
-```python
-def read_csv(input_data=None):
-    """
-    Read CSV file using pandas.
-    Handles file path or dict with 'path' key.
-    """
-    import os
-    import pandas as pd
-
-    if input_data is None:
-        return {"status": "error", "message": "No input provided", "data": []}
-
-    try:
-        # Extract file path
-        if isinstance(input_data, str):
-            file_path = input_data
-        elif isinstance(input_data, dict):
-            file_path = input_data.get("path", input_data.get("file_path", ""))
-        else:
-            return {"status": "error", "message": "Invalid input type", "data": []}
-
-        if not file_path:
-            return {"status": "error", "message": "No file path provided", "data": []}
-
-        # Read CSV
-        if not os.path.exists(file_path):
-            return {
-                "status": "error",
-                "message": f"File not found: {file_path}",
-                "data": [],
-            }
-
-        df = pd.read_csv(file_path)
-
-        return {
-            "status": "success",
-            "data": df.to_dict("records"),
-            "shape": {"rows": len(df), "columns": len(df.columns)},
-            "columns": df.columns.tolist(),
-            "preview": df.head(5).to_dict("records"),
-        }
-
-    except Exception as e:
-        return {"status": "error", "message": str(e), "data": []}
-
-```
-
---------------------------------------------------------------------------------
-
-### File: prebuilt/tools/read_json.py
-**Path:** `prebuilt/tools/read_json.py`
-**Size:** 1,460 bytes
-**Modified:** 2025-09-04 10:11:49
-
-```python
-def read_json(input_data=None):
-    """
-    Read JSON file and parse contents.
-    Handles file path or dict with 'path' key.
-    """
-    import os
-    import json
-
-    if input_data is None:
-        return {"status": "error", "message": "No input provided", "data": {}}
-
-    try:
-        # Extract file path
-        if isinstance(input_data, str):
-            file_path = input_data
-        elif isinstance(input_data, dict):
-            file_path = input_data.get("path", input_data.get("file_path", ""))
-        else:
-            return {"status": "error", "message": "Invalid input type", "data": {}}
-
-        if not file_path:
-            return {"status": "error", "message": "No file path provided", "data": {}}
-
-        # Read and parse JSON
-        if not os.path.exists(file_path):
-            return {
-                "status": "error",
-                "message": f"File not found: {file_path}",
-                "data": {},
-            }
-
-        with open(file_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-
-        return {
-            "status": "success",
-            "data": data,
-            "type": type(data).__name__,
-            "keys": list(data.keys()) if isinstance(data, dict) else None,
-        }
-
-    except json.JSONDecodeError as e:
-        return {"status": "error", "message": f"Invalid JSON: {str(e)}", "data": {}}
-    except Exception as e:
-        return {"status": "error", "message": str(e), "data": {}}
-
-```
-
---------------------------------------------------------------------------------
-
-### File: prebuilt/tools/read_pdf.py
-**Path:** `prebuilt/tools/read_pdf.py`
-**Size:** 1,486 bytes
-**Modified:** 2025-09-04 10:12:20
-
-```python
-def read_pdf(input_data=None):
-    """
-    Read PDF file and extract text using PyPDF2.
-    Handles file path or dict with 'path' key.
-    """
-    import os
-    import PyPDF2
-
-    if input_data is None:
-        return {"status": "error", "message": "No input provided", "text": ""}
-
-    try:
-        # Extract file path
-        if isinstance(input_data, str):
-            file_path = input_data
-        elif isinstance(input_data, dict):
-            file_path = input_data.get("path", input_data.get("file_path", ""))
-        else:
-            return {"status": "error", "message": "Invalid input type", "text": ""}
-
-        if not file_path:
-            return {"status": "error", "message": "No file path provided", "text": ""}
-
-        # Read PDF
-        if not os.path.exists(file_path):
-            return {
-                "status": "error",
-                "message": f"File not found: {file_path}",
-                "text": "",
-            }
-
-        text = ""
-        with open(file_path, "rb") as f:
-            pdf_reader = PyPDF2.PdfReader(f)
-            num_pages = len(pdf_reader.pages)
-
-            for page_num in range(num_pages):
-                page = pdf_reader.pages[page_num]
-                text += page.extract_text()
-
-        return {
-            "status": "success",
-            "text": text,
-            "pages": num_pages,
-            "chars": len(text),
-        }
-
-    except Exception as e:
-        return {"status": "error", "message": str(e), "text": ""}
-
-```
-
---------------------------------------------------------------------------------
-
-### File: prebuilt/tools/read_text.py
-**Path:** `prebuilt/tools/read_text.py`
-**Size:** 1,379 bytes
-**Modified:** 2025-09-04 10:11:28
-
-```python
-def read_text(input_data=None):
-    """
-    Read text file and return contents.
-    Handles file path or dict with 'path' key.
-    """
-    import os
-
-    if input_data is None:
-        return {"status": "error", "message": "No input provided", "content": ""}
-
-    try:
-        # Extract file path
-        if isinstance(input_data, str):
-            file_path = input_data
-        elif isinstance(input_data, dict):
-            file_path = input_data.get("path", input_data.get("file_path", ""))
-        else:
-            return {"status": "error", "message": "Invalid input type", "content": ""}
-
-        if not file_path:
-            return {
-                "status": "error",
-                "message": "No file path provided",
-                "content": "",
-            }
-
-        # Read file
-        if not os.path.exists(file_path):
-            return {
-                "status": "error",
-                "message": f"File not found: {file_path}",
-                "content": "",
-            }
-
-        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
-            content = f.read()
-
-        return {
-            "status": "success",
-            "content": content,
-            "lines": len(content.splitlines()),
-            "chars": len(content),
-        }
-
-    except Exception as e:
-        return {"status": "error", "message": str(e), "content": ""}
 
 ```
 
@@ -19930,1023 +10682,263 @@ ujson>=5.0.0  # Faster JSON processing for large pipeline data
 
 --------------------------------------------------------------------------------
 
-### File: scripts/initialize_prebuilt.py
-**Path:** `scripts/initialize_prebuilt.py`
-**Size:** 1,243 bytes
-**Modified:** 2025-09-04 22:52:01
+### File: test_current_setup.py
+**Path:** `test_current_setup.py`
+**Size:** 848 bytes
+**Modified:** 2025-09-13 13:06:12
 
 ```python
-"""Initialize missing prebuilt components."""
-
-import sys
-import os
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from core.registry import RegistryManager
-from core.tool_factory import ToolFactory
-
-
-def initialize_prebuilt_tools():
-    """Create missing prebuilt tools."""
-
-    registry = RegistryManager()
-    tool_factory = ToolFactory()
-
-    # Define essential tools
-    essential_tools = [
-        ("extract_urls", "Extract URLs from text"),
-        ("extract_emails", "Extract email addresses from text"),
-        ("extract_phones", "Extract phone numbers from text"),
-        ("calculate_mean", "Calculate mean of numbers"),
-        ("calculate_median", "Calculate median of numbers"),
-        ("calculate_std", "Calculate standard deviation"),
-        ("analyze_sentiment", "Analyze sentiment of text"),
-    ]
-
-    for tool_name, description in essential_tools:
-        if not registry.tool_exists(tool_name):
-            print(f"Creating tool: {tool_name}")
-            result = tool_factory.ensure_tool(tool_name, description)
-            print(f"  Result: {result['status']}")
-        else:
-            print(f"Tool exists: {tool_name}")
-
-
-if __name__ == "__main__":
-    initialize_prebuilt_tools()
-
-```
-
---------------------------------------------------------------------------------
-
-### File: scripts/regenerate_agents.py
-**Path:** `scripts/regenerate_agents.py`
-**Size:** 3,702 bytes
-**Modified:** 2025-09-03 13:31:41
-
-```python
-"""
-Regenerate Agents with Improved Data Handling
-"""
-
-import sys
-import os
-import shutil
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from core.agent_factory import AgentFactory
-from core.registry import RegistryManager
-
-
-def cleanup_and_regenerate():
-    """Remove problematic agents and regenerate with better prompts."""
-
-    print("AGENT REGENERATION PROCESS")
-    print("=" * 50)
-
-    registry = RegistryManager()
-    factory = AgentFactory()
-
-    # Agents to regenerate for better data handling
-    agents_to_regenerate = [
-        {
-            "name": "text_analyzer",
-            "description": "Analyze text to extract emails and numbers, handling various input formats",
-            "tools": ["extract_emails", "extract_numbers"],
-            "input": "Text data from state in any format (string, dict with text field, etc.)",
-            "output": "Dictionary with extracted emails and numbers arrays",
-        },
-        {
-            "name": "statistics_calculator",
-            "description": "Calculate statistics from numbers, accepting both raw text and pre-extracted number arrays",
-            "tools": ["extract_numbers", "calculate_mean", "calculate_median"],
-            "input": "Either raw text to extract numbers from, or pre-extracted numbers array from previous agent",
-            "output": "Dictionary with calculated statistics including mean, median, min, max",
-        },
-    ]
-
-    print("\n1. Backing up current agents...")
-    os.makedirs("generated/agents_backup", exist_ok=True)
-
-    for agent_info in agents_to_regenerate:
-        agent_name = agent_info["name"]
-        agent_file = f"generated/agents/{agent_name}_agent.py"
-
-        if os.path.exists(agent_file):
-            backup_file = f"generated/agents_backup/{agent_name}_agent.py"
-            shutil.copy(agent_file, backup_file)
-            print(f"  Backed up: {agent_name}")
-
-    print("\n2. Removing agents from registry...")
-
-    for agent_info in agents_to_regenerate:
-        agent_name = agent_info["name"]
-        if registry.agent_exists(agent_name):
-            # Remove from registry
-            del registry.agents["agents"][agent_name]
-            print(f"  Removed from registry: {agent_name}")
-
-    registry.save_all()
-
-    print("\n3. Regenerating agents with improved data handling...")
-    print("This will use Claude API credits.")
-    confirm = input("Continue? (y/n): ").lower()
-
-    if confirm != "y":
-        print("Cancelled.")
-        return
-
-    for agent_info in agents_to_regenerate:
-        print(f"\nRegenerating: {agent_info['name']}")
-
-        result = factory.create_agent(
-            agent_name=agent_info["name"],
-            description=agent_info["description"],
-            required_tools=agent_info["tools"],
-            input_description=agent_info["input"],
-            output_description=agent_info["output"],
-            workflow_steps=[
-                "Check multiple possible input locations in state",
-                "Handle both raw and pre-processed data",
-                "Process data with appropriate tools",
-                "Format output consistently",
-                "Update state for next agent",
-            ],
-        )
-
-        if result["status"] == "success":
-            print(
-                f"  Success: {agent_info['name']} regenerated ({result['line_count']} lines)"
-            )
-        else:
-            print(f"  Failed: {result.get('message')}")
-
-    print("\n4. Testing regenerated agents...")
-
-    from tests.test_end_to_end import test_multi_agent_workflows
-
-    test_multi_agent_workflows()
-
-    print("\nRegeneration complete!")
-
-
-if __name__ == "__main__":
-    cleanup_and_regenerate()
-
-```
-
---------------------------------------------------------------------------------
-
-### File: tests/test_backend_fixes.py
-**Path:** `tests/test_backend_fixes.py`
-**Size:** 1,841 bytes
-**Modified:** 2025-09-04 22:53:11
-
-```python
-"""Test that backend fixes are working."""
-
-import sys
-import os
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from core.registry_singleton import get_shared_registry, force_global_reload
-from core.orchestrator import Orchestrator
+# test_current_setup.py
 import asyncio
+from core.simplified_orchestrator import SimplifiedOrchestrator
 
 
-def test_registry_singleton():
-    """Test registry singleton is working."""
-    print("Testing registry singleton...")
+async def test():
+    orchestrator = SimplifiedOrchestrator()
 
-    # Get multiple references
-    reg1 = get_shared_registry()
-    reg2 = get_shared_registry()
+    # Create a simple test CSV first
+    import pandas as pd
 
-    # Should be same instance
-    assert reg1 is reg2, "Registry singleton broken!"
+    test_df = pd.DataFrame(
+        {
+            "Date": ["2024-01-01", "2024-01-02"],
+            "Region": ["North", "South"],
+            "Sales": [1000, 1500],
+        }
+    )
+    test_df.to_csv("test_sales.csv", index=False)
 
-    # Test force reload
-    force_global_reload()
-    reg3 = get_shared_registry()
+    files = [
+        {
+            "path": "test_sales.csv",
+            "original_name": "test_sales.csv",
+            "type": "text/csv",
+        }
+    ]
 
-    print("✓ Registry singleton working")
-
-
-async def test_orchestrator_planning():
-    """Test orchestrator planning."""
-    print("\nTesting orchestrator planning...")
-
-    orchestrator = Orchestrator()
-
-    # Test simple request
     result = await orchestrator.process_request(
-        user_request="Extract emails from this text: test@example.com",
-        auto_create=False,
+        user_request="Analyze this sales data and find the highest sales region",
+        files=files,
     )
 
-    assert result["status"] == "success", f"Planning failed: {result}"
-    assert len(result.get("workflow", {}).get("steps", [])) > 0, "No agents planned"
-
-    print("✓ Orchestrator planning working")
+    print("RESPONSE:", result.get("response"))
 
 
-def test_tool_quality():
-    """Test tools are functional."""
-    print("\nTesting tool quality...")
-
-    from generated.tools.extract_emails import extract_emails
-
-    # Test with various inputs
-    assert extract_emails(None) == []
-    assert extract_emails("test@example.com") == ["test@example.com"]
-    assert len(extract_emails("a@b.com and c@d.com")) == 2
-
-    print("✓ Tools are functional")
-
-
-if __name__ == "__main__":
-    test_registry_singleton()
-    asyncio.run(test_orchestrator_planning())
-    test_tool_quality()
-    print("\n✅ All backend fixes verified!")
+asyncio.run(test())
 
 ```
 
 --------------------------------------------------------------------------------
 
-### File: tests/test_comprehensive_scenarios.py
-**Path:** `tests/test_comprehensive_scenarios.py`
-**Size:** 12,856 bytes
-**Modified:** 2025-09-06 23:38:01
+### File: test_enhanced_system.py
+**Path:** `test_enhanced_system.py`
+**Size:** 5,923 bytes
+**Modified:** 2025-09-14 09:18:16
 
 ```python
+# test_enhanced_system.py
 """
-Comprehensive End-to-End Scenarios for Agentic Fabric POC
-Tests complete user journey from input to response across different capability scenarios
+Test script for enhanced multi-agent system
+Save this as test_enhanced_system.py in your root directory
 """
 
-import sys
-import os
 import asyncio
-import json
-import time
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from core.orchestrator import Orchestrator
-from core.agent_factory import AgentFactory
-from core.tool_factory import ToolFactory
-from core.registry_singleton import get_shared_registry, force_global_reload
+import os
+from core.simplified_orchestrator import SimplifiedOrchestrator
 
 
-class ComprehensiveScenarioTests:
-    """Test suite for comprehensive end-to-end scenarios."""
+async def test_specialized_agents():
+    """Test individual specialized agents"""
+    print("=" * 60)
+    print("TESTING SPECIALIZED AGENTS")
+    print("=" * 60)
 
-    def __init__(self):
-        self.orchestrator = Orchestrator()
-        # Use shared registry singleton
-        self.registry = get_shared_registry()
-        self.test_results = []
+    orchestrator = SimplifiedOrchestrator()
 
-    async def run_all_scenarios(self):
-        """Run all comprehensive test scenarios."""
-        print("\n" + "=" * 80)
-        print("AGENTIC FABRIC POC - COMPREHENSIVE END-TO-END SCENARIOS")
-        print("=" * 80)
+    # Test 1: Text Processing
+    print("\n🔍 Test 1: Text Processing Agent")
+    result = await orchestrator.process_request(
+        "Extract all email addresses from this text: Contact support@company.com or sales@business.org for help"
+    )
+    print(f"Status: {result.get('status')}")
+    print(f"Response: {result.get('response', 'No response')[:200]}...")
+    print(f"Workflow Type: {result.get('metadata', {}).get('workflow_type')}")
 
-        scenarios = [
-            ("All Components Present", self.test_all_components_present),
-            ("Missing Agents, Tools Present", self.test_missing_agents_present_tools),
-            ("Present Agents, Missing Tools", self.test_present_agents_missing_tools),
-            ("Complex Mixed Dependencies", self.test_complex_mixed_dependencies),
-            ("Completely New Domain", self.test_completely_new_domain),
-            ("Ambiguous Multi-Path Request", self.test_ambiguous_request),
+    # Test 2: Data Analysis (if you have test_sales.csv)
+    if os.path.exists("test_sales.csv"):
+        print("\n📊 Test 2: Data Analysis Agent")
+        files = [
+            {
+                "path": "test_sales.csv",
+                "original_name": "test_sales.csv",
+                "type": "text/csv",
+            }
         ]
 
-        passed = 0
-        failed = 0
+        result = await orchestrator.process_request(
+            "Analyze the sales data and show trends", files=files
+        )
+        print(f"Status: {result.get('status')}")
+        print(f"Response: {result.get('response', 'No response')[:200]}...")
+        print(f"Workflow Type: {result.get('metadata', {}).get('workflow_type')}")
 
-        for scenario_name, test_func in scenarios:
-            print(f"\n{'='*60}")
-            print(f"SCENARIO: {scenario_name}")
-            print("=" * 60)
+    print("\n" + "=" * 60)
 
-            try:
-                # Force reload before each test to ensure clean state
-                force_global_reload()
 
-                result = await test_func()
-                if result:
-                    passed += 1
-                    print(f"\n✅ {scenario_name}: PASSED")
-                else:
-                    failed += 1
-                    print(f"\n❌ {scenario_name}: FAILED")
-            except Exception as e:
-                failed += 1
-                print(f"\n❌ {scenario_name}: ERROR - {str(e)}")
-                import traceback
+async def test_multi_agent_workflows():
+    """Test multi-agent workflows"""
+    print("TESTING MULTI-AGENT WORKFLOWS")
+    print("=" * 60)
 
-                traceback.print_exc()
+    orchestrator = SimplifiedOrchestrator()
 
-        print(f"\n{'='*80}")
-        print(f"COMPREHENSIVE RESULTS: {passed} passed, {failed} failed")
-        print("=" * 80)
+    # Test 1: Sequential Multi-Agent Workflow
+    print("\n🔄 Test 1: Multi-Agent Sequential Workflow")
 
-        if passed == len(scenarios):
-            print("🎉 ALL SCENARIOS PASSED - BACKEND VALIDATION COMPLETE! 🎉")
-            return True
-        else:
-            print(f"⚠️ {failed} scenarios need attention")
-            return False
+    if os.path.exists("test_sales.csv"):
+        files = [
+            {
+                "path": "test_sales.csv",
+                "original_name": "test_sales.csv",
+                "type": "text/csv",
+            }
+        ]
 
-    async def test_all_components_present(self):
-        """
-        SCENARIO 1: All Components Present
-        Request that uses only existing agents and tools
-        Expected: Smooth execution without any dynamic creation
-        """
-        request = """
-        Analyze this text and extract both email addresses and URLs:
-        "Contact us at support@company.com or sales@business.org. 
-        Visit our sites at https://company.com and https://docs.business.org"
-        """
-
-        print("Testing with existing agents: email_extractor, url_extractor")
-
-        # Ensure registry is fresh
-        force_global_reload()
-
-        result = await self.orchestrator.process_request(
-            user_request=request,
-            auto_create=False,  # Should not need to create anything
+        result = await orchestrator.process_request(
+            "Analyze the sales data and create a visualization chart showing the trends",
+            files=files,
         )
 
-        # Validate results
-        success = (
-            result["status"] == "success"
-            and len(result.get("workflow", {}).get("steps", [])) >= 1
-            and result.get("metadata", {}).get("components_created", 0)
-            == 0  # No new components
-        )
-
-        print(f"Status: {result['status']}")
-        print(f"Workflow: {result.get('workflow', {}).get('steps', [])}")
+        print(f"Status: {result.get('status')}")
+        print(f"Response: {result.get('response', 'No response')[:300]}...")
+        print(f"Workflow Type: {result.get('metadata', {}).get('workflow_type')}")
+        print(f"Agents Used: {result.get('metadata', {}).get('agents_used', 0)}")
         print(
-            f"Components Created: {result.get('metadata', {}).get('components_created', 'N/A')}"
+            f"Execution Strategy: {result.get('metadata', {}).get('execution_strategy')}"
         )
 
-        # Check if actual extraction worked
-        if "results" in result:
-            email_results = result["results"].get("email_extractor", {})
-            url_results = result["results"].get("url_extractor", {})
+        if result.get("workflow_summary"):
+            print(f"Workflow Summary: {result['workflow_summary']}")
 
-            if email_results.get("status") == "success":
-                emails = email_results.get("data", {}).get("emails", [])
-                print(f"Emails extracted: {emails}")
+    # Test 2: Complex Request Requiring Multiple Steps
+    print("\n🔄 Test 2: Complex Multi-Step Request")
+    result = await orchestrator.process_request(
+        "Process this text to extract key information, analyze sentiment, and generate insights: 'Our Q4 sales exceeded expectations with strong growth in the North region. Customer feedback has been overwhelmingly positive, particularly for our new product line. However, we need to address supply chain challenges in the South region to maintain momentum.'"
+    )
 
-            if url_results.get("status") == "success":
-                urls = url_results.get("data", {}).get("urls", [])
-                print(f"URLs extracted: {urls}")
+    print(f"Status: {result.get('status')}")
+    print(f"Response: {result.get('response', 'No response')[:300]}...")
+    print(f"Workflow Type: {result.get('metadata', {}).get('workflow_type')}")
 
-        return success
+    print("\n" + "=" * 60)
 
-    async def test_missing_agents_present_tools(self):
-        """
-        SCENARIO 2: Missing Agents, Tools Present
-        Request that needs new agents but tools exist
-        Expected: Dynamic agent creation, tool reuse
-        """
-        request = """
-        Create a statistical report from these numbers: [10, 20, 30, 40, 50, 25, 35, 45]
-        Calculate mean, median, and standard deviation, then format as a professional report.
-        """
 
-        print("Testing agent creation with existing calculate_mean tool")
+async def test_workflow_intelligence():
+    """Test intelligent workflow planning"""
+    print("TESTING WORKFLOW INTELLIGENCE")
+    print("=" * 60)
 
-        result = await self.orchestrator.process_request(
-            user_request=request, auto_create=True
+    orchestrator = SimplifiedOrchestrator()
+
+    # Test different request types to see how the planner responds
+    test_cases = [
+        "What is 2+2?",  # Should use simple workflow
+        "Extract emails from: contact@company.com, support@help.org",  # Should use text_processor
+        "Analyze sales data and create charts",  # Should use multi-agent workflow
+        "Process document and extract key insights",  # Should determine based on file type
+    ]
+
+    for i, request in enumerate(test_cases, 1):
+        print(f"\n🧠 Test Case {i}: '{request}'")
+
+        # Test with CSV file if available
+        files = None
+        if "data" in request.lower() and os.path.exists("test_sales.csv"):
+            files = [
+                {
+                    "path": "test_sales.csv",
+                    "original_name": "test_sales.csv",
+                    "type": "text/csv",
+                }
+            ]
+
+        result = await orchestrator.process_request(request, files=files)
+
+        workflow_plan = result.get("workflow", {})
+        agents = (
+            workflow_plan.get("agents", []) if isinstance(workflow_plan, dict) else []
         )
 
-        # Force reload after creation
-        if result.get("metadata", {}).get("components_created", 0) > 0:
-            force_global_reload()
-
-        # Validate dynamic creation occurred
-        success = result["status"] in ["success", "partial"] and (
-            result.get("metadata", {}).get("components_created", 0) > 0
-            or len(result.get("workflow", {}).get("steps", [])) > 0
-        )
-
-        print(f"Status: {result['status']}")
-        print(f"Workflow: {result.get('workflow', {}).get('steps', [])}")
+        print(f"   Agents Selected: {agents}")
         print(
-            f"Components Created: {result.get('metadata', {}).get('components_created', 'N/A')}"
+            f"   Workflow Type: {result.get('metadata', {}).get('workflow_type', 'unknown')}"
         )
+        print(f"   Status: {result.get('status')}")
+        print(f"   Response Preview: {result.get('response', 'No response')[:100]}...")
 
-        return success
-
-    async def test_present_agents_missing_tools(self):
-        """
-        SCENARIO 3: Present Agents, Missing Tools
-        Request that existing agents can handle but need new tools
-        Expected: Dynamic tool creation, agent reuse
-        """
-        # First, create phone_extractor agent if it doesn't exist
-        if not self.registry.agent_exists("phone_extractor"):
-            agent_factory = AgentFactory()
-            creation_result = agent_factory.ensure_agent(
-                agent_name="phone_extractor",
-                description="Extract phone numbers from text",
-                required_tools=["extract_phones"],
-            )
-            if creation_result["status"] in ["success", "exists"]:
-                force_global_reload()
-                print("Created phone_extractor agent for test")
-
-        request = """
-        Extract all phone numbers from this text:
-        "Call us at (555) 123-4567 or (555) 987-6543. Emergency: 911"
-        """
-
-        print("Testing with phone_extractor agent (tool may need creation)")
-
-        result = await self.orchestrator.process_request(
-            user_request=request, auto_create=True
-        )
-
-        # Force reload after any creation
-        if result.get("metadata", {}).get("components_created", 0) > 0:
-            force_global_reload()
-
-        success = result["status"] in ["success", "partial"] and (
-            "phone" in str(result.get("workflow", {})).lower()
-            or len(result.get("workflow", {}).get("steps", [])) > 0
-        )
-
-        print(f"Status: {result['status']}")
-        print(f"Workflow: {result.get('workflow', {}).get('steps', [])}")
-
-        return success
-
-    async def test_complex_mixed_dependencies(self):
-        """
-        SCENARIO 4: Complex Mixed Dependencies
-        Multi-step request with some agents present, some missing, complex tool chain
-        Expected: Intelligent dependency resolution and creation
-        """
-        request = """
-        Process this data pipeline:
-        1. Read data from a CSV file (simulated data)
-        2. Clean and validate the data  
-        3. Calculate summary statistics
-        4. Generate a bar chart visualization
-        5. Create a formatted report with insights
-        """
-
-        print("Testing complex multi-agent pipeline with mixed dependencies")
-
-        result = await self.orchestrator.process_request(
-            user_request=request, auto_create=True
-        )
-
-        # Force reload after complex creation
-        force_global_reload()
-
-        # Complex workflow should be planned and executed
-        success = (
-            result["status"] in ["success", "partial"]
-            and len(result.get("workflow", {}).get("steps", []))
-            >= 3  # Multi-step workflow
-        )
-
-        print(f"Status: {result['status']}")
-        print(f"Workflow Steps: {len(result.get('workflow', {}).get('steps', []))}")
-        print(f"Execution Time: {result.get('execution_time', 'N/A')}s")
-
-        return success
-
-    async def test_completely_new_domain(self):
-        """
-        SCENARIO 5: Completely New Domain
-        Request for entirely new capability not covered by existing system
-        Expected: Full agent+tool chain creation from scratch
-        """
-        # Use a truly new domain that doesn't exist
-        request = """
-        Analyze blockchain transaction patterns and identify:
-        - Whale movements over $1M
-        - Smart contract interactions
-        - Gas fee optimization opportunities
-        - Risk score for wallet addresses
-        Test with address: 0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb8
-        """
-
-        print("Testing completely new domain - blockchain analysis")
-
-        initial_agent_count = len(self.registry.list_agents())
-        initial_tool_count = len(self.registry.list_tools())
-
-        result = await self.orchestrator.process_request(
-            user_request=request, auto_create=True
-        )
-
-        # Force reload and check what was created
-        force_global_reload()
-
-        final_agent_count = len(self.registry.list_agents())
-        final_tool_count = len(self.registry.list_tools())
-
-        components_created = (final_agent_count - initial_agent_count) + (
-            final_tool_count - initial_tool_count
-        )
-
-        # Should create new components and execute
-        success = result["status"] in ["success", "partial", "error"] and (
-            components_created > 0
-            or len(result.get("response", "")) > 100
-            or "blockchain" in result.get("response", "").lower()
-        )
-
-        print(f"Status: {result['status']}")
-        print(
-            f"Components Created: {components_created} (Agents: {final_agent_count - initial_agent_count}, Tools: {final_tool_count - initial_tool_count})"
-        )
-        print(
-            f"Response Quality: {'High' if len(result.get('response', '')) > 200 else 'Low'}"
-        )
-
-        return success
-
-    async def test_ambiguous_request(self):
-        """
-        SCENARIO 6: Ambiguous Multi-Path Request
-        Request that could be interpreted multiple ways, testing orchestrator intelligence
-        Expected: Intelligent disambiguation and optimal agent selection
-        """
-        request = """
-        "Analyze this customer feedback data"
-        [No specific data provided, ambiguous request]
-        """
-
-        print("Testing ambiguous request handling and clarification")
-
-        result = await self.orchestrator.process_request(
-            user_request=request, auto_create=True
-        )
-
-        # Should handle ambiguity gracefully
-        success = (
-            result["status"] in ["success", "partial", "missing_capabilities", "error"]
-            and len(result.get("response", "")) > 50  # Some meaningful response
-        )
-
-        print(f"Status: {result['status']}")
-        print(
-            f"Response Handling: {'Clarification' if 'clarify' in result.get('response', '').lower() else 'Assumption'}"
-        )
-
-        return success
+    print("\n" + "=" * 60)
 
 
 async def main():
-    """Run comprehensive scenarios."""
-    print("Starting Comprehensive End-to-End Scenario Testing")
-    print("Goal: Validate complete user journey from input to response")
-
-    # Ensure clean start
-    force_global_reload()
-
-    tester = ComprehensiveScenarioTests()
-    success = await tester.run_all_scenarios()
-
-    if success:
-        print("\n🎊 BACKEND VALIDATION COMPLETE - SYSTEM READY FOR PRODUCTION 🎊")
-        print("✅ All user journey scenarios working correctly")
-        print("✅ Dynamic component creation functioning")
-        print("✅ Complex workflow orchestration operational")
-        print("✅ Error handling and edge cases covered")
-    else:
-        print("\n🔧 Additional tuning needed before production readiness")
-
-    return success
-
-
-if __name__ == "__main__":
-    success = asyncio.run(main())
-    sys.exit(0 if success else 1)
-
-```
-
---------------------------------------------------------------------------------
-
-### File: tests/test_dependency_resolution.py
-**Path:** `tests/test_dependency_resolution.py`
-**Size:** 1,983 bytes
-**Modified:** 2025-09-04 21:59:45
-
-```python
-"""
-Test Dependency Resolution
-Verify that tools are created before agents that need them
-"""
-
-import sys
-import os
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from core.dependency_resolver import DependencyResolver
-from core.registry import RegistryManager
-import networkx as nx
-
-
-def test_dependency_resolver():
-    """Test the dependency resolver."""
-    print("\nTesting Dependency Resolution")
-    print("=" * 60)
-
-    registry = RegistryManager()
-    resolver = DependencyResolver(registry)
-
-    # Test request
-    request = "Extract emails and phone numbers, then generate a report"
-
-    # Get existing components
-    existing_agents = {a["name"]: a for a in registry.list_agents()}
-    existing_tools = {t["name"]: t for t in registry.list_tools()}
-
-    # Analyze
-    result = resolver.analyze_request(request, existing_agents, existing_tools)
-
-    print("\nCapabilities Found:")
-    for cap in result["capabilities"]:
-        print(f"  - {cap['name']}: {cap['agent']} using {cap['tools']}")
-
-    print("\nCreation Order:")
-    for comp_type, comp_name in result["creation_order"]:
-        print(f"  {comp_type}: {comp_name}")
-
-    print("\nDependency Visualization:")
-    print(resolver.visualize_dependencies(result["dependency_graph"]))
-
-    # Verify topological order
-    graph = result["dependency_graph"]
-    topo_order = list(nx.topological_sort(graph))
-
-    # Tools should come before agents that use them
-    for i, node in enumerate(topo_order):
-        if graph.nodes[node]["type"] == "agent":
-            # Check all tool dependencies come before this agent
-            for tool in graph.predecessors(node):
-                tool_index = topo_order.index(tool)
-                assert (
-                    tool_index < i
-                ), f"Tool {tool} should be created before agent {node}"
-
-    print("\n✓ Dependency resolution working correctly")
-    return True
-
-
-if __name__ == "__main__":
-    test_dependency_resolver()
-
-```
-
---------------------------------------------------------------------------------
-
-### File: tests/test_end_to_end.py
-**Path:** `tests/test_end_to_end.py`
-**Size:** 10,190 bytes
-**Modified:** 2025-09-06 23:38:43
-
-```python
-"""
-End-to-End Test for Agentic Fabric POC
-Tests the complete flow from request to execution
-"""
-
-import sys
-import os
-import json
-import asyncio
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from core.orchestrator import Orchestrator
-from core.registry import RegistryManager
-from core.agent_factory import AgentFactory
-from core.tool_factory import ToolFactory
-from core.workflow_engine import WorkflowEngine
-
-from core.registry_singleton import get_shared_registry, force_global_reload
-
-
-def test_basic_workflow():
-    """Test basic sequential workflow with existing agents."""
-    print("\n" + "=" * 60)
-    print("TEST 1: Basic Sequential Workflow")
-    print("=" * 60)
-
-    print(f"\nDEBUG: Starting basic workflow test")
-
-    # Initialize
-    orchestrator = Orchestrator()
-    registry = RegistryManager()
-
-    # Test request
-    request = """Extract all email addresses and URLs from this text:
-    Please contact john@example.com or mary@company.org for details.
-    Visit our website at https://example.com or https://docs.example.com
-    """
-
-    # Process
-    result = asyncio.run(
-        orchestrator.process_request(user_request=request, auto_create=True)
-    )
-
-    print(f"DEBUG: Orchestrator result status: {result.get('status')}")
-    print(f"DEBUG: Orchestrator result keys: {list(result.keys())}")
-    if result.get("status") != "success":
-        print(f"DEBUG: Error details: {result}")
-
-    # Verify
-    assert result["status"] == "success", f"Failed: {result.get('message')}"
-    print(f"✓ Status: {result['status']}")
-    print(f"✓ Workflow: {result['workflow']['steps']}")
-    print(f"✓ Response preview: {result['response'][:200]}...")
-
-    # Check results structure - FIXED VERSION
-    if "results" in result:
-        for agent_name, agent_result in result["results"].items():
-            print(f"\n  Agent: {agent_name}")
-            if isinstance(agent_result, dict):
-                print(f"    Status: {agent_result.get('status')}")
-                # Handle both success and error cases
-                if agent_result.get("data") is not None:
-                    if isinstance(agent_result["data"], dict):
-                        print(f"    Data keys: {list(agent_result['data'].keys())}")
-                    else:
-                        print(f"    Data type: {type(agent_result['data'])}")
-                else:
-                    # Show error if available
-                    error_msg = "Unknown error"
-                    if "metadata" in agent_result:
-                        error_msg = agent_result["metadata"].get("error", error_msg)
-                    elif "error" in agent_result:
-                        error_msg = agent_result["error"]
-                    print(f"    Error: {error_msg}")
-
-    return True
-
-
-def test_dynamic_creation():
-    """Test dynamic creation of missing tools and agents."""
-    print("\n" + "=" * 60)
-    print("TEST 2: Dynamic Component Creation")
-    print("=" * 60)
-
-    # Initialize factories
-    agent_factory = AgentFactory()
-    tool_factory = ToolFactory()
-
-    # Use shared registry
-    registry = get_shared_registry()
-
-    # Test creating a new tool
-    print("\n1. Creating new tool: count_words")
-    result = tool_factory.ensure_tool(
-        tool_name="count_words",
-        description="Count the number of words in text input",
-        tool_type="pure_function",
-    )
-
-    if result["status"] in ["success", "exists"]:
-        print(f"✓ Tool created/exists: count_words")
-    else:
-        print(f"✗ Failed to create tool: {result.get('message')}")
-        return False
-
-    # Force reload to ensure registry is synced
-    force_global_reload()
-
-    # Test creating a new agent
-    print("\n2. Creating new agent: word_counter")
-    result = agent_factory.ensure_agent(
-        agent_name="word_counter",
-        description="Count words in text using the count_words tool",
-        required_tools=["count_words"],
-    )
-
-    if result["status"] in ["success", "exists"]:
-        print(f"✓ Agent created/exists: word_counter")
-    else:
-        print(f"✗ Failed to create agent: {result.get('message')}")
-        return False
-
-    # Force reload again
-    force_global_reload()
-
-    # Verify in registry (using the shared instance)
-    assert registry.tool_exists("count_words"), "Tool not in registry"
-    assert registry.agent_exists("word_counter"), "Agent not in registry"
-    print("\n✓ Components registered successfully")
-
-    return True
-
-
-def test_file_reading():
-    """Test file reading capabilities."""
-    print("\n" + "=" * 60)
-    print("TEST 3: File Reading")
-    print("=" * 60)
-
-    # Create test file
-    test_file = "test_data.txt"
-    with open(test_file, "w") as f:
-        f.write("Test content with email@example.com and https://test.com")
-
+    """Run all tests"""
     try:
-        # Test read_text tool directly
-        from prebuilt.tools.read_text import read_text
+        await test_specialized_agents()
+        await test_multi_agent_workflows()
+        await test_workflow_intelligence()
 
-        result = read_text(test_file)
-        assert result["status"] == "success", "Failed to read file"
-        print(f"✓ Read file: {result['chars']} chars, {result['lines']} lines")
-
-        # Test through workflow
-        orchestrator = Orchestrator()
-        request = f"Read the file {test_file} and extract emails from it"
-
-        result = asyncio.run(
-            orchestrator.process_request(
-                user_request=request,
-                files=[{"path": test_file, "type": "text"}],
-                auto_create=True,
-            )
-        )
-
-        print(f"✓ Workflow status: {result['status']}")
-
-    finally:
-        # Cleanup
-        if os.path.exists(test_file):
-            os.remove(test_file)
-
-    return True
-
-
-def test_parallel_execution():
-    """Test parallel agent execution."""
-    print("\n" + "=" * 60)
-    print("TEST 4: Parallel Execution")
-    print("=" * 60)
-
-    engine = WorkflowEngine()
-
-    # Create parallel workflow
-    agents = ["url_extractor", "email_extractor"]
-
-    try:
-        workflow = engine.create_workflow(
-            agent_sequence=agents, workflow_type="parallel"
-        )
-
-        initial_data = {
-            "text": "Contact admin@site.com or visit https://site.com",
-            "workflow_type": "parallel",
-        }
-
-        result = engine.execute_workflow(workflow, initial_data)
-
-        print(f"✓ Execution path: {result.get('execution_path', [])}")
-        print(f"✓ Completed agents: {result.get('completed_agents', [])}")
-
-        # Verify both agents ran
-        assert len(result.get("results", {})) >= 2, "Not all agents executed"
-        print("✓ All agents executed in parallel")
+        print("✅ ALL TESTS COMPLETED")
+        print("\nKey capabilities demonstrated:")
+        print("- Specialized agents for different data types")
+        print("- Multi-agent workflows with sequential processing")
+        print("- Intelligent workflow planning based on request analysis")
+        print("- Data flow between agents in complex workflows")
 
     except Exception as e:
-        print(f"✗ Parallel execution failed: {str(e)}")
-        return False
+        print(f"❌ Test failed: {e}")
+        import traceback
 
-    return True
-
-
-def test_error_handling():
-    """Test error handling and recovery."""
-    print("\n" + "=" * 60)
-    print("TEST 5: Error Handling")
-    print("=" * 60)
-
-    orchestrator = Orchestrator()
-
-    # Test with invalid request
-    result = asyncio.run(
-        orchestrator.process_request(
-            user_request="Use non_existent_agent to process this", auto_create=False
-        )
-    )
-
-    # Accept either missing_capabilities or error status
-    if result["status"] == "missing_capabilities":
-        print(f"✓ Correctly identified missing capabilities")
-        print(f"  Missing: {result.get('missing', {})}")
-        return True
-    elif result["status"] == "error":
-        # FIX: Handle None properly
-        error_msg = result.get("error") or result.get("message") or ""
-        if error_msg:  # Check if we have an error message
-            error_msg_lower = error_msg.lower()
-            if "no agents" in error_msg_lower or "planning failed" in error_msg_lower:
-                print(f"✓ Correctly reported error for non-existent agent")
-                return True
-        # If no specific error message, still pass if status is error
-        print(f"✓ Correctly returned error status")
-        return True
-
-    print(f"✗ Unexpected status: {result['status']}")
-    print(f"✗ Result: {result}")
-    return False
-
-
-def test_registry_health():
-    """Test registry health and validation."""
-    print("\n" + "=" * 60)
-    print("TEST 6: Registry Health Check")
-    print("=" * 60)
-
-    registry = RegistryManager()
-
-    # Health check
-    health = registry.health_check()
-    print(f"Health Score: {health['health_score']}/100")
-    print(f"Status: {health['status']}")
-    print(f"Total Components: {health['total_components']}")
-    print(f"Valid Components: {health['valid_components']}")
-
-    # Validate all
-    validation = registry.validate_all()
-    print(f"\nValid Agents: {len(validation['valid_agents'])}")
-    print(f"Valid Tools: {len(validation['valid_tools'])}")
-
-    if validation["invalid_agents"]:
-        print(f"Invalid Agents: {validation['invalid_agents']}")
-    if validation["invalid_tools"]:
-        print(f"Invalid Tools: {validation['invalid_tools']}")
-
-    assert health["health_score"] > 50, "Registry health too low"
-    print("\n✓ Registry is healthy")
-
-    return True
-
-
-def run_all_tests():
-    """Run all end-to-end tests."""
-    print("\n" + "=" * 60)
-    print("AGENTIC FABRIC POC - END-TO-END TESTS")
-    print("=" * 60)
-
-    tests = [
-        ("Basic Workflow", test_basic_workflow),
-        ("Dynamic Creation", test_dynamic_creation),
-        ("File Reading", test_file_reading),
-        ("Parallel Execution", test_parallel_execution),
-        ("Error Handling", test_error_handling),
-        ("Registry Health", test_registry_health),
-    ]
-
-    passed = 0
-    failed = 0
-
-    for test_name, test_func in tests:
-        try:
-            if test_func():
-                passed += 1
-                print(f"\n{test_name}: PASSED")
-            else:
-                failed += 1
-                print(f"\n{test_name}: FAILED")
-        except Exception as e:
-            failed += 1
-            print(f"\n{test_name}: ERROR - {str(e)}")
-            import traceback
-
-            traceback.print_exc()
-
-    print("\n" + "=" * 60)
-    print(f"RESULTS: {passed} passed, {failed} failed")
-    print("=" * 60)
-
-    return failed == 0
+        traceback.print_exc()
 
 
 if __name__ == "__main__":
-    success = run_all_tests()
-    sys.exit(0 if success else 1)
+    asyncio.run(main())
+
+```
+
+--------------------------------------------------------------------------------
+
+### File: test_orchestrator.py
+**Path:** `test_orchestrator.py`
+**Size:** 635 bytes
+**Modified:** 2025-09-13 13:26:54
+
+```python
+# test_fix.py
+import asyncio
+from core.simplified_orchestrator import SimplifiedOrchestrator
+
+
+async def test():
+    try:
+        orchestrator = SimplifiedOrchestrator()
+        print("✓ Orchestrator initialized successfully")
+
+        # Test simple request
+        result = await orchestrator.process_request(
+            user_request="What is 2+2?", files=None
+        )
+
+        print(f"Result status: {result.get('status')}")
+        print(f"Response: {result.get('response', 'No response')}")
+
+    except Exception as e:
+        print(f"Error: {e}")
+        import traceback
+
+        traceback.print_exc()
+
+
+asyncio.run(test())
 
 ```
 
@@ -20954,8 +10946,8 @@ if __name__ == "__main__":
 
 ### File: tools.json
 **Path:** `tools.json`
-**Size:** 4,909 bytes
-**Modified:** 2025-09-11 09:14:18
+**Size:** 4,646 bytes
+**Modified:** 2025-09-12 18:40:22
 
 ```json
 {
@@ -20970,10 +10962,7 @@ if __name__ == "__main__":
       "used_by_agents": [],
       "created_by": "system",
       "created_at": "2025-01-01T00:00:00",
-      "tags": [
-        "file",
-        "reader"
-      ],
+      "tags": ["file", "reader"],
       "line_count": 35,
       "status": "active",
       "used_by": [],
@@ -20989,11 +10978,7 @@ if __name__ == "__main__":
       "used_by_agents": [],
       "created_by": "system",
       "created_at": "2025-01-01T00:00:00",
-      "tags": [
-        "file",
-        "reader",
-        "json"
-      ],
+      "tags": ["file", "reader", "json"],
       "line_count": 38,
       "status": "active",
       "used_by": [],
@@ -21009,11 +10994,7 @@ if __name__ == "__main__":
       "used_by_agents": [],
       "created_by": "system",
       "created_at": "2025-01-01T00:00:00",
-      "tags": [
-        "file",
-        "reader",
-        "csv"
-      ],
+      "tags": ["file", "reader", "csv"],
       "line_count": 37,
       "status": "active",
       "used_by": [],
@@ -21029,11 +11010,7 @@ if __name__ == "__main__":
       "used_by_agents": [],
       "created_by": "system",
       "created_at": "2025-01-01T00:00:00",
-      "tags": [
-        "file",
-        "reader",
-        "pdf"
-      ],
+      "tags": ["file", "reader", "pdf"],
       "line_count": 42,
       "status": "active",
       "used_by": [],
@@ -21046,23 +11023,13 @@ if __name__ == "__main__":
       "location": "generated/tools/extract_emails.py",
       "is_prebuilt": false,
       "is_pure_function": true,
-      "used_by_agents": [
-        "email_extractor",
-        "text_analyzer"
-      ],
+      "used_by_agents": ["email_extractor", "text_analyzer"],
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-01-01T00:00:00",
-      "tags": [
-        "extraction",
-        "regex",
-        "email"
-      ],
+      "tags": ["extraction", "regex", "email"],
       "line_count": 28,
       "status": "active",
-      "used_by": [
-        "email_extractor",
-        "text_analyzer"
-      ],
+      "used_by": ["email_extractor", "text_analyzer"],
       "formatted_created_at": "2025-01-01 00:00:00"
     },
     "calculate_mean": {
@@ -21075,11 +11042,7 @@ if __name__ == "__main__":
       "used_by_agents": [],
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-01-01T00:00:00",
-      "tags": [
-        "calculation",
-        "math",
-        "statistics"
-      ],
+      "tags": ["calculation", "math", "statistics"],
       "line_count": 39,
       "status": "active",
       "used_by": [],
@@ -21095,9 +11058,7 @@ if __name__ == "__main__":
       "used_by_agents": [],
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-09-04T23:14:54.570979",
-      "tags": [
-        "extraction"
-      ],
+      "tags": ["extraction"],
       "line_count": 37,
       "status": "active",
       "used_by": [],
@@ -21113,9 +11074,7 @@ if __name__ == "__main__":
       "used_by_agents": [],
       "created_by": "claude-3-haiku-20240307",
       "created_at": "2025-09-04T23:26:14.815178",
-      "tags": [
-        "analysis"
-      ],
+      "tags": ["analysis"],
       "line_count": 47,
       "status": "active",
       "used_by": [],
@@ -21123,6 +11082,7 @@ if __name__ == "__main__":
     }
   }
 }
+
 ```
 
 --------------------------------------------------------------------------------

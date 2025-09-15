@@ -17,7 +17,7 @@ project_root = os.path.dirname(
 sys.path.append(project_root)
 
 try:
-    from core.workflow_engine import WorkflowEngine, WorkflowState
+    from backup_removed_components.workflow_engine import WorkflowEngine, WorkflowState
 except ImportError as e:
     print(f"Warning: Could not import workflow components: {e}")
     WorkflowEngine = None

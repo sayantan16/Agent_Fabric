@@ -664,16 +664,6 @@ def list_workflows():
         return jsonify({"error": str(e)}), 500
 
 
-@api_bp.route("/registry/dependencies")
-def get_dependencies():
-    """Get dependency graph."""
-    try:
-        deps = registry_service.get_dependency_graph()
-        return jsonify(deps)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
 def get_current_workflow_status(self) -> Dict[str, Any]:
     """Get current workflow execution status for sidebar display."""
     try:
@@ -772,33 +762,6 @@ def download_file(filename):
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/list-outputs")
-def list_output_files():
-    """List available output files for debugging."""
-    try:
-        output_dir = current_app.config["OUTPUT_FOLDER"]
-        if os.path.exists(output_dir):
-            files = [
-                f
-                for f in os.listdir(output_dir)
-                if os.path.isfile(os.path.join(output_dir, f))
-            ]
-            return jsonify({"files": files, "output_dir": output_dir})
-        else:
-            return jsonify(
-                {
-                    "files": [],
-                    "output_dir": output_dir,
-                    "note": "Directory doesn't exist",
-                }
-            )
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-# ADD THESE NEW ENDPOINTS to flask_app/routes/api.py:
 
 
 @api_bp.route("/chat/pipeline", methods=["POST"])
@@ -902,149 +865,6 @@ def get_pipeline_analytics():
         return jsonify(analytics)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/pipeline/status/<workflow_id>")
-def get_pipeline_status(workflow_id):
-    """Get status of a specific pipeline workflow."""
-    try:
-        # Get workflow from active workflows or history
-        active_workflow = orchestrator_service.active_workflows.get(workflow_id)
-
-        if active_workflow:
-            return jsonify(
-                {
-                    "workflow_id": workflow_id,
-                    "status": active_workflow.get("status", "unknown"),
-                    "started_at": active_workflow.get("started_at"),
-                    "completed_at": active_workflow.get("completed_at"),
-                    "type": active_workflow.get("type", "unknown"),
-                }
-            )
-
-        # Check history
-        historical_workflow = None
-        for workflow in orchestrator_service.workflow_history:
-            if workflow.get("workflow_id") == workflow_id:
-                historical_workflow = workflow
-                break
-
-        if historical_workflow:
-            return jsonify(historical_workflow)
-
-        return jsonify({"error": "Workflow not found"}), 404
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/pipeline/complexity/analyze", methods=["POST"])
-async def analyze_request_complexity():
-    """Analyze complexity of a request without processing it."""
-    try:
-        data = request.get_json()
-
-        if not data or "request" not in data:
-            return jsonify({"error": "Request text is required"}), 400
-
-        request_text = data["request"]
-        files = data.get("files", [])
-
-        # Use orchestrator service complexity detection
-        complexity = await orchestrator_service._detect_request_complexity(
-            request_text, files
-        )
-
-        # Get additional analysis
-        analysis = {
-            "complexity_level": complexity,
-            "estimated_steps": (
-                1 if complexity == "simple" else (3 if complexity == "pipeline" else 5)
-            ),
-            "processing_time_estimate": (
-                "5-10s"
-                if complexity == "simple"
-                else ("15-30s" if complexity == "pipeline" else "30-60s")
-            ),
-            "requires_pipeline": complexity in ["pipeline", "complex"],
-            "indicators": _get_complexity_indicators(request_text, files),
-        }
-
-        return jsonify(analysis)
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-def _get_complexity_indicators(request_text: str, files: List[Dict]) -> Dict[str, Any]:
-    """Get indicators that contributed to complexity assessment."""
-
-    request_lower = request_text.lower()
-
-    indicators = {
-        "pipeline_keywords": [],
-        "complex_keywords": [],
-        "step_indicators": [],
-        "file_complexity": {},
-        "length_factor": len(request_text.split()),
-    }
-
-    # Check for pipeline keywords
-    pipeline_keywords = [
-        "then",
-        "after",
-        "next",
-        "followed by",
-        "and then",
-        "first",
-        "second",
-        "third",
-        "finally",
-        "last",
-        "extract and",
-        "analyze and",
-        "process and",
-        "create and",
-    ]
-
-    for keyword in pipeline_keywords:
-        if keyword in request_lower:
-            indicators["pipeline_keywords"].append(keyword)
-
-    # Check for complex keywords
-    complex_keywords = [
-        "multiple files",
-        "compare",
-        "merge",
-        "combine",
-        "different formats",
-        "various sources",
-        "cross-reference",
-        "comprehensive",
-        "detailed analysis",
-        "full report",
-    ]
-
-    for keyword in complex_keywords:
-        if keyword in request_lower:
-            indicators["complex_keywords"].append(keyword)
-
-    # Check for step indicators
-    step_indicators = ["1.", "2.", "3.", "step 1", "step 2", "step 3"]
-    for indicator in step_indicators:
-        if indicator in request_lower:
-            indicators["step_indicators"].append(indicator)
-
-    # File complexity
-    indicators["file_complexity"] = {
-        "file_count": len(files) if files else 0,
-        "multiple_files": files and len(files) > 1,
-        "file_types": (
-            list(set(f.get("type", "unknown") for f in files)) if files else []
-        ),
-    }
-
-    return indicators
 
 
 @api_bp.route("/components/pipeline")

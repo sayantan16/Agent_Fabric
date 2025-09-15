@@ -558,7 +558,7 @@ class PipelineOrchestrator:
 
         # Import and execute the agent
         try:
-            from core.workflow_engine import WorkflowEngine
+            from backup_removed_components.workflow_engine import WorkflowEngine
             from core.registry_singleton import get_shared_registry, force_global_reload
 
             # COMPREHENSIVE REGISTRY SYNCHRONIZATION

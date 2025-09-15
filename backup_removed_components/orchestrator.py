@@ -33,7 +33,7 @@ from config import (
     WORKFLOW_STATE_SCHEMA,
 )
 from core.registry import RegistryManager
-from core.workflow_engine import WorkflowEngine
+from backup_removed_components.workflow_engine import WorkflowEngine
 from core.agent_factory import AgentFactory
 from core.tool_factory import ToolFactory
 from core.registry_singleton import get_shared_registry

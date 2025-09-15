@@ -409,80 +409,97 @@ RESPOND WITH JSON:
 PLAN FOR THIS SPECIFIC REQUEST - avoid generic templated responses."""
 
 
-ORCHESTRATOR_ANALYSIS_PROMPT = """You are an intelligent request analyzer. Your job is to deeply understand what the user wants to accomplish and provide strategic guidance for execution.
+# ORCHESTRATOR_ANALYSIS_PROMPT = """You are an intelligent request analyzer. Your job is to deeply understand what the user wants to accomplish and provide strategic guidance for execution.
 
-USER REQUEST: "{request}"
-UPLOADED FILES: {files}
-SYSTEM CONTEXT: {context}
+# USER REQUEST: "{request}"
+# UPLOADED FILES: {files}
+# SYSTEM CONTEXT: {context}
 
-AVAILABLE CAPABILITIES:
-Agents: {available_agents}
-Tools: {available_tools}
+# AVAILABLE CAPABILITIES:
+# Agents: {available_agents}
+# Tools: {available_tools}
 
-ANALYSIS FRAMEWORK:
+# ANALYSIS FRAMEWORK:
 
-1. **INTENT ANALYSIS**:
-   - What is the user's primary goal?
-   - What type of outcome do they expect?
-   - What domain does this request belong to? (mathematical, textual, analytical, creative, technical, etc.)
+# 1. **INTENT ANALYSIS**:
+#    - What is the user's primary goal?
+#    - What type of outcome do they expect?
+#    - What domain does this request belong to? (mathematical, textual, analytical, creative, technical, etc.)
 
-2. **REQUIREMENT DECOMPOSITION**:
-   - What are the atomic operations needed?
-   - What data transformations are required?
-   - What dependencies exist between operations?
-   - What input/output formats are involved?
+# 2. **REQUIREMENT DECOMPOSITION**:
+#    - What are the atomic operations needed?
+#    - What data transformations are required?
+#    - What dependencies exist between operations?
+#    - What input/output formats are involved?
 
-3. **COMPLEXITY ASSESSMENT**:
-   - Single-step: One clear operation
-   - Multi-step: Sequential operations with data flow
-   - Complex: Multiple interdependent operations with branching logic
+# 3. **COMPLEXITY ASSESSMENT**:
+#    - Single-step: One clear operation
+#    - Multi-step: Sequential operations with data flow
+#    - Complex: Multiple interdependent operations with branching logic
 
-4. **CAPABILITY MATCHING**:
-   - Which existing agents can handle parts of this request?
-   - What capabilities are missing?
-   - How well do available tools support the required operations?
+# 4. **CAPABILITY MATCHING**:
+#    - Which existing agents can handle parts of this request?
+#    - What capabilities are missing?
+#    - How well do available tools support the required operations?
 
-5. **EXECUTION STRATEGY**:
-   - Sequential: Steps must happen in order
-   - Parallel: Independent operations can run simultaneously  
-   - Conditional: Logic branches based on intermediate results
+# 5. **EXECUTION STRATEGY**:
+#    - Sequential: Steps must happen in order
+#    - Parallel: Independent operations can run simultaneously
+#    - Conditional: Logic branches based on intermediate results
 
-RESPOND WITH JSON:
-{{
-    "intent_analysis": {{
-        "primary_goal": "concise description of what user wants to achieve",
-        "expected_outcome_type": "data|analysis|visualization|document|calculation|extraction",
-        "domain": "mathematical|textual|analytical|creative|technical|mixed",
-        "user_expertise_level": "beginner|intermediate|advanced|technical"
-    }},
-    "requirements": {{
-        "atomic_operations": ["operation1", "operation2", "operation3"],
-        "data_transformations": ["input_type → intermediate_type → output_type"],
-        "dependencies": [["op1_before_op2"], ["op2_before_op3"]],
-        "input_formats": ["format1", "format2"],
-        "output_format": "expected_final_format"
-    }},
-    "complexity": {{
-        "level": "single|multi|complex",
-        "estimated_steps": 3,
-        "parallel_opportunities": ["op1_and_op2_parallel"],
-        "critical_dependencies": ["op3_needs_op1_and_op2"]
-    }},
-    "capability_assessment": {{
-        "existing_coverage": 0.7,
-        "missing_capabilities": ["specific_capability_1", "specific_capability_2"],
-        "tool_gaps": ["missing_tool_type"],
-        "agent_gaps": ["missing_agent_capability"]
-    }},
-    "execution_strategy": {{
-        "approach": "sequential|parallel|conditional",
-        "rationale": "why this approach is optimal",
-        "estimated_time": 25,
-        "confidence": 0.85
-    }}
-}}
+# RESPOND WITH JSON:
+# {{
+#     "intent_analysis": {{
+#         "primary_goal": "concise description of what user wants to achieve",
+#         "expected_outcome_type": "data|analysis|visualization|document|calculation|extraction",
+#         "domain": "mathematical|textual|analytical|creative|technical|mixed",
+#         "user_expertise_level": "beginner|intermediate|advanced|technical"
+#     }},
+#     "requirements": {{
+#         "atomic_operations": ["operation1", "operation2", "operation3"],
+#         "data_transformations": ["input_type → intermediate_type → output_type"],
+#         "dependencies": [["op1_before_op2"], ["op2_before_op3"]],
+#         "input_formats": ["format1", "format2"],
+#         "output_format": "expected_final_format"
+#     }},
+#     "complexity": {{
+#         "level": "single|multi|complex",
+#         "estimated_steps": 3,
+#         "parallel_opportunities": ["op1_and_op2_parallel"],
+#         "critical_dependencies": ["op3_needs_op1_and_op2"]
+#     }},
+#     "capability_assessment": {{
+#         "existing_coverage": 0.7,
+#         "missing_capabilities": ["specific_capability_1", "specific_capability_2"],
+#         "tool_gaps": ["missing_tool_type"],
+#         "agent_gaps": ["missing_agent_capability"]
+#     }},
+#     "execution_strategy": {{
+#         "approach": "sequential|parallel|conditional",
+#         "rationale": "why this approach is optimal",
+#         "estimated_time": 25,
+#         "confidence": 0.85
+#     }}
+# }}
 
-CRITICAL: Focus on understanding the ACTUAL REQUEST, not matching to predefined patterns. Every request is unique."""
+# CRITICAL: Focus on understanding the ACTUAL REQUEST, not matching to predefined patterns. Every request is unique."""
+
+ORCHESTRATOR_ANALYSIS_PROMPT = """You are an intelligent orchestrator that plans workflows.
+
+USER REQUEST: {request}
+
+FILE DATA AVAILABLE:
+{files}
+
+IMPORTANT: You can now see the actual structure of uploaded files:
+- For CSV files, you see the exact column names, data types, and sample values
+- Plan your workflow based on the ACTUAL data structure, not assumptions
+- Select agents that can work with these specific columns and data types
+
+Available agents: {agents}
+
+Create a workflow plan that processes the actual data you can see.
+"""
 
 ORCHESTRATOR_SYNTHESIS_PROMPT = """You are a results synthesizer creating a natural, helpful response based on workflow execution.
 
@@ -1368,10 +1385,6 @@ REGISTRY_SYNC_INTERVAL = 0.5  # Minimum seconds between reloads
 ENFORCE_TOOL_QUALITY = True  # Reject placeholder tools
 ENFORCE_AGENT_QUALITY = True  # Reject non-functional agents
 TEST_GENERATED_CODE = True  # Test code before registration
-
-# # Model Settings - Upgrade for better quality
-# ORCHESTRATOR_MODEL = "gpt-4"  # Upgrade from o3-mini for better planning
-# CLAUDE_MODEL = "claude-3-sonnet-20240229"  # Upgrade from haiku for better code
 
 # Validation Settings
 REQUIRE_TOOL_TESTS = True  # Tools must pass basic tests

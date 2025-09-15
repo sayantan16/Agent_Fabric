@@ -25,6 +25,8 @@ class ProjectKnowledgeExtractor:
             ".mypy_cache",
             "dist",
             "build",
+            "backup_removed_components",
+            "flask_app",
         }
 
         self.exclude_files = {
