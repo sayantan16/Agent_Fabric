@@ -1488,228 +1488,287 @@ class AgentFactory:
             return {"status": "error", "error": str(e)}
 
     async def _generate_intelligent_agent_code(self, agent_design: Dict) -> str:
-        """Claude generates sophisticated agent code with simple package installation"""
+        """Claude generates sophisticated agent code with CORRECT structure for workflow engine"""
 
         spec = agent_design["agent_specification"]
 
         generation_prompt = f"""
-        Create a Python function named '{spec['name']}' that integrates with the Agentic Fabric system.
+    Create a Python function named '{spec['name']}' that works with the Agentic Fabric workflow engine.
 
-        REQUIREMENTS:
-        - Function name: {spec['name']}
-        - Purpose: {spec['description']}
-        - Must accept parameter: data=None
-        - Must return dict with status, data, metadata
-        - Must handle errors gracefully
-        - Must automatically install required packages
-        - Must use Claude for intelligent processing
+    CRITICAL REQUIREMENTS:
+    - Function name: EXACTLY '{spec['name']}'
+    - Must accept parameter: state (a dictionary)
+    - Must return dictionary with: status, data, metadata
+    - Must handle the state format: {{"current_data": file_data, "request": user_request, "results": {{}}, "errors": [], "execution_path": []}}
 
-        Generate ONLY the Python function code, no markdown formatting, no explanations.
-        Ensure perfect Python syntax.
+    AGENT PURPOSE: {spec['description']}
 
-        Template with package installation:
-    ```python
-        import os
-        import sys
-        import json
-        import subprocess
-        from typing import Dict, Any
-        from datetime import datetime
-        from anthropic import Anthropic
-        from config import CLAUDE_MODEL, ANTHROPIC_API_KEY
+    Generate ONLY the Python function code with this EXACT structure:
 
-        def {spec['name']}(data=None):
-            def install_if_needed(package):
-                try:
-                    # Check if package is already installed
-                    base_package = package.split('[')[0].split('==')[0].split('>=')[0]
-                    __import__(base_package)
-                    return True
-                except ImportError:
-                    try:
-                        print(f"Installing {{package}}...")
-                        subprocess.check_call([sys.executable, "-m", "pip", "install", package, "--quiet"])
-                        print(f"Successfully installed {{package}}")
-                        return True
-                    except subprocess.CalledProcessError as e:
-                        print(f"Failed to install {{package}}: {{e}}")
-                        return False
-
-            try:
-                start_time = datetime.now()
-                
-                if data is None:
-                    return {{
-                        "status": "error",
-                        "error": "No input data provided",
-                        "data": None,
-                        "metadata": {{"agent": "{spec['name']}", "agent_type": "dynamic"}}
-                    }}
-
-                # Install packages based on the agent's purpose
-                description = "{spec['description'].lower()}"
-                packages_needed = []
-                
-                if "qr code" in description or "qr-code" in description:
-                    packages_needed.append("qrcode[pil]")
-                if "image" in description and "qr" not in description:
-                    packages_needed.append("Pillow")
-                if "pdf" in description:
-                    packages_needed.append("pdfplumber")
-                if "excel" in description or "xlsx" in description:
-                    packages_needed.append("openpyxl")
-                if "chart" in description or "plot" in description or "graph" in description:
-                    packages_needed.append("matplotlib")
-                if "xml" in description:
-                    packages_needed.append("lxml")
-                if "web" in description or "scraping" in description:
-                    packages_needed.append("requests")
-                if "json" in description and "xml" in description:
-                    packages_needed.extend(["lxml", "xmltodict"])
-                
-                # Install required packages
-                failed_packages = []
-                for package in packages_needed:
-                    if not install_if_needed(package):
-                        failed_packages.append(package)
-                
-                if failed_packages:
-                    return {{
-                        "status": "error",
-                        "error": f"Failed to install required packages: {{failed_packages}}",
-                        "data": None,
-                        "metadata": {{"agent": "{spec['name']}", "failed_packages": failed_packages}}
-                    }}
-                
-                # Now import packages after successful installation
-                if "qr code" in description or "qr-code" in description:
-                    import qrcode
-                    from io import BytesIO
-                    import base64
-
-                claude = Anthropic(api_key=ANTHROPIC_API_KEY)
-                
-                # Use Claude for intelligent processing
-                prompt = f\"\"\"
-                Task: {spec['description']}
-                Input data: {{json.dumps(data, indent=2) if isinstance(data, (dict, list)) else str(data)}}
-                
-                Process this data according to the task requirements.
-                If this involves QR codes, extract URLs or text that should be converted to QR codes.
-                If this involves other processing, analyze the data and provide appropriate results.
-                
-                Return your analysis and processing instructions in JSON format.
-                \"\"\"
-                
-                response = claude.messages.create(
-                    model=CLAUDE_MODEL,
-                    max_tokens=1500,
-                    messages=[{{"role": "user", "content": prompt}}]
-                )
-                
-                result_text = response.content[0].text
-                
-                # Try to parse Claude's response as JSON, fallback to text
-                try:
-                    claude_result = json.loads(result_text)
-                except:
-                    claude_result = {{"processed_content": result_text}}
-                
-                # Implement specific functionality based on installed packages
-                final_result = claude_result
-                
-                if "qr code" in description or "qr-code" in description:
-                    # Actually generate QR codes if packages were installed successfully
-                    try:
-                        qr_codes = []
-                        # Extract data to encode from Claude's analysis or raw input
-                        data_to_encode = []
-                        
-                        if isinstance(data, str):
-                            data_to_encode = [data]
-                        elif isinstance(data, dict):
-                            # Look for URLs or text in the data
-                            data_to_encode = [str(v) for v in data.values() if isinstance(v, str)]
-                        elif isinstance(data, list):
-                            data_to_encode = [str(item) for item in data]
-                        
-                        for item in data_to_encode:
-                            if item and len(item.strip()) > 0:
-                                qr = qrcode.QRCode(version=1, box_size=10, border=5)
-                                qr.add_data(item.strip())
-                                qr.make(fit=True)
-                                
-                                img = qr.make_image(fill_color="black", back_color="white")
-                                
-                                # Convert to base64 for easy transmission
-                                buffer = BytesIO()
-                                img.save(buffer, format='PNG')
-                                img_str = base64.b64encode(buffer.getvalue()).decode()
-                                
-                                qr_codes.append({{
-                                    "text": item.strip(),
-                                    "qr_code_base64": img_str
-                                }})
-                        
-                        final_result = {{
-                            "qr_codes": qr_codes,
-                            "claude_analysis": claude_result,
-                            "total_codes_generated": len(qr_codes)
-                        }}
-                        
-                    except Exception as e:
-                        final_result = {{
-                            "error": f"QR code generation failed: {{str(e)}}",
-                            "claude_analysis": claude_result
-                        }}
-                
-                return {{
-                    "status": "success",
-                    "data": final_result,
-                    "metadata": {{
-                        "agent": "{spec['name']}",
-                        "category": "{spec['category']}",
-                        "claude_model": CLAUDE_MODEL,
-                        "execution_time": (datetime.now() - start_time).total_seconds(),
-                        "agent_type": "dynamic",
-                        "packages_used": packages_needed
-                    }}
+    def {spec['name']}(state):
+        \"\"\"
+        {spec['description']}
+        \"\"\"
+        
+        # Initialize state components if missing
+        if 'results' not in state:
+            state['results'] = {{}}
+        if 'errors' not in state:
+            state['errors'] = []
+        if 'execution_path' not in state:
+            state['execution_path'] = []
+        
+        try:
+            # Get input data from state
+            current_data = state.get('current_data')
+            request = state.get('request', '')
+            
+            # YOUR PROCESSING LOGIC HERE based on: {spec['description']}
+            
+            # Example processing (replace with actual logic):
+            if current_data:
+                # Process the data according to agent purpose
+                processed_result = {{
+                    "agent": "{spec['name']}",
+                    "processing_completed": True,
+                    "data_processed": True,
+                    "result": "Processed successfully"
                 }}
-                
-            except Exception as e:
-                return {{
-                    "status": "error",
-                    "error": str(e),
-                    "data": None,
-                    "metadata": {{"agent": "{spec['name']}", "agent_type": "dynamic"}}
+            else:
+                processed_result = {{
+                    "agent": "{spec['name']}",
+                    "processing_completed": True,
+                    "data_processed": False,
+                    "result": "No data to process"
                 }}
+            
+            # Update state with results
+            state['results']['{spec['name']}'] = {{
+                "status": "success",
+                "data": processed_result,
+                "metadata": {{
+                    "agent": "{spec['name']}",
+                    "execution_time": 0.1
+                }}
+            }}
+            
+            state['execution_path'].append('{spec['name']}')
+            
+            return state
+            
+        except Exception as e:
+            # Handle errors
+            error_info = {{
+                "agent": "{spec['name']}",
+                "error": str(e),
+                "timestamp": "2025-09-15"
+            }}
+            state['errors'].append(error_info)
+            
+            state['results']['{spec['name']}'] = {{
+                "status": "error",
+                "error": str(e),
+                "metadata": error_info
+            }}
+            
+            return state
+
     Generate the complete function following this structure for: {spec['description']}
-    Make it work reliably with proper package installation and error handling.
+    Make sure the function name is EXACTLY '{spec['name']}' and it processes data according to its purpose.
     """
 
         response = self.claude.messages.create(
             model=CLAUDE_MODEL,
-            max_tokens=4000,
+            max_tokens=3000,
             messages=[{"role": "user", "content": generation_prompt}],
         )
 
         generated_code = response.content[0].text
 
-        # Clean up the generated code - remove markdown formatting if present
+        # Clean up the generated code
         if "```python" in generated_code:
-            # Extract code from markdown blocks
             start = generated_code.find("```python") + 9
             end = generated_code.find("```", start)
             if end != -1:
                 generated_code = generated_code[start:end].strip()
         elif "```" in generated_code:
-            # Handle generic code blocks
             start = generated_code.find("```") + 3
             end = generated_code.find("```", start)
             if end != -1:
                 generated_code = generated_code[start:end].strip()
 
         return generated_code
+
+    async def create_scenario_agent(
+        self, agent_name: str, scenario_key: str, purpose: str
+    ) -> Dict:
+        """FIXED: Create agent with exact name enforcement"""
+
+        print(f"🎯 Creating scenario agent: {agent_name} for {scenario_key}")
+
+        # Get domain-specific context for Claude
+        domain_context = self._get_domain_context(scenario_key, agent_name)
+
+        # FIXED: Force exact agent name in specification
+        agent_spec = {
+            "agent_name": agent_name,  # Use EXACT name - no modifications allowed
+            "purpose": f"{purpose} - Specialized for {scenario_key}",
+            "domain_context": domain_context,
+            "scenario": scenario_key,
+            "category": scenario_key.replace("_", " ").title(),
+            "enforce_exact_name": True,  # NEW: Force exact naming
+        }
+
+        # Use your existing create_agent_from_requirement method
+        result = await self.create_agent_from_requirement(agent_spec)
+
+        if result.get("status") == "success":
+            # CRITICAL FIX: Ensure registry uses exact requested name
+            actual_agent_name = result.get("agent_name")
+
+            if actual_agent_name != agent_name:
+                print(
+                    f"🔧 FIXING: Agent name mismatch {actual_agent_name} → {agent_name}"
+                )
+
+                from core.registry_singleton import get_shared_registry
+
+                registry = get_shared_registry()
+
+                # Get the agent data with wrong name
+                if registry.agent_exists(actual_agent_name):
+                    agent_data = registry.get_agent(actual_agent_name)
+
+                    # Remove wrong entry
+                    if (
+                        "agents" in registry.agents
+                        and actual_agent_name in registry.agents["agents"]
+                    ):
+                        del registry.agents["agents"][actual_agent_name]
+
+                    # Add with correct name
+                    if "agents" not in registry.agents:
+                        registry.agents["agents"] = {}
+
+                    registry.agents["agents"][agent_name] = agent_data.copy()
+                    registry.agents["agents"][agent_name]["name"] = agent_name
+
+                    # Save registry
+                    registry.save_all()
+
+                    print(f"✅ FIXED: Registry now has {agent_name} correctly")
+
+                    # Force registry reload
+                    from core.registry_singleton import force_global_reload
+
+                    force_global_reload()
+
+            print(f"✅ Created scenario agent: {agent_name}")
+            return {
+                "status": "success",
+                "agent_name": agent_name,  # Return exact name
+                "scenario": scenario_key,
+                "domain_specialized": True,
+            }
+        else:
+            return {"status": "error", "error": result.get("error")}
+
+    def _get_domain_context(self, scenario_key: str, agent_name: str) -> str:
+        """Get domain knowledge for Claude to embed in agent"""
+
+        if scenario_key == "sales_analysis":
+            if "analyzer" in agent_name:
+                return """
+    Domain: Sales Data Analysis
+    Expertise:
+    - Calculate revenue, growth rates, averages
+    - Identify top performing regions, products, reps  
+    - Detect seasonal trends and patterns
+    - Compute metrics: conversion rates, average deal size
+    - Find outliers and anomalies in sales data
+    """
+            elif "insight" in agent_name:
+                return """
+    Domain: Business Intelligence & Insights
+    Expertise:
+    - Generate actionable business recommendations
+    - Identify growth opportunities and risks
+    - Explain trends in business context
+    - Provide strategic insights for decision making
+    - Create executive-level summaries
+    """
+            elif "pdf" in agent_name or "reporter" in agent_name:
+                return """
+    Domain: Report Generation & Visualization
+    Expertise:
+    - Create professional PDF reports
+    - Generate charts and visualizations
+    - Format data into readable tables
+    - Structure reports for executive consumption
+    - Include key metrics prominently
+    """
+
+        elif scenario_key == "compliance_monitoring":
+            if "excel" in agent_name or "read" in agent_name:
+                return """
+        Domain: Financial Data Processing & Excel Analytics
+        Expertise:
+        - Process Excel files with financial transaction data
+        - Extract customer information, amounts, account numbers, dates
+        - Validate required fields for compliance (customer_id, amounts, routing_numbers)
+        - Handle multiple sheets and complex Excel structures
+        - Detect data quality issues and missing information
+        - Parse financial metadata and transaction codes
+        """
+            elif "monitor" in agent_name:
+                return """
+        Domain: Transaction Monitoring & Suspicious Activity Detection
+        Expertise:
+        - Detect large transactions above $50,000 (high-risk threshold)
+        - Identify round number transactions (potential structuring)
+        - Flag frequent small transactions under $10,000 (structuring patterns)
+        - Monitor daily/monthly transaction limits and thresholds
+        - Detect missing or incomplete transaction data
+        - Identify suspicious account relationships and patterns
+        - Calculate transaction velocity and frequency metrics
+        """
+            elif "evaluator" in agent_name:
+                return """
+        Domain: Financial Compliance & Anti-Money Laundering (AML)
+        Expertise:
+        - Apply AML rules and regulatory compliance standards
+        - Evaluate transaction limits and reporting thresholds
+        - Assess compliance with Bank Secrecy Act requirements
+        - Validate required data fields (customer ID, amounts, account numbers)
+        - Score violation severity (low, medium, high, critical)
+        - Check for suspicious activity report (SAR) triggers
+        - Evaluate customer due diligence requirements
+        """
+            elif "alert" in agent_name:
+                return """
+        Domain: Compliance Alert Management & Risk Communication
+        Expertise:
+        - Generate structured violation alerts with appropriate urgency
+        - Categorize violations by type: AML, structuring, data quality, thresholds
+        - Assign severity levels: critical, high, medium, low
+        - Create actionable alert descriptions for compliance review
+        - Format alerts for regulatory reporting and investigation
+        - Prioritize alerts based on risk levels and regulatory requirements
+        """
+            elif "audit" in agent_name or "report" in agent_name:
+                return """
+        Domain: Regulatory Audit Reporting & Documentation
+        Expertise:
+        - Create comprehensive compliance audit reports
+        - Summarize violation patterns, trends, and statistics
+        - Generate executive summaries for senior management
+        - Document audit trail and compliance assessment findings
+        - Format reports for regulatory review and submission
+        - Include recommendations for compliance improvements
+        - Present data in tables, charts, and executive dashboards
+        """
+
+        return ""
 
 
 # ============= END OF NEW METHODS =============

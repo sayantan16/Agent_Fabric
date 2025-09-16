@@ -127,3 +127,21 @@ def force_global_reload():
     global _singleton
     if _singleton:
         _singleton.force_reload()
+
+
+def debug_registry_state():
+    """Debug function to show exact registry state"""
+    registry = get_shared_registry()
+
+    print("DEBUG: FULL REGISTRY STATE")
+    print("=" * 50)
+
+    agents = registry.agents.get("agents", {})
+    print(f"Total agents: {len(agents)}")
+
+    for agent_name, agent_data in agents.items():
+        print(f"  Agent: {agent_name}")
+        print(f"    Status: {agent_data.get('status', 'unknown')}")
+        print(f"    Location: {agent_data.get('location', 'unknown')}")
+        print(f"    File exists: {os.path.exists(agent_data.get('location', ''))}")
+        print()

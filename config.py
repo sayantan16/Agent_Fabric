@@ -1651,3 +1651,215 @@ PIPELINE_SUCCESS_MESSAGES = {
     "optimized": "Pipeline execution was optimized for better performance.",
 }
 # =============================================================================
+
+
+# =============================================================================
+# HACKATHON SCENARIO CONFIGURATIONS
+# =============================================================================
+
+
+HACKATHON_SCENARIOS = {
+    "sales_analysis": {
+        "name": "Sales Analysis Pipeline",
+        "description": "Analyze sales data and generate PDF summary",
+        "keywords": [
+            "sales",
+            "revenue",
+            "analysis",
+            "summary",
+            "performance",
+            "trends",
+            "report",
+        ],
+        "file_indicators": [".csv"],
+        "workflow_pattern": {
+            "steps": [
+                "Read sales data from CSV",
+                "Calculate statistics and trends",
+                "Identify patterns and insights",
+                "Generate PDF summary report",
+            ],
+            "agent_sequence": [
+                "read_csv",
+                "sales_analyzer",
+                "insight_generator",
+                "pdf_reporter",
+            ],
+            "execution_strategy": "sequential",
+        },
+        "existing_agents": ["read_csv"],  # We have this!
+        "agents_to_create": [
+            "sales_analyzer",
+            "insight_generator",
+            "pdf_reporter",
+        ],  # Claude will create
+        "complexity": "medium",
+        "expected_duration": 30,
+    },
+    "compliance_monitoring": {
+        "name": "Compliance Monitoring Pipeline",
+        "description": "Monitor financial transactions for compliance violations and generate audit reports",
+        "keywords": [
+            "compliance",
+            "transaction",
+            "monitoring",
+            "audit",
+            "violations",
+            "regulatory",
+            "financial",
+            "aml",
+            "suspicious",
+            "rules",
+        ],
+        "file_indicators": [".xlsx", ".xls", "excel"],
+        "workflow_pattern": {
+            "steps": [
+                "Read transaction data from Excel files",
+                "Monitor transactions for suspicious patterns",
+                "Evaluate transactions against compliance rules",
+                "Generate violation alerts and warnings",
+                "Create comprehensive audit report",
+            ],
+            "agent_sequence": [
+                "read_excel",
+                "transaction_monitor",
+                "compliance_evaluator",
+                "alert_generator",
+                "audit_reporter",
+            ],
+            "execution_strategy": "sequential",
+        },
+        "existing_agents": [],  # All will be created dynamically
+        "agents_to_create": [
+            "read_excel",
+            "transaction_monitor",
+            "compliance_evaluator",
+            "alert_generator",
+            "audit_reporter",
+        ],
+        "complexity": "high",
+        "expected_duration": 60,
+    },
+}
+
+# Scenario-aware orchestration prompt
+SCENARIO_AWARE_ORCHESTRATION_PROMPT = """You are orchestrating a known workflow pattern: {scenario_name}
+
+SCENARIO CONTEXT:
+- Type: {scenario_name}
+- Expected workflow: {workflow_steps}
+- Required agents: {required_agents}
+
+USER REQUEST: {request}
+FILES PROVIDED: {files}
+AVAILABLE AGENTS: {available_agents}
+MISSING AGENTS: {missing_agents}
+
+INSTRUCTIONS:
+1. This matches the {scenario_name} pattern
+2. Follow the expected workflow but adapt to specific request details
+3. Identify which agents exist vs need creation
+4. Maintain the core workflow structure
+
+Create an execution plan that:
+- Uses existing agents where available
+- Marks missing agents for dynamic creation
+- Follows the scenario pattern
+- Adapts specifics to the user's exact request
+
+Return JSON:
+{{
+    "scenario_detected": "{scenario_key}",
+    "workflow_type": "scenario_based",
+    "agent_sequence": ["list of agents in order"],
+    "agents_to_create": [
+        {{
+            "name": "agent_name",
+            "purpose": "specific purpose for this scenario",
+            "priority": "high"
+        }}
+    ],
+    "execution_strategy": "sequential",
+    "confidence": 0.95,
+    "adaptations": ["any specific adaptations for this request"]
+}}
+"""
+
+# Dynamic agent creation hints for scenarios
+SCENARIO_AGENT_TEMPLATES = {
+    "sales_analyzer": {
+        "purpose": "Analyze sales data for trends, patterns, and key metrics",
+        "capabilities": [
+            "statistical_analysis",
+            "trend_detection",
+            "performance_metrics",
+        ],
+        "input": "sales data from CSV",
+        "output": "statistical summary and insights",
+    },
+    "insight_generator": {
+        "purpose": "Generate business insights and recommendations from sales analysis",
+        "capabilities": [
+            "pattern_recognition",
+            "business_intelligence",
+            "recommendation_engine",
+        ],
+        "input": "analyzed sales data",
+        "output": "business insights and recommendations",
+    },
+    "pdf_reporter": {
+        "purpose": "Generate professional PDF reports from analysis results",
+        "capabilities": ["pdf_generation", "data_visualization", "report_formatting"],
+        "input": "analysis results and insights",
+        "output": "formatted PDF report file",
+    },
+    "read_excel": {
+        "purpose": "Read and process Excel files containing financial transaction data",
+        "capabilities": [
+            "excel_processing",
+            "data_validation",
+            "financial_data_parsing",
+        ],
+        "input": "Excel files with transaction records",
+        "output": "structured transaction data",
+    },
+    "transaction_monitor": {
+        "purpose": "Monitor transactions for suspicious patterns and anomalies",
+        "capabilities": [
+            "pattern_detection",
+            "anomaly_detection",
+            "threshold_monitoring",
+        ],
+        "input": "transaction data",
+        "output": "flagged suspicious transactions",
+    },
+    "compliance_evaluator": {
+        "purpose": "Evaluate transactions against AML and regulatory compliance rules",
+        "capabilities": ["rule_evaluation", "violation_detection", "risk_scoring"],
+        "input": "transactions and suspicious flags",
+        "output": "compliance violations with severity levels",
+    },
+    "alert_generator": {
+        "purpose": "Generate compliance alerts and notifications for violations",
+        "capabilities": [
+            "alert_formatting",
+            "severity_classification",
+            "notification_creation",
+        ],
+        "input": "compliance violations",
+        "output": "structured alerts and notifications",
+    },
+    "audit_reporter": {
+        "purpose": "Create comprehensive compliance audit reports for regulatory review",
+        "capabilities": [
+            "audit_documentation",
+            "executive_reporting",
+            "regulatory_formatting",
+        ],
+        "input": "alerts and compliance analysis",
+        "output": "professional audit report",
+    },
+}
+
+
+# =============================================================================

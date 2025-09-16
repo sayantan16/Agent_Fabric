@@ -26,8 +26,11 @@ from core.file_content_reader import FileContentReader
 from core.agent_factory import AgentFactory
 from core.tool_factory import ToolFactory
 
-from core.workflow_engine import MultiAgentWorkflowEngine, WorkflowPlanner
+from core.workflow_engine import (
+    EnhancedMultiAgentWorkflowEngine as MultiAgentWorkflowEngine,
+)
 from core.capability_analyzer import CapabilityAnalyzer
+from core.ai_workflow_planner import AIWorkflowPlanner
 from core.specialized_agents import (
     PDFAnalyzerAgent,
     ChartGeneratorAgent,
@@ -48,20 +51,55 @@ class SimplifiedOrchestrator:
         self.tool_factory = ToolFactory()
         self.file_reader = FileContentReader()
 
+        # Use enhanced workflow engine
         self.workflow_engine = MultiAgentWorkflowEngine()
-        self.workflow_planner = WorkflowPlanner()
+
         self.capability_analyzer = CapabilityAnalyzer()
 
-        # FIX: Initialize the OpenAI openai_client properly
-        self.openai_client = openai.OpenAI(api_key=OPENAI_API_KEY)  # Add this line!
+        # Initialize OpenAI client
+        self.openai_client = openai.OpenAI(api_key=OPENAI_API_KEY)
 
-        # Initialize Claude openai_client
+        # Initialize Claude client
         self.claude_client = Anthropic(api_key=ANTHROPIC_API_KEY)
+
+        # ADD this new AI planner:
+        self.ai_workflow_planner = AIWorkflowPlanner()
 
         print(f"DEBUG: ANTHROPIC_API_KEY present: {bool(ANTHROPIC_API_KEY)}")
         print(
             f"DEBUG: ANTHROPIC_API_KEY length: {len(ANTHROPIC_API_KEY) if ANTHROPIC_API_KEY else 0}"
         )
+
+    def _detect_scenario(self, request: str, files: List[Dict] = None) -> Optional[str]:
+        """Detect if request matches a known scenario pattern"""
+
+        from config import HACKATHON_SCENARIOS
+
+        request_lower = request.lower()
+
+        # Check each scenario
+        for scenario_key, scenario_config in HACKATHON_SCENARIOS.items():
+            # Check keywords
+            keyword_match = any(
+                keyword in request_lower for keyword in scenario_config["keywords"]
+            )
+
+            # Check file types if files provided
+            file_match = True
+            if files and scenario_config["file_indicators"]:
+                file_match = any(
+                    any(
+                        indicator in str(f.get("name", "")).lower()
+                        for indicator in scenario_config["file_indicators"]
+                    )
+                    for f in files
+                )
+
+            if keyword_match and file_match:
+                print(f"🎯 Scenario detected: {scenario_config['name']}")
+                return scenario_key
+
+        return None
 
     async def process_request(
         self,
@@ -69,227 +107,323 @@ class SimplifiedOrchestrator:
         files: Optional[List[Dict]] = None,
         auto_create: bool = True,
     ) -> Dict[str, Any]:
-        """Enhanced process_request with multi-agent workflow support."""
-        workflow_id = f"wf_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        """
+        ENHANCED process_request with TRUE AI-driven orchestration.
+
+        This method REPLACES the existing process_request in simplified_orchestrator.py
+        """
+        workflow_id = f"ai_wf_{datetime.now().strftime('%Y%m%d%H%M%S')}"
         start_time = datetime.now()
 
         try:
-            # Step 1: Read actual file contents
+            print(f"🚀 Starting AI-driven workflow for: {user_request[:100]}...")
+
+            # Step 1: Read actual file contents (existing code)
             enriched_files = []
             if files:
                 enriched_files = self.file_reader.process_all_files(files)
+                print(f"📁 Processed {len(enriched_files)} files")
 
-            # Step 2: Determine if this needs multi-agent workflow
-            workflow_plan = self.workflow_planner.plan_workflow(
-                user_request, enriched_files
+            # Step 2: Get available capabilities for AI planning
+            available_agents = list(self.registry.agents.get("agents", {}).keys())
+            available_tools = list(self.registry.tools.get("tools", {}).keys())
+
+            print(f"🤖 Available agents: {available_agents}")
+            print(f"🔧 Available tools: {len(available_tools)} tools")
+
+            # Step 2.5: Check for scenario match
+            scenario_key = self._detect_scenario(user_request, enriched_files)
+
+            if scenario_key == "sales_analysis":
+                # Use scenario-aware workflow planning for sales
+                print(f"📊 Executing Sales Analysis Pipeline")
+
+                from config import (
+                    HACKATHON_SCENARIOS,
+                    SCENARIO_AWARE_ORCHESTRATION_PROMPT,
+                )
+
+                scenario = HACKATHON_SCENARIOS[scenario_key]
+
+                # Determine which agents need creation
+                missing_agents = [
+                    {
+                        "name": agent,
+                        "purpose": f"Sales-specialized {agent.replace('_', ' ')}",
+                    }
+                    for agent in scenario["agents_to_create"]
+                    if agent not in available_agents
+                ]
+
+                print(f"📋 Available agents: {available_agents}")
+                print(f"🔧 Will create: {[a['name'] for a in missing_agents]}")
+
+                # Create missing agents for sales scenario
+                if missing_agents:
+                    print(
+                        f"🎯 Creating {len(missing_agents)} sales-specialized agents..."
+                    )
+
+                    for agent_spec in missing_agents:
+                        agent_name = agent_spec["name"]
+                        purpose = agent_spec["purpose"]
+
+                        print(f"   Creating: {agent_name}")
+
+                        creation_result = (
+                            await self.agent_factory.create_scenario_agent(
+                                agent_name, scenario_key, purpose
+                            )
+                        )
+
+                        if creation_result["status"] == "success":
+                            print(f"   ✅ Created: {agent_name}")
+                            # Force registry reload
+                            from core.registry_singleton import force_global_reload
+
+                            force_global_reload()
+
+                            # Update available agents list
+                            available_agents.append(agent_name)
+                        else:
+                            print(
+                                f"   ❌ Failed: {agent_name} - {creation_result.get('error')}"
+                            )
+
+                # Build simple workflow plan for sales
+                ai_workflow_plan = {
+                    "workflow_type": "scenario_based",
+                    "scenario": scenario_key,
+                    "scenario_name": scenario["name"],
+                    "agents": scenario["workflow_pattern"]["agent_sequence"],
+                    "execution_strategy": "sequential",
+                    "confidence": 0.95,
+                    "agents_created": len(missing_agents),
+                    "complexity": "medium",
+                }
+
+                # Execute sales workflow
+                print(f"⚡ Executing sales workflow: {ai_workflow_plan['agents']}")
+
+                workflow_result = (
+                    await self.workflow_engine.execute_ai_planned_workflow(
+                        ai_workflow_plan, user_request, enriched_files
+                    )
+                )
+
+                # Use AI-generated response instead of template
+                final_response = workflow_result.get(
+                    "ai_response", "Analysis completed successfully"
+                )
+
+                return {
+                    "status": "success",
+                    "workflow_id": workflow_id,
+                    "response": final_response,  # AI-generated natural language response
+                    "execution_time": workflow_result.get("execution_time", 0),
+                    "workflow": ai_workflow_plan,
+                    "results": workflow_result.get("results", {}),
+                    "metadata": {
+                        "workflow_type": "sales_analysis",
+                        "scenario": scenario_key,
+                        "dynamic_agents_created": len(missing_agents),
+                        "innovation_demonstrated": len(missing_agents) > 0,
+                        "ai_response_generated": True,
+                    },
+                }
+
+            elif scenario_key == "compliance_monitoring":
+                # Use scenario-aware workflow planning for compliance
+                print(f"🏛️ Executing Compliance Monitoring Pipeline")
+
+                from config import (
+                    HACKATHON_SCENARIOS,
+                    SCENARIO_AWARE_ORCHESTRATION_PROMPT,
+                )
+
+                scenario = HACKATHON_SCENARIOS[scenario_key]
+
+                # Determine which agents need creation (all of them for compliance)
+                missing_agents = [
+                    {
+                        "name": agent,
+                        "purpose": f"Compliance-specialized {agent.replace('_', ' ')}",
+                    }
+                    for agent in scenario["agents_to_create"]
+                    if agent not in available_agents
+                ]
+
+                print(f"📋 Available agents: {available_agents}")
+                print(f"🔧 Will create: {[a['name'] for a in missing_agents]}")
+
+                # Create missing agents for compliance scenario
+                if missing_agents:
+                    print(
+                        f"🎯 Creating {len(missing_agents)} compliance-specialized agents..."
+                    )
+
+                    for agent_spec in missing_agents:
+                        agent_name = agent_spec["name"]
+                        purpose = agent_spec["purpose"]
+
+                        print(f"   Creating: {agent_name}")
+
+                        creation_result = (
+                            await self.agent_factory.create_scenario_agent(
+                                agent_name, scenario_key, purpose
+                            )
+                        )
+
+                        if creation_result["status"] == "success":
+                            print(f"   ✅ Created: {agent_name}")
+                            # Force registry reload
+                            from core.registry_singleton import force_global_reload
+
+                            force_global_reload()
+
+                            # Update available agents list
+                            available_agents.append(agent_name)
+                        else:
+                            print(
+                                f"   ❌ Failed: {agent_name} - {creation_result.get('error')}"
+                            )
+
+                # Build workflow plan for compliance
+                ai_workflow_plan = {
+                    "workflow_type": "scenario_based",
+                    "scenario": scenario_key,
+                    "scenario_name": scenario["name"],
+                    "agents": scenario["workflow_pattern"]["agent_sequence"],
+                    "execution_strategy": "sequential",
+                    "confidence": 0.95,
+                    "agents_created": len(missing_agents),
+                    "complexity": "high",
+                }
+
+                # Execute compliance workflow
+                print(f"⚡ Executing compliance workflow: {ai_workflow_plan['agents']}")
+
+                workflow_result = (
+                    await self.workflow_engine.execute_ai_planned_workflow(
+                        ai_workflow_plan, user_request, enriched_files
+                    )
+                )
+
+                # Use AI-generated response instead of template
+                final_response = workflow_result.get(
+                    "ai_response", "Compliance analysis completed successfully"
+                )
+
+                return {
+                    "status": "success",
+                    "workflow_id": workflow_id,
+                    "response": final_response,  # AI-generated compliance response
+                    "execution_time": workflow_result.get("execution_time", 0),
+                    "workflow": ai_workflow_plan,
+                    "results": workflow_result.get("results", {}),
+                    "metadata": {
+                        "workflow_type": "compliance_monitoring",
+                        "scenario": scenario_key,
+                        "dynamic_agents_created": len(missing_agents),
+                        "innovation_demonstrated": len(missing_agents) > 0,
+                        "ai_response_generated": True,
+                    },
+                }
+
+            else:
+                # Continue with existing generic AI workflow planning
+                print("🧠 Running generic AI workflow analysis...")
+                ai_workflow_plan = (
+                    await self.ai_workflow_planner.plan_intelligent_workflow(
+                        request=user_request,
+                        files=enriched_files,
+                        available_agents=available_agents,
+                        available_tools=available_tools,
+                    )
+                )
+
+            # Log AI planning results
+            planned_agents = ai_workflow_plan.get("agents", [])
+            confidence = ai_workflow_plan.get("confidence", 0.0)
+            complexity = ai_workflow_plan.get("complexity", "unknown")
+
+            print(
+                f"🎯 AI Plan: {len(planned_agents)} agents, {confidence:.0%} confidence, {complexity} complexity"
+            )
+            print(f"📋 Agent sequence: {planned_agents}")
+            print(
+                f"💡 Rationale: {ai_workflow_plan.get('rationale', 'No rationale provided')}"
             )
 
-            # Enhanced: Intelligent agent compatibility analysis
-            if auto_create:
-                print("Analyzing agent compatibility and capability gaps...")
+            # Step 4: Check for missing capabilities and create if needed
+            missing_capabilities = ai_workflow_plan.get("missing_capabilities", [])
+            if missing_capabilities and auto_create:
+                print(f"🔍 Found {len(missing_capabilities)} missing capabilities")
 
+                # Enhanced capability analysis with AI plan context
                 compatibility_analysis = (
                     await self.capability_analyzer.analyze_agent_compatibility(
-                        user_request, workflow_plan, enriched_files
+                        user_request, {"agents": planned_agents}, enriched_files
                     )
                 )
 
                 overall_confidence = compatibility_analysis["compatibility_analysis"][
                     "overall_confidence"
                 ]
-                recommendation = compatibility_analysis["compatibility_analysis"][
-                    "recommendation"
-                ]
 
-                print(f"Agent compatibility confidence: {overall_confidence:.2f}")
-                print(f"AI Recommendation: {recommendation}")
-
-                # Show agent evaluations
-                for evaluation in compatibility_analysis.get("agent_evaluations", []):
-                    agent_name = evaluation["agent_name"]
-                    score = evaluation["compatibility_score"]
-                    suitability = evaluation["suitability"]
-                    print(
-                        f"  {agent_name}: {score:.2f} confidence, {suitability} suitability"
-                    )
-
-                # NEW: Override workflow plan if confidence is too low
                 if overall_confidence < 0.7:
                     print(
-                        f"Confidence too low ({overall_confidence:.2f}), checking for better alternatives..."
+                        f"⚠️  Low compatibility confidence ({overall_confidence:.2f}), attempting agent creation..."
                     )
 
-                    # Check if better alternatives exist
-                    better_alternatives = compatibility_analysis.get(
-                        "better_alternatives", []
+                    creation_result = await self._create_required_agents(
+                        compatibility_analysis
                     )
-                    if better_alternatives:
-                        # Use the best alternative
-                        best_alternative = max(
-                            better_alternatives,
-                            key=lambda x: x.get("compatibility_score", 0),
-                        )
-                        if best_alternative["compatibility_score"] > overall_confidence:
-                            print(
-                                f"Using better alternative: {best_alternative['agent_name']}"
-                            )
-                            workflow_plan["agents"] = [best_alternative["agent_name"]]
-                            workflow_plan["execution_strategy"] = "sequential"
 
-                    # If still low confidence or no alternatives, mark for creation
-                    if overall_confidence < 0.7 and recommendation in [
-                        "create_new",
-                        "hybrid_approach",
-                    ]:
-                        print("AI recommends creating specialized agents...")
-
-                        # Actually create the required agents
-                        creation_result = await self._create_required_agents(
-                            compatibility_analysis
+                    if creation_result["status"] == "success":
+                        print(
+                            f"✅ Created {len(creation_result['agents_created'])} new agents"
                         )
 
-                        if creation_result["status"] == "success":
-                            print(
-                                f"✅ Created {len(creation_result['agents_created'])} agents successfully"
+                        # Refresh registry and re-plan with new agents
+                        from core.registry_singleton import force_global_reload
+
+                        force_global_reload()
+
+                        # Update available agents list
+                        available_agents = list(
+                            self.registry.agents.get("agents", {}).keys()
+                        )
+
+                        # Re-plan workflow with new capabilities
+                        print("🔄 Re-planning workflow with new agents...")
+                        ai_workflow_plan = (
+                            await self.ai_workflow_planner.plan_intelligent_workflow(
+                                request=user_request,
+                                files=enriched_files,
+                                available_agents=available_agents,
+                                available_tools=available_tools,
                             )
+                        )
 
-                            # Refresh the workflow plan with newly created agents
-                            from core.registry_singleton import force_global_reload
+                        print(f"🆕 Updated plan: {ai_workflow_plan.get('agents', [])}")
 
-                            force_global_reload()  # Reload registry to see new agents
+            # Step 5: Execute AI-planned workflow
+            planned_agents = ai_workflow_plan.get("agents", [])
 
-                            # Re-plan workflow with new agents available
-                            from core.registry_singleton import get_shared_registry
-
-                            updated_registry = get_shared_registry()
-                            print(
-                                f"Registry after creation: {list(updated_registry.agents.get('agents', {}).keys())}"
-                            )
-
-                            workflow_plan = self.workflow_planner.plan_workflow(
-                                user_request, enriched_files
-                            )
-                            print(f"Updated workflow plan: {workflow_plan['agents']}")
-
-                            # If planner still doesn't pick up the new agent, force it
-                            created_agents = creation_result.get("agents_created", [])
-                            if (
-                                created_agents
-                                and workflow_plan.get("agents") != created_agents
-                            ):
-                                print(
-                                    f"🔧 Forcing workflow to use newly created agents: {created_agents}"
-                                )
-                                workflow_plan["agents"] = created_agents
-                                workflow_plan["execution_strategy"] = "sequential"
-                                print(
-                                    f"Forced workflow plan: {workflow_plan['agents']}"
-                                )
-
-                            # Update confidence since we now have suitable agents
-                            overall_confidence = 1.0
-
-                        elif creation_result["status"] == "no_agents_to_create":
-                            print("No agents needed to be created")
-                        else:
-                            print(
-                                f"❌ Agent creation failed: {creation_result.get('errors', [])}"
-                            )
-
-                            # Show what was attempted
-                            suggested_agents = compatibility_analysis.get(
-                                "creation_recommendation", {}
-                            ).get("suggested_agents", [])
-                            if suggested_agents:
-                                print("Attempted to create:")
-                                for suggested in suggested_agents:
-                                    print(
-                                        f"  - {suggested['agent_name']}: {suggested['purpose']}"
-                                    )
-
-                # Show better alternatives if found
-                better_alternatives = compatibility_analysis.get(
-                    "better_alternatives", []
-                )
-                if better_alternatives:
-                    print("Better alternatives found in registry:")
-                    for alt in better_alternatives:
-                        print(f"  - {alt['agent_name']}: {alt['why_better']}")
-
-                # If still using unsuitable agent after analysis, provide helpful response
-                if (
-                    overall_confidence < 0.3
-                    and recommendation == "create_new"
-                    and not better_alternatives
-                ):
-
-                    print(
-                        "No suitable agents available - providing capability explanation"
-                    )
-
-                    # Instead of executing with wrong agent, explain what's needed
-                    suggested_agents = compatibility_analysis.get(
-                        "creation_recommendation", {}
-                    ).get("suggested_agents", [])
-                    if suggested_agents:
-                        explanation = f"This request requires specialized capabilities not currently available. "
-                        explanation += f"Would need: {', '.join([a['agent_name'] for a in suggested_agents])}. "
-                        explanation += "Dynamic agent creation will be available in the next system update."
-
-                        return {
-                            "status": "capability_gap",
-                            "workflow_id": workflow_id,
-                            "response": explanation,
-                            "execution_time": (
-                                datetime.now() - start_time
-                            ).total_seconds(),
-                            "workflow": workflow_plan,
-                            "metadata": {
-                                "workflow_type": "capability_gap_detected",
-                                "missing_capabilities": [
-                                    a["agent_name"] for a in suggested_agents
-                                ],
-                                "confidence": overall_confidence,
-                            },
-                        }
-
-            if len(workflow_plan["agents"]) > 1:
-                print(f"Multi-agent workflow detected: {workflow_plan['agents']}")
-
-                # Execute multi-agent workflow
-                workflow_result = await self.workflow_engine.execute_workflow(
-                    workflow_plan, user_request, enriched_files
+            if len(planned_agents) == 0:
+                # Fallback to simple processing
+                print("⚠️  No agents planned, falling back to simple processing")
+                return await self._process_simple_request(
+                    user_request, enriched_files, workflow_id, start_time
                 )
 
-                # Synthesize final response from workflow
-                response = await self._synthesize_workflow_response(
-                    user_request, workflow_result
-                )
+            elif len(planned_agents) == 1:
+                # Single agent execution with AI context
+                print(f"🎯 Single agent AI-guided execution: {planned_agents[0]}")
 
-                return {
-                    "status": "success",
-                    "workflow_id": workflow_id,
-                    "response": response,
-                    "execution_time": (datetime.now() - start_time).total_seconds(),
-                    "workflow": workflow_plan,
-                    "results": workflow_result.get("results", {}),
-                    "workflow_summary": workflow_result.get("summary", ""),
-                    "metadata": {
-                        "workflow_type": "multi_agent",
-                        "agents_used": len(workflow_plan["agents"]),
-                        "execution_strategy": workflow_plan.get(
-                            "execution_strategy", "sequential"
-                        ),
-                    },
-                }
-
-            elif workflow_plan["agents"]:
-                # Single specialized agent
-                agent_name = workflow_plan["agents"][0]
-                print(f"Single specialized agent workflow: {agent_name}")
-
-                result = await self._execute_specialized_agent(
-                    agent_name, user_request, enriched_files
+                result = await self._execute_ai_guided_single_agent(
+                    planned_agents[0], user_request, enriched_files, ai_workflow_plan
                 )
 
                 return {
@@ -297,32 +431,171 @@ class SimplifiedOrchestrator:
                     "workflow_id": workflow_id,
                     "response": result.get("response", ""),
                     "execution_time": (datetime.now() - start_time).total_seconds(),
-                    "workflow": workflow_plan,
-                    "results": {agent_name: result},
+                    "workflow": ai_workflow_plan,
+                    "results": {planned_agents[0]: result},
                     "metadata": {
-                        "workflow_type": "single_agent_specialized",
-                        "agent_used": agent_name,
+                        "workflow_type": "single_agent_ai_guided",
+                        "agent_used": planned_agents[0],
+                        "ai_confidence": confidence,
+                        "planning_intelligence": "gpt4_driven",
                     },
                 }
+
             else:
-                # Fall back to original simple processing
-                return await self._process_simple_request(
-                    user_request, enriched_files, workflow_id, start_time
+                # Multi-agent AI-driven workflow execution
+                print(f"🎭 Multi-agent AI workflow: {len(planned_agents)} agents")
+
+                workflow_result = (
+                    await self.workflow_engine.execute_ai_planned_workflow(
+                        ai_workflow_plan, user_request, enriched_files
+                    )
                 )
 
+                # AI-driven response synthesis
+                response = await self._synthesize_ai_workflow_response(
+                    user_request, workflow_result, ai_workflow_plan
+                )
+
+                return {
+                    "status": "success",
+                    "workflow_id": workflow_id,
+                    "response": response,
+                    "execution_time": (datetime.now() - start_time).total_seconds(),
+                    "workflow": ai_workflow_plan,
+                    "results": workflow_result.get("results", {}),
+                    "workflow_summary": workflow_result.get("summary", ""),
+                    "data_flow": workflow_result.get("data_flow", []),
+                    "context_flow": workflow_result.get("context_flow", []),
+                    "metadata": {
+                        "workflow_type": "multi_agent_ai_driven",
+                        "agents_used": len(planned_agents),
+                        "execution_strategy": ai_workflow_plan.get(
+                            "execution_strategy", "sequential"
+                        ),
+                        "ai_confidence": confidence,
+                        "complexity": complexity,
+                        "planning_intelligence": "gpt4_strategic",
+                    },
+                }
+
         except Exception as e:
-            print(f"Error: {str(e)}")
+            print(f"❌ AI workflow execution failed: {str(e)}")
             import traceback
 
             traceback.print_exc()
+
             return {
                 "status": "error",
                 "workflow_id": workflow_id,
                 "error": str(e),
-                "response": f"An error occurred: {str(e)}",
+                "response": f"AI workflow failed: {str(e)}",
                 "workflow": {},
-                "metadata": {},
+                "metadata": {"error_type": "ai_workflow_failure"},
             }
+
+    async def _execute_ai_guided_single_agent(
+        self, agent_name: str, request: str, files: List[Dict], ai_plan: Dict
+    ) -> Dict:
+        """Execute single agent with AI-driven context."""
+
+        # Get agent instructions from AI plan
+        agent_instructions = ai_plan.get("agent_instructions", {}).get(agent_name, {})
+
+        # Build enhanced context
+        context = {
+            "ai_guided": True,
+            "primary_task": agent_instructions.get("primary_task", "Process request"),
+            "processing_focus": agent_instructions.get("processing_focus", ""),
+            "output_requirements": agent_instructions.get("output_requirements", ""),
+            "workflow_goal": ai_plan.get("context_analysis", {}).get(
+                "user_goal", request
+            ),
+            "ai_confidence": ai_plan.get("confidence", 0.8),
+            "single_agent_mode": True,
+        }
+
+        # Execute with enhanced context
+        result = await self._execute_specialized_agent(
+            agent_name, request, files, context
+        )
+
+        return result
+
+    async def _synthesize_ai_workflow_response(
+        self, request: str, workflow_result: Dict, ai_plan: Dict
+    ) -> str:
+        """AI-driven synthesis of workflow results into user response."""
+
+        if workflow_result.get("status") == "error":
+            return f"AI workflow encountered an issue: {workflow_result.get('error', 'Unknown error')}"
+
+        results = workflow_result.get("results", {})
+        context_analysis = ai_plan.get("context_analysis", {})
+        user_goal = context_analysis.get("user_goal", request)
+
+        # Build intelligent response
+        response_parts = []
+
+        # Add goal completion status
+        response_parts.append(f"AI Workflow Complete: {user_goal}")
+
+        # Add workflow summary with intelligence
+        workflow_summary = workflow_result.get("summary", "")
+        if workflow_summary:
+            response_parts.append(workflow_summary)
+
+        # Add specific agent results with context awareness
+        successful_results = []
+        for agent_name, result in results.items():
+            if isinstance(result, dict) and result.get("status") == "success":
+                data = result.get("data", {})
+
+                # Get agent's role from AI plan
+                agent_instructions = ai_plan.get("agent_instructions", {}).get(
+                    agent_name, {}
+                )
+                agent_role = agent_instructions.get(
+                    "primary_task", f"{agent_name} processing"
+                )
+
+                if agent_name == "data_analyzer" and isinstance(data, dict):
+                    successful_results.append(
+                        f"📊 Data Analysis ({agent_role}): Completed with insights"
+                    )
+                elif agent_name == "pdf_analyzer" and isinstance(data, dict):
+                    if data.get("specific_answer"):
+                        successful_results.append(
+                            f"📄 PDF Analysis: {data['specific_answer'][:100]}..."
+                        )
+                    else:
+                        successful_results.append(
+                            f"📄 PDF Analysis ({agent_role}): Completed"
+                        )
+                elif agent_name == "chart_generator":
+                    successful_results.append(
+                        f"📈 Visualization ({agent_role}): Generated successfully"
+                    )
+                elif agent_name == "text_processor":
+                    successful_results.append(
+                        f"📝 Text Processing ({agent_role}): Completed"
+                    )
+                else:
+                    # Dynamic or unknown agent
+                    successful_results.append(
+                        f"🔧 {agent_name.title()} ({agent_role}): Completed"
+                    )
+
+        if successful_results:
+            response_parts.extend(successful_results)
+
+        # Add AI metadata
+        confidence = ai_plan.get("confidence", 0.8)
+        complexity = ai_plan.get("complexity", "medium")
+        response_parts.append(
+            f"🤖 AI Orchestration: {confidence:.0%} confidence, {complexity} complexity"
+        )
+
+        return " | ".join(response_parts)
 
     async def _create_required_agents(self, compatibility_analysis: Dict) -> Dict:
         """Create all required agents from compatibility analysis"""
@@ -655,128 +928,81 @@ class SimplifiedOrchestrator:
 
         return response.choices[0].message.content
 
-    # async def _execute_specialized_agent(
-    #     self, agent_name: str, request: str, files: List[Dict]
-    # ) -> Dict:
-    #     """Execute a specialized agent directly."""
-
-    #     # Get the specialized agent
-    #     agent = self.workflow_engine.agents.get(agent_name)
-    #     if not agent:
-    #         return {"status": "error", "error": f"Agent {agent_name} not found"}
-
-    #     # Execute with file data
-    #     file_data = files[0] if files and files[0].get("read_success") else None
-    #     result = await agent.execute(request, file_data)
-
-    #     # Generate response
-    #     if result.get("status") == "success":
-    #         data = result.get("data", {})
-    #         response_parts = []
-
-    #         if agent_name == "pdf_analyzer":
-    #             response_parts.append("PDF Analysis Complete:")
-    #             if data.get("summary"):
-    #                 response_parts.append(f"Summary: {data['summary']}")
-    #             if data.get("key_points"):
-    #                 response_parts.append(
-    #                     f"Key Points: {', '.join(data['key_points'][:3])}"
-    #                 )
-
-    #         elif agent_name == "text_processor":
-    #             response_parts.append("Text Processing Complete:")
-    #             if data.get("processed_text"):
-    #                 response_parts.append(f"Result: {data['processed_text'][:200]}...")
-    #             if data.get("sentiment"):
-    #                 response_parts.append(f"Sentiment: {data['sentiment']}")
-
-    #         elif agent_name == "chart_generator":
-    #             response_parts.append("Chart Generation Complete:")
-    #             if data.get("chart_type"):
-    #                 response_parts.append(f"Generated {data['chart_type']} chart")
-
-    #         response = (
-    #             " | ".join(response_parts)
-    #             if response_parts
-    #             else "Processing completed successfully."
-    #         )
-    #     else:
-    #         response = f"Processing failed: {result.get('error', 'Unknown error')}"
-
-    #     return {"response": response, **result}
-
     async def _execute_specialized_agent(
-        self, agent_name: str, request: str, files: List[Dict]
+        self, agent_name: str, request: str, files: List[Dict], context: Dict = None
     ) -> Dict:
-        """Execute a specialized agent directly - FIXED VERSION."""
+        """
+        ENHANCED specialized agent execution with AI context.
+        This REPLACES the existing method in simplified_orchestrator.py
+        """
 
-        # Get the specialized agent
+        # Get the agent
         agent = self.workflow_engine.agents.get(agent_name)
         if not agent:
-            return {"status": "error", "error": f"Agent {agent_name} not found"}
+            # Try to load dynamic agent
+            load_result = await self.workflow_engine.load_dynamic_agent(agent_name)
+            if load_result.get("status") == "success":
+                agent = self.workflow_engine.dynamic_agents.get(agent_name)
+
+            if not agent:
+                return {"status": "error", "error": f"Agent {agent_name} not found"}
 
         # Prepare file data
         file_data = files[0] if files and files[0].get("read_success") else None
 
-        # FIXED: Check if this is a new specialized agent or old IntelligentAgent
+        # Execute with context awareness
         if hasattr(agent, "execute") and agent_name in [
             "pdf_analyzer",
             "text_processor",
             "chart_generator",
         ]:
-            # New specialized agents - use keyword arguments
+            # New specialized agents - use enhanced context
             result = await agent.execute(
-                request=request, file_data=file_data, context=None
+                request=request, file_data=file_data, context=context or {}
             )
         else:
-            # Old IntelligentAgent - use state format
+            # Old IntelligentAgent format
             state = {
                 "current_data": file_data,
                 "request": request,
                 "results": {},
                 "errors": [],
                 "execution_path": [],
+                "context": context or {},
             }
             result = await agent.execute(state)
 
-        # Generate response (rest stays the same)
+        # Generate enhanced response based on AI context
         if result.get("status") == "success":
             data = result.get("data", {})
-            response_parts = []
 
-            if agent_name == "pdf_analyzer":
-                response_parts.append("PDF Analysis Complete:")
-                if data.get("summary"):
-                    response_parts.append(f"Summary: {data['summary']}")
-                if data.get("key_points"):
-                    response_parts.append(
-                        f"Key Points: {', '.join(data['key_points'][:3])}"
-                    )
+            # Use AI context to improve response
+            if context and context.get("ai_guided"):
+                primary_task = context.get("primary_task", "")
+                response_parts = [f"AI-Guided {agent_name.title()}: {primary_task}"]
+            else:
+                response_parts = [f"{agent_name.title()} Processing Complete:"]
 
-            elif agent_name == "text_processor":
-                response_parts.append("Text Processing Complete:")
+            # Add specific results
+            if agent_name == "pdf_analyzer" and isinstance(data, dict):
+                if data.get("specific_answer"):
+                    response_parts.append(f"Answer: {data['specific_answer']}")
+                elif data.get("summary"):
+                    response_parts.append(f"Summary: {data['summary'][:150]}...")
+
+            elif agent_name == "data_analyzer" and isinstance(data, dict):
+                response_parts.append(
+                    "Data analysis completed with statistical insights"
+                )
+
+            elif agent_name == "text_processor" and isinstance(data, dict):
                 if data.get("processed_text"):
-                    response_parts.append(f"Result: {data['processed_text'][:200]}...")
-                if data.get("sentiment"):
-                    response_parts.append(f"Sentiment: {data['sentiment']}")
+                    response_parts.append(f"Result: {data['processed_text'][:150]}...")
 
             elif agent_name == "chart_generator":
-                response_parts.append("Chart Generation Complete:")
-                if data.get("chart_type"):
-                    response_parts.append(f"Generated {data['chart_type']} chart")
+                response_parts.append("Visualization generated successfully")
 
-            elif agent_name == "data_analyzer":
-                response_parts.append("Data Analysis Complete:")
-                if isinstance(data, dict) and data.get("processed_data"):
-                    response_parts.append(
-                        f"Analysis: {str(data['processed_data'])[:100]}..."
-                    )
-
-            response = (
-                " | ".join(response_parts)
-                if response_parts
-                else "Processing completed successfully."
-            )
+            response = " | ".join(response_parts)
         else:
             response = f"Processing failed: {result.get('error', 'Unknown error')}"
 

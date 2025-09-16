@@ -1,0 +1,245 @@
+{
+  "demo_metadata": {
+    "timestamp": "2025-09-16T08:00:28.982856",
+    "total_duration": 413.492484,
+    "scenarios_tested": 2,
+    "overall_status": "success"
+  },
+  "sales_scenario": {
+    "scenario": "sales_analysis",
+    "status": "success",
+    "input_data": {
+      "request": "Analyze this sales data for performance trends, identify top performers, and generate comprehensive business insights with strategic recommendations",
+      "file_name": "comprehensive_sales_data.csv",
+      "total_records": 12,
+      "data_summary": {
+        "total_revenue": "274000",
+        "total_units": "2740",
+        "avg_deal_size": 22833.333333333332,
+        "total_transactions": 12,
+        "regions": [
+          "East",
+          "North",
+          "South",
+          "West"
+        ],
+        "sales_reps": [
+          "Alice Johnson",
+          "Bob Smith",
+          "Carol Davis",
+          "David Wilson"
+        ],
+        "products": [
+          "Widget A",
+          "Widget B",
+          "Widget C"
+        ],
+        "customer_types": [
+          "Enterprise",
+          "SMB"
+        ],
+        "top_product": "Widget A",
+        "top_region": "West",
+        "top_rep": "David Wilson",
+        "date_range": "2025-01-15 to 2025-04-02"
+      },
+      "sample_records": [
+        {
+          "date": "2025-01-15",
+          "region": "North",
+          "sales_rep": "Alice Johnson",
+          "revenue": 15000,
+          "units_sold": 150,
+          "product": "Widget A",
+          "customer_type": "Enterprise"
+        },
+        {
+          "date": "2025-01-22",
+          "region": "South",
+          "sales_rep": "Bob Smith",
+          "revenue": 22000,
+          "units_sold": 220,
+          "product": "Widget B",
+          "customer_type": "SMB"
+        },
+        {
+          "date": "2025-01-29",
+          "region": "East",
+          "sales_rep": "Carol Davis",
+          "revenue": 18000,
+          "units_sold": 180,
+          "product": "Widget A",
+          "customer_type": "Enterprise"
+        },
+        {
+          "date": "2025-02-05",
+          "region": "West",
+          "sales_rep": "David Wilson",
+          "revenue": 25000,
+          "units_sold": 250,
+          "product": "Widget C",
+          "customer_type": "Enterprise"
+        },
+        {
+          "date": "2025-02-12",
+          "region": "North",
+          "sales_rep": "Alice Johnson",
+          "revenue": 19000,
+          "units_sold": 190,
+          "product": "Widget B",
+          "customer_type": "SMB"
+        }
+      ]
+    },
+    "processing": {
+      "execution_time": 169.755392,
+      "agents_created": 3,
+      "agents_executed": 0,
+      "workflow_type": "sales_analysis"
+    },
+    "output": {
+      "ai_response": "Analysis completed successfully",
+      "response_length": 31,
+      "response_quality": "Good",
+      "includes_insights": false,
+      "includes_recommendations": false
+    },
+    "ui_ready": true
+  },
+  "compliance_scenario": {
+    "scenario": "compliance_monitoring",
+    "status": "success",
+    "input_data": {
+      "request": "Monitor these financial transactions for compliance violations, detect suspicious patterns, and generate a comprehensive audit report with risk assessment",
+      "file_name": "financial_transactions.xlsx",
+      "total_transactions": 12,
+      "total_volume": 248450.0,
+      "violations_included": 8,
+      "violation_breakdown": {
+        "large_amount_violations": {
+          "count": 2,
+          "transactions": [
+            "TXN003",
+            "TXN010"
+          ],
+          "total_amount": 160000.0,
+          "risk_level": "CRITICAL"
+        },
+        "round_number_suspicious": {
+          "count": 1,
+          "transactions": [
+            "TXN004"
+          ],
+          "total_amount": 50000.0,
+          "risk_level": "HIGH"
+        },
+        "structuring_pattern": {
+          "count": 3,
+          "transactions": [
+            "TXN006",
+            "TXN007",
+            "TXN008"
+          ],
+          "customer": "CUST006",
+          "total_amount": 28500.0,
+          "risk_level": "CRITICAL"
+        },
+        "missing_data_quality": {
+          "count": 2,
+          "transactions": [
+            "TXN005",
+            "TXN009"
+          ],
+          "issues": [
+            "missing_customer_name",
+            "missing_routing_number"
+          ],
+          "risk_level": "MEDIUM"
+        }
+      },
+      "sample_transactions": [
+        {
+          "transaction_id": "TXN001",
+          "amount": 1500.0,
+          "customer_id": "CUST001",
+          "customer_name": "John Smith",
+          "source_account": "ACC001",
+          "target_account": "ACC501",
+          "transaction_type": "TRANSFER",
+          "timestamp": "2025-01-15 10:30:00",
+          "routing_number": "123456789",
+          "purpose": "business_payment"
+        },
+        {
+          "transaction_id": "TXN002",
+          "amount": 750.0,
+          "customer_id": "CUST002",
+          "customer_name": "Jane Doe",
+          "source_account": "ACC002",
+          "target_account": "ACC502",
+          "transaction_type": "TRANSFER",
+          "timestamp": "2025-01-15 11:15:00",
+          "routing_number": "123456789",
+          "purpose": "personal_transfer"
+        },
+        {
+          "transaction_id": "TXN003",
+          "amount": 75000.0,
+          "customer_id": "CUST003",
+          "customer_name": "Bob Johnson",
+          "source_account": "ACC003",
+          "target_account": "ACC503",
+          "transaction_type": "WIRE",
+          "timestamp": "2025-01-15 14:20:00",
+          "routing_number": "123456789",
+          "purpose": "investment"
+        },
+        {
+          "transaction_id": "TXN004",
+          "amount": 50000.0,
+          "customer_id": "CUST004",
+          "customer_name": "Alice Brown",
+          "source_account": "ACC004",
+          "target_account": "ACC504",
+          "transaction_type": "WIRE",
+          "timestamp": "2025-01-15 15:45:00",
+          "routing_number": "123456789",
+          "purpose": "business_acquisition"
+        },
+        {
+          "transaction_id": "TXN005",
+          "amount": 2500.0,
+          "customer_id": "CUST005",
+          "customer_name": "",
+          "source_account": "ACC005",
+          "target_account": "ACC505",
+          "transaction_type": "TRANSFER",
+          "timestamp": "2025-01-15 16:30:00",
+          "routing_number": "123456789",
+          "purpose": "payment"
+        }
+      ]
+    },
+    "processing": {
+      "execution_time": 243.718307,
+      "agents_created": 5,
+      "agents_executed": 4,
+      "workflow_type": "compliance_monitoring"
+    },
+    "output": {
+      "audit_report": "## Compliance Monitoring Analysis Report\n\n**Compliance monitoring analysis completed with data validation findings:**\n\n### Executive Summary\nThe compliance monitoring workflow has identified **critical data integrity issues** that prevent effective transaction analysis. While no actual transaction violations were detected, the system encountered **10 mandatory data field violations** that constitute a **NON-COMPLIANT** status requiring immediate remediation.\n\n### Violation Summary\n- **Total Violations Identified:** 10 data validation violations\n- **Critical Missing Fields:** Transaction ID, amount, currency, sender/recipient details, transaction date, and geographic origin/destination data\n- **Compliance Status:** NON-COMPLIANT\n- **Risk Score:** 0 (due to insufficient data for risk calculation)\n- **SAR (Suspicious Activity Report) Status:** Not triggered\n\n### Risk Assessment Results\n- **Overall Risk Level:** Low (attributed to lack of processable transaction data)\n- **AML Compliance:** Passed initial screening\n- **Transaction Limits:** Within acceptable parameters\n- **Data Validation:** **FAILED** - Missing critical regulatory reporting fields\n\n### Key Compliance Findings\nThe compliance evaluator identified systematic gaps in required transaction documentation fields mandated by financial regulatory standards. The absence of fundamental transaction identifiers and participant information prevents proper anti-money laundering (AML) screening and regulatory reporting compliance.\n\n### Audit Recommendations\n**HIGH PRIORITY:**\n- Implement comprehensive data validation protocols prior to transaction processing\n- Establish mandatory field verification systems\n- Deploy compliance training programs for data entry personnel\n- Create standardized transaction documentation procedures\n\n### Documentation Generated\n- Comprehensive compliance audit report with violation analysis\n- Risk assessment documentation with regulatory findings\n- Audit trail capturing all monitoring activities and decision points\n- Remediation timeline with 30-day critical violation resolution requirement\n\n### Next Steps\n1. **Immediate (0-30 days):** Address data validation violations and implement field requirement controls\n2. **Short-term (30-90 days):** Deploy recommended compliance improvements and staff training\n3. **Follow-up:** Schedule comprehensive audit review in 90 days\n\n**Overall Compliance Status: NON-COMPLIANT** - Requires immediate data integrity remediation before transaction monitoring can proceed effectively.\n\n*Report generated with full audit trail documentation and regulatory compliance framework adherence.*",
+      "response_length": 2632,
+      "response_quality": "Excellent",
+      "includes_violations": true,
+      "includes_risk_assessment": true,
+      "compliance_terminology": true
+    },
+    "ui_ready": true
+  },
+  "ui_integration": {
+    "endpoints_ready": true,
+    "response_format": "standardized",
+    "error_handling": "implemented",
+    "data_structure": "consistent"
+  }
+}
