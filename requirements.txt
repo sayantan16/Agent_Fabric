@@ -94,26 +94,41 @@ xlrd==2.0.2
 
 # Flask UI Requirements
 # Core Flask dependencies for the web interface
-
 # Web Framework
 Flask==3.0.0
-Flask-CORS==4.0.0
-
+Flask-Cors==4.0.0
 # WSGI Server for production
 gunicorn==21.2.0
-
 # File handling
 Werkzeug==3.0.1
-
 # Date/time utilities (already in main requirements)
-python-dateutil==2.9.0.post0
-
 # Pipeline processing dependencies
-networkx>=3.0  # For dependency graph management
 # asyncio-extensions  # Enhanced async support
-
 # # Threading and concurrency
 # concurrent-futures>=3.1.1  # For async Flask integration
-
 # Optional: Enhanced JSON processing
-ujson>=5.0.0  # Faster JSON processing for large pipeline data
+ujson==5.11.0
+WARNING: Requirement networkx included multiple times [requirements.txt]
+WARNING: Requirement python-dateutil included multiple times [requirements.txt]
+## The following requirements were added by pip freeze:
+blinker==1.9.0
+chardet==5.2.0
+itsdangerous==2.2.0
+jsonpatch==1.33
+jsonpointer==3.0.0
+langchain-core==0.3.75
+langgraph==0.6.6
+langgraph-checkpoint==2.1.1
+langgraph-prebuilt==0.6.4
+langgraph-sdk==0.2.5
+langsmith==0.4.23
+lxml==6.0.1
+orjson==3.11.3
+ormsgpack==1.10.0
+psutil==7.0.0
+python-docx==1.2.0
+PyYAML==6.0.2
+requests-toolbelt==1.0.0
+tenacity==9.1.2
+xxhash==3.5.0
+zstandard==0.24.0
